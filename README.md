@@ -144,6 +144,19 @@ java -jar target/vitalpair-*.jar
 
 O projeto segue **Git Flow**: `main` (produção), `develop` (integração) e branches `feature/*`, `release/*`, `hotfix/*`. Não se commita direto em `main`/`develop`. Detalhes, comandos e convenções de commit/tag em [docs/GITFLOW.md](docs/GITFLOW.md).
 
+## Deploy (produção)
+
+Imagem Docker multi-stage ([Dockerfile](Dockerfile)) e stack em [compose.prod.yaml](compose.prod.yaml) (Postgres + Redis + backend + Nginx).
+
+```bash
+# no servidor, com um .env de produção (DATABASE_PASSWORD, REDIS_PASSWORD, JWT_SECRET, ...)
+docker compose -f compose.prod.yaml up -d --build
+```
+
+- A aplicação roda com o profile `prod` (`SPRING_PROFILES_ACTIVE=prod`), atrás do Nginx ([nginx/nginx.conf](nginx/nginx.conf)) que faz reverse proxy e SSL (Let's Encrypt/certbot).
+- **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): build + testes em cada push/PR para `main` e `develop`.
+- **Deploy** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)): no push para `main`, builda a imagem, publica no GHCR e atualiza o backend no servidor via SSH. Secrets necessários: `ORACLE_HOST`, `ORACLE_USER`, `ORACLE_SSH_KEY`.
+
 ## Roadmap
 
 - **Fase 1 (MVP)** — em andamento: auth (✅ email/senha), perfil + TDEE, sistema de par, registro de refeições (Open Food Facts), dashboard diário, deploy Oracle.
