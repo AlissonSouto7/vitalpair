@@ -104,6 +104,9 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | GET | `/api/v1/nutrition/logs?date=` | Refeições do dia | JWT |
 | DELETE | `/api/v1/nutrition/logs/{id}` | Remove um registro | JWT |
 | GET | `/api/v1/nutrition/summary?date=` | Resumo diário (consumido vs meta) | JWT |
+| POST | `/api/v1/activity/logs` | Registra atividade (estima kcal de passos) | JWT |
+| GET | `/api/v1/activity/logs?date=` | Atividades do dia | JWT |
+| GET | `/api/v1/activity/summary?date=` | Total de calorias gastas e passos | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
