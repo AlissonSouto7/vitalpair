@@ -95,6 +95,9 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | GET | `/api/v1/users/me` | Perfil do usuário autenticado | JWT |
 | PUT | `/api/v1/users/me` | Atualiza o perfil e recalcula TDEE/macros | JWT |
 | GET | `/api/v1/users/me/tdee` | BMR, TDEE, meta calórica e macros | JWT |
+| GET | `/api/v1/pair` | Par atual (membros e status) | JWT |
+| POST | `/api/v1/pair/invite` | Retorna o código de convite do par | JWT |
+| POST | `/api/v1/pair/join/{code}` | Aceita um convite e forma o par | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo

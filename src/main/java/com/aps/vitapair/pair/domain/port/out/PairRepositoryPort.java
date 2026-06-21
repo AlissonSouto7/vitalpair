@@ -12,4 +12,6 @@ public interface PairRepositoryPort {
     Optional<Pair> findById(UUID id);
 
     Optional<Pair> findByInviteCode(String inviteCode);
+
+    void deleteById(UUID id);
 }
