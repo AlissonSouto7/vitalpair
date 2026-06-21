@@ -11,7 +11,7 @@
 
 	<groupId>com.aps</groupId>
 	<artifactId>vitalpair</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.0</version>
 	<name>vitalpair</name>
 	<description>VitaPair - Health and fitness app for couples</description>
 
