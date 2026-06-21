@@ -80,7 +80,11 @@ public class NutritionService implements
                 .build();
         FoodLog saved = foodLogRepository.save(log);
         eventPublisher.publishEvent(new MealLoggedEvent(
-                userId, saved.getTenantId(), saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate()));
+                userId,
+                saved.getTenantId(),
+                saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate(),
+                saved.getFoodName(),
+                saved.getMealType().name()));
         return saved;
     }
 

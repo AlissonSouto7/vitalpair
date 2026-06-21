@@ -62,7 +62,11 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
                 .build();
         ActivityLog saved = activityLogRepository.save(log);
         eventPublisher.publishEvent(new ActivityLoggedEvent(
-                userId, saved.getTenantId(), saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate()));
+                userId,
+                saved.getTenantId(),
+                saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate(),
+                saved.getActivityType().name(),
+                saved.getCaloriesBurned() != null ? saved.getCaloriesBurned().intValue() : 0));
         return saved;
     }
 
