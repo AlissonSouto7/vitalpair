@@ -7,6 +7,7 @@ import com.aps.vitapair.activity.domain.port.in.GetActivitySummaryUseCase;
 import com.aps.vitapair.activity.domain.port.in.GetDailyActivitiesUseCase;
 import com.aps.vitapair.activity.domain.port.in.LogActivityUseCase;
 import com.aps.vitapair.activity.domain.port.out.ActivityLogRepositoryPort;
+import com.aps.vitapair.shared.event.ActivityLoggedEvent;
 import com.aps.vitapair.shared.exception.ResourceNotFoundException;
 import com.aps.vitapair.user.domain.model.User;
 import com.aps.vitapair.user.domain.port.out.UserRepositoryPort;
@@ -14,9 +15,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +31,15 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
 
     private final ActivityLogRepositoryPort activityLogRepository;
     private final UserRepositoryPort userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ActivityService(ActivityLogRepositoryPort activityLogRepository, UserRepositoryPort userRepository) {
+    public ActivityService(
+            ActivityLogRepositoryPort activityLogRepository,
+            UserRepositoryPort userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.activityLogRepository = activityLogRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -52,7 +60,10 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
                 .externalId(command.externalId())
                 .loggedAt(command.loggedAt() != null ? command.loggedAt() : Instant.now())
                 .build();
-        return activityLogRepository.save(log);
+        ActivityLog saved = activityLogRepository.save(log);
+        eventPublisher.publishEvent(new ActivityLoggedEvent(
+                userId, saved.getTenantId(), saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate()));
+        return saved;
     }
 
     @Override

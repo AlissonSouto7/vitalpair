@@ -41,6 +41,8 @@ class NutritionServiceTest {
     private OpenFoodFactsPort openFoodFacts;
     @Mock
     private UserRepositoryPort userRepository;
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
     @InjectMocks
     private NutritionService service;
 

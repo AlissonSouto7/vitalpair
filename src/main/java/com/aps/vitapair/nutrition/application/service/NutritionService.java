@@ -12,6 +12,7 @@ import com.aps.vitapair.nutrition.domain.port.in.LogMealUseCase;
 import com.aps.vitapair.nutrition.domain.port.in.SearchFoodUseCase;
 import com.aps.vitapair.nutrition.domain.port.out.FoodLogRepositoryPort;
 import com.aps.vitapair.nutrition.domain.port.out.OpenFoodFactsPort;
+import com.aps.vitapair.shared.event.MealLoggedEvent;
 import com.aps.vitapair.shared.exception.ResourceNotFoundException;
 import com.aps.vitapair.user.domain.model.User;
 import com.aps.vitapair.user.domain.port.out.UserRepositoryPort;
@@ -19,9 +20,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +36,17 @@ public class NutritionService implements
     private final FoodLogRepositoryPort foodLogRepository;
     private final OpenFoodFactsPort openFoodFacts;
     private final UserRepositoryPort userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public NutritionService(
             FoodLogRepositoryPort foodLogRepository,
             OpenFoodFactsPort openFoodFacts,
-            UserRepositoryPort userRepository) {
+            UserRepositoryPort userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.foodLogRepository = foodLogRepository;
         this.openFoodFacts = openFoodFacts;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -72,7 +78,10 @@ public class NutritionService implements
                 .source(command.source())
                 .loggedAt(command.loggedAt() != null ? command.loggedAt() : Instant.now())
                 .build();
-        return foodLogRepository.save(log);
+        FoodLog saved = foodLogRepository.save(log);
+        eventPublisher.publishEvent(new MealLoggedEvent(
+                userId, saved.getTenantId(), saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate()));
+        return saved;
     }
 
     @Override
