@@ -1,3 +1,7 @@
+server:
+  # Dev roda em 8081 por padrão para coexistir com outros serviços locais na 8080.
+  port: ${SERVER_PORT:8081}
+
 spring:
   jpa:
     show-sql: true
