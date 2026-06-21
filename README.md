@@ -92,6 +92,9 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | POST | `/api/v1/auth/oauth2/google` | Login com Google (valida o `idToken`, find-or-create) | público |
 | POST | `/api/v1/auth/refresh` | Renova tokens (rotação do refresh) | público |
 | POST | `/api/v1/auth/logout` | Revoga o refresh token | público |
+| GET | `/api/v1/users/me` | Perfil do usuário autenticado | JWT |
+| PUT | `/api/v1/users/me` | Atualiza o perfil e recalcula TDEE/macros | JWT |
+| GET | `/api/v1/users/me/tdee` | BMR, TDEE, meta calórica e macros | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
