@@ -1,6 +1,7 @@
 package com.aps.vitapair.auth.infrastructure.security;
 
 import com.aps.vitapair.auth.domain.port.out.TokenProviderPort;
+import com.aps.vitapair.shared.security.AuthenticatedUser;
 import com.aps.vitapair.tenant.TenantContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
