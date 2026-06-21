@@ -45,11 +45,16 @@ Multi-tenancy: cada **par de usuários é um tenant** (tabela `pairs`, cujo `id`
 
 O projeto usa `spring-boot-docker-compose`: ao iniciar a aplicação em dev, o Postgres e o Redis do [compose.yaml](compose.yaml) sobem automaticamente.
 
+1. Copie `.env.example` para `.env` e ajuste se necessário. O `.env` é lido tanto pelo Spring (`spring-dotenv`) quanto pelo docker compose, e **não** é versionado.
+2. Rode:
+
 ```bash
 ./mvnw spring-boot:run
 ```
 
-A API sobe em `http://localhost:8080`. O profile `dev` é o padrão e já traz um `JWT_SECRET` de desenvolvimento.
+A API sobe em **`http://localhost:8081`** no profile `dev` (porta 8081 para coexistir com outros serviços locais na 8080; configurável via `SERVER_PORT`). O profile `dev` é o padrão e já traz um `JWT_SECRET` de desenvolvimento.
+
+> Se as portas 5432/6379 já estiverem em uso na sua máquina, defina `VITAPAIR_DB_PORT` e `VITAPAIR_REDIS_PORT` no `.env` (o app detecta a porta publicada automaticamente).
 
 ### Subindo o banco/redis manualmente
 
@@ -69,10 +74,10 @@ Veja [.env.example](.env.example). Em dev há defaults; em produção, defina ao
 
 ## Documentação da API (Swagger)
 
-Com a aplicação rodando:
+Com a aplicação rodando (porta 8081 em dev):
 
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
 
 Para testar endpoints protegidos: faça `POST /api/v1/auth/login`, copie o `accessToken`, clique em **Authorize** no Swagger e cole o token.
 
@@ -93,12 +98,12 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 
 ```bash
 # Registrar
-curl -X POST http://localhost:8080/api/v1/auth/register \
+curl -X POST http://localhost:8081/api/v1/auth/register \
   -H 'Content-Type: application/json' \
   -d '{"email":"ana@vitapair.app","password":"senha1234","name":"Ana"}'
 
 # Login
-curl -X POST http://localhost:8080/api/v1/auth/login \
+curl -X POST http://localhost:8081/api/v1/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"ana@vitapair.app","password":"senha1234"}'
 ```

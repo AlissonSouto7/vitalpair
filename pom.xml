@@ -135,6 +135,13 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- ===== .env (lê variáveis do arquivo .env para o Spring Environment, dev/local) ===== -->
+		<dependency>
+			<groupId>me.paulschwarz</groupId>
+			<artifactId>spring-dotenv</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+
 		<!-- ===== DEV ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
