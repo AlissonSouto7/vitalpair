@@ -119,6 +119,10 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 java -jar target/vitalpair-0.0.1-SNAPSHOT.jar
 ```
 
+## Fluxo de trabalho (Git Flow)
+
+O projeto segue **Git Flow**: `main` (produção), `develop` (integração) e branches `feature/*`, `release/*`, `hotfix/*`. Não se commita direto em `main`/`develop`. Detalhes, comandos e convenções de commit/tag em [docs/GITFLOW.md](docs/GITFLOW.md).
+
 ## Roadmap
 
 - **Fase 1 (MVP)** — em andamento: auth (✅ email/senha), perfil + TDEE, sistema de par, registro de refeições (Open Food Facts), dashboard diário, deploy Oracle.
