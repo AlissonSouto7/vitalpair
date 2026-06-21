@@ -8,6 +8,7 @@ import com.aps.vitapair.pair.domain.port.in.GenerateInviteUseCase;
 import com.aps.vitapair.pair.domain.port.in.GetCurrentPairUseCase;
 import com.aps.vitapair.pair.domain.port.in.JoinPairUseCase;
 import com.aps.vitapair.pair.domain.port.out.PairRepositoryPort;
+import com.aps.vitapair.shared.event.PairFormedEvent;
 import com.aps.vitapair.shared.exception.BusinessRuleException;
 import com.aps.vitapair.shared.exception.ResourceNotFoundException;
 import com.aps.vitapair.user.domain.model.User;
@@ -15,6 +16,7 @@ import com.aps.vitapair.user.domain.port.out.UserRepositoryPort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +29,15 @@ public class PairService implements GetCurrentPairUseCase, GenerateInviteUseCase
 
     private final PairRepositoryPort pairRepository;
     private final UserRepositoryPort userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PairService(PairRepositoryPort pairRepository, UserRepositoryPort userRepository) {
+    public PairService(
+            PairRepositoryPort pairRepository,
+            UserRepositoryPort userRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.pairRepository = pairRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -87,6 +94,7 @@ public class PairService implements GetCurrentPairUseCase, GenerateInviteUseCase
             pairRepository.deleteById(oldPairId);
         }
 
+        eventPublisher.publishEvent(new PairFormedEvent(activated.getId(), activated.getUser1Id(), userId));
         return toView(activated);
     }
 

@@ -1,7 +1,9 @@
 package com.aps.vitapair.gamification.infrastructure.web;
 
+import com.aps.vitapair.gamification.domain.port.in.GetBadgeCatalogUseCase;
 import com.aps.vitapair.gamification.domain.port.in.GetCompetitionUseCase;
 import com.aps.vitapair.gamification.domain.port.in.GetStreaksUseCase;
+import com.aps.vitapair.gamification.domain.port.in.GetUserBadgesUseCase;
 import com.aps.vitapair.shared.security.AuthenticatedUser;
 import com.aps.vitapair.shared.web.ApiResponse;
 import java.util.List;
@@ -17,11 +19,18 @@ public class GamificationController {
 
     private final GetStreaksUseCase getStreaksUseCase;
     private final GetCompetitionUseCase getCompetitionUseCase;
+    private final GetUserBadgesUseCase getUserBadgesUseCase;
+    private final GetBadgeCatalogUseCase getBadgeCatalogUseCase;
 
     public GamificationController(
-            GetStreaksUseCase getStreaksUseCase, GetCompetitionUseCase getCompetitionUseCase) {
+            GetStreaksUseCase getStreaksUseCase,
+            GetCompetitionUseCase getCompetitionUseCase,
+            GetUserBadgesUseCase getUserBadgesUseCase,
+            GetBadgeCatalogUseCase getBadgeCatalogUseCase) {
         this.getStreaksUseCase = getStreaksUseCase;
         this.getCompetitionUseCase = getCompetitionUseCase;
+        this.getUserBadgesUseCase = getUserBadgesUseCase;
+        this.getBadgeCatalogUseCase = getBadgeCatalogUseCase;
     }
 
     @GetMapping("/streaks")
@@ -38,5 +47,22 @@ public class GamificationController {
             @AuthenticationPrincipal AuthenticatedUser principal) {
         var score = getCompetitionUseCase.getCurrentCompetition(principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(CompetitionResponse.from(score)));
+    }
+
+    @GetMapping("/badges")
+    public ResponseEntity<ApiResponse<List<EarnedBadgeResponse>>> badges(
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        List<EarnedBadgeResponse> badges = getUserBadgesUseCase.getUserBadges(principal.userId()).stream()
+                .map(EarnedBadgeResponse::from)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.ok(badges));
+    }
+
+    @GetMapping("/badges/catalog")
+    public ResponseEntity<ApiResponse<List<BadgeResponse>>> badgeCatalog() {
+        List<BadgeResponse> catalog = getBadgeCatalogUseCase.getCatalog().stream()
+                .map(BadgeResponse::from)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.ok(catalog));
     }
 }
