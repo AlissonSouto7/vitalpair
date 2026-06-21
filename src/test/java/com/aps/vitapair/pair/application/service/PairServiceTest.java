@@ -35,6 +35,8 @@ class PairServiceTest {
     private PairRepositoryPort pairRepository;
     @Mock
     private UserRepositoryPort userRepository;
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
     @InjectMocks
     private PairService service;
 
