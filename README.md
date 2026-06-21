@@ -133,7 +133,7 @@ curl -X POST http://localhost:8081/api/v1/auth/login \
 
 ```bash
 ./mvnw clean package        # gera o JAR em target/
-java -jar target/vitalpair-0.0.1-SNAPSHOT.jar
+java -jar target/vitalpair-*.jar
 ```
 
 ## Fluxo de trabalho (Git Flow)
