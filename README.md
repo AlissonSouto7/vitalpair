@@ -98,6 +98,12 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | GET | `/api/v1/pair` | Par atual (membros e status) | JWT |
 | POST | `/api/v1/pair/invite` | Retorna o código de convite do par | JWT |
 | POST | `/api/v1/pair/join/{code}` | Aceita um convite e forma o par | JWT |
+| GET | `/api/v1/nutrition/foods/search?q=` | Busca alimentos (Open Food Facts) | JWT |
+| GET | `/api/v1/nutrition/foods/barcode/{code}` | Busca por código de barras | JWT |
+| POST | `/api/v1/nutrition/logs` | Registra uma refeição | JWT |
+| GET | `/api/v1/nutrition/logs?date=` | Refeições do dia | JWT |
+| DELETE | `/api/v1/nutrition/logs/{id}` | Remove um registro | JWT |
+| GET | `/api/v1/nutrition/summary?date=` | Resumo diário (consumido vs meta) | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
