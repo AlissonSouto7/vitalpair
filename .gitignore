@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### VitaPair ###
+# Variáveis de ambiente com secrets (nunca versionar). Use .env.example como modelo.
+.env
+.env.*
+!.env.example
+# Logs
+*.log
+logs/

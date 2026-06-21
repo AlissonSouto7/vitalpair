@@ -254,6 +254,6 @@ DATABASE_URL (jdbc:postgresql://postgres:5432/vitapair), DATABASE_USER, DATABASE
 
 ## 11. Build / pom.xml (pontos críticos)
 
-- Parent: spring-boot-starter-parent 3.5.15. groupId `com.aps`, artifactId `vital-pair`. java.version **17**, spring-cloud 2025.0.3, jjwt 0.12.6, springdoc 2.6.0, mapstruct 1.6.2.
+- Parent: spring-boot-starter-parent 3.5.15. groupId `com.aps`, artifactId **`vitalpair`** (o PDF dizia `vital-pair`). java.version **17**, spring-cloud 2025.0.3, jjwt 0.12.6, **springdoc 2.8.9** (o PDF pinava 2.6.0, que é incompatível com Boot 3.5: `NoSuchMethodError ControllerAdviceBean.<init>(Object)`), mapstruct 1.6.2. Testcontainers (postgresql, junit-jupiter) adicionado para testes de integração.
 - Dependências: web, security, oauth2-client, oauth2-resource-server, jjwt (api compile / impl+jackson runtime), data-jpa, postgresql (runtime), flyway-core + flyway-database-postgresql, data-redis, spring-session-data-redis, validation, actuator, spring-cloud-starter-openfeign, springdoc-openapi-starter-webmvc-ui, mapstruct, lombok (optional), devtools, docker-compose, starter-test, security-test.
 - **maven-compiler-plugin**: ordem obrigatória nos annotationProcessorPaths: (1) Lombok, (2) mapstruct-processor, (3) lombok-mapstruct-binding 0.2.0. Arg `-Amapstruct.defaultComponentModel=spring`. Lombok excluído do fat JAR no spring-boot-maven-plugin.
