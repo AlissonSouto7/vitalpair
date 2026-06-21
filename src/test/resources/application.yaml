@@ -1,0 +1,14 @@
+# Configuração de teste. Testes unitários (Mockito) não sobem contexto Spring.
+# Testes de integração exigem um Postgres/Redis acessível (ou Testcontainers, a adicionar).
+spring:
+  docker:
+    compose:
+      enabled: false
+
+vitapair:
+  jwt:
+    secret: test-secret-0123456789-0123456789-0123456789
+    access-expiration-ms: 900000
+    refresh-expiration-ms: 2592000000
+  cors:
+    allowed-origins: http://localhost:5173

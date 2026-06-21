@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * Tratamento global de erros. Traduz exceções em respostas {@link ApiResponse} padronizadas,
@@ -41,6 +42,12 @@ public class RestExceptionHandler {
                 .map(fe -> new ApiError.FieldViolation(fe.getField(), fe.getDefaultMessage()))
                 .toList();
         return build(HttpStatus.BAD_REQUEST, "Erro de validação", request, violations);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleNoResource(
+            NoResourceFoundException ex, HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, "Recurso não encontrado", request, List.of());
     }
 
     @ExceptionHandler(Exception.class)
