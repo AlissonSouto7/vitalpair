@@ -151,6 +151,19 @@ java -jar target/vitalpair-*.jar
 
 O projeto segue **Git Flow**: `main` (produção), `develop` (integração) e branches `feature/*`, `release/*`, `hotfix/*`. Não se commita direto em `main`/`develop`. Detalhes, comandos e convenções de commit/tag em [docs/GITFLOW.md](docs/GITFLOW.md).
 
+## Frontend
+
+O frontend (React + TypeScript + Vite + Tailwind v4) fica em [frontend/](frontend/).
+
+```bash
+cd frontend
+cp .env.example .env   # VITE_API_URL aponta para o backend (default http://localhost:8081/api/v1)
+npm install
+npm run dev            # http://localhost:5173
+```
+
+Estrutura: `src/api` (axios + interceptors com refresh de JWT), `src/store` (Zustand + persist), `src/router` (rotas públicas/protegidas), `src/features` (auth, dashboard), `src/hooks`, `src/types`. O backend já libera CORS para `http://localhost:5173`.
+
 ## Deploy (produção)
 
 Imagem Docker multi-stage ([Dockerfile](Dockerfile)) e stack em [compose.prod.yaml](compose.prod.yaml) (Postgres + Redis + backend + Nginx).
