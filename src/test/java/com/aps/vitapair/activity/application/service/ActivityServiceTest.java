@@ -34,6 +34,8 @@ class ActivityServiceTest {
     private ActivityLogRepositoryPort activityLogRepository;
     @Mock
     private UserRepositoryPort userRepository;
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
     @InjectMocks
     private ActivityService service;
 
