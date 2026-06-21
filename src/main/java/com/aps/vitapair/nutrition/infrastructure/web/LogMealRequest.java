@@ -19,5 +19,6 @@ public record LogMealRequest(
         @PositiveOrZero BigDecimal fatG,
         @NotNull MealType mealType,
         @NotNull FoodSource source,
+        boolean isPrivate,
         Instant loggedAt) {
 }

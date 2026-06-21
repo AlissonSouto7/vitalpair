@@ -76,6 +76,7 @@ public class NutritionService implements
                 .fatG(orZero(command.fatG()))
                 .mealType(command.mealType())
                 .source(command.source())
+                .isPrivate(command.isPrivate())
                 .loggedAt(command.loggedAt() != null ? command.loggedAt() : Instant.now())
                 .build();
         FoodLog saved = foodLogRepository.save(log);
@@ -84,7 +85,8 @@ public class NutritionService implements
                 saved.getTenantId(),
                 saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate(),
                 saved.getFoodName(),
-                saved.getMealType().name()));
+                saved.getMealType().name(),
+                saved.isPrivate()));
         return saved;
     }
 

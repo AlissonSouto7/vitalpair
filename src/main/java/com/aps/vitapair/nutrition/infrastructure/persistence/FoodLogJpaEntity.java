@@ -67,6 +67,9 @@ public class FoodLogJpaEntity {
     @Column(nullable = false)
     private FoodSource source;
 
+    @Column(name = "is_private", nullable = false)
+    private boolean isPrivate;
+
     @Column(name = "logged_at", nullable = false)
     private Instant loggedAt;
 }

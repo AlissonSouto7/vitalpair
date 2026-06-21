@@ -29,17 +29,17 @@ public class FeedEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMealLogged(MealLoggedEvent event) {
         String title = event.foodName() + " (" + mealTypeLabel(event.mealType()) + ")";
-        save(event.userId(), event.tenantId(), FeedItemType.MEAL_LOGGED, title);
+        save(event.userId(), event.tenantId(), FeedItemType.MEAL_LOGGED, title, event.isPrivate());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onActivityLogged(ActivityLoggedEvent event) {
         String title = activityTypeLabel(event.activityType()) + " — " + event.caloriesBurned() + " kcal";
-        save(event.userId(), event.tenantId(), FeedItemType.ACTIVITY_LOGGED, title);
+        save(event.userId(), event.tenantId(), FeedItemType.ACTIVITY_LOGGED, title, false);
     }
 
-    private void save(UUID userId, UUID tenantId, FeedItemType type, String title) {
+    private void save(UUID userId, UUID tenantId, FeedItemType type, String title, boolean isPrivate) {
         String actorName = userRepository.findById(userId).map(u -> u.getName()).orElse("Alguém");
         feedItemRepository.save(FeedItem.builder()
                 .tenantId(tenantId)
@@ -47,6 +47,7 @@ public class FeedEventListener {
                 .actorName(actorName)
                 .type(type)
                 .title(title)
+                .isPrivate(isPrivate)
                 .build());
     }
 

@@ -16,5 +16,6 @@ public record LogMealCommand(
         BigDecimal fatG,
         MealType mealType,
         FoodSource source,
+        boolean isPrivate,
         Instant loggedAt) {
 }

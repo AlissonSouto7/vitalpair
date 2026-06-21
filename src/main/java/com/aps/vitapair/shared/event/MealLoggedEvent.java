@@ -9,5 +9,6 @@ public record MealLoggedEvent(
         UUID tenantId,
         LocalDate date,
         String foodName,
-        String mealType) {
+        String mealType,
+        boolean isPrivate) {
 }
