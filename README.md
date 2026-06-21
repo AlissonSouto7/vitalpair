@@ -92,6 +92,18 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | POST | `/api/v1/auth/oauth2/google` | Login com Google (valida o `idToken`, find-or-create) | público |
 | POST | `/api/v1/auth/refresh` | Renova tokens (rotação do refresh) | público |
 | POST | `/api/v1/auth/logout` | Revoga o refresh token | público |
+| GET | `/api/v1/users/me` | Perfil do usuário autenticado | JWT |
+| PUT | `/api/v1/users/me` | Atualiza o perfil e recalcula TDEE/macros | JWT |
+| GET | `/api/v1/users/me/tdee` | BMR, TDEE, meta calórica e macros | JWT |
+| GET | `/api/v1/pair` | Par atual (membros e status) | JWT |
+| POST | `/api/v1/pair/invite` | Retorna o código de convite do par | JWT |
+| POST | `/api/v1/pair/join/{code}` | Aceita um convite e forma o par | JWT |
+| GET | `/api/v1/nutrition/foods/search?q=` | Busca alimentos (Open Food Facts) | JWT |
+| GET | `/api/v1/nutrition/foods/barcode/{code}` | Busca por código de barras | JWT |
+| POST | `/api/v1/nutrition/logs` | Registra uma refeição | JWT |
+| GET | `/api/v1/nutrition/logs?date=` | Refeições do dia | JWT |
+| DELETE | `/api/v1/nutrition/logs/{id}` | Remove um registro | JWT |
+| GET | `/api/v1/nutrition/summary?date=` | Resumo diário (consumido vs meta) | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
@@ -121,7 +133,7 @@ curl -X POST http://localhost:8081/api/v1/auth/login \
 
 ```bash
 ./mvnw clean package        # gera o JAR em target/
-java -jar target/vitalpair-0.0.1-SNAPSHOT.jar
+java -jar target/vitalpair-*.jar
 ```
 
 ## Fluxo de trabalho (Git Flow)
