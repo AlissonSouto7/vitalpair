@@ -32,4 +32,9 @@ public class PairPersistenceAdapter implements PairRepositoryPort {
     public Optional<Pair> findByInviteCode(String inviteCode) {
         return repository.findByInviteCode(inviteCode).map(mapper::toDomain);
     }
+
+    @Override
+    public void deleteById(UUID id) {
+        repository.deleteById(id);
+    }
 }

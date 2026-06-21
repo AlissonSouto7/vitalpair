@@ -31,6 +31,10 @@ vitapair:
   oauth2:
     google:
       client-id: ${GOOGLE_CLIENT_ID:}
+  openfoodfacts:
+    base-url: https://world.openfoodfacts.org
+    search-url: https://search.openfoodfacts.org
+    user-agent: ${OPEN_FOOD_FACTS_USER_AGENT:VitaPair/1.0 (contact@vitapair.app)}
 
 springdoc:
   swagger-ui:
