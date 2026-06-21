@@ -104,6 +104,10 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | GET | `/api/v1/nutrition/logs?date=` | Refeições do dia | JWT |
 | DELETE | `/api/v1/nutrition/logs/{id}` | Remove um registro | JWT |
 | GET | `/api/v1/nutrition/summary?date=` | Resumo diário (consumido vs meta) | JWT |
+| POST | `/api/v1/activity/logs` | Registra atividade (estima kcal de passos) | JWT |
+| GET | `/api/v1/activity/logs?date=` | Atividades do dia | JWT |
+| GET | `/api/v1/activity/summary?date=` | Total de calorias gastas e passos | JWT |
+| GET | `/api/v1/dashboard?date=` | Balanço do dia (consumido − gasto vs meta) + parceiro | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
@@ -139,6 +143,19 @@ java -jar target/vitalpair-*.jar
 ## Fluxo de trabalho (Git Flow)
 
 O projeto segue **Git Flow**: `main` (produção), `develop` (integração) e branches `feature/*`, `release/*`, `hotfix/*`. Não se commita direto em `main`/`develop`. Detalhes, comandos e convenções de commit/tag em [docs/GITFLOW.md](docs/GITFLOW.md).
+
+## Deploy (produção)
+
+Imagem Docker multi-stage ([Dockerfile](Dockerfile)) e stack em [compose.prod.yaml](compose.prod.yaml) (Postgres + Redis + backend + Nginx).
+
+```bash
+# no servidor, com um .env de produção (DATABASE_PASSWORD, REDIS_PASSWORD, JWT_SECRET, ...)
+docker compose -f compose.prod.yaml up -d --build
+```
+
+- A aplicação roda com o profile `prod` (`SPRING_PROFILES_ACTIVE=prod`), atrás do Nginx ([nginx/nginx.conf](nginx/nginx.conf)) que faz reverse proxy e SSL (Let's Encrypt/certbot).
+- **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): build + testes em cada push/PR para `main` e `develop`.
+- **Deploy** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)): no push para `main`, builda a imagem, publica no GHCR e atualiza o backend no servidor via SSH. Secrets necessários: `ORACLE_HOST`, `ORACLE_USER`, `ORACLE_SSH_KEY`.
 
 ## Roadmap
 

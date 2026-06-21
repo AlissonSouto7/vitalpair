@@ -1,0 +1,18 @@
+# Profile de produção (ativado com SPRING_PROFILES_ACTIVE=prod).
+# Todas as credenciais vêm de variáveis de ambiente (ver .env.example / docker compose).
+spring:
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    com.aps.vitapair: INFO
+    org.hibernate.SQL: WARN
