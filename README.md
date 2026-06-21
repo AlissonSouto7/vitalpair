@@ -107,6 +107,7 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | POST | `/api/v1/activity/logs` | Registra atividade (estima kcal de passos) | JWT |
 | GET | `/api/v1/activity/logs?date=` | Atividades do dia | JWT |
 | GET | `/api/v1/activity/summary?date=` | Total de calorias gastas e passos | JWT |
+| GET | `/api/v1/dashboard?date=` | Balanço do dia (consumido − gasto vs meta) + parceiro | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
