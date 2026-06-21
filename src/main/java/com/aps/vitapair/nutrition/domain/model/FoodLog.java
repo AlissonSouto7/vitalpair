@@ -23,5 +23,6 @@ public class FoodLog {
     private final BigDecimal fatG;
     private final MealType mealType;
     private final FoodSource source;
+    private final boolean isPrivate;
     private final Instant loggedAt;
 }

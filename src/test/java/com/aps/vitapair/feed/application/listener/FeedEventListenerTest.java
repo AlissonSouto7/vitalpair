@@ -39,7 +39,7 @@ class FeedEventListenerTest {
         when(userRepository.findById(USER)).thenReturn(Optional.of(
                 User.builder().id(USER).tenantId(TENANT).email("ana@a.com").name("Ana").build()));
 
-        listener.onMealLogged(new MealLoggedEvent(USER, TENANT, TODAY, "Arroz", "LUNCH"));
+        listener.onMealLogged(new MealLoggedEvent(USER, TENANT, TODAY, "Arroz", "LUNCH", false));
 
         FeedItem saved = capture();
         assertThat(saved.getType()).isEqualTo(FeedItemType.MEAL_LOGGED);

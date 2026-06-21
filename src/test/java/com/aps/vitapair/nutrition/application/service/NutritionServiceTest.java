@@ -53,7 +53,7 @@ class NutritionServiceTest {
         when(foodLogRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         var command = new LogMealCommand("Arroz", null, bd(100), bd(130), null, null, null,
-                MealType.LUNCH, FoodSource.MANUAL, null);
+                MealType.LUNCH, FoodSource.MANUAL, false, null);
 
         FoodLog saved = service.logMeal(USER_ID, command);
 

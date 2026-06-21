@@ -72,7 +72,7 @@ public class NutritionController {
         var command = new LogMealCommand(
                 request.foodName(), request.barcode(), request.quantityG(), request.caloriesKcal(),
                 request.proteinG(), request.carbG(), request.fatG(),
-                request.mealType(), request.source(), request.loggedAt());
+                request.mealType(), request.source(), request.isPrivate(), request.loggedAt());
         var saved = logMealUseCase.logMeal(principal.userId(), command);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(FoodLogResponse.from(saved), "Refeição registrada"));

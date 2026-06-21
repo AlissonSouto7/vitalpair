@@ -1,6 +1,6 @@
 package com.aps.vitapair.feed.infrastructure.persistence;
 
-import com.aps.vitapair.feed.domain.model.FeedItemType;
+import com.aps.vitapair.feed.domain.model.ReactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,37 +18,28 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
-@Table(name = "feed_items")
+@Table(name = "feed_reactions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedItemJpaEntity {
+public class FeedReactionJpaEntity {
 
     @Id
     @UuidGenerator
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "tenant_id", nullable = false)
-    private UUID tenantId;
+    @Column(name = "feed_item_id", nullable = false)
+    private UUID feedItemId;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "actor_name", nullable = false)
-    private String actorName;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FeedItemType type;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(name = "is_private", nullable = false)
-    private boolean isPrivate;
+    private ReactionType type;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -3,6 +3,7 @@ package com.aps.vitapair.feed.infrastructure.persistence;
 import com.aps.vitapair.feed.domain.model.FeedItem;
 import com.aps.vitapair.feed.domain.port.out.FeedItemRepositoryPort;
 import com.aps.vitapair.shared.web.PageResponse;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,9 +27,14 @@ public class FeedItemPersistenceAdapter implements FeedItemRepositoryPort {
     }
 
     @Override
-    public PageResponse<FeedItem> findByTenant(UUID tenantId, int page, int size) {
+    public Optional<FeedItem> findById(UUID id) {
+        return repository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public PageResponse<FeedItem> findVisibleByTenant(UUID tenantId, UUID viewerId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedItem> result = repository.findByTenantId(tenantId, pageRequest).map(mapper::toDomain);
+        Page<FeedItem> result = repository.findVisible(tenantId, viewerId, pageRequest).map(mapper::toDomain);
         return PageResponse.from(result);
     }
 }
