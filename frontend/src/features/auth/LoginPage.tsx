@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { GoogleLoginButton } from '../../components/GoogleLoginButton'
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -21,7 +23,7 @@ export function LoginPage() {
       navigate('/dashboard')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não foi possível entrar. Verifique suas credenciais.')
+      setError(message ?? t('auth.errorLogin'))
     } finally {
       setLoading(false)
     }
@@ -33,15 +35,15 @@ export function LoginPage() {
         <h1 className="text-center text-3xl font-extrabold tracking-tight">
           Vita<span className="text-accent">Pair</span>
         </h1>
-        <p className="mb-6 mt-1 text-center text-sm text-muted">Treinem juntos. Compitam. Evoluam.</p>
+        <p className="mb-6 mt-1 text-center text-sm text-muted">{t('auth.loginTagline')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">E-mail</label>
+            <label className="label">{t('auth.email')}</label>
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
           </div>
           <div>
-            <label className="label">Senha</label>
+            <label className="label">{t('auth.password')}</label>
             <input
               type="password"
               required
@@ -54,22 +56,22 @@ export function LoginPage() {
           {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
           <button type="submit" disabled={loading} className="btn-primary w-full">
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? t('auth.signingIn') : t('auth.signIn')}
           </button>
         </form>
 
         <div className="my-5 flex items-center gap-3 text-xs text-faint">
           <span className="h-px flex-1 bg-surface2" />
-          ou
+          {t('common.or')}
           <span className="h-px flex-1 bg-surface2" />
         </div>
 
         <GoogleLoginButton onError={setError} />
 
         <p className="mt-6 text-center text-sm text-muted">
-          Não tem conta?{' '}
+          {t('auth.noAccount')}{' '}
           <Link to="/register" className="font-semibold text-accent hover:underline">
-            Cadastre-se
+            {t('auth.signUp')}
           </Link>
         </p>
       </div>

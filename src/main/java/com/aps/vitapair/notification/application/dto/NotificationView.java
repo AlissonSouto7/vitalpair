@@ -7,8 +7,9 @@ import java.util.UUID;
 public record NotificationView(
         UUID id,
         NotificationType type,
-        String title,
-        String body,
+        String actorName,
+        String refText,
+        Integer amount,
         boolean read,
         Instant createdAt) {
 }

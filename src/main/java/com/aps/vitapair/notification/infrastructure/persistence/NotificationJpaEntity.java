@@ -41,11 +41,14 @@ public class NotificationJpaEntity {
     @Column(nullable = false)
     private NotificationType type;
 
-    @Column(nullable = false)
-    private String title;
+    @Column(name = "actor_name")
+    private String actorName;
 
-    @Column(nullable = false)
-    private String body;
+    @Column(name = "ref_text")
+    private String refText;
+
+    @Column(name = "amount")
+    private Integer amount;
 
     @Column(name = "is_read", nullable = false)
     private boolean read;

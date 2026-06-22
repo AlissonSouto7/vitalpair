@@ -3,8 +3,9 @@ export type NotificationType = 'PARTNER_MEAL' | 'PARTNER_ACTIVITY' | 'PAIR_FORME
 export interface AppNotification {
   id: string
   type: NotificationType
-  title: string
-  body: string
+  actorName: string | null
+  refText: string | null
+  amount: number | null
   read: boolean
   createdAt: string
 }
