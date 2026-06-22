@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getDashboard } from '../../api/dashboard'
 import type { Dashboard } from '../../types/dashboard'
 
@@ -28,9 +29,12 @@ export function DashboardPage() {
       </div>
 
       {me.calorieTarget == null && (
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Complete seu perfil para calcular suas metas de calorias e macros.
-        </p>
+        <Link
+          to="/profile"
+          className="block rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 hover:bg-amber-100"
+        >
+          Complete seu perfil para calcular suas metas de calorias e macros →
+        </Link>
       )}
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
