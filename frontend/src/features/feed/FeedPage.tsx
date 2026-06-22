@@ -29,9 +29,8 @@ export function FeedPage() {
   }, [load])
 
   async function toggle(item: FeedItem, type: ReactionType) {
-    const has = item.myReactions.includes(type)
     try {
-      if (has) {
+      if (item.myReactions.includes(type)) {
         await removeReaction(item.id, type)
       } else {
         await reactToItem(item.id, type)
@@ -43,29 +42,29 @@ export function FeedPage() {
     }
   }
 
-  if (loading) return <p className="text-slate-500">Carregando...</p>
+  if (loading) return <p className="text-slate-400">Carregando...</p>
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-slate-800">Feed do par</h1>
+      <h1 className="text-2xl font-extrabold">Feed do par</h1>
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
 
       {items.length === 0 ? (
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-500">
           Nada por aqui ainda. Registre refeições e atividades para alimentar o feed.
         </p>
       ) : (
         <ul className="space-y-3">
           {items.map((item) => (
-            <li key={item.id} className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between">
+            <li key={item.id} className="card">
+              <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm">
-                    <span className="font-semibold text-slate-800">{item.actorName}</span>{' '}
+                    <span className="font-bold text-slate-100">{item.actorName}</span>{' '}
                     <span className="text-slate-500">registrou</span>
                   </p>
-                  <p className="text-sm text-slate-700">{item.title}</p>
+                  <p className="text-sm text-slate-300">{item.title}</p>
                 </div>
                 <Badge type={item.type} isPrivate={item.isPrivate} />
               </div>
@@ -81,16 +80,16 @@ export function FeedPage() {
                       onClick={() => toggle(item, r.type)}
                       className={`flex items-center gap-1 rounded-full border px-3 py-1 text-sm transition ${
                         active
-                          ? 'border-blue-300 bg-blue-50 text-blue-700'
-                          : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                          ? 'border-lime-400/50 bg-lime-400/10 text-lime-300'
+                          : 'border-slate-700 text-slate-400 hover:bg-slate-800'
                       }`}
                     >
                       <span>{r.emoji}</span>
-                      {count > 0 && <span className="font-medium">{count}</span>}
+                      {count > 0 && <span className="font-semibold">{count}</span>}
                     </button>
                   )
                 })}
-                <span className="ml-auto text-xs text-slate-400">
+                <span className="ml-auto text-xs text-slate-600">
                   {new Date(item.createdAt).toLocaleString('pt-BR')}
                 </span>
               </div>
@@ -100,10 +99,7 @@ export function FeedPage() {
       )}
 
       {!last && (
-        <button
-          onClick={() => load(page + 1).catch(() => setError('Falha ao carregar mais.'))}
-          className="w-full rounded-lg border border-slate-300 py-2 text-sm text-slate-600 hover:bg-slate-50"
-        >
+        <button onClick={() => load(page + 1).catch(() => setError('Falha ao carregar mais.'))} className="btn-ghost w-full">
           Carregar mais
         </button>
       )}
@@ -117,14 +113,12 @@ function Badge({ type, isPrivate }: { type: FeedItem['type']; isPrivate: boolean
     <div className="flex items-center gap-1">
       <span
         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          isMeal ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+          isMeal ? 'bg-lime-400/15 text-lime-300' : 'bg-amber-400/15 text-amber-300'
         }`}
       >
         {isMeal ? 'Refeição' : 'Atividade'}
       </span>
-      {isPrivate && (
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">privada</span>
-      )}
+      {isPrivate && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-500">privada</span>}
     </div>
   )
 }

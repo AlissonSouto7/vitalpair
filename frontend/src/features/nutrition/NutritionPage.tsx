@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AxiosError } from 'axios'
 import { deleteLog, getLogs, getSummary, logMeal, searchFoods } from '../../api/nutrition'
 import type { DailySummary, FoodLog, FoodProduct, FoodSource, MealType } from '../../types/nutrition'
+import { Bar } from '../../components/ui/Bar'
 
 const MEAL_OPTIONS: { value: MealType; label: string }[] = [
   { value: 'BREAKFAST', label: 'Café da manhã' },
@@ -53,7 +54,6 @@ export function NutritionPage() {
     refresh().catch(() => setError('Não foi possível carregar os registros do dia.'))
   }, [refresh])
 
-  // Busca com debounce na Open Food Facts.
   useEffect(() => {
     if (query.trim().length < 2) {
       setResults([])
@@ -144,67 +144,68 @@ export function NutritionPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-800">Refeições</h1>
+    <div className="space-y-5">
+      <h1 className="text-2xl font-extrabold">Refeições</h1>
 
       {summary && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
-          <span className="font-semibold text-blue-600">{summary.consumedCalories} kcal</span>
-          <span className="text-slate-500">
-            {summary.targetCalories != null ? ` de ${summary.targetCalories} kcal` : ''} · {summary.mealCount}{' '}
-            refeição(ões)
-          </span>
+        <div className="card">
+          <div className="flex items-center justify-between text-sm">
+            <span>
+              <span className="text-xl font-extrabold text-lime-400">{summary.consumedCalories}</span>
+              <span className="text-slate-500">
+                {summary.targetCalories != null ? ` / ${summary.targetCalories} kcal` : ' kcal'}
+              </span>
+            </span>
+            <span className="text-xs text-slate-500">{summary.mealCount} refeição(ões)</span>
+          </div>
+          {summary.targetCalories != null && (
+            <div className="mt-3">
+              <Bar value={summary.consumedCalories} max={summary.targetCalories} />
+            </div>
+          )}
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
 
-      {/* Busca */}
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="card">
         <div className="flex items-center gap-2">
           <input
             type="text"
             placeholder="Buscar alimento (ex: banana, arroz)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="input"
           />
-          <button
-            onClick={startManual}
-            className="whitespace-nowrap rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
-          >
+          <button onClick={startManual} className="btn-ghost whitespace-nowrap">
             Manual
           </button>
         </div>
 
-        {searching && <p className="mt-2 text-sm text-slate-400">Buscando...</p>}
+        {searching && <p className="mt-2 text-sm text-slate-500">Buscando...</p>}
 
         {results.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-100">
+          <ul className="mt-3 divide-y divide-slate-800">
             {results.map((p, i) => (
               <li key={`${p.barcode ?? p.name}-${i}`} className="flex items-center justify-between py-2">
                 <div>
-                  <p className="text-sm text-slate-800">{p.name}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm text-slate-200">{p.name}</p>
+                  <p className="text-xs text-slate-500">
                     {p.caloriesPer100g != null ? `${p.caloriesPer100g} kcal/100g` : 'sem info nutricional'}
                   </p>
                 </div>
-                <button
-                  onClick={() => startFromProduct(p)}
-                  className="rounded-lg bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700"
-                >
+                <button onClick={() => startFromProduct(p)} className="btn-primary px-3 py-1 text-sm">
                   Adicionar
                 </button>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </div>
 
-      {/* Editor da porção */}
       {draft && computed && (
-        <section className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-          <h2 className="mb-3 text-sm font-semibold text-blue-800">
+        <div className="card border-lime-400/30">
+          <h2 className="mb-3 text-sm font-semibold text-lime-300">
             {draft.source === 'MANUAL' ? 'Adicionar manualmente' : 'Adicionar refeição'}
           </h2>
           <div className="space-y-3">
@@ -213,20 +214,20 @@ export function NutritionPage() {
               placeholder="Nome do alimento"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="input"
             />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <LabeledNumber label="kcal/100g" value={draft.kcalPer100} onChange={(v) => setDraft({ ...draft, kcalPer100: v })} />
-              <LabeledNumber label="Prot/100g" value={draft.proteinPer100} onChange={(v) => setDraft({ ...draft, proteinPer100: v })} />
-              <LabeledNumber label="Carb/100g" value={draft.carbPer100} onChange={(v) => setDraft({ ...draft, carbPer100: v })} />
-              <LabeledNumber label="Gord/100g" value={draft.fatPer100} onChange={(v) => setDraft({ ...draft, fatPer100: v })} />
-              <LabeledNumber label="Gramas" value={draft.grams} onChange={(v) => setDraft({ ...draft, grams: v })} />
+              <Num label="kcal/100g" value={draft.kcalPer100} onChange={(v) => setDraft({ ...draft, kcalPer100: v })} />
+              <Num label="Prot/100g" value={draft.proteinPer100} onChange={(v) => setDraft({ ...draft, proteinPer100: v })} />
+              <Num label="Carb/100g" value={draft.carbPer100} onChange={(v) => setDraft({ ...draft, carbPer100: v })} />
+              <Num label="Gord/100g" value={draft.fatPer100} onChange={(v) => setDraft({ ...draft, fatPer100: v })} />
+              <Num label="Gramas" value={draft.grams} onChange={(v) => setDraft({ ...draft, grams: v })} />
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <select
                 value={draft.mealType}
                 onChange={(e) => setDraft({ ...draft, mealType: e.target.value as MealType })}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                className="input w-auto"
               >
                 {MEAL_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -234,89 +235,63 @@ export function NutritionPage() {
                   </option>
                 ))}
               </select>
-              <label className="flex items-center gap-2 text-sm text-slate-600">
+              <label className="flex items-center gap-2 text-sm text-slate-400">
                 <input
                   type="checkbox"
                   checked={draft.isPrivate}
                   onChange={(e) => setDraft({ ...draft, isPrivate: e.target.checked })}
+                  className="accent-lime-400"
                 />
-                Privada (não aparece no feed do parceiro)
+                Privada
               </label>
             </div>
-            <p className="text-sm text-slate-600">
-              Total: <span className="font-semibold text-blue-700">{computed.calories} kcal</span> · P{' '}
-              {computed.protein}g · C {computed.carb}g · G {computed.fat}g
+            <p className="text-sm text-slate-400">
+              Total: <span className="font-bold text-lime-400">{computed.calories} kcal</span> · P {computed.protein}g ·
+              C {computed.carb}g · G {computed.fat}g
             </p>
             <div className="flex gap-2">
-              <button
-                onClick={save}
-                disabled={saving || !draft.name}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-              >
+              <button onClick={save} disabled={saving || !draft.name} className="btn-primary text-sm">
                 {saving ? 'Salvando...' : 'Salvar'}
               </button>
-              <button
-                onClick={() => setDraft(null)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
-              >
+              <button onClick={() => setDraft(null)} className="btn-ghost">
                 Cancelar
               </button>
             </div>
           </div>
-        </section>
+        </div>
       )}
 
-      {/* Lista do dia */}
-      <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">Hoje</h2>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-slate-300">Hoje</h2>
         {logs.length === 0 ? (
-          <p className="text-sm text-slate-400">Nenhuma refeição registrada hoje.</p>
+          <p className="text-sm text-slate-500">Nenhuma refeição registrada hoje.</p>
         ) : (
-          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-800 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70">
             {logs.map((log) => (
               <li key={log.id} className="flex items-center justify-between px-4 py-3">
                 <div>
-                  <p className="text-sm text-slate-800">{log.foodName}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm text-slate-200">{log.foodName}</p>
+                  <p className="text-xs text-slate-500">
                     {MEAL_LABEL[log.mealType]} · {log.quantityG}g · {log.caloriesKcal} kcal
                   </p>
                 </div>
-                <button
-                  onClick={() => removeLog(log.id)}
-                  className="text-sm text-slate-400 transition hover:text-red-600"
-                  title="Remover"
-                >
+                <button onClick={() => removeLog(log.id)} className="text-sm text-slate-500 transition hover:text-red-400">
                   Remover
                 </button>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </div>
     </div>
   )
 }
 
-function LabeledNumber({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-}) {
+function Num({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-slate-500">{label}</label>
-      <input
-        type="number"
-        min={0}
-        step="0.1"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
-      />
+      <label className="label">{label}</label>
+      <input type="number" min={0} step="0.1" value={value} onChange={(e) => onChange(e.target.value)} className="input px-2 py-1.5 text-sm" />
     </div>
   )
 }

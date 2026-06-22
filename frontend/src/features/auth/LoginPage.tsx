@@ -29,56 +29,46 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-center text-2xl font-bold text-blue-700">VitaPair</h1>
-        <p className="mb-6 text-center text-sm text-slate-500">Entre na sua conta</p>
+      <div className="card w-full max-w-sm glow-lime">
+        <h1 className="text-center text-3xl font-extrabold tracking-tight">
+          Vita<span className="text-lime-400">Pair</span>
+        </h1>
+        <p className="mb-6 mt-1 text-center text-sm text-slate-400">Treinem juntos. Compitam. Evoluam.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">E-mail</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            />
+            <label className="label">E-mail</label>
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Senha</label>
+            <label className="label">Senha</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="input"
             />
           </div>
 
-          {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-          )}
+          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
-        <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
-          <span className="h-px flex-1 bg-slate-200" />
+        <div className="my-5 flex items-center gap-3 text-xs text-slate-500">
+          <span className="h-px flex-1 bg-slate-800" />
           ou
-          <span className="h-px flex-1 bg-slate-200" />
+          <span className="h-px flex-1 bg-slate-800" />
         </div>
 
         <GoogleLoginButton onError={setError} />
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-slate-400">
           Não tem conta?{' '}
-          <Link to="/register" className="font-medium text-blue-600 hover:underline">
+          <Link to="/register" className="font-semibold text-lime-400 hover:underline">
             Cadastre-se
           </Link>
         </p>
