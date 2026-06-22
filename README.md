@@ -116,6 +116,8 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | GET | `/api/v1/gamification/competition` | Placar semanal do par | JWT |
 | GET | `/api/v1/gamification/badges` | Conquistas do usuário | JWT |
 | GET | `/api/v1/gamification/badges/catalog` | Catálogo de conquistas | JWT |
+| GET | `/api/v1/notifications` | Notificações do usuário + total não lidas | JWT |
+| PUT | `/api/v1/notifications/read` | Marca todas as notificações como lidas | JWT |
 | GET | `/actuator/health` | Health check | público |
 
 ### Exemplo
