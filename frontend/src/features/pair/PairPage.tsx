@@ -62,13 +62,13 @@ export function PairPage() {
     }
   }
 
-  if (loading) return <p className="text-slate-400">Carregando...</p>
+  if (loading) return <p className="text-muted">Carregando...</p>
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <h1 className="text-2xl font-extrabold">Sua relação</h1>
 
-      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
       <div className="card">
         <label className="label">Tipo de relação</label>
@@ -77,16 +77,16 @@ export function PairPage() {
 
       {pair?.status === 'ACTIVE' ? (
         <div className="card glow-lime">
-          <p className="mb-3 font-bold text-lime-300">{pair.pairName ?? 'Vocês estão conectados!'} 🎉</p>
+          <p className="mb-3 font-bold text-accent">{pair.pairName ?? 'Vocês estão conectados!'} 🎉</p>
           <ul className="space-y-2">
             {pair.members.map((m) => (
-              <li key={m.userId} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-800/40 px-3 py-2">
+              <li key={m.userId} className="flex items-center gap-3 rounded-xl border border-line bg-surface2/40 px-3 py-2">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-400 text-sm font-bold text-slate-950">
                   {m.name.charAt(0).toUpperCase()}
                 </span>
                 <div>
-                  <p className="text-sm font-medium text-slate-100">{m.name}</p>
-                  <p className="text-xs text-slate-500">{m.email}</p>
+                  <p className="text-sm font-medium text-ink">{m.name}</p>
+                  <p className="text-xs text-faint">{m.email}</p>
                 </div>
               </li>
             ))}
@@ -95,10 +95,10 @@ export function PairPage() {
       ) : (
         <>
           <div className="card">
-            <h2 className="mb-1 text-sm font-semibold text-slate-300">Convide a outra pessoa</h2>
-            <p className="mb-3 text-xs text-slate-500">Compartilhe este código para a outra pessoa entrar na sua relação.</p>
+            <h2 className="mb-1 text-sm font-semibold text-ink">Convide a outra pessoa</h2>
+            <p className="mb-3 text-xs text-faint">Compartilhe este código para a outra pessoa entrar na sua relação.</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-3 text-center text-2xl font-extrabold tracking-[0.3em] text-lime-400">
+              <code className="flex-1 rounded-xl border border-line bg-surface2/60 px-4 py-3 text-center text-2xl font-extrabold tracking-[0.3em] text-accent">
                 {pair?.inviteCode}
               </code>
               <button onClick={copyCode} className="btn-primary px-4 py-3">
@@ -107,10 +107,10 @@ export function PairPage() {
             </div>
           </div>
 
-          <div className="text-center text-sm text-slate-600">ou</div>
+          <div className="text-center text-sm text-faint">ou</div>
 
           <div className="card">
-            <h2 className="mb-3 text-sm font-semibold text-slate-300">Tenho um código</h2>
+            <h2 className="mb-3 text-sm font-semibold text-ink">Tenho um código</h2>
             <form onSubmit={handleJoin} className="flex items-center gap-2">
               <input
                 type="text"

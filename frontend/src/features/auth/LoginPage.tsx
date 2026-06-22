@@ -31,9 +31,9 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="card w-full max-w-sm glow-lime">
         <h1 className="text-center text-3xl font-extrabold tracking-tight">
-          Vita<span className="text-lime-400">Pair</span>
+          Vita<span className="text-accent">Pair</span>
         </h1>
-        <p className="mb-6 mt-1 text-center text-sm text-slate-400">Treinem juntos. Compitam. Evoluam.</p>
+        <p className="mb-6 mt-1 text-center text-sm text-muted">Treinem juntos. Compitam. Evoluam.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -51,24 +51,24 @@ export function LoginPage() {
             />
           </div>
 
-          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
-        <div className="my-5 flex items-center gap-3 text-xs text-slate-500">
-          <span className="h-px flex-1 bg-slate-800" />
+        <div className="my-5 flex items-center gap-3 text-xs text-faint">
+          <span className="h-px flex-1 bg-surface2" />
           ou
-          <span className="h-px flex-1 bg-slate-800" />
+          <span className="h-px flex-1 bg-surface2" />
         </div>
 
         <GoogleLoginButton onError={setError} />
 
-        <p className="mt-6 text-center text-sm text-slate-400">
+        <p className="mt-6 text-center text-sm text-muted">
           Não tem conta?{' '}
-          <Link to="/register" className="font-semibold text-lime-400 hover:underline">
+          <Link to="/register" className="font-semibold text-accent hover:underline">
             Cadastre-se
           </Link>
         </p>

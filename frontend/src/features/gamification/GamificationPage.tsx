@@ -33,8 +33,8 @@ export function GamificationPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p className="text-slate-400">Carregando...</p>
-  if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-400">{error}</p>
+  if (loading) return <p className="text-muted">Carregando...</p>
+  if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-500">{error}</p>
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
   const score = resolveScore(competition, pair, userId)
@@ -45,34 +45,34 @@ export function GamificationPage() {
 
       {/* Placar */}
       <div className="card glow-cyan">
-        <h2 className="mb-4 text-center text-xs uppercase tracking-widest text-slate-500">Placar da semana</h2>
+        <h2 className="mb-4 text-center text-xs uppercase tracking-widest text-faint">Placar da semana</h2>
         {score.hasPartner ? (
           <div className="flex items-center justify-around text-center">
             <Side name="Você" value={score.mine} leading={score.mine >= score.partner} />
-            <span className="text-2xl font-black text-slate-600">×</span>
+            <span className="text-2xl font-black text-faint">×</span>
             <Side name={score.partnerName} value={score.partner} leading={score.partner > score.mine} />
           </div>
         ) : (
-          <p className="text-center text-sm text-slate-400">
-            Seus pontos: <span className="text-2xl font-extrabold text-lime-400">{score.mine}</span>
+          <p className="text-center text-sm text-muted">
+            Seus pontos: <span className="text-2xl font-extrabold text-accent">{score.mine}</span>
             <br />
-            <span className="text-slate-500">Forme um par para competir.</span>
+            <span className="text-faint">Forme um par para competir.</span>
           </p>
         )}
       </div>
 
       {/* Streaks */}
       <div className="card">
-        <h2 className="mb-3 text-sm font-semibold text-slate-300">Sequências</h2>
+        <h2 className="mb-3 text-sm font-semibold text-ink">Sequências</h2>
         {streaks.length === 0 ? (
-          <p className="text-sm text-slate-500">Registre refeições e atividades para iniciar suas sequências.</p>
+          <p className="text-sm text-faint">Registre refeições e atividades para iniciar suas sequências.</p>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {streaks.map((s) => (
-              <div key={s.type} className="rounded-xl border border-slate-800 bg-slate-800/40 p-3">
-                <p className="text-xs text-slate-500">{STREAK_LABEL[s.type]}</p>
+              <div key={s.type} className="rounded-xl border border-line bg-surface2/40 p-3">
+                <p className="text-xs text-faint">{STREAK_LABEL[s.type]}</p>
                 <p className="text-2xl font-extrabold text-orange-400">🔥 {s.currentCount}</p>
-                <p className="text-xs text-slate-500">recorde: {s.longestCount} dias</p>
+                <p className="text-xs text-faint">recorde: {s.longestCount} dias</p>
               </div>
             ))}
           </div>
@@ -81,8 +81,8 @@ export function GamificationPage() {
 
       {/* Badges */}
       <div className="card">
-        <h2 className="mb-3 text-sm font-semibold text-slate-300">
-          Badges <span className="text-slate-500">({earnedCodes.size}/{catalog.length})</span>
+        <h2 className="mb-3 text-sm font-semibold text-ink">
+          Badges <span className="text-faint">({earnedCodes.size}/{catalog.length})</span>
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {catalog.map((badge) => {
@@ -93,14 +93,14 @@ export function GamificationPage() {
                 className={`rounded-xl border p-3 transition ${
                   unlocked
                     ? 'border-lime-400/40 bg-lime-400/10'
-                    : 'border-slate-800 bg-slate-800/30 opacity-50'
+                    : 'border-line bg-surface2/30 opacity-50'
                 }`}
               >
-                <p className={`text-sm font-semibold ${unlocked ? 'text-lime-300' : 'text-slate-400'}`}>
+                <p className={`text-sm font-semibold ${unlocked ? 'text-accent' : 'text-muted'}`}>
                   {unlocked ? '🏅 ' : '🔒 '}
                   {badge.name}
                 </p>
-                <p className="mt-1 text-xs text-slate-500">{badge.description}</p>
+                <p className="mt-1 text-xs text-faint">{badge.description}</p>
               </div>
             )
           })}
@@ -131,9 +131,9 @@ function resolveScore(competition: Competition | null, pair: Pair | null, userId
 function Side({ name, value, leading }: { name: string; value: number; leading: boolean }) {
   return (
     <div>
-      <p className={`text-4xl font-black ${leading ? 'text-lime-400' : 'text-slate-500'}`}>{value}</p>
-      <p className="mt-1 text-xs text-slate-400">{name}</p>
-      {leading && <p className="text-[10px] font-semibold uppercase tracking-wide text-lime-500">liderando</p>}
+      <p className={`text-4xl font-black ${leading ? 'text-accent' : 'text-faint'}`}>{value}</p>
+      <p className="mt-1 text-xs text-muted">{name}</p>
+      {leading && <p className="text-[10px] font-semibold uppercase tracking-wide text-accent">liderando</p>}
     </div>
   )
 }

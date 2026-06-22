@@ -42,16 +42,16 @@ export function FeedPage() {
     }
   }
 
-  if (loading) return <p className="text-slate-400">Carregando...</p>
+  if (loading) return <p className="text-muted">Carregando...</p>
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold">Feed do par</h1>
 
-      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
       {items.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-faint">
           Nada por aqui ainda. Registre refeições e atividades para alimentar o feed.
         </p>
       ) : (
@@ -61,10 +61,10 @@ export function FeedPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm">
-                    <span className="font-bold text-slate-100">{item.actorName}</span>{' '}
-                    <span className="text-slate-500">registrou</span>
+                    <span className="font-bold text-ink">{item.actorName}</span>{' '}
+                    <span className="text-faint">registrou</span>
                   </p>
-                  <p className="text-sm text-slate-300">{item.title}</p>
+                  <p className="text-sm text-ink">{item.title}</p>
                 </div>
                 <Badge type={item.type} isPrivate={item.isPrivate} />
               </div>
@@ -80,8 +80,8 @@ export function FeedPage() {
                       onClick={() => toggle(item, r.type)}
                       className={`flex items-center gap-1 rounded-full border px-3 py-1 text-sm transition ${
                         active
-                          ? 'border-lime-400/50 bg-lime-400/10 text-lime-300'
-                          : 'border-slate-700 text-slate-400 hover:bg-slate-800'
+                          ? 'border-lime-400/50 bg-lime-400/10 text-accent'
+                          : 'border-line text-muted hover:bg-surface2'
                       }`}
                     >
                       <span>{r.emoji}</span>
@@ -89,7 +89,7 @@ export function FeedPage() {
                     </button>
                   )
                 })}
-                <span className="ml-auto text-xs text-slate-600">
+                <span className="ml-auto text-xs text-faint">
                   {new Date(item.createdAt).toLocaleString('pt-BR')}
                 </span>
               </div>
@@ -113,12 +113,12 @@ function Badge({ type, isPrivate }: { type: FeedItem['type']; isPrivate: boolean
     <div className="flex items-center gap-1">
       <span
         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          isMeal ? 'bg-lime-400/15 text-lime-300' : 'bg-amber-400/15 text-amber-300'
+          isMeal ? 'bg-lime-400/15 text-accent' : 'bg-amber-400/15 text-warn'
         }`}
       >
         {isMeal ? 'Refeição' : 'Atividade'}
       </span>
-      {isPrivate && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-500">privada</span>}
+      {isPrivate && <span className="rounded-full bg-surface2 px-2 py-0.5 text-xs text-faint">privada</span>}
     </div>
   )
 }

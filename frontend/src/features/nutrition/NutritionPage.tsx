@@ -152,12 +152,12 @@ export function NutritionPage() {
         <div className="card">
           <div className="flex items-center justify-between text-sm">
             <span>
-              <span className="text-xl font-extrabold text-lime-400">{summary.consumedCalories}</span>
-              <span className="text-slate-500">
+              <span className="text-xl font-extrabold text-accent">{summary.consumedCalories}</span>
+              <span className="text-faint">
                 {summary.targetCalories != null ? ` / ${summary.targetCalories} kcal` : ' kcal'}
               </span>
             </span>
-            <span className="text-xs text-slate-500">{summary.mealCount} refeição(ões)</span>
+            <span className="text-xs text-faint">{summary.mealCount} refeição(ões)</span>
           </div>
           {summary.targetCalories != null && (
             <div className="mt-3">
@@ -167,7 +167,7 @@ export function NutritionPage() {
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
       <div className="card">
         <div className="flex items-center gap-2">
@@ -183,15 +183,15 @@ export function NutritionPage() {
           </button>
         </div>
 
-        {searching && <p className="mt-2 text-sm text-slate-500">Buscando...</p>}
+        {searching && <p className="mt-2 text-sm text-faint">Buscando...</p>}
 
         {results.length > 0 && (
-          <ul className="mt-3 divide-y divide-slate-800">
+          <ul className="mt-3 divide-y divide-line">
             {results.map((p, i) => (
               <li key={`${p.barcode ?? p.name}-${i}`} className="flex items-center justify-between py-2">
                 <div>
-                  <p className="text-sm text-slate-200">{p.name}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm text-ink">{p.name}</p>
+                  <p className="text-xs text-faint">
                     {p.caloriesPer100g != null ? `${p.caloriesPer100g} kcal/100g` : 'sem info nutricional'}
                   </p>
                 </div>
@@ -206,7 +206,7 @@ export function NutritionPage() {
 
       {draft && computed && (
         <div className="card border-lime-400/30">
-          <h2 className="mb-3 text-sm font-semibold text-lime-300">
+          <h2 className="mb-3 text-sm font-semibold text-accent">
             {draft.source === 'MANUAL' ? 'Adicionar manualmente' : 'Adicionar refeição'}
           </h2>
           <div className="space-y-3">
@@ -228,7 +228,7 @@ export function NutritionPage() {
               <div className="w-44">
                 <Select value={draft.mealType} onChange={(v) => setDraft({ ...draft, mealType: v })} options={MEAL_OPTIONS} />
               </div>
-              <label className="flex items-center gap-2 text-sm text-slate-400">
+              <label className="flex items-center gap-2 text-sm text-muted">
                 <input
                   type="checkbox"
                   checked={draft.isPrivate}
@@ -238,8 +238,8 @@ export function NutritionPage() {
                 Privada
               </label>
             </div>
-            <p className="text-sm text-slate-400">
-              Total: <span className="font-bold text-lime-400">{computed.calories} kcal</span> · P {computed.protein}g ·
+            <p className="text-sm text-muted">
+              Total: <span className="font-bold text-accent">{computed.calories} kcal</span> · P {computed.protein}g ·
               C {computed.carb}g · G {computed.fat}g
             </p>
             <div className="flex gap-2">
@@ -255,20 +255,20 @@ export function NutritionPage() {
       )}
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-slate-300">Hoje</h2>
+        <h2 className="mb-2 text-sm font-semibold text-ink">Hoje</h2>
         {logs.length === 0 ? (
-          <p className="text-sm text-slate-500">Nenhuma refeição registrada hoje.</p>
+          <p className="text-sm text-faint">Nenhuma refeição registrada hoje.</p>
         ) : (
-          <ul className="divide-y divide-slate-800 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70">
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/70">
             {logs.map((log) => (
               <li key={log.id} className="flex items-center justify-between px-4 py-3">
                 <div>
-                  <p className="text-sm text-slate-200">{log.foodName}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm text-ink">{log.foodName}</p>
+                  <p className="text-xs text-faint">
                     {MEAL_LABEL[log.mealType]} · {log.quantityG}g · {log.caloriesKcal} kcal
                   </p>
                 </div>
-                <button onClick={() => removeLog(log.id)} className="text-sm text-slate-500 transition hover:text-red-400">
+                <button onClick={() => removeLog(log.id)} className="text-sm text-faint transition hover:text-red-500">
                   Remover
                 </button>
               </li>
