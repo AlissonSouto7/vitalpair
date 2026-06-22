@@ -3,6 +3,7 @@ import { AxiosError } from 'axios'
 import { deleteLog, getLogs, getSummary, logMeal, searchFoods } from '../../api/nutrition'
 import type { DailySummary, FoodLog, FoodProduct, FoodSource, MealType } from '../../types/nutrition'
 import { Bar } from '../../components/ui/Bar'
+import { Select } from '../../components/ui/Select'
 
 const MEAL_OPTIONS: { value: MealType; label: string }[] = [
   { value: 'BREAKFAST', label: 'Café da manhã' },
@@ -224,17 +225,9 @@ export function NutritionPage() {
               <Num label="Gramas" value={draft.grams} onChange={(v) => setDraft({ ...draft, grams: v })} />
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <select
-                value={draft.mealType}
-                onChange={(e) => setDraft({ ...draft, mealType: e.target.value as MealType })}
-                className="input w-auto"
-              >
-                {MEAL_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+              <div className="w-44">
+                <Select value={draft.mealType} onChange={(v) => setDraft({ ...draft, mealType: v })} options={MEAL_OPTIONS} />
+              </div>
               <label className="flex items-center gap-2 text-sm text-slate-400">
                 <input
                   type="checkbox"

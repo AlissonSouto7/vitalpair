@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import { getProfile, updateProfile } from '../../api/profile'
+import { Select } from '../../components/ui/Select'
 import type { ActivityLevel, Goal, Sex } from '../../types/profile'
 
 const SEX_OPTIONS: { value: Sex; label: string }[] = [
@@ -55,7 +56,10 @@ export function ProfilePage() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    if (!sex || !goal || !activityLevel) return
+    if (!sex || !goal || !activityLevel) {
+      setError('Selecione sexo, objetivo e nível de atividade.')
+      return
+    }
     setSaving(true)
     setError(null)
     try {
@@ -96,16 +100,7 @@ export function ProfilePage() {
         </Field>
 
         <Field label="Sexo">
-          <select required value={sex} onChange={(e) => setSex(e.target.value as Sex)} className="input">
-            <option value="" disabled>
-              Selecione
-            </option>
-            {SEX_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <Select value={sex} onChange={setSex} options={SEX_OPTIONS} />
         </Field>
 
         <div className="grid grid-cols-2 gap-4">
@@ -116,7 +111,8 @@ export function ProfilePage() {
                 required
                 min={50}
                 max={300}
-                step={1}
+                step="any"
+                placeholder="ex: 172"
                 value={heightCm}
                 onChange={(e) => setHeightCm(e.target.value)}
                 className="input pr-10"
@@ -131,6 +127,7 @@ export function ProfilePage() {
                 min={20}
                 max={500}
                 step="0.1"
+                placeholder="ex: 70"
                 value={weightKg}
                 onChange={(e) => setWeightKg(e.target.value)}
                 className="input pr-10"
@@ -140,34 +137,11 @@ export function ProfilePage() {
         </div>
 
         <Field label="Objetivo">
-          <select required value={goal} onChange={(e) => setGoal(e.target.value as Goal)} className="input">
-            <option value="" disabled>
-              Selecione
-            </option>
-            {GOAL_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <Select value={goal} onChange={setGoal} options={GOAL_OPTIONS} />
         </Field>
 
         <Field label="Nível de atividade">
-          <select
-            required
-            value={activityLevel}
-            onChange={(e) => setActivityLevel(e.target.value as ActivityLevel)}
-            className="input"
-          >
-            <option value="" disabled>
-              Selecione
-            </option>
-            {ACTIVITY_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <Select value={activityLevel} onChange={setActivityLevel} options={ACTIVITY_OPTIONS} />
         </Field>
 
         {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}

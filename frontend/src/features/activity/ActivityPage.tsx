@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { AxiosError } from 'axios'
 import { getActivities, getActivitySummary, logActivity } from '../../api/activity'
 import type { ActivityLog, ActivitySource, ActivitySummary, ActivityType } from '../../types/activity'
+import { Select } from '../../components/ui/Select'
 
 const TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
   { value: 'STEPS', label: 'Passos' },
@@ -90,13 +91,7 @@ export function ActivityPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div>
             <label className="label">Tipo</label>
-            <select value={activityType} onChange={(e) => setActivityType(e.target.value as ActivityType)} className="input px-2 py-1.5 text-sm">
-              {TYPE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            <Select value={activityType} onChange={setActivityType} options={TYPE_OPTIONS} />
           </div>
           <Num label="Passos" value={steps} onChange={setSteps} />
           <Num label="Calorias (kcal)" value={caloriesBurned} onChange={setCaloriesBurned} />
@@ -104,13 +99,7 @@ export function ActivityPage() {
           <Num label="Duração (min)" value={durationMinutes} onChange={setDurationMinutes} />
           <div>
             <label className="label">Origem</label>
-            <select value={source} onChange={(e) => setSource(e.target.value as ActivitySource)} className="input px-2 py-1.5 text-sm">
-              {SOURCE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            <Select value={source} onChange={setSource} options={SOURCE_OPTIONS} />
           </div>
         </div>
         <p className="text-xs text-slate-500">Deixe as calorias vazias para estimar automaticamente a partir dos passos.</p>
