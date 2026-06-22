@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getDashboard } from '../../api/dashboard'
 import type { Dashboard } from '../../types/dashboard'
+import { ProgressRing } from '../../components/ui/ProgressRing'
+import { Bar } from '../../components/ui/Bar'
 
 export function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null)
@@ -15,117 +17,106 @@ export function DashboardPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p className="text-slate-500">Carregando...</p>
-  if (error) return <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700">{error}</p>
+  if (loading) return <p className="text-slate-400">Carregando...</p>
+  if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-400">{error}</p>
   if (!data) return null
 
   const me = data.me
+  const over = me.remainingCalories != null && me.remainingCalories < 0
+  const ringColor = over ? '#f87171' : '#a3e635'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Hoje</h1>
-        <p className="text-sm text-slate-500">{data.date}</p>
+        <h1 className="text-2xl font-extrabold">Hoje</h1>
+        <p className="text-sm text-slate-500">{formatDate(data.date)}</p>
       </div>
 
       {me.calorieTarget == null && (
-        <Link
-          to="/profile"
-          className="block rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 hover:bg-amber-100"
-        >
-          Complete seu perfil para calcular suas metas de calorias e macros →
+        <Link to="/profile" className="block rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-300 hover:bg-amber-500/20">
+          ⚡ Complete seu perfil para liberar suas metas e o placar →
         </Link>
       )}
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Consumido" value={`${me.consumedCalories} kcal`} color="text-blue-600" />
-        <Stat label="Gasto" value={`${me.burnedCalories} kcal`} color="text-amber-600" />
-        <Stat label="Saldo" value={`${me.netCalories} kcal`} color="text-slate-700" />
-        <Stat
-          label="Restante"
-          value={me.remainingCalories == null ? '—' : `${me.remainingCalories} kcal`}
-          color={
-            me.remainingCalories == null
-              ? 'text-slate-400'
-              : me.remainingCalories >= 0
-                ? 'text-emerald-600'
-                : 'text-red-600'
-          }
-        />
-      </section>
-
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Macros</h2>
-        <div className="space-y-3">
-          <MacroBar label="Proteína" consumed={me.consumedProteinG} target={me.proteinTargetG} color="bg-emerald-500" />
-          <MacroBar label="Carboidrato" consumed={me.consumedCarbG} target={me.carbTargetG} color="bg-amber-500" />
-          <MacroBar label="Gordura" consumed={me.consumedFatG} target={me.fatTargetG} color="bg-sky-500" />
+      {/* Hero: anel de calorias */}
+      <div className="card flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-5">
+          <ProgressRing value={me.consumedCalories} max={me.calorieTarget} color={ringColor}>
+            <span className="text-2xl font-extrabold" style={{ color: ringColor }}>
+              {me.consumedCalories}
+            </span>
+            <span className="text-xs text-slate-500">
+              {me.calorieTarget != null ? `de ${me.calorieTarget}` : 'kcal'}
+            </span>
+          </ProgressRing>
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Restante</p>
+            <p className="text-3xl font-extrabold" style={{ color: ringColor }}>
+              {me.remainingCalories != null ? `${me.remainingCalories}` : '—'}
+              <span className="text-base font-medium text-slate-500"> kcal</span>
+            </p>
+            <p className="text-xs text-slate-500">
+              consumido {me.consumedCalories} · gasto {me.burnedCalories} · saldo {me.netCalories}
+            </p>
+          </div>
         </div>
-        <p className="mt-3 text-xs text-slate-400">
+
+        {data.partner && (
+          <div className="w-full rounded-xl border border-slate-800 bg-slate-800/40 p-3 sm:w-44">
+            <p className="text-xs text-slate-500">Parceiro</p>
+            <p className="font-semibold text-cyan-400">{data.partner.name}</p>
+            <p className="mt-1 text-sm text-slate-300">
+              saldo <span className="font-bold">{data.partner.netCalories}</span> kcal
+            </p>
+            <p className="text-xs text-slate-500">
+              {data.partner.consumedCalories} consumido · {data.partner.burnedCalories} gasto
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Macros */}
+      <div className="card">
+        <h2 className="mb-4 text-sm font-semibold text-slate-300">Macros</h2>
+        <div className="space-y-4">
+          <Macro label="Proteína" value={me.consumedProteinG} target={me.proteinTargetG} color="bg-lime-400" />
+          <Macro label="Carboidrato" value={me.consumedCarbG} target={me.carbTargetG} color="bg-cyan-400" />
+          <Macro label="Gordura" value={me.consumedFatG} target={me.fatTargetG} color="bg-amber-400" />
+        </div>
+        <p className="mt-4 text-xs text-slate-500">
           {me.mealCount} refeição(ões) · {me.steps} passos
         </p>
-      </section>
-
-      {data.partner && <PartnerCard partner={data.partner} />}
+      </div>
     </div>
   )
 }
 
-function Stat({ label, value, color }: { label: string; value: string; color: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className={`text-lg font-bold ${color}`}>{value}</p>
-    </div>
-  )
-}
-
-function MacroBar({
+function Macro({
   label,
-  consumed,
+  value,
   target,
   color,
 }: {
   label: string
-  consumed: number
+  value: number
   target: number | null
   color: string
 }) {
-  const percent = target && target > 0 ? Math.min(100, Math.round((consumed / target) * 100)) : 0
   return (
     <div>
-      <div className="mb-1 flex justify-between text-xs text-slate-600">
-        <span>{label}</span>
-        <span>
-          {consumed}
+      <div className="mb-1.5 flex justify-between text-xs">
+        <span className="text-slate-400">{label}</span>
+        <span className="text-slate-500">
+          {value}
           {target != null ? ` / ${target} g` : ' g'}
         </span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${percent}%` }} />
-      </div>
+      <Bar value={value} max={target} color={color} />
     </div>
   )
 }
 
-function PartnerCard({ partner }: { partner: NonNullable<Dashboard['partner']> }) {
-  return (
-    <section className="rounded-xl border border-violet-200 bg-violet-50 p-4">
-      <h2 className="mb-2 text-sm font-semibold text-violet-800">Parceiro: {partner.name}</h2>
-      <div className="grid grid-cols-3 gap-3 text-center">
-        <PartnerStat label="Consumido" value={partner.consumedCalories} />
-        <PartnerStat label="Gasto" value={partner.burnedCalories} />
-        <PartnerStat label="Saldo" value={partner.netCalories} />
-      </div>
-    </section>
-  )
-}
-
-function PartnerStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div>
-      <p className="text-xs text-violet-500">{label}</p>
-      <p className="font-bold text-violet-800">{value}</p>
-    </div>
-  )
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
 }

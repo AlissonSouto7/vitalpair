@@ -12,10 +12,7 @@ const TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
   { value: 'OTHER', label: 'Outro' },
 ]
 
-const TYPE_LABEL = Object.fromEntries(TYPE_OPTIONS.map((o) => [o.value, o.label])) as Record<
-  ActivityType,
-  string
->
+const TYPE_LABEL = Object.fromEntries(TYPE_OPTIONS.map((o) => [o.value, o.label])) as Record<ActivityType, string>
 
 const SOURCE_OPTIONS: { value: ActivitySource; label: string }[] = [
   { value: 'MANUAL', label: 'Manual' },
@@ -77,30 +74,23 @@ export function ActivityPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-800">Atividade física</h1>
+    <div className="space-y-5">
+      <h1 className="text-2xl font-extrabold">Atividade física</h1>
 
       {summary && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
-          <span className="font-semibold text-amber-600">{summary.totalCaloriesBurned} kcal</span>
-          <span className="text-slate-500">
-            {' '}
-            gastas · {summary.totalSteps} passos · {summary.activityCount} atividade(s)
-          </span>
+        <div className="card text-sm">
+          <span className="text-xl font-extrabold text-amber-400">{summary.totalCaloriesBurned}</span>
+          <span className="text-slate-500"> kcal gastas · {summary.totalSteps} passos · {summary.activityCount} atividade(s)</span>
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+      <form onSubmit={handleSubmit} className="card space-y-3">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div>
-            <label className="mb-1 block text-xs text-slate-500">Tipo</label>
-            <select
-              value={activityType}
-              onChange={(e) => setActivityType(e.target.value as ActivityType)}
-              className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
-            >
+            <label className="label">Tipo</label>
+            <select value={activityType} onChange={(e) => setActivityType(e.target.value as ActivityType)} className="input px-2 py-1.5 text-sm">
               {TYPE_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -113,12 +103,8 @@ export function ActivityPage() {
           <Num label="Distância (km)" value={distanceKm} onChange={setDistanceKm} />
           <Num label="Duração (min)" value={durationMinutes} onChange={setDurationMinutes} />
           <div>
-            <label className="mb-1 block text-xs text-slate-500">Origem</label>
-            <select
-              value={source}
-              onChange={(e) => setSource(e.target.value as ActivitySource)}
-              className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
-            >
+            <label className="label">Origem</label>
+            <select value={source} onChange={(e) => setSource(e.target.value as ActivitySource)} className="input px-2 py-1.5 text-sm">
               {SOURCE_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -127,29 +113,27 @@ export function ActivityPage() {
             </select>
           </div>
         </div>
-        <p className="text-xs text-slate-400">
-          Deixe as calorias vazias para estimar automaticamente a partir dos passos.
-        </p>
+        <p className="text-xs text-slate-500">Deixe as calorias vazias para estimar automaticamente a partir dos passos.</p>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
+          className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-300 disabled:opacity-60"
         >
           {saving ? 'Salvando...' : 'Registrar atividade'}
         </button>
       </form>
 
-      <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">Hoje</h2>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-slate-300">Hoje</h2>
         {logs.length === 0 ? (
-          <p className="text-sm text-slate-400">Nenhuma atividade registrada hoje.</p>
+          <p className="text-sm text-slate-500">Nenhuma atividade registrada hoje.</p>
         ) : (
-          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-800 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70">
             {logs.map((log) => (
               <li key={log.id} className="flex items-center justify-between px-4 py-3">
                 <div>
-                  <p className="text-sm text-slate-800">{TYPE_LABEL[log.activityType]}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm text-slate-200">{TYPE_LABEL[log.activityType]}</p>
+                  <p className="text-xs text-slate-500">
                     {log.steps != null ? `${log.steps} passos · ` : ''}
                     {log.durationMinutes != null ? `${log.durationMinutes} min · ` : ''}
                     {log.caloriesBurned} kcal
@@ -159,31 +143,16 @@ export function ActivityPage() {
             ))}
           </ul>
         )}
-      </section>
+      </div>
     </div>
   )
 }
 
-function Num({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-}) {
+function Num({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-slate-500">{label}</label>
-      <input
-        type="number"
-        min={0}
-        step="0.1"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
-      />
+      <label className="label">{label}</label>
+      <input type="number" min={0} step="0.1" value={value} onChange={(e) => onChange(e.target.value)} className="input px-2 py-1.5 text-sm" />
     </div>
   )
 }

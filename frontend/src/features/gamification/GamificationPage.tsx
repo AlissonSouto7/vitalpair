@@ -33,54 +33,56 @@ export function GamificationPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p className="text-slate-500">Carregando...</p>
-  if (error) return <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700">{error}</p>
+  if (loading) return <p className="text-slate-400">Carregando...</p>
+  if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-400">{error}</p>
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
   const score = resolveScore(competition, pair, userId)
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-800">Conquistas</h1>
+    <div className="space-y-5">
+      <h1 className="text-2xl font-extrabold">Conquistas</h1>
 
-      {/* Placar semanal */}
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Placar da semana</h2>
+      {/* Placar */}
+      <div className="card glow-cyan">
+        <h2 className="mb-4 text-center text-xs uppercase tracking-widest text-slate-500">Placar da semana</h2>
         {score.hasPartner ? (
           <div className="flex items-center justify-around text-center">
-            <ScoreSide label="Você" value={score.mine} highlight={score.mine >= score.partner} />
-            <span className="text-slate-300">×</span>
-            <ScoreSide label={score.partnerName} value={score.partner} highlight={score.partner > score.mine} />
+            <Side name="Você" value={score.mine} leading={score.mine >= score.partner} />
+            <span className="text-2xl font-black text-slate-600">×</span>
+            <Side name={score.partnerName} value={score.partner} leading={score.partner > score.mine} />
           </div>
         ) : (
-          <p className="text-sm text-slate-500">
-            Seus pontos: <span className="font-bold text-blue-700">{score.mine}</span>. Forme um par para competir.
+          <p className="text-center text-sm text-slate-400">
+            Seus pontos: <span className="text-2xl font-extrabold text-lime-400">{score.mine}</span>
+            <br />
+            <span className="text-slate-500">Forme um par para competir.</span>
           </p>
         )}
-      </section>
+      </div>
 
       {/* Streaks */}
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Sequências</h2>
+      <div className="card">
+        <h2 className="mb-3 text-sm font-semibold text-slate-300">Sequências</h2>
         {streaks.length === 0 ? (
-          <p className="text-sm text-slate-400">Registre refeições e atividades para iniciar suas sequências.</p>
+          <p className="text-sm text-slate-500">Registre refeições e atividades para iniciar suas sequências.</p>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {streaks.map((s) => (
-              <div key={s.type} className="rounded-lg bg-slate-50 p-3">
+              <div key={s.type} className="rounded-xl border border-slate-800 bg-slate-800/40 p-3">
                 <p className="text-xs text-slate-500">{STREAK_LABEL[s.type]}</p>
-                <p className="text-lg font-bold text-orange-600">🔥 {s.currentCount} dia(s)</p>
-                <p className="text-xs text-slate-400">recorde: {s.longestCount}</p>
+                <p className="text-2xl font-extrabold text-orange-400">🔥 {s.currentCount}</p>
+                <p className="text-xs text-slate-500">recorde: {s.longestCount} dias</p>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </div>
 
       {/* Badges */}
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">
-          Badges ({earnedCodes.size}/{catalog.length})
+      <div className="card">
+        <h2 className="mb-3 text-sm font-semibold text-slate-300">
+          Badges <span className="text-slate-500">({earnedCodes.size}/{catalog.length})</span>
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {catalog.map((badge) => {
@@ -88,11 +90,13 @@ export function GamificationPage() {
             return (
               <div
                 key={badge.code}
-                className={`rounded-lg border p-3 ${
-                  unlocked ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-slate-50 opacity-60'
+                className={`rounded-xl border p-3 transition ${
+                  unlocked
+                    ? 'border-lime-400/40 bg-lime-400/10'
+                    : 'border-slate-800 bg-slate-800/30 opacity-50'
                 }`}
               >
-                <p className={`text-sm font-semibold ${unlocked ? 'text-amber-800' : 'text-slate-500'}`}>
+                <p className={`text-sm font-semibold ${unlocked ? 'text-lime-300' : 'text-slate-400'}`}>
                   {unlocked ? '🏅 ' : '🔒 '}
                   {badge.name}
                 </p>
@@ -101,7 +105,7 @@ export function GamificationPage() {
             )
           })}
         </div>
-      </section>
+      </div>
     </div>
   )
 }
@@ -114,12 +118,9 @@ interface ResolvedScore {
 }
 
 function resolveScore(competition: Competition | null, pair: Pair | null, userId: string | null): ResolvedScore {
-  if (!competition || !pair) {
-    return { mine: 0, partner: 0, partnerName: 'Parceiro', hasPartner: false }
-  }
+  if (!competition || !pair) return { mine: 0, partner: 0, partnerName: 'Parceiro', hasPartner: false }
   const members = pair.members
   const hasPartner = members.length >= 2
-  // members[0] corresponde a user1Score; members[1] a user2Score (ordem do backend).
   const iAmFirst = members[0]?.userId === userId
   const mine = iAmFirst ? competition.user1Score : competition.user2Score
   const partner = iAmFirst ? competition.user2Score : competition.user1Score
@@ -127,11 +128,12 @@ function resolveScore(competition: Competition | null, pair: Pair | null, userId
   return { mine, partner, partnerName, hasPartner }
 }
 
-function ScoreSide({ label, value, highlight }: { label: string; value: number; highlight: boolean }) {
+function Side({ name, value, leading }: { name: string; value: number; leading: boolean }) {
   return (
     <div>
-      <p className={`text-3xl font-bold ${highlight ? 'text-emerald-600' : 'text-slate-400'}`}>{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className={`text-4xl font-black ${leading ? 'text-lime-400' : 'text-slate-500'}`}>{value}</p>
+      <p className="mt-1 text-xs text-slate-400">{name}</p>
+      {leading && <p className="text-[10px] font-semibold uppercase tracking-wide text-lime-500">liderando</p>}
     </div>
   )
 }
