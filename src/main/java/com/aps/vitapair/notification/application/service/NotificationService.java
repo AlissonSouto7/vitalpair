@@ -42,18 +42,20 @@ public class NotificationService
 
     @Override
     @Transactional
-    public void create(UUID tenantId, UUID userId, NotificationType type, String title, String body) {
+    public void create(UUID tenantId, UUID userId, NotificationType type, String actorName, String refText, Integer amount) {
         repository.save(Notification.builder()
                 .tenantId(tenantId)
                 .userId(userId)
                 .type(type)
-                .title(title)
-                .body(body)
+                .actorName(actorName)
+                .refText(refText)
+                .amount(amount)
                 .read(false)
                 .build());
     }
 
     private NotificationView toView(Notification n) {
-        return new NotificationView(n.getId(), n.getType(), n.getTitle(), n.getBody(), n.isRead(), n.getCreatedAt());
+        return new NotificationView(
+                n.getId(), n.getType(), n.getActorName(), n.getRefText(), n.getAmount(), n.isRead(), n.getCreatedAt());
     }
 }

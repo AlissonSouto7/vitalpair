@@ -1,32 +1,20 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
 import { getProfile, updateProfile } from '../../api/profile'
 import { Select } from '../../components/ui/Select'
 import type { ActivityLevel, Goal, Sex } from '../../types/profile'
 
-const SEX_OPTIONS: { value: Sex; label: string }[] = [
-  { value: 'MALE', label: 'Masculino' },
-  { value: 'FEMALE', label: 'Feminino' },
-  { value: 'OTHER', label: 'Outro' },
-]
-
-const GOAL_OPTIONS: { value: Goal; label: string }[] = [
-  { value: 'LOSE_WEIGHT', label: 'Perder peso' },
-  { value: 'GAIN_MUSCLE', label: 'Ganhar massa' },
-  { value: 'MAINTAIN', label: 'Manter peso' },
-  { value: 'IMPROVE_FITNESS', label: 'Melhorar condicionamento' },
-]
-
-const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string }[] = [
-  { value: 'SEDENTARY', label: 'Sedentário' },
-  { value: 'LIGHT', label: 'Levemente ativo' },
-  { value: 'MODERATE', label: 'Moderadamente ativo' },
-  { value: 'ACTIVE', label: 'Muito ativo' },
-  { value: 'VERY_ACTIVE', label: 'Extremamente ativo' },
-]
+const SEX_VALUES: Sex[] = ['MALE', 'FEMALE', 'OTHER']
+const GOAL_VALUES: Goal[] = ['LOSE_WEIGHT', 'GAIN_MUSCLE', 'MAINTAIN', 'IMPROVE_FITNESS']
+const LEVEL_VALUES: ActivityLevel[] = ['SEDENTARY', 'LIGHT', 'MODERATE', 'ACTIVE', 'VERY_ACTIVE']
 
 export function ProfilePage() {
+  const { t } = useTranslation()
+  const sexOptions = SEX_VALUES.map((v) => ({ value: v, label: t(`profile.sexLabel.${v}`) }))
+  const goalOptions = GOAL_VALUES.map((v) => ({ value: v, label: t(`profile.goalLabel.${v}`) }))
+  const levelOptions = LEVEL_VALUES.map((v) => ({ value: v, label: t(`profile.levelLabel.${v}`) }))
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [birthDate, setBirthDate] = useState('')
@@ -50,14 +38,14 @@ export function ProfilePage() {
         setGoal(profile.goal ?? '')
         setActivityLevel(profile.activityLevel ?? '')
       })
-      .catch(() => setError('Não foi possível carregar o perfil.'))
+      .catch(() => setError(t('profile.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     if (!sex || !goal || !activityLevel) {
-      setError('Selecione sexo, objetivo e nível de atividade.')
+      setError(t('profile.requiredSelects'))
       return
     }
     setSaving(true)
@@ -75,36 +63,34 @@ export function ProfilePage() {
       navigate('/dashboard')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não foi possível salvar o perfil.')
+      setError(message ?? t('profile.saveError'))
     } finally {
       setSaving(false)
     }
   }
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="text-2xl font-extrabold">Seu perfil</h1>
-      <p className="mb-5 mt-1 text-sm text-faint">
-        Preencha para liberar suas metas de calorias, macros e o placar.
-      </p>
+      <h1 className="text-2xl font-extrabold">{t('profile.title')}</h1>
+      <p className="mb-5 mt-1 text-sm text-faint">{t('profile.subtitle')}</p>
 
       <form onSubmit={handleSubmit} className="card space-y-4">
-        <Field label="Nome">
+        <Field label={t('profile.name')}>
           <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="input" />
         </Field>
 
-        <Field label="Data de nascimento">
+        <Field label={t('profile.birthDate')}>
           <input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="input" />
         </Field>
 
-        <Field label="Sexo">
-          <Select value={sex} onChange={setSex} options={SEX_OPTIONS} />
+        <Field label={t('profile.sex')}>
+          <Select value={sex} onChange={setSex} options={sexOptions} placeholder={t('common.select')} />
         </Field>
 
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Altura">
+          <Field label={t('profile.height')}>
             <Unit unit="cm">
               <input
                 type="number"
@@ -119,7 +105,7 @@ export function ProfilePage() {
               />
             </Unit>
           </Field>
-          <Field label="Peso">
+          <Field label={t('profile.weight')}>
             <Unit unit="kg">
               <input
                 type="number"
@@ -136,18 +122,18 @@ export function ProfilePage() {
           </Field>
         </div>
 
-        <Field label="Objetivo">
-          <Select value={goal} onChange={setGoal} options={GOAL_OPTIONS} />
+        <Field label={t('profile.goal')}>
+          <Select value={goal} onChange={setGoal} options={goalOptions} placeholder={t('common.select')} />
         </Field>
 
-        <Field label="Nível de atividade">
-          <Select value={activityLevel} onChange={setActivityLevel} options={ACTIVITY_OPTIONS} />
+        <Field label={t('profile.activityLevel')}>
+          <Select value={activityLevel} onChange={setActivityLevel} options={levelOptions} placeholder={t('common.select')} />
         </Field>
 
         {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
         <button type="submit" disabled={saving} className="btn-primary w-full">
-          {saving ? 'Salvando...' : 'Salvar perfil'}
+          {saving ? t('common.saving') : t('profile.save')}
         </button>
       </form>
     </div>

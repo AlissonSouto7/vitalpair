@@ -14,8 +14,9 @@ public class Notification {
     private final UUID tenantId;
     private final UUID userId;
     private final NotificationType type;
-    private final String title;
-    private final String body;
+    private final String actorName;
+    private final String refText;
+    private final Integer amount;
     private final boolean read;
     private final Instant createdAt;
 }

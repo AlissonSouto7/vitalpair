@@ -46,8 +46,7 @@ public class NotificationEventListener {
             return;
         }
         notifications.create(event.tenantId(), partner, NotificationType.PARTNER_MEAL,
-                "Refeição registrada",
-                nameOf(event.userId()) + " registrou " + event.foodName() + ".");
+                nameOf(event.userId()), event.foodName(), null);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -58,17 +57,15 @@ public class NotificationEventListener {
             return;
         }
         notifications.create(event.tenantId(), partner, NotificationType.PARTNER_ACTIVITY,
-                "Treino registrado",
-                nameOf(event.userId()) + " treinou e queimou " + event.caloriesBurned() + " kcal.");
+                nameOf(event.userId()), null, event.caloriesBurned());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onPairFormed(PairFormedEvent event) {
-        String body = "Vocês estão conectados. Bora competir!";
-        notifications.create(event.tenantId(), event.user1Id(), NotificationType.PAIR_FORMED, "Relação formada", body);
+        notifications.create(event.tenantId(), event.user1Id(), NotificationType.PAIR_FORMED, null, null, null);
         if (event.user2Id() != null) {
-            notifications.create(event.tenantId(), event.user2Id(), NotificationType.PAIR_FORMED, "Relação formada", body);
+            notifications.create(event.tenantId(), event.user2Id(), NotificationType.PAIR_FORMED, null, null, null);
         }
     }
 

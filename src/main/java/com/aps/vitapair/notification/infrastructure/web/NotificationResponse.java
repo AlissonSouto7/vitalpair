@@ -9,9 +9,10 @@ import java.util.UUID;
 
 public record NotificationResponse(long unreadCount, List<Item> items) {
 
-    public record Item(UUID id, NotificationType type, String title, String body, boolean read, Instant createdAt) {
+    public record Item(
+            UUID id, NotificationType type, String actorName, String refText, Integer amount, boolean read, Instant createdAt) {
         static Item from(NotificationView v) {
-            return new Item(v.id(), v.type(), v.title(), v.body(), v.read(), v.createdAt());
+            return new Item(v.id(), v.type(), v.actorName(), v.refText(), v.amount(), v.read(), v.createdAt());
         }
     }
 

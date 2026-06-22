@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { listNotifications, markNotificationsRead } from '../api/notifications'
-import type { NotificationFeed, NotificationType } from '../types/notification'
+import type { AppNotification, NotificationFeed, NotificationType } from '../types/notification'
 
 const DOT: Record<NotificationType, string> = {
   PARTNER_MEAL: 'bg-lime-400',
@@ -8,16 +9,8 @@ const DOT: Record<NotificationType, string> = {
   PAIR_FORMED: 'bg-cyan-400',
 }
 
-function timeAgo(iso: string): string {
-  const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (minutes < 1) return 'agora'
-  if (minutes < 60) return `${minutes} min`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} h`
-  return `${Math.floor(hours / 24)} d`
-}
-
 export function NotificationsBell() {
+  const { t } = useTranslation()
   const [feed, setFeed] = useState<NotificationFeed>({ unreadCount: 0, items: [] })
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -44,6 +37,27 @@ export function NotificationsBell() {
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [])
 
+  function titleOf(n: AppNotification): string {
+    if (n.type === 'PARTNER_MEAL') return t('notifications.mealTitle')
+    if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityTitle')
+    return t('notifications.pairTitle')
+  }
+
+  function bodyOf(n: AppNotification): string {
+    if (n.type === 'PARTNER_MEAL') return t('notifications.mealBody', { name: n.actorName, food: n.refText })
+    if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityBody', { name: n.actorName, kcal: n.amount })
+    return t('notifications.pairBody')
+  }
+
+  function timeAgo(iso: string): string {
+    const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+    if (minutes < 1) return t('notifications.now')
+    if (minutes < 60) return t('notifications.min', { n: minutes })
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return t('notifications.hour', { n: hours })
+    return t('notifications.day', { n: Math.floor(hours / 24) })
+  }
+
   async function toggle() {
     const next = !open
     setOpen(next)
@@ -61,7 +75,7 @@ export function NotificationsBell() {
     <div ref={ref} className="relative">
       <button
         onClick={toggle}
-        title="Notificações"
+        title={t('header.notifications')}
         className="relative rounded-lg border border-line px-2 py-1.5 text-muted transition hover:text-ink"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -80,17 +94,17 @@ export function NotificationsBell() {
 
       {open && (
         <div className="absolute right-0 z-30 mt-2 w-80 overflow-hidden rounded-xl border border-line bg-surface shadow-xl shadow-black/40">
-          <div className="border-b border-line px-4 py-2.5 text-sm font-semibold">Notificações</div>
+          <div className="border-b border-line px-4 py-2.5 text-sm font-semibold">{t('notifications.title')}</div>
           {feed.items.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">Nada por aqui ainda.</p>
+            <p className="px-4 py-8 text-center text-sm text-muted">{t('notifications.empty')}</p>
           ) : (
             <ul className="max-h-96 divide-y divide-line overflow-auto">
               {feed.items.map((n) => (
                 <li key={n.id} className={`flex gap-3 px-4 py-3 ${n.read ? '' : 'bg-surface2/60'}`}>
                   <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${DOT[n.type]}`} />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium">{n.title}</p>
-                    <p className="text-sm text-muted">{n.body}</p>
+                    <p className="text-sm font-medium">{titleOf(n)}</p>
+                    <p className="text-sm text-muted">{bodyOf(n)}</p>
                     <p className="mt-0.5 text-xs text-faint">{timeAgo(n.createdAt)}</p>
                   </div>
                 </li>

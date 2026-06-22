@@ -1,20 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
 import { getPair, joinPair, updateRelationshipType } from '../../api/pair'
 import { refreshSession } from '../../api/auth'
 import { Select } from '../../components/ui/Select'
 import type { Pair, RelationshipType } from '../../types/pair'
 
-const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
-  { value: 'PAIR', label: 'Casal' },
-  { value: 'DUO', label: 'Dupla' },
-  { value: 'FRIENDS', label: 'Amigos' },
-  { value: 'CONFIDANTS', label: 'Confidentes' },
-  { value: 'BROTHERS', label: 'Brothers' },
-  { value: 'OTHER', label: 'Outro' },
-]
+const RELATIONSHIP_VALUES: RelationshipType[] = ['PAIR', 'DUO', 'FRIENDS', 'CONFIDANTS', 'BROTHERS', 'OTHER']
 
 export function PairPage() {
+  const { t } = useTranslation()
+  const relationshipOptions = RELATIONSHIP_VALUES.map((v) => ({ value: v, label: t(`pair.rel.${v}`) }))
   const [pair, setPair] = useState<Pair | null>(null)
   const [loading, setLoading] = useState(true)
   const [code, setCode] = useState('')
@@ -25,16 +21,16 @@ export function PairPage() {
   useEffect(() => {
     getPair()
       .then(setPair)
-      .catch(() => setError('Não foi possível carregar a relação.'))
+      .catch(() => setError(t('pair.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   async function changeType(type: RelationshipType) {
     try {
       const updated = await updateRelationshipType(type)
       setPair(updated)
     } catch {
-      setError('Não foi possível atualizar o tipo de relação.')
+      setError(t('pair.typeError'))
     }
   }
 
@@ -56,28 +52,28 @@ export function PairPage() {
       setCode('')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não foi possível entrar na relação.')
+      setError(message ?? t('pair.joinError'))
     } finally {
       setJoining(false)
     }
   }
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
-      <h1 className="text-2xl font-extrabold">Sua relação</h1>
+      <h1 className="text-2xl font-extrabold">{t('pair.title')}</h1>
 
       {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
       <div className="card">
-        <label className="label">Tipo de relação</label>
-        <Select value={pair?.relationshipType ?? 'PAIR'} onChange={changeType} options={RELATIONSHIP_OPTIONS} />
+        <label className="label">{t('pair.type')}</label>
+        <Select value={pair?.relationshipType ?? 'PAIR'} onChange={changeType} options={relationshipOptions} />
       </div>
 
       {pair?.status === 'ACTIVE' ? (
         <div className="card glow-lime">
-          <p className="mb-3 font-bold text-accent">{pair.pairName ?? 'Vocês estão conectados!'} 🎉</p>
+          <p className="mb-3 font-bold text-accent">{pair.pairName ?? t('pair.connected')} 🎉</p>
           <ul className="space-y-2">
             {pair.members.map((m) => (
               <li key={m.userId} className="flex items-center gap-3 rounded-xl border border-line bg-surface2/40 px-3 py-2">
@@ -95,33 +91,33 @@ export function PairPage() {
       ) : (
         <>
           <div className="card">
-            <h2 className="mb-1 text-sm font-semibold text-ink">Convide a outra pessoa</h2>
-            <p className="mb-3 text-xs text-faint">Compartilhe este código para a outra pessoa entrar na sua relação.</p>
+            <h2 className="mb-1 text-sm font-semibold text-ink">{t('pair.invite')}</h2>
+            <p className="mb-3 text-xs text-faint">{t('pair.inviteHint')}</p>
             <div className="flex items-center gap-2">
               <code className="flex-1 rounded-xl border border-line bg-surface2/60 px-4 py-3 text-center text-2xl font-extrabold tracking-[0.3em] text-accent">
                 {pair?.inviteCode}
               </code>
               <button onClick={copyCode} className="btn-primary px-4 py-3">
-                {copied ? 'Copiado!' : 'Copiar'}
+                {copied ? t('pair.copied') : t('pair.copy')}
               </button>
             </div>
           </div>
 
-          <div className="text-center text-sm text-faint">ou</div>
+          <div className="text-center text-sm text-faint">{t('common.or')}</div>
 
           <div className="card">
-            <h2 className="mb-3 text-sm font-semibold text-ink">Tenho um código</h2>
+            <h2 className="mb-3 text-sm font-semibold text-ink">{t('pair.haveCode')}</h2>
             <form onSubmit={handleJoin} className="flex items-center gap-2">
               <input
                 type="text"
                 required
-                placeholder="Código recebido"
+                placeholder={t('pair.codePlaceholder')}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="input uppercase tracking-[0.3em]"
               />
               <button type="submit" disabled={joining} className="btn-primary whitespace-nowrap text-sm">
-                {joining ? 'Entrando...' : 'Entrar'}
+                {joining ? t('pair.entering') : t('pair.enter')}
               </button>
             </form>
           </div>

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getDashboard } from '../../api/dashboard'
 import type { Dashboard } from '../../types/dashboard'
 import { ProgressRing } from '../../components/ui/ProgressRing'
 import { Bar } from '../../components/ui/Bar'
 
 export function DashboardPage() {
+  const { t } = useTranslation()
   const [data, setData] = useState<Dashboard | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -13,11 +15,11 @@ export function DashboardPage() {
   useEffect(() => {
     getDashboard()
       .then(setData)
-      .catch(() => setError('Não foi possível carregar o dashboard.'))
+      .catch(() => setError(t('dashboard.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
   if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-500">{error}</p>
   if (!data) return null
 
@@ -28,13 +30,13 @@ export function DashboardPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-extrabold">Hoje</h1>
+        <h1 className="text-2xl font-extrabold">{t('dashboard.title')}</h1>
         <p className="text-sm text-faint">{formatDate(data.date)}</p>
       </div>
 
       {me.calorieTarget == null && (
-        <Link to="/profile" className="block rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-warn hover:bg-amber-500/20">
-          ⚡ Complete seu perfil para liberar suas metas e o placar →
+        <Link to="/profile" className="block rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-warn transition hover:bg-amber-500/20">
+          {t('dashboard.completeProfile')}
         </Link>
       )}
 
@@ -46,30 +48,30 @@ export function DashboardPage() {
               {me.consumedCalories}
             </span>
             <span className="text-xs text-faint">
-              {me.calorieTarget != null ? `de ${me.calorieTarget}` : 'kcal'}
+              {me.calorieTarget != null ? t('dashboard.ofTarget', { target: me.calorieTarget }) : 'kcal'}
             </span>
           </ProgressRing>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wide text-faint">Restante</p>
+            <p className="text-xs uppercase tracking-wide text-faint">{t('dashboard.remaining')}</p>
             <p className="text-3xl font-extrabold" style={{ color: ringColor }}>
               {me.remainingCalories != null ? `${me.remainingCalories}` : '—'}
               <span className="text-base font-medium text-faint"> kcal</span>
             </p>
             <p className="text-xs text-faint">
-              consumido {me.consumedCalories} · gasto {me.burnedCalories} · saldo {me.netCalories}
+              {t('dashboard.detail', { consumed: me.consumedCalories, burned: me.burnedCalories, net: me.netCalories })}
             </p>
           </div>
         </div>
 
         {data.partner && (
           <div className="w-full rounded-xl border border-line bg-surface2/40 p-3 sm:w-44">
-            <p className="text-xs text-faint">Parceiro</p>
+            <p className="text-xs text-faint">{t('dashboard.partner')}</p>
             <p className="font-semibold text-info">{data.partner.name}</p>
             <p className="mt-1 text-sm text-ink">
-              saldo <span className="font-bold">{data.partner.netCalories}</span> kcal
+              {t('dashboard.partnerBalance')} <span className="font-bold">{data.partner.netCalories}</span> kcal
             </p>
             <p className="text-xs text-faint">
-              {data.partner.consumedCalories} consumido · {data.partner.burnedCalories} gasto
+              {t('dashboard.partnerDetail', { consumed: data.partner.consumedCalories, burned: data.partner.burnedCalories })}
             </p>
           </div>
         )}
@@ -77,14 +79,14 @@ export function DashboardPage() {
 
       {/* Macros */}
       <div className="card">
-        <h2 className="mb-4 text-sm font-semibold text-ink">Macros</h2>
+        <h2 className="mb-4 text-sm font-semibold text-ink">{t('dashboard.macros')}</h2>
         <div className="space-y-4">
-          <Macro label="Proteína" value={me.consumedProteinG} target={me.proteinTargetG} color="bg-lime-400" />
-          <Macro label="Carboidrato" value={me.consumedCarbG} target={me.carbTargetG} color="bg-cyan-400" />
-          <Macro label="Gordura" value={me.consumedFatG} target={me.fatTargetG} color="bg-amber-400" />
+          <Macro label={t('dashboard.protein')} value={me.consumedProteinG} target={me.proteinTargetG} color="bg-lime-400" />
+          <Macro label={t('dashboard.carb')} value={me.consumedCarbG} target={me.carbTargetG} color="bg-cyan-400" />
+          <Macro label={t('dashboard.fat')} value={me.consumedFatG} target={me.fatTargetG} color="bg-amber-400" />
         </div>
         <p className="mt-4 text-xs text-faint">
-          {me.mealCount} refeição(ões) · {me.steps} passos
+          {t('dashboard.mealsSteps', { meals: me.mealCount, steps: me.steps })}
         </p>
       </div>
     </div>

@@ -1,23 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
 import { deleteLog, getLogs, getSummary, logMeal, searchFoods } from '../../api/nutrition'
 import type { DailySummary, FoodLog, FoodProduct, FoodSource, MealType } from '../../types/nutrition'
 import { Bar } from '../../components/ui/Bar'
 import { Select } from '../../components/ui/Select'
 
-const MEAL_OPTIONS: { value: MealType; label: string }[] = [
-  { value: 'BREAKFAST', label: 'Café da manhã' },
-  { value: 'LUNCH', label: 'Almoço' },
-  { value: 'DINNER', label: 'Jantar' },
-  { value: 'SNACK', label: 'Lanche' },
-]
-
-const MEAL_LABEL: Record<MealType, string> = {
-  BREAKFAST: 'Café da manhã',
-  LUNCH: 'Almoço',
-  DINNER: 'Jantar',
-  SNACK: 'Lanche',
-}
+const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
 
 interface Draft {
   name: string
@@ -36,6 +25,8 @@ const num = (v: string) => (v.trim() === '' ? 0 : Number(v))
 const round = (v: number) => Math.round(v * 10) / 10
 
 export function NutritionPage() {
+  const { t } = useTranslation()
+  const mealOptions = MEAL_VALUES.map((v) => ({ value: v, label: t(`nutrition.meal.${v}`) }))
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<FoodProduct[]>([])
   const [searching, setSearching] = useState(false)
@@ -52,8 +43,8 @@ export function NutritionPage() {
   }, [])
 
   useEffect(() => {
-    refresh().catch(() => setError('Não foi possível carregar os registros do dia.'))
-  }, [refresh])
+    refresh().catch(() => setError(t('nutrition.loadError')))
+  }, [refresh, t])
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -133,7 +124,7 @@ export function NutritionPage() {
       await refresh()
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não foi possível registrar a refeição.')
+      setError(message ?? t('nutrition.saveError'))
     } finally {
       setSaving(false)
     }
@@ -146,7 +137,7 @@ export function NutritionPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-extrabold">Refeições</h1>
+      <h1 className="text-2xl font-extrabold">{t('nutrition.title')}</h1>
 
       {summary && (
         <div className="card">
@@ -157,7 +148,7 @@ export function NutritionPage() {
                 {summary.targetCalories != null ? ` / ${summary.targetCalories} kcal` : ' kcal'}
               </span>
             </span>
-            <span className="text-xs text-faint">{summary.mealCount} refeição(ões)</span>
+            <span className="text-xs text-faint">{t('nutrition.mealsCount', { count: summary.mealCount })}</span>
           </div>
           {summary.targetCalories != null && (
             <div className="mt-3">
@@ -173,17 +164,17 @@ export function NutritionPage() {
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Buscar alimento (ex: banana, arroz)..."
+            placeholder={t('nutrition.searchPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="input"
           />
           <button onClick={startManual} className="btn-ghost whitespace-nowrap">
-            Manual
+            {t('common.manual')}
           </button>
         </div>
 
-        {searching && <p className="mt-2 text-sm text-faint">Buscando...</p>}
+        {searching && <p className="mt-2 text-sm text-faint">{t('nutrition.searching')}</p>}
 
         {results.length > 0 && (
           <ul className="mt-3 divide-y divide-line">
@@ -192,11 +183,13 @@ export function NutritionPage() {
                 <div>
                   <p className="text-sm text-ink">{p.name}</p>
                   <p className="text-xs text-faint">
-                    {p.caloriesPer100g != null ? `${p.caloriesPer100g} kcal/100g` : 'sem info nutricional'}
+                    {p.caloriesPer100g != null
+                      ? t('nutrition.perCalories', { kcal: p.caloriesPer100g })
+                      : t('nutrition.noInfo')}
                   </p>
                 </div>
                 <button onClick={() => startFromProduct(p)} className="btn-primary px-3 py-1 text-sm">
-                  Adicionar
+                  {t('common.add')}
                 </button>
               </li>
             ))}
@@ -207,26 +200,26 @@ export function NutritionPage() {
       {draft && computed && (
         <div className="card border-lime-400/30">
           <h2 className="mb-3 text-sm font-semibold text-accent">
-            {draft.source === 'MANUAL' ? 'Adicionar manualmente' : 'Adicionar refeição'}
+            {draft.source === 'MANUAL' ? t('nutrition.addManually') : t('nutrition.addMeal')}
           </h2>
           <div className="space-y-3">
             <input
               type="text"
-              placeholder="Nome do alimento"
+              placeholder={t('nutrition.foodName')}
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               className="input"
             />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <Num label="kcal/100g" value={draft.kcalPer100} onChange={(v) => setDraft({ ...draft, kcalPer100: v })} />
-              <Num label="Prot/100g" value={draft.proteinPer100} onChange={(v) => setDraft({ ...draft, proteinPer100: v })} />
-              <Num label="Carb/100g" value={draft.carbPer100} onChange={(v) => setDraft({ ...draft, carbPer100: v })} />
-              <Num label="Gord/100g" value={draft.fatPer100} onChange={(v) => setDraft({ ...draft, fatPer100: v })} />
-              <Num label="Gramas" value={draft.grams} onChange={(v) => setDraft({ ...draft, grams: v })} />
+              <Num label={t('nutrition.kcal100')} value={draft.kcalPer100} onChange={(v) => setDraft({ ...draft, kcalPer100: v })} />
+              <Num label={t('nutrition.prot100')} value={draft.proteinPer100} onChange={(v) => setDraft({ ...draft, proteinPer100: v })} />
+              <Num label={t('nutrition.carb100')} value={draft.carbPer100} onChange={(v) => setDraft({ ...draft, carbPer100: v })} />
+              <Num label={t('nutrition.fat100')} value={draft.fatPer100} onChange={(v) => setDraft({ ...draft, fatPer100: v })} />
+              <Num label={t('nutrition.grams')} value={draft.grams} onChange={(v) => setDraft({ ...draft, grams: v })} />
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <div className="w-44">
-                <Select value={draft.mealType} onChange={(v) => setDraft({ ...draft, mealType: v })} options={MEAL_OPTIONS} />
+                <Select value={draft.mealType} onChange={(v) => setDraft({ ...draft, mealType: v })} options={mealOptions} />
               </div>
               <label className="flex items-center gap-2 text-sm text-muted">
                 <input
@@ -235,19 +228,19 @@ export function NutritionPage() {
                   onChange={(e) => setDraft({ ...draft, isPrivate: e.target.checked })}
                   className="accent-lime-400"
                 />
-                Privada
+                {t('nutrition.private')}
               </label>
             </div>
             <p className="text-sm text-muted">
-              Total: <span className="font-bold text-accent">{computed.calories} kcal</span> · P {computed.protein}g ·
+              {t('nutrition.total')} <span className="font-bold text-accent">{computed.calories} kcal</span> · P {computed.protein}g ·
               C {computed.carb}g · G {computed.fat}g
             </p>
             <div className="flex gap-2">
               <button onClick={save} disabled={saving || !draft.name} className="btn-primary text-sm">
-                {saving ? 'Salvando...' : 'Salvar'}
+                {saving ? t('common.saving') : t('common.save')}
               </button>
               <button onClick={() => setDraft(null)} className="btn-ghost">
-                Cancelar
+                {t('common.cancel')}
               </button>
             </div>
           </div>
@@ -255,9 +248,9 @@ export function NutritionPage() {
       )}
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-ink">Hoje</h2>
+        <h2 className="mb-2 text-sm font-semibold text-ink">{t('nutrition.today')}</h2>
         {logs.length === 0 ? (
-          <p className="text-sm text-faint">Nenhuma refeição registrada hoje.</p>
+          <p className="text-sm text-faint">{t('nutrition.empty')}</p>
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/70">
             {logs.map((log) => (
@@ -265,11 +258,11 @@ export function NutritionPage() {
                 <div>
                   <p className="text-sm text-ink">{log.foodName}</p>
                   <p className="text-xs text-faint">
-                    {MEAL_LABEL[log.mealType]} · {log.quantityG}g · {log.caloriesKcal} kcal
+                    {t(`nutrition.meal.${log.mealType}`)} · {log.quantityG}g · {log.caloriesKcal} kcal
                   </p>
                 </div>
                 <button onClick={() => removeLog(log.id)} className="text-sm text-faint transition hover:text-red-500">
-                  Remover
+                  {t('common.remove')}
                 </button>
               </li>
             ))}

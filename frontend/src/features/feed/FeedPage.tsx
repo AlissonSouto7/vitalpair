@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getFeed, reactToItem, removeReaction } from '../../api/feed'
 import type { FeedItem, ReactionType } from '../../types/feed'
 
-const REACTIONS: { type: ReactionType; emoji: string; title: string }[] = [
-  { type: 'FIRE', emoji: '🔥', title: 'Motivação' },
-  { type: 'EYE', emoji: '👀', title: 'Saudade' },
-  { type: 'STRENGTH', emoji: '💪', title: 'Força' },
+const REACTIONS: { type: ReactionType; emoji: string }[] = [
+  { type: 'FIRE', emoji: '🔥' },
+  { type: 'EYE', emoji: '👀' },
+  { type: 'STRENGTH', emoji: '💪' },
 ]
 
 export function FeedPage() {
+  const { t, i18n } = useTranslation()
   const [items, setItems] = useState<FeedItem[]>([])
   const [page, setPage] = useState(0)
   const [last, setLast] = useState(true)
@@ -24,9 +26,9 @@ export function FeedPage() {
 
   useEffect(() => {
     load(0)
-      .catch(() => setError('Não foi possível carregar o feed.'))
+      .catch(() => setError(t('feed.loadError')))
       .finally(() => setLoading(false))
-  }, [load])
+  }, [load, t])
 
   async function toggle(item: FeedItem, type: ReactionType) {
     try {
@@ -38,22 +40,20 @@ export function FeedPage() {
       await load(0)
       setPage(0)
     } catch {
-      setError('Não foi possível registrar a reação.')
+      setError(t('feed.reactError'))
     }
   }
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-extrabold">Feed do par</h1>
+      <h1 className="text-2xl font-extrabold">{t('feed.title')}</h1>
 
       {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
       {items.length === 0 ? (
-        <p className="text-sm text-faint">
-          Nada por aqui ainda. Registre refeições e atividades para alimentar o feed.
-        </p>
+        <p className="text-sm text-faint">{t('feed.empty')}</p>
       ) : (
         <ul className="space-y-3">
           {items.map((item) => (
@@ -62,7 +62,7 @@ export function FeedPage() {
                 <div>
                   <p className="text-sm">
                     <span className="font-bold text-ink">{item.actorName}</span>{' '}
-                    <span className="text-faint">registrou</span>
+                    <span className="text-faint">{t('feed.registered')}</span>
                   </p>
                   <p className="text-sm text-ink">{item.title}</p>
                 </div>
@@ -76,7 +76,7 @@ export function FeedPage() {
                   return (
                     <button
                       key={r.type}
-                      title={r.title}
+                      title={t(`feed.reaction.${r.type}`)}
                       onClick={() => toggle(item, r.type)}
                       className={`flex items-center gap-1 rounded-full border px-3 py-1 text-sm transition ${
                         active
@@ -90,7 +90,7 @@ export function FeedPage() {
                   )
                 })}
                 <span className="ml-auto text-xs text-faint">
-                  {new Date(item.createdAt).toLocaleString('pt-BR')}
+                  {new Date(item.createdAt).toLocaleString(i18n.language)}
                 </span>
               </div>
             </li>
@@ -99,8 +99,8 @@ export function FeedPage() {
       )}
 
       {!last && (
-        <button onClick={() => load(page + 1).catch(() => setError('Falha ao carregar mais.'))} className="btn-ghost w-full">
-          Carregar mais
+        <button onClick={() => load(page + 1).catch(() => setError(t('feed.loadMoreError')))} className="btn-ghost w-full">
+          {t('common.loadMore')}
         </button>
       )}
     </div>
@@ -108,6 +108,7 @@ export function FeedPage() {
 }
 
 function Badge({ type, isPrivate }: { type: FeedItem['type']; isPrivate: boolean }) {
+  const { t } = useTranslation()
   const isMeal = type === 'MEAL_LOGGED'
   return (
     <div className="flex items-center gap-1">
@@ -116,9 +117,9 @@ function Badge({ type, isPrivate }: { type: FeedItem['type']; isPrivate: boolean
           isMeal ? 'bg-lime-400/15 text-accent' : 'bg-amber-400/15 text-warn'
         }`}
       >
-        {isMeal ? 'Refeição' : 'Atividade'}
+        {isMeal ? t('feed.meal') : t('feed.activity')}
       </span>
-      {isPrivate && <span className="rounded-full bg-surface2 px-2 py-0.5 text-xs text-faint">privada</span>}
+      {isPrivate && <span className="rounded-full bg-surface2 px-2 py-0.5 text-xs text-faint">{t('feed.private')}</span>}
     </div>
   )
 }
