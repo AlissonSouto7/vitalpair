@@ -22,6 +22,7 @@ export function Layout() {
               <NavItem to="/activity" label="Atividade" />
               <NavItem to="/feed" label="Feed" />
               <NavItem to="/pair" label="Par" />
+              <NavItem to="/gamification" label="Conquistas" />
               <NavItem to="/profile" label="Perfil" />
             </nav>
           </div>
