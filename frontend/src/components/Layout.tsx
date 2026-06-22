@@ -20,6 +20,7 @@ export function Layout() {
               <NavItem to="/dashboard" label="Dashboard" />
               <NavItem to="/nutrition" label="Refeições" />
               <NavItem to="/activity" label="Atividade" />
+              <NavItem to="/feed" label="Feed" />
               <NavItem to="/profile" label="Perfil" />
             </nav>
           </div>
