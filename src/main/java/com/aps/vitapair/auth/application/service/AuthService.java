@@ -17,6 +17,7 @@ import com.aps.vitapair.auth.domain.port.out.TokenProviderPort;
 import com.aps.vitapair.config.JwtProperties;
 import com.aps.vitapair.pair.domain.model.Pair;
 import com.aps.vitapair.pair.domain.model.PairStatus;
+import com.aps.vitapair.pair.domain.model.RelationshipType;
 import com.aps.vitapair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitapair.shared.exception.BusinessRuleException;
 import com.aps.vitapair.user.domain.model.User;
@@ -131,6 +132,7 @@ public class AuthService
         Pair tenant = pairRepository.save(Pair.builder()
                 .inviteCode(generateInviteCode())
                 .status(PairStatus.PENDING)
+                .relationshipType(RelationshipType.PAIR)
                 .build());
         User user = userRepository.save(User.builder()
                 .tenantId(tenant.getId())

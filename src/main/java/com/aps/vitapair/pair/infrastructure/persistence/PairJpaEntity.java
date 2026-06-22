@@ -1,6 +1,7 @@
 package com.aps.vitapair.pair.infrastructure.persistence;
 
 import com.aps.vitapair.pair.domain.model.PairStatus;
+import com.aps.vitapair.pair.domain.model.RelationshipType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -46,6 +47,10 @@ public class PairJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PairStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "relationship_type", nullable = false)
+    private RelationshipType relationshipType;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,8 +1,18 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { AxiosError } from 'axios'
-import { getPair, joinPair } from '../../api/pair'
+import { getPair, joinPair, updateRelationshipType } from '../../api/pair'
 import { refreshSession } from '../../api/auth'
-import type { Pair } from '../../types/pair'
+import { Select } from '../../components/ui/Select'
+import type { Pair, RelationshipType } from '../../types/pair'
+
+const RELATIONSHIP_OPTIONS: { value: RelationshipType; label: string }[] = [
+  { value: 'PAIR', label: 'Casal' },
+  { value: 'DUO', label: 'Dupla' },
+  { value: 'FRIENDS', label: 'Amigos' },
+  { value: 'CONFIDANTS', label: 'Confidentes' },
+  { value: 'BROTHERS', label: 'Brothers' },
+  { value: 'OTHER', label: 'Outro' },
+]
 
 export function PairPage() {
   const [pair, setPair] = useState<Pair | null>(null)
@@ -15,9 +25,18 @@ export function PairPage() {
   useEffect(() => {
     getPair()
       .then(setPair)
-      .catch(() => setError('Não foi possível carregar o par.'))
+      .catch(() => setError('Não foi possível carregar a relação.'))
       .finally(() => setLoading(false))
   }, [])
+
+  async function changeType(type: RelationshipType) {
+    try {
+      const updated = await updateRelationshipType(type)
+      setPair(updated)
+    } catch {
+      setError('Não foi possível atualizar o tipo de relação.')
+    }
+  }
 
   async function copyCode() {
     if (!pair) return
@@ -37,7 +56,7 @@ export function PairPage() {
       setCode('')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não foi possível entrar no par.')
+      setError(message ?? 'Não foi possível entrar na relação.')
     } finally {
       setJoining(false)
     }
@@ -47,13 +66,18 @@ export function PairPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
-      <h1 className="text-2xl font-extrabold">Seu par</h1>
+      <h1 className="text-2xl font-extrabold">Sua relação</h1>
 
       {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
 
+      <div className="card">
+        <label className="label">Tipo de relação</label>
+        <Select value={pair?.relationshipType ?? 'PAIR'} onChange={changeType} options={RELATIONSHIP_OPTIONS} />
+      </div>
+
       {pair?.status === 'ACTIVE' ? (
         <div className="card glow-lime">
-          <p className="mb-3 font-bold text-lime-300">{pair.pairName ?? 'Vocês estão pareados!'} 🎉</p>
+          <p className="mb-3 font-bold text-lime-300">{pair.pairName ?? 'Vocês estão conectados!'} 🎉</p>
           <ul className="space-y-2">
             {pair.members.map((m) => (
               <li key={m.userId} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-800/40 px-3 py-2">
@@ -71,8 +95,8 @@ export function PairPage() {
       ) : (
         <>
           <div className="card">
-            <h2 className="mb-1 text-sm font-semibold text-slate-300">Convide seu parceiro</h2>
-            <p className="mb-3 text-xs text-slate-500">Compartilhe este código para a outra pessoa entrar no seu par.</p>
+            <h2 className="mb-1 text-sm font-semibold text-slate-300">Convide a outra pessoa</h2>
+            <p className="mb-3 text-xs text-slate-500">Compartilhe este código para a outra pessoa entrar na sua relação.</p>
             <div className="flex items-center gap-2">
               <code className="flex-1 rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-3 text-center text-2xl font-extrabold tracking-[0.3em] text-lime-400">
                 {pair?.inviteCode}
@@ -91,7 +115,7 @@ export function PairPage() {
               <input
                 type="text"
                 required
-                placeholder="Código do parceiro"
+                placeholder="Código recebido"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="input uppercase tracking-[0.3em]"
