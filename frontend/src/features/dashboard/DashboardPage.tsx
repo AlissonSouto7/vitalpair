@@ -17,8 +17,8 @@ export function DashboardPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <p className="text-slate-400">Carregando...</p>
-  if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-400">{error}</p>
+  if (loading) return <p className="text-muted">Carregando...</p>
+  if (error) return <p className="rounded-lg bg-red-500/10 px-3 py-2 text-red-500">{error}</p>
   if (!data) return null
 
   const me = data.me
@@ -29,11 +29,11 @@ export function DashboardPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-extrabold">Hoje</h1>
-        <p className="text-sm text-slate-500">{formatDate(data.date)}</p>
+        <p className="text-sm text-faint">{formatDate(data.date)}</p>
       </div>
 
       {me.calorieTarget == null && (
-        <Link to="/profile" className="block rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-300 hover:bg-amber-500/20">
+        <Link to="/profile" className="block rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-warn hover:bg-amber-500/20">
           ⚡ Complete seu perfil para liberar suas metas e o placar →
         </Link>
       )}
@@ -45,30 +45,30 @@ export function DashboardPage() {
             <span className="text-2xl font-extrabold" style={{ color: ringColor }}>
               {me.consumedCalories}
             </span>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-faint">
               {me.calorieTarget != null ? `de ${me.calorieTarget}` : 'kcal'}
             </span>
           </ProgressRing>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Restante</p>
+            <p className="text-xs uppercase tracking-wide text-faint">Restante</p>
             <p className="text-3xl font-extrabold" style={{ color: ringColor }}>
               {me.remainingCalories != null ? `${me.remainingCalories}` : '—'}
-              <span className="text-base font-medium text-slate-500"> kcal</span>
+              <span className="text-base font-medium text-faint"> kcal</span>
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-faint">
               consumido {me.consumedCalories} · gasto {me.burnedCalories} · saldo {me.netCalories}
             </p>
           </div>
         </div>
 
         {data.partner && (
-          <div className="w-full rounded-xl border border-slate-800 bg-slate-800/40 p-3 sm:w-44">
-            <p className="text-xs text-slate-500">Parceiro</p>
-            <p className="font-semibold text-cyan-400">{data.partner.name}</p>
-            <p className="mt-1 text-sm text-slate-300">
+          <div className="w-full rounded-xl border border-line bg-surface2/40 p-3 sm:w-44">
+            <p className="text-xs text-faint">Parceiro</p>
+            <p className="font-semibold text-info">{data.partner.name}</p>
+            <p className="mt-1 text-sm text-ink">
               saldo <span className="font-bold">{data.partner.netCalories}</span> kcal
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-faint">
               {data.partner.consumedCalories} consumido · {data.partner.burnedCalories} gasto
             </p>
           </div>
@@ -77,13 +77,13 @@ export function DashboardPage() {
 
       {/* Macros */}
       <div className="card">
-        <h2 className="mb-4 text-sm font-semibold text-slate-300">Macros</h2>
+        <h2 className="mb-4 text-sm font-semibold text-ink">Macros</h2>
         <div className="space-y-4">
           <Macro label="Proteína" value={me.consumedProteinG} target={me.proteinTargetG} color="bg-lime-400" />
           <Macro label="Carboidrato" value={me.consumedCarbG} target={me.carbTargetG} color="bg-cyan-400" />
           <Macro label="Gordura" value={me.consumedFatG} target={me.fatTargetG} color="bg-amber-400" />
         </div>
-        <p className="mt-4 text-xs text-slate-500">
+        <p className="mt-4 text-xs text-faint">
           {me.mealCount} refeição(ões) · {me.steps} passos
         </p>
       </div>
@@ -105,8 +105,8 @@ function Macro({
   return (
     <div>
       <div className="mb-1.5 flex justify-between text-xs">
-        <span className="text-slate-400">{label}</span>
-        <span className="text-slate-500">
+        <span className="text-muted">{label}</span>
+        <span className="text-faint">
           {value}
           {target != null ? ` / ${target} g` : ' g'}
         </span>

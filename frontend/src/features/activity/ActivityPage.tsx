@@ -80,12 +80,12 @@ export function ActivityPage() {
 
       {summary && (
         <div className="card text-sm">
-          <span className="text-xl font-extrabold text-amber-400">{summary.totalCaloriesBurned}</span>
-          <span className="text-slate-500"> kcal gastas · {summary.totalSteps} passos · {summary.activityCount} atividade(s)</span>
+          <span className="text-xl font-extrabold text-warn">{summary.totalCaloriesBurned}</span>
+          <span className="text-faint"> kcal gastas · {summary.totalSteps} passos · {summary.activityCount} atividade(s)</span>
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
       <form onSubmit={handleSubmit} className="card space-y-3">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -102,7 +102,7 @@ export function ActivityPage() {
             <Select value={source} onChange={setSource} options={SOURCE_OPTIONS} />
           </div>
         </div>
-        <p className="text-xs text-slate-500">Deixe as calorias vazias para estimar automaticamente a partir dos passos.</p>
+        <p className="text-xs text-faint">Deixe as calorias vazias para estimar automaticamente a partir dos passos.</p>
         <button
           type="submit"
           disabled={saving}
@@ -113,16 +113,16 @@ export function ActivityPage() {
       </form>
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-slate-300">Hoje</h2>
+        <h2 className="mb-2 text-sm font-semibold text-ink">Hoje</h2>
         {logs.length === 0 ? (
-          <p className="text-sm text-slate-500">Nenhuma atividade registrada hoje.</p>
+          <p className="text-sm text-faint">Nenhuma atividade registrada hoje.</p>
         ) : (
-          <ul className="divide-y divide-slate-800 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70">
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface/70">
             {logs.map((log) => (
               <li key={log.id} className="flex items-center justify-between px-4 py-3">
                 <div>
-                  <p className="text-sm text-slate-200">{TYPE_LABEL[log.activityType]}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm text-ink">{TYPE_LABEL[log.activityType]}</p>
+                  <p className="text-xs text-faint">
                     {log.steps != null ? `${log.steps} passos · ` : ''}
                     {log.durationMinutes != null ? `${log.durationMinutes} min · ` : ''}
                     {log.caloriesBurned} kcal

@@ -81,12 +81,12 @@ export function ProfilePage() {
     }
   }
 
-  if (loading) return <p className="text-slate-400">Carregando...</p>
+  if (loading) return <p className="text-muted">Carregando...</p>
 
   return (
     <div className="mx-auto max-w-lg">
       <h1 className="text-2xl font-extrabold">Seu perfil</h1>
-      <p className="mb-5 mt-1 text-sm text-slate-500">
+      <p className="mb-5 mt-1 text-sm text-faint">
         Preencha para liberar suas metas de calorias, macros e o placar.
       </p>
 
@@ -144,7 +144,7 @@ export function ProfilePage() {
           <Select value={activityLevel} onChange={setActivityLevel} options={ACTIVITY_OPTIONS} />
         </Field>
 
-        {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+        {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p>}
 
         <button type="submit" disabled={saving} className="btn-primary w-full">
           {saving ? 'Salvando...' : 'Salvar perfil'}
@@ -167,7 +167,7 @@ function Unit({ unit, children }: { unit: string; children: ReactNode }) {
   return (
     <div className="relative">
       {children}
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-faint">
         {unit}
       </span>
     </div>

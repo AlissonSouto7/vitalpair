@@ -43,11 +43,11 @@ export function Select<T extends string>({
         onClick={() => setOpen((o) => !o)}
         className="input flex items-center justify-between gap-2 text-left"
       >
-        <span className={selected ? 'text-slate-100' : 'text-slate-500'}>
+        <span className={selected ? 'text-ink' : 'text-faint'}>
           {selected ? selected.label : placeholder}
         </span>
         <svg
-          className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`}
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -60,7 +60,7 @@ export function Select<T extends string>({
       </button>
 
       {open && (
-        <ul className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-slate-700 bg-slate-900 p-1 shadow-xl shadow-black/60">
+        <ul className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-line bg-surface p-1 shadow-xl shadow-black/60">
           {options.map((o) => {
             const active = o.value === value
             return (
@@ -72,11 +72,11 @@ export function Select<T extends string>({
                     setOpen(false)
                   }}
                   className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
-                    active ? 'bg-lime-400/15 font-medium text-lime-300' : 'text-slate-200 hover:bg-slate-800'
+                    active ? 'bg-lime-400/15 font-medium text-accent' : 'text-ink hover:bg-surface2'
                   }`}
                 >
                   {o.label}
-                  {active && <span className="text-lime-400">✓</span>}
+                  {active && <span className="text-accent">✓</span>}
                 </button>
               </li>
             )
