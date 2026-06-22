@@ -19,6 +19,7 @@ export function Layout() {
             <nav className="flex gap-4 text-sm">
               <NavItem to="/dashboard" label="Dashboard" />
               <NavItem to="/nutrition" label="Refeições" />
+              <NavItem to="/activity" label="Atividade" />
               <NavItem to="/profile" label="Perfil" />
             </nav>
           </div>
