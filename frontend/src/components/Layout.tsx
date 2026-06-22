@@ -18,6 +18,7 @@ export function Layout() {
             <span className="text-lg font-bold text-blue-700">VitaPair</span>
             <nav className="flex gap-4 text-sm">
               <NavItem to="/dashboard" label="Dashboard" />
+              <NavItem to="/nutrition" label="Refeições" />
               <NavItem to="/profile" label="Perfil" />
             </nav>
           </div>
