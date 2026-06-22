@@ -5,6 +5,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { NutritionPage } from '../features/nutrition/NutritionPage'
 import { ActivityPage } from '../features/activity/ActivityPage'
 import { FeedPage } from '../features/feed/FeedPage'
+import { PairPage } from '../features/pair/PairPage'
 import { ProfilePage } from '../features/profile/ProfilePage'
 import { Layout } from '../components/Layout'
 import { ProtectedRoute } from './ProtectedRoute'
@@ -21,6 +22,7 @@ export function AppRouter() {
             <Route path="/nutrition" element={<NutritionPage />} />
             <Route path="/activity" element={<ActivityPage />} />
             <Route path="/feed" element={<FeedPage />} />
+            <Route path="/pair" element={<PairPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

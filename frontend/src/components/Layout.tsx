@@ -21,6 +21,7 @@ export function Layout() {
               <NavItem to="/nutrition" label="Refeições" />
               <NavItem to="/activity" label="Atividade" />
               <NavItem to="/feed" label="Feed" />
+              <NavItem to="/pair" label="Par" />
               <NavItem to="/profile" label="Perfil" />
             </nav>
           </div>
