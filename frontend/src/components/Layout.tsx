@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
+import { NotificationsBell } from './NotificationsBell'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -47,6 +48,7 @@ export function Layout() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationsBell />
             <button
               onClick={toggle}
               title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}

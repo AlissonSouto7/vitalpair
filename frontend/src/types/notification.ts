@@ -1,0 +1,15 @@
+export type NotificationType = 'PARTNER_MEAL' | 'PARTNER_ACTIVITY' | 'PAIR_FORMED'
+
+export interface AppNotification {
+  id: string
+  type: NotificationType
+  title: string
+  body: string
+  read: boolean
+  createdAt: string
+}
+
+export interface NotificationFeed {
+  unreadCount: number
+  items: AppNotification[]
+}
