@@ -13,6 +13,11 @@ export async function login(payload: LoginPayload): Promise<TokenResponse> {
   return res.data.data
 }
 
+export async function googleLogin(idToken: string): Promise<TokenResponse> {
+  const res = await api.post<ApiResponse<TokenResponse>>('/auth/oauth2/google', { idToken })
+  return res.data.data
+}
+
 export async function logout(refreshToken: string): Promise<void> {
   await api.post('/auth/logout', { refreshToken })
 }

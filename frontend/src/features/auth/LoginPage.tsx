@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import { useAuth } from '../../hooks/useAuth'
+import { GoogleLoginButton } from '../../components/GoogleLoginButton'
 
 export function LoginPage() {
   const { login } = useAuth()
@@ -66,6 +67,14 @@ export function LoginPage() {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
+          <span className="h-px flex-1 bg-slate-200" />
+          ou
+          <span className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <GoogleLoginButton onError={setError} />
 
         <p className="mt-6 text-center text-sm text-slate-500">
           Não tem conta?{' '}
