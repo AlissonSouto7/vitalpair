@@ -19,5 +19,6 @@ public class Pair {
     private final String pairName;
     private final String inviteCode;
     private final PairStatus status;
+    private final RelationshipType relationshipType;
     private final Instant createdAt;
 }

@@ -95,9 +95,10 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 | GET | `/api/v1/users/me` | Perfil do usuário autenticado | JWT |
 | PUT | `/api/v1/users/me` | Atualiza o perfil e recalcula TDEE/macros | JWT |
 | GET | `/api/v1/users/me/tdee` | BMR, TDEE, meta calórica e macros | JWT |
-| GET | `/api/v1/pair` | Par atual (membros e status) | JWT |
+| GET | `/api/v1/pair` | Relação atual (membros, status e tipo) | JWT |
 | POST | `/api/v1/pair/invite` | Retorna o código de convite do par | JWT |
 | POST | `/api/v1/pair/join/{code}` | Aceita um convite e forma o par | JWT |
+| PUT | `/api/v1/pair/type` | Define o tipo de relação (casal, dupla, amigos...) | JWT |
 | GET | `/api/v1/pair/feed?page=&size=` | Timeline do par (refeições privadas só aparecem para o autor) | JWT |
 | POST | `/api/v1/pair/feed/{id}/reactions` | Reage a um item (FIRE, EYE, STRENGTH) | JWT |
 | DELETE | `/api/v1/pair/feed/{id}/reactions/{type}` | Remove a reação | JWT |

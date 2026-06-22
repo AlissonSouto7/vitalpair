@@ -4,9 +4,11 @@ import com.aps.vitapair.pair.application.dto.MemberView;
 import com.aps.vitapair.pair.application.dto.PairView;
 import com.aps.vitapair.pair.domain.model.Pair;
 import com.aps.vitapair.pair.domain.model.PairStatus;
+import com.aps.vitapair.pair.domain.model.RelationshipType;
 import com.aps.vitapair.pair.domain.port.in.GenerateInviteUseCase;
 import com.aps.vitapair.pair.domain.port.in.GetCurrentPairUseCase;
 import com.aps.vitapair.pair.domain.port.in.JoinPairUseCase;
+import com.aps.vitapair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
 import com.aps.vitapair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitapair.shared.event.PairFormedEvent;
 import com.aps.vitapair.shared.exception.BusinessRuleException;
@@ -25,7 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
  * do par convidante, o par é ativado e o par pendente vazio do convidado é removido.
  */
 @Service
-public class PairService implements GetCurrentPairUseCase, GenerateInviteUseCase, JoinPairUseCase {
+public class PairService
+        implements GetCurrentPairUseCase, GenerateInviteUseCase, JoinPairUseCase, UpdateRelationshipTypeUseCase {
 
     private final PairRepositoryPort pairRepository;
     private final UserRepositoryPort userRepository;
@@ -98,6 +101,13 @@ public class PairService implements GetCurrentPairUseCase, GenerateInviteUseCase
         return toView(activated);
     }
 
+    @Override
+    @Transactional
+    public PairView updateRelationshipType(UUID userId, RelationshipType type) {
+        Pair pair = currentPairOf(userId);
+        return toView(pairRepository.save(pair.toBuilder().relationshipType(type).build()));
+    }
+
     private Pair currentPairOf(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
@@ -109,7 +119,9 @@ public class PairService implements GetCurrentPairUseCase, GenerateInviteUseCase
         List<MemberView> members = new ArrayList<>();
         addMember(members, pair.getUser1Id());
         addMember(members, pair.getUser2Id());
-        return new PairView(pair.getId(), pair.getPairName(), pair.getStatus(), pair.getInviteCode(), members);
+        return new PairView(
+                pair.getId(), pair.getPairName(), pair.getStatus(), pair.getRelationshipType(),
+                pair.getInviteCode(), members);
     }
 
     private void addMember(List<MemberView> members, UUID userId) {

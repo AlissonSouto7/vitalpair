@@ -6,7 +6,7 @@ const NAV = [
   { to: '/nutrition', label: 'Refeições' },
   { to: '/activity', label: 'Atividade' },
   { to: '/feed', label: 'Feed' },
-  { to: '/pair', label: 'Par' },
+  { to: '/pair', label: 'Relação' },
   { to: '/gamification', label: 'Conquistas' },
   { to: '/profile', label: 'Perfil' },
 ]

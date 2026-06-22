@@ -13,6 +13,7 @@ import com.aps.vitapair.nutrition.domain.port.in.GetDailySummaryUseCase;
 import com.aps.vitapair.pair.application.dto.MemberView;
 import com.aps.vitapair.pair.application.dto.PairView;
 import com.aps.vitapair.pair.domain.model.PairStatus;
+import com.aps.vitapair.pair.domain.model.RelationshipType;
 import com.aps.vitapair.pair.domain.port.in.GetCurrentPairUseCase;
 import java.time.LocalDate;
 import java.util.List;
@@ -80,6 +81,6 @@ class DashboardServiceTest {
     }
 
     private PairView pair(MemberView... members) {
-        return new PairView(UUID.randomUUID(), "Par", PairStatus.ACTIVE, "CODE1234", List.of(members));
+        return new PairView(UUID.randomUUID(), "Par", PairStatus.ACTIVE, RelationshipType.PAIR, "CODE1234", List.of(members));
     }
 }
