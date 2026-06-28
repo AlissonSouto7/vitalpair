@@ -2,11 +2,11 @@
 
 - **Status:** Aceito
 - **Data:** 2025-06-21
-- **Contexto do projeto:** VitaPair (ver `docs/ARQUITETURA.md`)
+- **Contexto do projeto:** VitalPair (ver `docs/ARQUITETURA.md`)
 
 ## Contexto
 
-O VitaPair é um monólito modular que nasce como MVP para um casal mas tem roadmap de virar SaaS. Precisamos de uma arquitetura que:
+O VitalPair é um monólito modular que nasce como MVP para um casal mas tem roadmap de virar SaaS. Precisamos de uma arquitetura que:
 
 - Isole regra de negócio de detalhes técnicos (banco, web, APIs externas), para testar o domínio sem subir Spring nem banco.
 - Tenha fronteiras claras por feature, facilitando manutenção e a eventual extração de um módulo para serviço separado.

@@ -19,13 +19,40 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  # SMTP (envio de e-mail real). Em dev fica vazio e o envio é desligado (ver vitalpair.mail.enabled).
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS:true}
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
 
-vitapair:
+vitalpair:
+  app:
+    # Base do frontend, usada para montar o link de redefinição de senha enviado por e-mail.
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
   jwt:
     # Em produção, JWT_SECRET deve ter no mínimo 32 caracteres (256 bits para HS256).
     secret: ${JWT_SECRET:}
     access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}
+  password-reset:
+    token-ttl-ms: ${PASSWORD_RESET_TTL_MS:1800000}
+  email-verification:
+    token-ttl-ms: ${EMAIL_VERIFICATION_TTL_MS:86400000}
+  mail:
+    # Em dev fica desabilitado: o link de redefinição é apenas logado no console.
+    # Em produção, defina MAIL_ENABLED=true e as variáveis spring.mail.* (SMTP).
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:VitalPair <no-reply@vitapair.app>}
   cors:
     allowed-origins: ${FRONTEND_URL:http://localhost:5173}
   oauth2:
@@ -34,7 +61,20 @@ vitapair:
   openfoodfacts:
     base-url: https://world.openfoodfacts.org
     search-url: https://search.openfoodfacts.org
-    user-agent: ${OPEN_FOOD_FACTS_USER_AGENT:VitaPair/1.0 (contact@vitapair.app)}
+    user-agent: ${OPEN_FOOD_FACTS_USER_AGENT:VitalPair/1.0 (contact@vitapair.app)}
+  ai:
+    anthropic:
+      # Análise de refeição por foto (visão). Com a chave em branco, a integração fica desligada
+      # e o endpoint POST /api/v1/nutrition/photo responde 503 com mensagem amigável.
+      api-key: ${ANTHROPIC_API_KEY:}
+      base-url: https://api.anthropic.com
+      model: claude-opus-4-8
+
+management:
+  health:
+    # Não amarrar a saúde do app à disponibilidade do SMTP (e em dev o host fica vazio).
+    mail:
+      enabled: false
 
 springdoc:
   swagger-ui:
@@ -42,4 +82,4 @@ springdoc:
 
 logging:
   level:
-    com.aps.vitapair: ${LOG_LEVEL:INFO}
+    com.aps.vitalpair: ${LOG_LEVEL:INFO}

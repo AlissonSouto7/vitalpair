@@ -22,6 +22,22 @@ export async function logout(refreshToken: string): Promise<void> {
   await api.post('/auth/logout', { refreshToken })
 }
 
+export async function forgotPassword(email: string): Promise<void> {
+  await api.post('/auth/forgot-password', { email })
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await api.post('/auth/reset-password', { token, newPassword })
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  await api.post('/auth/verify-email', { token })
+}
+
+export async function resendVerification(email: string): Promise<void> {
+  await api.post('/auth/resend-verification', { email })
+}
+
 /** Reemite os tokens para refletir mudanças (ex: tenant após formar o par). */
 export async function refreshSession(): Promise<void> {
   const refreshToken = useAuthStore.getState().refreshToken

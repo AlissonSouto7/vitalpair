@@ -1,4 +1,16 @@
-export type NotificationType = 'PARTNER_MEAL' | 'PARTNER_ACTIVITY' | 'PAIR_FORMED'
+export type NotificationType =
+  | 'PARTNER_MEAL'
+  | 'PARTNER_ACTIVITY'
+  | 'PAIR_FORMED'
+  | 'RIVAL_OVERTOOK'
+  | 'FLASH_MISSION'
+  | 'LOG_REMINDER'
+
+export interface NotificationPrefs {
+  notifyRival: boolean
+  notifyFlash: boolean
+  notifyReminder: boolean
+}
 
 export interface AppNotification {
   id: string

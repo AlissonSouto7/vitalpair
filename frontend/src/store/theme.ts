@@ -3,10 +3,12 @@ export type Theme = 'dark' | 'light'
 const KEY = 'vitapair-theme'
 
 export function getTheme(): Theme {
-  return localStorage.getItem(KEY) === 'light' ? 'light' : 'dark'
+  const saved = localStorage.getItem(KEY)
+  if (saved === 'dark' || saved === 'light') return saved
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 export function applyTheme(theme: Theme): void {
-  document.documentElement.classList.toggle('light', theme === 'light')
+  document.documentElement.classList.toggle('dark', theme === 'dark')
   localStorage.setItem(KEY, theme)
 }

@@ -9,12 +9,12 @@ spring:
       hibernate:
         format_sql: true
 
-vitapair:
+vitalpair:
   jwt:
     # Segredo padrão APENAS para desenvolvimento local. Em produção use a env var JWT_SECRET.
     secret: ${JWT_SECRET:vitapair-dev-secret-change-me-please-0123456789abcdef}
 
 logging:
   level:
-    com.aps.vitapair: DEBUG
+    com.aps.vitalpair: DEBUG
     org.hibernate.SQL: DEBUG

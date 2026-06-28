@@ -1,4 +1,4 @@
-# VitaPair — Backend
+# VitalPair — Backend
 
 App web de saúde e fitness para **casais** com objetivos opostos ou complementares (ex: um quer perder peso, o outro ganhar massa). O sistema gerencia os dois de forma independente mas conectada, com competição, feed compartilhado e gamificação.
 

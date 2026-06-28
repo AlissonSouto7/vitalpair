@@ -5,7 +5,7 @@ spring:
     compose:
       enabled: false
 
-vitapair:
+vitalpair:
   jwt:
     secret: test-secret-0123456789-0123456789-0123456789
     access-expiration-ms: 900000

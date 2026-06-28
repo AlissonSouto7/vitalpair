@@ -5,6 +5,7 @@ export type ActivityLevel = 'SEDENTARY' | 'LIGHT' | 'MODERATE' | 'ACTIVE' | 'VER
 export interface UserProfile {
   id: string
   email: string
+  emailVerified: boolean
   name: string
   birthDate: string | null
   sex: Sex | null
