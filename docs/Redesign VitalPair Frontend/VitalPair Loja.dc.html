@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=Nunito:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0}.vp-ico{width:21px;height:21px;display:block;fill:currentColor}
+@keyframes vpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes vpRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes vpGlow{0%,100%{opacity:.5}50%{opacity:.95}}
+@keyframes vpPop{0%{opacity:0;transform:scale(.85)}60%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+  <aside style="width:236px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--hair);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;padding:22px 16px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px;margin-bottom:26px">
+      <div style="width:40px;height:46px"><dc-import name="Broto" who="you" expr="happy" level="6" size="46" hint-size="38px,46px"></dc-import></div>
+      <div><div style="font:600 20px 'Fredoka';letter-spacing:-.02em;color:var(--ink);line-height:1">VitalPair</div><div style="font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-top:3px">SAÚDE É MELHOR EM DUPLA</div></div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:2px">
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M12 3l9 8h-2.4v9h-5.1v-5.6h-3v5.6H5.4v-9H3z"/></svg>Início</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M9 4h6l1.2 2H20a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2.8zm3 4.5A4.2 4.2 0 1012 17a4.2 4.2 0 000-8.5z"/></svg>Registrar</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M8 7a3 3 0 116 0 3 3 0 01-6 0zm9 1.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM3 19c0-3 2.7-5 8-5s8 2 8 5v1H3z"/></svg>Feed do par</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M7 4h10v2h3v3a4 4 0 01-4 4 5 5 0 01-3 2v2h3v3H8v-3h3v-2a5 5 0 01-3-2 4 4 0 01-4-4V6h3z"/></svg>Temporada</a>
+      <a style="{{ navActiveStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M5 7h14l-1 4H6zM4 4h2l1 3m0 0l1.5 8.5h7L17 7M9 20a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>Lojinha</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M4 19V11h3v8zm6.5 0V5h3v14zM17 19v-6h3v6z"/></svg>Progresso</a>
+    </nav>
+    <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:9px 8px;border-top:1px solid var(--hair)">
+      <div style="width:32px;height:32px;border-radius:10px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Nunito';flex-shrink:0">A</div>
+      <div style="line-height:1.2"><div style="font-size:13px;font-weight:800;color:var(--ink)">Alisson</div><div style="font-size:11px;color:var(--muted);font-weight:600">Nível 8 · Ativo</div></div>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;height:100vh;overflow-y:auto">
+    <div style="max-width:1000px;margin:0 auto;padding:28px 36px 60px">
+
+      <!-- header: título + saldos -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h1 style="font:600 28px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0">Lojinha do Broto</h1>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:8px 13px">
+            <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--brand)"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5" fill="rgba(0,0,0,.12)"/></svg>
+            <span style="font:800 14px 'Nunito';color:var(--ink)">1.240</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:8px 13px">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#3b82f6"><path d="M6 3h12l3 5-9 13L3 8z"/></svg>
+            <span style="font:800 14px 'Nunito';color:var(--ink)">18</span>
+          </div>
+          <button onClick="{{ toggleTheme }}" style="width:36px;height:36px;border-radius:11px;border:1px solid var(--hair);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center"><sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z"/></svg></sc-if><sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor"><path d="M12 7a5 5 0 100 10 5 5 0 000-10z"/></svg></sc-if></button>
+        </div>
+      </div>
+      <p style="font-size:13.5px;color:var(--muted);font-weight:600;margin:0 0 20px">Deixa o seu Broto com a sua cara. E manda um mimo (ou um perrengue) pra Célia.</p>
+
+      <!-- tabs -->
+      <div style="display:flex;gap:5px;background:var(--track);padding:4px;border-radius:13px;margin-bottom:22px;max-width:300px">
+        <button onClick="{{ tabMeu }}" style="{{ tMeu }}">Meu Broto</button>
+        <button onClick="{{ tabLoja }}" style="{{ tLoja }}">Vitrine</button>
+      </div>
+
+      <!-- ===================== MEU BROTO ===================== -->
+      <sc-if value="{{ isMeu }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:300px 1fr;gap:22px">
+
+        <!-- showcase -->
+        <div style="background:{{ stageBg }};border:1px solid var(--hair);border-radius:22px;padding:26px 20px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--muted);align-self:flex-start">SEU BROTO · NÍVEL 8</div>
+          <div style="position:relative;width:190px;height:230px;margin:14px 0 6px;display:flex;align-items:flex-end;justify-content:center">
+            <!-- fundo equipado -->
+            <sc-if value="{{ hasBg }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:8px 0 30px;border-radius:50%;background:{{ bgFill }};opacity:.9"></div></sc-if>
+            <!-- vaso (atrás dos pés, mas na frente do corpo de baixo) -->
+            <div style="position:absolute;top:202px;left:50%;transform:translate(-50%,-50%);z-index:5">{{ potEl }}</div>
+            <!-- chapéu -->
+            <div style="position:absolute;top:120px;left:50%;transform:translate(-50%,-50%);z-index:6">{{ hatEl }}</div>
+            <!-- broto -->
+            <div style="position:relative;z-index:2"><dc-import name="Broto" who="you" expr="happy" level="8" size="160" hint-size="134px,160px"></dc-import></div>
+            <!-- óculos -->
+            <div style="position:absolute;top:150px;left:50%;transform:translate(-50%,-50%);z-index:4">{{ faceEl }}</div>
+          </div>
+          <div style="font:600 17px 'Fredoka';color:var(--onStage);margin-top:6px">Tito</div>
+          <div style="font-size:11.5px;color:var(--onStageMuted);font-weight:700">{{ equippedCount }} itens equipados</div>
+        </div>
+
+        <!-- armário -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font:600 17px 'Fredoka';color:var(--ink)">Seu armário</div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted)">toque pra vestir ou tirar</div>
+          </div>
+          <sc-for list="{{ closetGroups }}" as="grp" hint-placeholder-count="3">
+            <div style="margin-bottom:18px">
+              <div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-bottom:9px">{{ grp.label }}</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+                <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="4">
+                  <button onClick="{{ it.onClick }}" style="{{ it.cardStyle }}">
+                    <sc-if value="{{ it.equipped }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:#fff"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span></sc-if>
+                    <div style="height:52px;display:flex;align-items:center;justify-content:center">{{ it.icon }}</div>
+                    <div style="font-size:11px;font-weight:800;color:var(--ink);text-align:center;line-height:1.2;margin-top:4px">{{ it.name }}</div>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+
+          <!-- presentear / sabotar -->
+          <div style="display:flex;gap:11px;margin-top:6px">
+            <div style="flex:1;background:var(--rivalSoft);border:1px solid var(--rivalLine);border-radius:16px;padding:15px 17px">
+              <div style="font:700 14px 'Nunito';color:var(--rival-ink);margin-bottom:3px">🎁 Presentear a Célia</div>
+              <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:11px">Manda um item pro Broto dela. Vai que ela retribui.</div>
+              <button onClick="{{ openGift }}" style="border:none;background:var(--rival);color:#fff;font:800 12.5px 'Nunito';padding:9px 15px;border-radius:11px;cursor:pointer">Escolher mimo</button>
+            </div>
+            <div style="flex:1;background:var(--dangerSoft);border:1px solid var(--dangerLine);border-radius:16px;padding:15px 17px">
+              <div style="font:700 14px 'Nunito';color:var(--danger);margin-bottom:3px">😈 Sabotar a Célia</div>
+              <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:11px">Um bigode tosco no Broto dela por 24h. Pura zoeira.</div>
+              <button onClick="{{ openSabotage }}" style="border:none;background:var(--danger);color:#fff;font:800 12.5px 'Nunito';padding:9px 15px;border-radius:11px;cursor:pointer">Aprontar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ===================== VITRINE ===================== -->
+      <sc-if value="{{ isLoja }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:13px">
+          <sc-for list="{{ shopItems }}" as="it" hint-placeholder-count="8">
+            <button onClick="{{ it.onOpen }}" style="position:relative;background:var(--surface);border:1.5px solid {{ it.border }};border-radius:18px;padding:16px 14px;cursor:pointer;text-align:center;overflow:hidden">
+              <sc-if value="{{ it.glow }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 28%, {{ it.glowColor }}, transparent 62%);animation:vpGlow 2.4s ease-in-out infinite;pointer-events:none"></div></sc-if>
+              <div style="position:relative;display:flex;justify-content:flex-start"><span style="font-size:9.5px;font-weight:800;letter-spacing:.05em;color:{{ it.rarityInk }};background:{{ it.raritySoft }};padding:3px 8px;border-radius:7px">{{ it.rarityLabel }}</span></div>
+              <div style="position:relative;height:66px;display:flex;align-items:center;justify-content:center;margin:6px 0">{{ it.icon }}</div>
+              <div style="position:relative;font-size:13px;font-weight:800;color:var(--ink);line-height:1.2">{{ it.name }}</div>
+              <div style="position:relative;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:9px">
+                {{ it.priceIcon }}<span style="font:800 13.5px 'Nunito';color:var(--ink)">{{ it.priceLabel }}</span>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+
+    <!-- ===================== DETALHE DO ITEM ===================== -->
+    <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDetail }}" style="position:fixed;inset:0;background:var(--scrim);z-index:40;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ stop }}" style="width:760px;max-width:100%;background:var(--canvas);border:1px solid var(--hair);border-radius:24px;overflow:hidden;display:flex">
+        <!-- preview no avatar -->
+        <div style="width:300px;flex-shrink:0;background:{{ stageBg }};padding:28px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
+          <div style="position:relative;width:190px;height:220px;display:flex;align-items:flex-end;justify-content:center">
+            <sc-if value="{{ detailIsBg }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:8px 0 30px;border-radius:50%;background:{{ detailBgFill }};opacity:.9"></div></sc-if>
+            <div style="position:absolute;top:192px;left:50%;transform:translate(-50%,-50%);z-index:5">{{ previewPot }}</div>
+            <div style="position:absolute;top:104px;left:50%;transform:translate(-50%,-50%);z-index:6">{{ previewHat }}</div>
+            <div style="position:relative;z-index:2"><dc-import name="Broto" who="you" expr="happy" level="8" size="160" hint-size="134px,160px"></dc-import></div>
+            <div style="position:absolute;top:140px;left:50%;transform:translate(-50%,-50%);z-index:4">{{ previewFace }}</div>
+          </div>
+          <div style="font-size:11.5px;font-weight:800;color:var(--onStageMuted);margin-top:8px">prévia no seu Broto</div>
+        </div>
+        <!-- info + comprar -->
+        <div style="flex:1;padding:30px 32px;display:flex;flex-direction:column">
+          <span style="align-self:flex-start;font-size:10px;font-weight:800;letter-spacing:.05em;color:{{ detailRarityInk }};background:{{ detailRaritySoft }};padding:4px 10px;border-radius:8px;margin-bottom:14px">{{ detailRarityLabel }}</span>
+          <h2 style="font:600 25px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0 0 8px">{{ detailName }}</h2>
+          <p style="font-size:13.5px;color:var(--muted);font-weight:600;line-height:1.55;margin:0 0 auto">{{ detailDesc }}</p>
+          <div style="display:flex;align-items:center;gap:8px;margin:22px 0 16px"><span style="font-size:12px;font-weight:700;color:var(--muted)">Custa</span>{{ detailPriceIcon }}<span style="font:600 22px 'Fredoka';color:var(--ink)">{{ detailPriceLabel }}</span></div>
+          <div style="display:flex;gap:10px">
+            <button onClick="{{ closeDetail }}" style="border:1.5px solid var(--hair);background:transparent;color:var(--ink);font:800 14px 'Nunito';padding:13px 20px;border-radius:13px;cursor:pointer">Voltar</button>
+            <button onClick="{{ openBuy }}" style="flex:1;border:none;background:var(--brand);color:#fff;font:800 14px 'Nunito';padding:13px;border-radius:13px;cursor:pointer">{{ detailCta }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===================== POP-UP DE COMPRA ===================== -->
+    <sc-if value="{{ buyOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeBuy }}" style="position:fixed;inset:0;background:var(--scrim);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ stop }}" style="width:360px;max-width:100%;background:var(--canvas);border:1px solid var(--hair);border-radius:22px;padding:28px 26px;text-align:center">
+        <div style="width:84px;height:84px;margin:0 auto 8px">{{ buyIconBig }}</div>
+        <h3 style="font:600 20px 'Fredoka';color:var(--ink);margin:6px 0 4px">Comprar {{ detailName }}?</h3>
+        <p style="font-size:13px;color:var(--muted);font-weight:600;margin:0 0 18px">Sai {{ detailPriceLabel }} {{ detailCurrencyWord }}. Depois é só vestir no armário.</p>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border:1px solid var(--hair);border-radius:13px;padding:12px;margin-bottom:18px">
+          <span style="font-size:12px;font-weight:700;color:var(--muted)">Seu saldo depois:</span>{{ detailPriceIcon }}<span style="font:800 14px 'Nunito';color:var(--ink)">{{ balanceAfter }}</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button onClick="{{ closeBuy }}" style="flex:1;border:1.5px solid var(--hair);background:transparent;color:var(--ink);font:800 14px 'Nunito';padding:12px;border-radius:12px;cursor:pointer">Agora não</button>
+          <button onClick="{{ closeBuy }}" style="flex:1;border:none;background:var(--success);color:#fff;font:800 14px 'Nunito';padding:12px;border-radius:12px;cursor:pointer">Confirmar</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===================== PRESENTEAR / SABOTAR ===================== -->
+    <sc-if value="{{ giftOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeGift }}" style="position:fixed;inset:0;background:var(--scrim);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ stop }}" style="width:840px;max-width:100%;background:var(--canvas);border:1px solid var(--hair);border-radius:24px;overflow:hidden;display:flex">
+        <!-- prévia no Broto da Célia -->
+        <div style="width:320px;flex-shrink:0;background:{{ giftStageBg }};padding:24px 20px;display:flex;flex-direction:column;align-items:center;position:relative">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--rival-ink);align-self:flex-start">BROTO DA CÉLIA</div>
+          <div style="position:relative;width:190px;height:220px;display:flex;align-items:flex-end;justify-content:center;margin:14px 0 4px">
+            <div style="position:absolute;top:192px;left:50%;transform:translate(-50%,-50%);z-index:5">{{ giftPot }}</div>
+            <div style="position:absolute;top:104px;left:50%;transform:translate(-50%,-50%);z-index:6">{{ giftHat }}</div>
+            <div style="position:relative;z-index:2"><dc-import name="Broto" who="partner" expr="happy" level="6" size="160" hint-size="134px,160px"></dc-import></div>
+            <div style="position:absolute;top:140px;left:50%;transform:translate(-50%,-50%);z-index:4">{{ giftFace }}</div>
+          </div>
+          <div style="font-size:11.5px;font-weight:800;color:var(--onStageMuted)">{{ giftPreviewCaption }}</div>
+        </div>
+        <!-- picker -->
+        <div style="flex:1;padding:26px 28px;display:flex;flex-direction:column;min-width:0">
+          <h2 style="font:600 23px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0 0 4px">{{ giftTitle }}</h2>
+          <p style="font-size:13px;color:var(--muted);font-weight:600;margin:0 0 16px">{{ giftSubtitle }}</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;overflow-y:auto;align-content:start">
+            <sc-for list="{{ giftChoices }}" as="g" hint-placeholder-count="6">
+              <button onClick="{{ g.onPick }}" style="{{ g.cardStyle }}">
+                <div style="height:46px;display:flex;align-items:center;justify-content:center;margin-bottom:2px">{{ g.icon }}</div>
+                <div style="font-size:11.5px;font-weight:800;color:var(--ink);text-align:center;line-height:1.2;min-height:28px;display:flex;align-items:center">{{ g.name }}</div>
+                <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:5px">{{ g.priceIcon }}<span style="font:800 11px 'Nunito';color:var(--muted)">{{ g.priceLabel }}</span></div>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button onClick="{{ closeGift }}" style="border:1.5px solid var(--hair);background:transparent;color:var(--ink);font:800 14px 'Nunito';padding:13px 20px;border-radius:13px;cursor:pointer">Cancelar</button>
+            <button onClick="{{ giftSend }}" style="flex:1;border:none;background:{{ giftCtaBg }};color:#fff;font:800 14px 'Nunito';padding:13px;border-radius:13px;cursor:pointer;opacity:{{ giftCtaOpacity }}">{{ giftCtaLabel }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===================== CONFIRMAÇÃO DE ENVIO ===================== -->
+    <sc-if value="{{ giftSent }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeGift }}" style="position:fixed;inset:0;background:var(--scrim);z-index:70;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ stop }}" style="width:380px;max-width:100%;background:var(--canvas);border:1px solid var(--hair);border-radius:22px;padding:28px 26px;text-align:center">
+        <div style="width:120px;height:140px;margin:0 auto;display:flex;align-items:flex-end;justify-content:center"><dc-import name="Broto" who="partner" expr="happy" level="6" size="124" hint-size="104px,124px"></dc-import></div>
+        <h3 style="font:600 21px 'Fredoka';color:var(--ink);margin:10px 0 5px">{{ sentTitle }}</h3>
+        <p style="font-size:13px;color:var(--muted);font-weight:600;line-height:1.5;margin:0 0 18px">{{ sentMsg }}</p>
+        <button onClick="{{ closeGift }}" style="width:100%;border:none;background:var(--brand);color:#fff;font:800 14px 'Nunito';padding:13px;border-radius:13px;cursor:pointer">Fechar</button>
+      </div>
+    </div>
+    </sc-if>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme:'light', tab:'meu', equipped:{ hat:'bone', face:null, bg:null, pot:'vaso_terra' }, detail:null, buy:false, gift:null, giftItem:null, sent:null };
+
+  tokens(){
+    const light=this.state.theme==='light';
+    return light?{
+      canvas:'#fbf6ee', sidebar:'#ffffff', surface:'#ffffff', ink:'#241f17', muted:'#8a7f6d', hair:'#ece1cf', track:'#f1e7d8',
+      brand:'#ff6b2c','brand-ink':'#e0561c', brandSoft:'#fff0e4', rival:'#7c3aed','rival-ink':'#6d28d9', rivalSoft:'#f3ecff', rivalLine:'#e6d4ff',
+      success:'#22c55e', danger:'#d8483a', dangerSoft:'#fbeae7', dangerLine:'#f1cfc9', navActiveBg:'#fff0e4',
+      stageBg:'#f3ecff', onStage:'#241f17', onStageMuted:'#8a7f6d', scrim:'rgba(40,28,16,.45)'
+    }:{
+      canvas:'#1b1610', sidebar:'#221b13', surface:'#251e16', ink:'#f7efe1', muted:'#a99a85', hair:'#352a1f', track:'#352a1f',
+      brand:'#ff8a4c','brand-ink':'#ffa066', brandSoft:'rgba(255,138,76,.14)', rival:'#a855f7','rival-ink':'#c4a9f8', rivalSoft:'rgba(168,85,247,.16)', rivalLine:'rgba(168,85,247,.3)',
+      success:'#4ade80', danger:'#ff6a5c', dangerSoft:'rgba(255,106,92,.12)', dangerLine:'rgba(255,106,92,.3)', navActiveBg:'rgba(255,138,76,.16)',
+      stageBg:'#2a2030', onStage:'#f7efe1', onStageMuted:'#b6a288', scrim:'rgba(0,0,0,.6)'
+    };
+  }
+
+  // ---- ícones de itens: SVG com volume (duas tonalidades + brilho), sem emoji ----
+  grad(id, a, b){ return React.createElement('linearGradient',{id,x1:'0',y1:'0',x2:'0',y2:'1'},
+    React.createElement('stop',{offset:'0%',stopColor:a}), React.createElement('stop',{offset:'100%',stopColor:b})); }
+  icon(id, s){
+    s=s||44;
+    const E=React.createElement; const gid='ic'+id+Math.random().toString(36).slice(2,6);
+    const wrap=(defs,...ch)=>E('svg',{width:s,height:s,viewBox:'0 0 48 48',style:{overflow:'visible',display:'block'}}, defs?E('defs',null,defs):null, ...ch);
+    switch(id){
+      case 'bone': return wrap(this.grad(gid,'#ff8f4d','#e85f1f'),
+        E('ellipse',{cx:24,cy:35,rx:18,ry:3,fill:'rgba(0,0,0,.08)'}),
+        E('ellipse',{cx:24,cy:33,rx:18,ry:5,fill:'#c64f1a'}),
+        E('path',{d:'M8 33 Q8 13 24 11 Q40 13 40 33 Z',fill:`url(#${gid})`}),
+        E('path',{d:'M24 33 Q24 16 38 30',fill:'none',stroke:'#fff',strokeWidth:2.4,opacity:.3,strokeLinecap:'round'}),
+        E('circle',{cx:24,cy:12,r:2.6,fill:'#e0561c'}));
+      case 'coroa': return wrap(this.grad(gid,'#f4cf6a','#d9a82a'),
+        E('rect',{x:9,y:30,width:30,height:7,rx:2,fill:'#d9a82a'}),
+        E('path',{d:'M9 32 L9 16 L17 25 L24 9 L31 25 L39 16 L39 32 Z',fill:'#ecc036'}),
+        E('path',{d:'M9 16 L17 25 L13 30 Z',fill:'#fff',opacity:.18}),
+        E('circle',{cx:24,cy:9,r:2.8,fill:'#ff6b6b'}),E('circle',{cx:9,cy:16,r:2.4,fill:'#6cc4ff'}),E('circle',{cx:39,cy:16,r:2.4,fill:'#6cc4ff'}),
+        E('circle',{cx:17,cy:33,r:2,fill:'#ff6b6b'}),E('circle',{cx:31,cy:33,r:2,fill:'#6cc4ff'}));
+      case 'cartola': return wrap(this.grad(gid,'#42321f','#2a2016'),
+        E('ellipse',{cx:24,cy:37,rx:19,ry:4,fill:'#241f17'}),
+        E('rect',{x:15,y:8,width:18,height:29,rx:2,fill:`url(#${gid})`}),
+        E('rect',{x:15,y:26,width:18,height:5,fill:'#7c3aed'}),
+        E('ellipse',{cx:24,cy:8,rx:9,ry:2.4,fill:'#4a3826'}),
+        E('rect',{x:18,y:11,width:2.4,height:14,rx:1.2,fill:'#fff',opacity:.12}));
+      case 'oculos': return wrap(null,
+        E('circle',{cx:16,cy:25,r:8.5,fill:'rgba(120,180,255,.18)',stroke:'#2a1810',strokeWidth:3}),
+        E('circle',{cx:32,cy:25,r:8.5,fill:'rgba(120,180,255,.18)',stroke:'#2a1810',strokeWidth:3}),
+        E('path',{d:'M24.5 24 H23.5',stroke:'#2a1810',strokeWidth:3,strokeLinecap:'round'}),
+        E('path',{d:'M7.5 23 L3.5 20 M40.5 23 L44.5 20',stroke:'#2a1810',strokeWidth:2.6,strokeLinecap:'round'}),
+        E('path',{d:'M13 22 L17 22',stroke:'#fff',strokeWidth:2,opacity:.5,strokeLinecap:'round'}));
+      case 'oculosol': return wrap(this.grad(gid,'#3a3a44','#16161c'),
+        E('path',{d:'M6 20 H22 V27 Q14 33 7 26 Z',fill:`url(#${gid})`}),
+        E('path',{d:'M26 20 H42 V26 Q34 33 26 27 Z',fill:`url(#${gid})`}),
+        E('path',{d:'M22 22 H26',stroke:'#16161c',strokeWidth:3,strokeLinecap:'round'}),
+        E('path',{d:'M6 21 L2 18 M42 21 L46 18',stroke:'#16161c',strokeWidth:2.4,strokeLinecap:'round'}),
+        E('path',{d:'M10 23 L13 22 M30 23 L33 22',stroke:'#fff',strokeWidth:1.8,opacity:.45,strokeLinecap:'round'}));
+      case 'cachecol': return wrap(this.grad(gid,'#2bd06a','#199f4a'),
+        E('path',{d:'M11 20 Q24 30 37 20 L37 27 Q24 36 11 27 Z',fill:`url(#${gid})`}),
+        E('path',{d:'M30 26 L34 41 L26 41 L25 27 Z',fill:'#179044'}),
+        E('path',{d:'M14 23 Q24 31 34 23',fill:'none',stroke:'#fff',strokeWidth:1.6,opacity:.3}),
+        E('path',{d:'M28 30 L30 39 M32 30 L33 39',stroke:'#0f7a37',strokeWidth:1.2,opacity:.6}));
+      case 'vaso_terra': return wrap(this.grad(gid,'#d9824a','#b0612e'),
+        E('ellipse',{cx:24,cy:40,rx:13,ry:2.6,fill:'rgba(0,0,0,.08)'}),
+        E('path',{d:'M13 19 H35 L31.5 39 H16.5 Z',fill:`url(#${gid})`}),
+        E('rect',{x:10.5,y:14,width:27,height:6,rx:2,fill:'#e89255'}),
+        E('ellipse',{cx:24,cy:16.5,rx:11,ry:2,fill:'#5b3a1e'}),
+        E('path',{d:'M18 22 L16.5 36',stroke:'rgba(0,0,0,.12)',strokeWidth:2,strokeLinecap:'round'}));
+      case 'vaso_ouro': return wrap(this.grad(gid,'#f6cf5e','#d49a24'),
+        E('ellipse',{cx:24,cy:40,rx:13,ry:2.6,fill:'rgba(0,0,0,.1)'}),
+        E('path',{d:'M13 19 H35 L31.5 39 H16.5 Z',fill:`url(#${gid})`}),
+        E('rect',{x:10.5,y:14,width:27,height:6,rx:2,fill:'#f8da78'}),
+        E('path',{d:'M19 22 L17 36 M29 22 L31 36',stroke:'#fff',strokeWidth:1.5,opacity:.5,strokeLinecap:'round'}),
+        E('ellipse',{cx:24,cy:16.5,rx:11,ry:2,fill:'#b07c1a'}));
+      case 'fundo_ceu': return wrap(this.grad(gid,'#cdeaff','#8ec9f5'),
+        E('circle',{cx:24,cy:24,r:16,fill:`url(#${gid})`}),
+        E('ellipse',{cx:19,cy:22,rx:6,ry:4,fill:'#fff',opacity:.9}),E('ellipse',{cx:26,cy:24,rx:7,ry:4.5,fill:'#fff',opacity:.85}),
+        E('circle',{cx:32,cy:16,r:3,fill:'#ffe08a'}));
+      case 'fundo_festa': return wrap(this.grad(gid,'#ffe0f0','#f7a8d8'),
+        E('circle',{cx:24,cy:24,r:16,fill:`url(#${gid})`}),
+        E('circle',{cx:18,cy:18,r:2.2,fill:'#ff6b2c'}),E('circle',{cx:31,cy:20,r:2.2,fill:'#7c3aed'}),
+        E('circle',{cx:28,cy:31,r:2.2,fill:'#22c55e'}),E('circle',{cx:18,cy:30,r:2.2,fill:'#3b82f6'}),E('circle',{cx:33,cy:27,r:1.8,fill:'#ffd24a'}));
+      default: return wrap();
+    }
+  }
+  // ---- overlays no avatar: viewBox 0 0 100 100, com a ÂNCORA (aba/lente/borda)
+  //      sempre em y=50, pra casar com transform:translate(-50%,-50%) no wrapper ----
+  ov(px, ...ch){ return React.createElement('div',{style:{width:px+'px',height:px+'px',pointerEvents:'none'}},
+    React.createElement('svg',{width:px,height:px,viewBox:'0 0 100 100',style:{overflow:'visible',display:'block'}},...ch)); }
+  E(...a){ return React.createElement(...a); }
+
+  hatOverlay(id){ if(!id) return null; const E=this.E;
+    if(id==='bone') return this.ov(98,
+      E('ellipse',{cx:50,cy:53,rx:31,ry:8,fill:'#c64f1a'}),
+      E('path',{d:'M22 54 Q22 23 50 21 Q78 23 78 54 Z',fill:'#ff7a2e'}),
+      E('path',{d:'M50 54 Q50 30 76 50',fill:'none',stroke:'#fff',strokeWidth:2,opacity:.28}),
+      E('circle',{cx:50,cy:22,r:3.4,fill:'#e0561c'}));
+    if(id==='cartola') return this.ov(96,
+      E('ellipse',{cx:50,cy:55,rx:33,ry:7.5,fill:'#241f17'}),
+      E('rect',{x:33,y:20,width:34,height:35,rx:2,fill:'#34281d'}),
+      E('rect',{x:33,y:44,width:34,height:7,fill:'#7c3aed'}),
+      E('ellipse',{cx:50,cy:20,rx:17,ry:4,fill:'#3f3024'}));
+    if(id==='coroa') return this.ov(96,
+      E('rect',{x:25,y:46,width:50,height:11,rx:2.5,fill:'#caa028'}),
+      E('path',{d:'M25 50 L25 26 L38 39 L50 18 L62 39 L75 26 L75 50 Z',fill:'#e6b62f'}),
+      E('circle',{cx:50,cy:18,r:3.4,fill:'#ff6b6b'}),
+      E('circle',{cx:26,cy:27,r:2.6,fill:'#6cc4ff'}),
+      E('circle',{cx:74,cy:27,r:2.6,fill:'#6cc4ff'}),
+      E('circle',{cx:38,cy:52,r:2.4,fill:'#ff6b6b'}),
+      E('circle',{cx:62,cy:52,r:2.4,fill:'#6cc4ff'}));
+    return this.ov(90, E('circle',{cx:50,cy:50,r:6,fill:'#888'})); }
+
+  faceOverlay(id){ if(!id) return null; const E=this.E;
+    if(id==='oculos') return this.ov(96,
+      E('circle',{cx:32,cy:50,r:13,fill:'rgba(255,255,255,.18)',stroke:'#2a1810',strokeWidth:4}),
+      E('circle',{cx:68,cy:50,r:13,fill:'rgba(255,255,255,.18)',stroke:'#2a1810',strokeWidth:4}),
+      E('path',{d:'M45 49 H55',stroke:'#2a1810',strokeWidth:4,strokeLinecap:'round'}),
+      E('path',{d:'M19 47 L9 43 M81 47 L91 43',stroke:'#2a1810',strokeWidth:3,strokeLinecap:'round'}));
+    if(id==='oculosol') return this.ov(96,
+      E('path',{d:'M16 43 H46 V52 Q31 60 18 51 Z',fill:'#241f17'}),
+      E('path',{d:'M54 43 H84 V51 Q69 60 54 52 Z',fill:'#241f17'}),
+      E('path',{d:'M46 46 H54',stroke:'#241f17',strokeWidth:4,strokeLinecap:'round'}),
+      E('path',{d:'M16 44 L7 41 M84 44 L93 41',stroke:'#241f17',strokeWidth:3,strokeLinecap:'round'}),
+      E('path',{d:'M24 48 L20 49 M62 48 L58 49',stroke:'#fff',strokeWidth:1.8,opacity:.5,strokeLinecap:'round'}));
+    if(id==='cachecol') return this.ov(96,
+      E('path',{d:'M26 60 Q50 73 74 60 L74 70 Q50 82 26 70 Z',fill:'#22c55e'}),
+      E('path',{d:'M60 67 L66 90 L55 90 L51 69 Z',fill:'#1aa34a'}),
+      E('path',{d:'M30 64 Q50 74 70 64',fill:'none',stroke:'rgba(255,255,255,.3)',strokeWidth:1.6}));
+    return null; }
+
+  potOverlay(id){ if(!id) return null; const E=this.E;
+    const gold=id==='vaso_ouro';
+    return this.ov(124,
+      E('path',{d:'M27 50 H73 L66 92 H34 Z',fill:gold?'#e0a52e':'#c47339'}),
+      E('rect',{x:23,y:44,width:54,height:10,rx:2.5,fill:gold?'#f0c24f':'#e0884c'}),
+      gold?E('path',{d:'M40 56 L36 86 M60 56 L64 86',stroke:'#fff',strokeWidth:1.6,opacity:.45}):
+            E('path',{d:'M38 56 L35 86',stroke:'rgba(0,0,0,.12)',strokeWidth:2}),
+      E('path',{d:'M27 50 H73',stroke:'rgba(0,0,0,.12)',strokeWidth:1.4})); }
+
+  // ---- prank art (sabotagem, sempre tempor\u00e1rio) ----
+  prankArt(id){ const E=this.E;
+    if(id==='bigode') return this.ov(96,
+      E('path',{d:'M28 50 Q39 44 50 51 Q61 44 72 50 Q63 61 50 54 Q37 61 28 50 Z',fill:'#2a1d12'}));
+    if(id==='unibrow') return this.ov(96,
+      E('path',{d:'M26 41 Q50 31 74 41 L74 46 Q50 37 26 46 Z',fill:'#2a1d12'}));
+    if(id==='cone') return this.ov(98,
+      E('path',{d:'M50 6 L67 52 H33 Z',fill:'#ff5d9e'}),
+      E('path',{d:'M50 6 L58 52 H42 Z',fill:'#ff86bb',opacity:.6}),
+      E('ellipse',{cx:50,cy:52,rx:18,ry:4.5,fill:'#e8458a'}),
+      E('circle',{cx:50,cy:6,r:3.6,fill:'#ffd98a'}));
+    return null; }
+
+  sabotage(){ return [
+    { id:'bigode', name:'Bigod\u00e3o', slot:'face', price:60, cur:'coin', desc:'Um bigod\u00e3o tosco no Broto dela por 24h. Pura zoeira.' },
+    { id:'unibrow', name:'Mono-sobrancelha', slot:'face', price:60, cur:'coin', desc:'Uma sobrancelha s\u00f3, bem no meio. Cl\u00e1ssico.' },
+    { id:'cone', name:'Chap\u00e9u de cone', slot:'hat', price:80, cur:'coin', desc:'Aquele chapeuzinho de festa de palha\u00e7o. Ela vai amar (n\u00e3o).' }
+  ]; }
+
+  coin(s){ s=s||16; return React.createElement('svg',{width:s,height:s,viewBox:'0 0 24 24'},React.createElement('circle',{cx:12,cy:12,r:9,fill:'#ff8a3c'}),React.createElement('circle',{cx:12,cy:12,r:5.5,fill:'rgba(0,0,0,.12)'})); }
+  gem(s){ s=s||16; return React.createElement('svg',{width:s,height:s,viewBox:'0 0 24 24'},React.createElement('path',{d:'M6 3h12l3 5-9 13L3 8z',fill:'#3b82f6'})); }
+
+  catalog(){
+    return [
+      { id:'bone', name:'Boné clássico', slot:'hat', rarity:'comum', price:120, cur:'coin', owned:true, desc:'Um boné simpático pro Broto. Combina com tudo, não erra.' },
+      { id:'cartola', name:'Cartola chique', slot:'hat', rarity:'raro', price:380, cur:'coin', owned:false, desc:'Pro Broto que se acha. Faixa roxa de respeito.' },
+      { id:'coroa', name:'Coroa lendária', slot:'hat', rarity:'lendario', price:25, cur:'gem', owned:false, desc:'Só pra quem ganha temporada. Brilha de longe e a Célia vai ficar com raiva.' },
+      { id:'oculos', name:'Óculos redondo', slot:'face', rarity:'comum', price:150, cur:'coin', owned:false, desc:'Aquele ar de intelectual saudável.' },
+      { id:'oculosol', name:'Óculos de sol', slot:'face', rarity:'raro', price:300, cur:'coin', owned:false, desc:'Pro Broto que tá de férias da preguiça.' },
+      { id:'cachecol', name:'Cachecol verde', slot:'face', rarity:'comum', price:90, cur:'coin', owned:false, desc:'Aquece e fica fofo. Clássico de inverno.' },
+      { id:'vaso_terra', name:'Vaso de barro', slot:'pot', rarity:'comum', price:80, cur:'coin', owned:true, desc:'O lar raiz do Broto. Honesto e aconchegante.' },
+      { id:'vaso_ouro', name:'Vaso dourado', slot:'pot', rarity:'lendario', price:30, cur:'gem', owned:false, desc:'Vaso de campeão. Quem passa, repara.' },
+      { id:'fundo_ceu', name:'Céu limpo', slot:'bg', rarity:'raro', price:280, cur:'coin', owned:true, desc:'Um fundo de céu pra deixar o Broto leve.' },
+      { id:'fundo_festa', name:'Confete', slot:'bg', rarity:'lendario', price:40, cur:'gem', owned:false, desc:'Fundo de festa pros dias de vitória.' }
+    ];
+  }
+  rarity(r, t){
+    const map={
+      comum:{ label:'COMUM', ink:t.muted, soft:t.track, border:t.hair, glow:false, glowColor:'transparent' },
+      raro:{ label:'RARO', ink:'#2f72d6', soft:'rgba(59,130,246,.14)', border:'rgba(59,130,246,.4)', glow:false, glowColor:'rgba(59,130,246,.2)' },
+      lendario:{ label:'LENDÁRIO', ink:'#c98a1f', soft:'rgba(224,165,46,.16)', border:'rgba(224,165,46,.55)', glow:true, glowColor:'rgba(224,165,46,.28)' }
+    };
+    return map[r]||map.comum;
+  }
+  bgFill(id){ return id==='fundo_ceu'?'radial-gradient(circle,#bfe3ff,#8ec9f5)':(id==='fundo_festa'?'radial-gradient(circle,#ffd6ef,#f7a8d8)':'transparent'); }
+
+  seg(active,t){ return active?`flex:1;border:none;background:${t.surface};color:${t.ink};font:800 13px 'Nunito';padding:9px;border-radius:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.08)`:`flex:1;border:none;background:transparent;color:${t.muted};font:700 13px 'Nunito';padding:9px;border-radius:10px;cursor:pointer`; }
+
+  renderVals(){
+    const t=this.tokens(); const light=this.state.theme==='light';
+    const { tab, equipped, detail, buy } = this.state;
+    const vars=Object.entries(t).map(([k,v])=>`--${k}:${v}`).join(';');
+    const navStyle=`display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:700;color:${t.muted};text-decoration:none;cursor:pointer`;
+    const navActiveStyle=`display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:800;color:${t['brand-ink']};background:${t.navActiveBg};text-decoration:none;cursor:pointer`;
+    const cat=this.catalog();
+
+    const avatarBroto=React.createElement('svg',{width:160*0.84,height:160,viewBox:'0 -18 100 130'},...(this._broto?this._broto():[]));
+
+    // armário (owned), agrupado por slot
+    const slotLabels={ hat:'Cabeça', face:'Rosto', pot:'Vaso', bg:'Fundo' };
+    const owned=cat.filter(i=>i.owned);
+    const closetGroups=['hat','face','pot','bg'].map(sl=>({
+      label: slotLabels[sl],
+      items: owned.filter(i=>i.slot===sl).map(i=>{
+        const eq=equipped[i.slot]===i.id;
+        return { name:i.name, icon:this.icon(i.id,42), equipped:eq,
+          onClick:()=>this.setState(s=>({ equipped:{...s.equipped,[i.slot]: s.equipped[i.slot]===i.id?null:i.id } })),
+          cardStyle:`position:relative;border:1.5px solid ${eq?t.brand:t.hair};background:${eq?t.brandSoft:t.surface};border-radius:14px;padding:10px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center` };
+      })
+    })).filter(g=>g.items.length);
+
+    // vitrine
+    const shopItems=cat.map(i=>{
+      const r=this.rarity(i.rarity,t);
+      return { name:i.name, icon:this.icon(i.id,52), border:r.border, glow:r.glow, glowColor:r.glowColor,
+        rarityLabel:r.label, rarityInk:r.ink, raritySoft:r.soft,
+        priceIcon:i.cur==='gem'?this.gem(15):this.coin(15), priceLabel:String(i.price),
+        onOpen:()=>this.setState({ detail:i.id }) };
+    });
+
+    // detalhe
+    const di=cat.find(i=>i.id===detail);
+    let detailVals={ detailOpen:false };
+    if(di){
+      const r=this.rarity(di.rarity,t);
+      const prevEq={...equipped,[di.slot]:di.id};
+      detailVals={
+        detailOpen:true, detailName:di.name, detailDesc:di.desc,
+        detailRarityLabel:r.label, detailRarityInk:r.ink, detailRaritySoft:r.soft,
+        detailPriceIcon:di.cur==='gem'?this.gem(18):this.coin(18), detailPriceLabel:String(di.price),
+        detailCta: di.owned?'Você já tem':'Comprar agora', detailCurrencyWord: di.cur==='gem'?'em gemas':'em moedas',
+        detailIsBg: di.slot==='bg', detailBgFill:this.bgFill(di.id),
+        previewHat:this.hatOverlay(prevEq.hat), previewFace:this.faceOverlay(prevEq.face), previewPot:this.potOverlay(prevEq.pot),
+        buyIconBig:this.icon(di.id,84),
+        balanceAfter: di.cur==='gem'?String(18-di.price):(1240-di.price).toLocaleString('pt-BR')
+      };
+    }
+
+    // ---- fluxo presentear / sabotar ----
+    const gift=this.state.gift; const isSab=gift==='sabotage'; const sel=this.state.giftItem;
+    const giftList = isSab ? this.sabotage() : cat.filter(i=>i.slot!=='bg');
+    const so = sel ? giftList.find(i=>i.id===sel) : null;
+    let gHat=null,gFace=null,gPot=null;
+    if(so){
+      if(isSab){ if(so.slot==='hat') gHat=this.prankArt(so.id); else gFace=this.prankArt(so.id); }
+      else { if(so.slot==='hat') gHat=this.hatOverlay(so.id); else if(so.slot==='face') gFace=this.faceOverlay(so.id); else if(so.slot==='pot') gPot=this.potOverlay(so.id); }
+    }
+    const accent = isSab ? t.danger : t.rival;
+    const giftChoices = giftList.map(i=>{
+      const on = sel===i.id;
+      return { name:i.name, icon: isSab?this.prankArt(i.id):this.icon(i.id,40),
+        priceIcon:i.cur==='gem'?this.gem(13):this.coin(13), priceLabel:String(i.price),
+        onPick:()=>this.setState({giftItem:i.id}),
+        cardStyle:`position:relative;border:1.5px solid ${on?accent:t.hair};background:${on?(isSab?t.dangerSoft:t.rivalSoft):t.surface};border-radius:14px;padding:10px 8px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:center` };
+    });
+    const sentVal=this.state.sent;
+    const giftVals = {
+      giftOpen: !!gift, giftSent: !!sentVal,
+      giftStageBg: t.stageBg, giftHat:gHat, giftFace:gFace, giftPot:gPot,
+      giftPreviewCaption: so?'prévia no Broto dela':'escolhe o que mandar',
+      giftTitle: isSab?'Sabotar a Célia':'Presentear a Célia',
+      giftSubtitle: isSab?'Escolhe a peguinha. Some sozinha em 24h, é só zoeira.':'Manda um item pro Broto dela. Vai que ela retribui.',
+      giftChoices,
+      giftCtaBg: accent, giftCtaOpacity: sel?'1':'.5',
+      giftCtaLabel: sel?(isSab?'Aprontar agora':'Mandar mimo'):'Escolhe um item',
+      giftSend: ()=> sel ? this.setState({sent: isSab?'sabotage':'gift', gift:null, giftItem:null}) : null,
+      openGift: ()=>this.setState({gift:'gift', giftItem:null}),
+      openSabotage: ()=>this.setState({gift:'sabotage', giftItem:null}),
+      closeGift: ()=>this.setState({gift:null, giftItem:null, sent:null}),
+      sentTitle: sentVal==='sabotage'?'Aprontada! 😈':'Mimo a caminho! 🎁',
+      sentMsg: sentVal==='sabotage'?'A Célia vai abrir o app e tomar um susto. Reza pra ela não revidar.':'Mandado pro Broto da Célia. Bola pra ela retribuir agora.'
+    };
+
+    return {
+      ...giftVals,
+      rootStyle:`${vars};background:${t.canvas};color:${t.ink};min-height:100vh;font-family:'Nunito',sans-serif;display:flex;transition:background .3s ease`,
+      navStyle, navActiveStyle, isLight:light, isDark:!light,
+      toggleTheme:()=>this.setState(s=>({theme:s.theme==='light'?'dark':'light'})),
+      isMeu:tab==='meu', isLoja:tab==='loja',
+      tabMeu:()=>this.setState({tab:'meu'}), tabLoja:()=>this.setState({tab:'loja'}),
+      tMeu:this.seg(tab==='meu',t), tLoja:this.seg(tab==='loja',t),
+      stageBg:t.stageBg, onStage:t.onStage, onStageMuted:t.onStageMuted,
+      avatarBroto,
+      hatEl:this.hatOverlay(equipped.hat), faceEl:this.faceOverlay(equipped.face), potEl:this.potOverlay(equipped.pot),
+      hasBg:!!equipped.bg, bgFill:this.bgFill(equipped.bg),
+      equippedCount:['hat','face','bg','pot'].filter(s=>equipped[s]).length,
+      closetGroups, shopItems,
+      ...detailVals,
+      closeDetail:()=>this.setState({detail:null}), stop:(e)=>e.stopPropagation(),
+      openBuy:()=> di && !di.owned ? this.setState({buy:true}) : null,
+      buyOpen:buy, closeBuy:()=>this.setState({buy:false})
+    };
+  }
+}
+</script>
+</body>
+</html>

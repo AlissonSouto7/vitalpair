@@ -1,76 +1,165 @@
+/* ============================================================
+   VitalPair — design tokens · Tailwind CSS v4 (CSS-first)
+   Fonte da verdade: docs/Redesign VitalPair Frontend/handoff.
+   A PALETA inteira vive em :root (claro) e .dark (escuro).
+   Trocar de paleta = mexer só aqui.
+
+   LEI DAS CORES (cada cor tem UM papel — cor fora do papel é bug):
+     laranja (brand)  = VOCÊ + energia + marca
+     roxo  (rival)    = a Célia / o par-rival, e só isso
+     verde (success)  = saúde, meta batida, quem está ganhando
+     dourado (carb)   = macro de carboidrato
+     neutros quentes  = estrutura/chrome
+   ============================================================ */
+
 @import "tailwindcss";
 
-/* Tokens semânticos — valores do tema ESCURO (padrão). */
-@theme {
-  --color-bg: #020617;
-  --color-surface: #0f172a;
-  --color-surface2: #1e293b;
-  --color-line: #1f2937;
-  --color-ink: #f1f5f9;
-  --color-muted: #94a3b8;
-  --color-faint: #64748b;
-  --color-accent: #a3e635;
-  --color-info: #22d3ee;
-  --color-warn: #fbbf24;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-canvas:   var(--canvas);
+  --color-surface:  var(--surface);
+  --color-sidebar:  var(--sidebar);
+  --color-ink:      var(--ink);
+  --color-muted:    var(--muted);
+  --color-faint:    var(--faint);
+  --color-hair:     var(--hair);
+  --color-track:    var(--track);
+
+  --color-brand:      var(--brand);       /* laranja = você */
+  --color-brand-ink:  var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-rival:      var(--rival);       /* roxo = a Célia */
+  --color-rival-ink:  var(--rival-ink);
+  --color-rival-soft: var(--rival-soft);
+
+  --color-success:      var(--success);   /* verde = saúde/meta/venceu */
+  --color-success-ink:  var(--success-ink);
+  --color-success-soft: var(--success-soft);
+
+  --color-carb:     var(--carb);          /* dourado = carboidrato */
+  --color-carb-ink: var(--carb-ink);
+
+  --color-danger:      var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  /* arena (placar) — theme-aware */
+  --color-arena:        var(--arena);
+  --color-arena-text:   var(--arena-text);
+  --color-arena-muted:  var(--arena-muted);
+  --color-arena-line:   var(--arena-line);
+  --color-arena-border: var(--arena-border);
+  --color-arena-track:  var(--arena-track);
+
+  /* ---- aliases legados (telas ainda não migradas) -> nova paleta ---- */
+  --color-bg:       var(--canvas);
+  --color-surface2: var(--track);
+  --color-line:     var(--hair);
+  --color-accent:   var(--brand);
+  --color-info:     var(--rival);
+  --color-warn:     var(--carb);
+
+  --font-display: "Fredoka", sans-serif;  /* títulos, números */
+  --font-sans:    "Nunito", sans-serif;   /* corpo, UI */
 }
 
-/* Override do tema CLARO. */
-.light {
-  --color-bg: #f1f5f9;
-  --color-surface: #ffffff;
-  --color-surface2: #f1f5f9;
-  --color-line: #e2e8f0;
-  --color-ink: #0f172a;
-  --color-muted: #475569;
-  --color-faint: #94a3b8;
-  --color-accent: #4d7c0f;
-  --color-info: #0e7490;
-  --color-warn: #b45309;
-  color-scheme: light;
+/* ---------- CLARO (creme quente) ---------- */
+:root {
+  --canvas:#fbf6ee; --surface:#ffffff; --sidebar:#ffffff;
+  --ink:#241f17; --muted:#8a7f6d; --faint:#a99a85; --hair:#ece1cf; --track:#f1e7d8;
+
+  --brand:#ff6b2c;   --brand-ink:#e0561c;   --brand-soft:#fff0e4;
+  --rival:#7c3aed;   --rival-ink:#6d28d9;   --rival-soft:#f3ecff;
+  --success:#22c55e; --success-ink:#1aa34a; --success-soft:#e6f7ec;
+  --carb:#dd9527;    --carb-ink:#c9881f;
+  --danger:#d8483a;  --danger-soft:#f3d4cf;
+
+  --arena:#ffffff; --arena-text:#241f17; --arena-muted:#8a7f6d; --arena-line:#e8dccb;
+  --arena-border:#ece1cf; --arena-track:#efe4d4; --arena-shadow:rgba(70,45,20,.1);
 }
 
-html,
-body,
-#root {
-  height: 100%;
+/* ---------- ESCURO (carvão-âmbar aconchegante, nunca navy) ---------- */
+.dark {
+  --canvas:#1b1610; --surface:#251e16; --sidebar:#221b13;
+  --ink:#f7efe1; --muted:#a99a85; --faint:#8a7f6d; --hair:#352a1f; --track:#352a1f;
+
+  --brand:#ff8a4c;   --brand-ink:#ffa066;   --brand-soft:rgba(255,138,76,.14);
+  --rival:#a855f7;   --rival-ink:#c4a9f8;   --rival-soft:rgba(168,85,247,.16);
+  --success:#4ade80; --success-ink:#5ed98e; --success-soft:rgba(74,222,128,.14);
+  --carb:#f0b455;    --carb-ink:#f0b455;
+  --danger:#ff6a5c;  --danger-soft:rgba(255,106,92,.3);
+
+  --arena:#322619; --arena-text:#ffffff; --arena-muted:#b6a288; --arena-line:rgba(255,255,255,.14);
+  --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.1); --arena-shadow:rgba(0,0,0,.4);
 }
 
-body {
-  @apply bg-bg text-ink antialiased;
-  color-scheme: dark;
-  background-image:
-    radial-gradient(circle at 15% -10%, rgba(34, 211, 238, 0.08), transparent 45%),
-    radial-gradient(circle at 110% 110%, rgba(163, 230, 53, 0.08), transparent 45%);
-  background-attachment: fixed;
+html, body, #root { height: 100%; }
+html, body { background: var(--canvas); color: var(--ink); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+/* Tira as setinhas nativas dos inputs de número (peso/altura) — controle não estilizado. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+/* Tailwind v4 não coloca cursor:pointer em botões por padrão; devolvemos a sensação de clicável. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  label[for],
+  summary,
+  select {
+    cursor: pointer;
+  }
 }
 
+@keyframes vp-ring-draw { from { stroke-dashoffset: 314; } to { stroke-dashoffset: var(--vp-off, 92); } }
+@keyframes vp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* ---------- classes utilitárias (compat com telas ainda não migradas) ---------- */
 @layer components {
   .card {
-    @apply rounded-2xl border border-line bg-surface p-5 shadow-lg shadow-black/20;
+    @apply rounded-2xl border border-hair bg-surface p-5 shadow-[0_10px_30px_rgba(70,45,20,0.06)];
   }
   .label {
-    @apply mb-1 block text-xs font-medium text-muted;
+    @apply mb-1 block text-xs font-bold text-muted;
   }
   .input {
-    @apply w-full rounded-lg border border-line bg-surface2 px-3 py-2 text-ink placeholder-faint
-      outline-none transition focus:border-lime-500 focus:ring-1 focus:ring-lime-500;
+    @apply w-full rounded-xl border border-hair bg-canvas px-3 py-2.5 text-ink placeholder-faint
+      outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30;
   }
   .btn-primary {
-    @apply rounded-lg bg-lime-400 px-4 py-2 font-semibold text-slate-950 transition
-      hover:bg-lime-300 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition
+      hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-ghost {
-    @apply rounded-lg border border-line px-4 py-2 text-sm font-medium text-muted
-      transition hover:bg-surface2;
+    @apply rounded-xl border border-hair px-4 py-2.5 text-sm font-bold text-muted
+      transition hover:bg-surface;
   }
   .chip {
-    @apply rounded-full border border-line px-3 py-1 text-xs text-muted;
+    @apply rounded-full border border-hair px-3 py-1 text-xs font-bold text-muted;
   }
+}
+
+/* Painel "arena" (lado escuro do auth): espresso nos dois temas.
+   Sobrescreve os tokens arena localmente, então text-arena-muted etc. funcionam dentro. */
+.arena-panel {
+  --arena: #322619;
+  --arena-text: #ffffff;
+  --arena-muted: #b6a288;
+  --arena-line: rgba(255, 255, 255, 0.13);
+  --arena-track: rgba(255, 255, 255, 0.1);
+  background: var(--arena);
+  color: var(--arena-text);
+}
+.dark .arena-panel {
+  --arena: #241c14;
 }
 
 .glow-lime {
-  box-shadow: 0 0 28px -6px rgba(163, 230, 53, 0.35);
+  box-shadow: 0 18px 40px -12px rgba(255, 107, 44, 0.28);
 }
 .glow-cyan {
-  box-shadow: 0 0 28px -6px rgba(34, 211, 238, 0.3);
+  box-shadow: 0 18px 40px -12px rgba(124, 58, 237, 0.24);
 }

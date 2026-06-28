@@ -22,14 +22,14 @@ export function LanguageSelect() {
       <button
         onClick={() => setOpen((o) => !o)}
         title={current.label}
-        className="flex items-center gap-1 rounded-lg border border-line px-2 py-1.5 text-sm text-muted transition hover:text-ink"
+        className="flex items-center gap-1.5 rounded-lg border border-hair px-2.5 py-1.5 text-sm font-bold text-muted transition hover:text-ink"
       >
         <span className="text-base leading-none">{current.flag}</span>
-        <span className="font-semibold uppercase">{current.code}</span>
+        <span className="uppercase">{current.code}</span>
       </button>
 
       {open && (
-        <ul className="absolute right-0 z-30 mt-1.5 w-40 overflow-hidden rounded-xl border border-line bg-surface p-1 shadow-xl shadow-black/40">
+        <ul className="absolute right-0 z-30 mt-1.5 w-40 overflow-hidden rounded-xl border border-hair bg-surface p-1 shadow-[0_14px_36px_rgba(70,45,20,0.18)]">
           {LANGUAGES.map((lang) => {
             const active = lang.code === current.code
             return (
@@ -40,12 +40,16 @@ export function LanguageSelect() {
                     setOpen(false)
                   }}
                   className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
-                    active ? 'bg-lime-400/15 font-medium text-accent' : 'text-ink hover:bg-surface2'
+                    active ? 'bg-brand-soft font-bold text-brand-ink' : 'text-ink hover:bg-track'
                   }`}
                 >
                   <span className="text-base leading-none">{lang.flag}</span>
                   {lang.label}
-                  {active && <span className="ml-auto text-accent">✓</span>}
+                  {active && (
+                    <svg className="ml-auto h-4 w-4 text-brand-ink" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.1 3.1 6.8-6.8a1 1 0 011.4 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </button>
               </li>
             )

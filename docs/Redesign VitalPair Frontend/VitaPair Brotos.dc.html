@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=Nunito:wght@400..900&display=swap" rel="stylesheet">
+<meta name="design_doc_mode" content="canvas">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#efe7da;font-family:'Nunito',sans-serif}
+.frameLabel{font:800 12px 'Nunito';color:#7a6f5d;letter-spacing:.04em;margin-bottom:10px}
+.card{background:#fff;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
+.cap{padding:16px 22px 20px}
+.capName{font:600 19px 'Fredoka';color:#241f17}
+.capDesc{font-size:12px;line-height:1.55;color:#857a68;font-weight:600;margin-top:4px}
+.lightbg{background:#fbf6ee}.darkbg{background:#1b1610}
+.col{font:800 10px 'Nunito';color:#9a8d77;text-align:center;margin-top:6px;letter-spacing:.02em}
+</style>
+</helmet>
+
+<template id="__bundler_thumbnail"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="24" fill="#ffe3cc"/><ellipse cx="50" cy="86" rx="20" ry="3" fill="rgba(0,0,0,.08)"/><path d="M50 24 L50 38" stroke="#3fae5e" stroke-width="3" stroke-linecap="round"/><path d="M50 30 C44 24 38 26 37 31 C43 33 48 32 50 30 Z" fill="#3fae5e"/><path d="M50 31 C56 25 62 27 63 32 C57 34 51 33 50 31 Z" fill="#5fce80"/><path d="M50 40 C64 40 72 52 72 64 C72 78 62 88 50 88 C38 88 28 78 28 64 C28 52 36 40 50 40 Z" fill="#ff7a2e"/><ellipse cx="50" cy="70" rx="13" ry="15" fill="#fff0db"/><circle cx="43" cy="60" r="4" fill="#2a1810"/><circle cx="57" cy="60" r="4" fill="#2a1810"/><path d="M45 70 Q50 75 55 70" stroke="#2a1810" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></template>
+
+<!-- HERO -->
+<div style="position:absolute;left:0;top:0;width:540px">
+  <div class="frameLabel" data-drags-parent="1">Os Brotos, o personagem do VitalPair</div>
+  <div class="card">
+    <div style="display:flex">
+      <div class="lightbg" style="flex:1;padding:40px 20px;display:flex;align-items:flex-end;justify-content:center">{{ hero }}</div>
+      <div class="darkbg" style="flex:1;padding:40px 20px;display:flex;align-items:flex-end;justify-content:center">{{ heroD }}</div>
+    </div>
+    <div class="cap"><div class="capName">Tito (você) &amp; Bel (Célia)</div><div class="capDesc">O Broto é a sua saúde com carinha. É uma sementinha de energia que cresce quando você se cuida. O Tito é laranja (você, com sobrancelha) e a Bel é roxa (a Célia, com cílios). São dois porque saúde é melhor em dupla, e eles crescem brigando pra ver quem cuida melhor.</div></div>
+  </div>
+</div>
+
+<!-- LORE -->
+<div style="position:absolute;left:620px;top:0;width:500px">
+  <div class="frameLabel" data-drags-parent="1">O que é um Broto</div>
+  <div class="card" style="padding:26px;height:calc(100% - 26px)">
+    <div style="display:flex;gap:18px;align-items:center;margin-bottom:18px">{{ loreBig }}<div style="font:600 22px 'Fredoka';color:#241f17;line-height:1.15">Saúde é melhor<br>em dupla.</div></div>
+    <div style="font-size:13px;line-height:1.65;color:#6b6577;font-weight:600">
+      <p style="margin:0 0 12px">Todo mundo carrega um <strong>broto</strong> dentro. É uma fagulha de vida que só cresce se você cuidar todo dia: comida de verdade, treino, água, sono.</p>
+      <p style="margin:0 0 12px">Ele <strong>reage</strong> a você: fica feliz, provoca, murcha quando você some. E vai <strong>evoluindo</strong> enquanto você não quebra a sequência. É a barra de progresso que virou bicho.</p>
+      <p style="margin:0">O broto na cabeça é a marca dele: a vida brotando. Quanto mais você cuida, mais ele floresce.</p>
+    </div>
+  </div>
+</div>
+
+<!-- EXPRESSÕES TITO -->
+<div style="position:absolute;left:0;top:430px;width:540px">
+  <div class="frameLabel" data-drags-parent="1">Expressões do Tito (você)</div>
+  <div class="card">
+    <div class="lightbg" style="display:flex;justify-content:space-around;padding:28px 12px 12px">
+      <div><div style="display:flex;justify-content:center">{{ tHappy }}</div><div class="col">FELIZ</div></div>
+      <div><div style="display:flex;justify-content:center">{{ tSmug }}</div><div class="col">PROVOCANDO</div></div>
+      <div><div style="display:flex;justify-content:center">{{ tSad }}</div><div class="col">STREAK QUEBRADO</div></div>
+      <div><div style="display:flex;justify-content:center">{{ tStrong }}</div><div class="col">BORA!</div></div>
+    </div>
+    <div class="cap"><div class="capDesc" style="margin:0">Muda a sobrancelha e a boca. Só o Tito tem sobrancelha.</div></div>
+  </div>
+</div>
+
+<!-- EXPRESSÕES BEL -->
+<div style="position:absolute;left:0;top:760px;width:540px">
+  <div class="frameLabel" data-drags-parent="1">Expressões da Bel (Célia)</div>
+  <div class="card">
+    <div class="lightbg" style="display:flex;justify-content:space-around;padding:28px 12px 12px">
+      <div><div style="display:flex;justify-content:center">{{ bHappy }}</div><div class="col">FELIZ</div></div>
+      <div><div style="display:flex;justify-content:center">{{ bSmug }}</div><div class="col">PROVOCANDO</div></div>
+      <div><div style="display:flex;justify-content:center">{{ bSad }}</div><div class="col">STREAK QUEBRADO</div></div>
+      <div><div style="display:flex;justify-content:center">{{ bStrong }}</div><div class="col">BORA!</div></div>
+    </div>
+    <div class="cap"><div class="capDesc" style="margin:0">Mesma base. No lugar da sobrancelha, os cílios levantados.</div></div>
+  </div>
+</div>
+
+<!-- EVOLUÇÃO -->
+<div style="position:absolute;left:620px;top:430px;width:560px">
+  <div class="frameLabel" data-drags-parent="1">Evolução: o broto floresce (do nível 1 ao 8)</div>
+  <div class="card">
+    <div class="lightbg" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:24px 16px 16px">
+      <div><div style="display:flex;justify-content:center">{{ lv1 }}</div><div class="col">NÍVEL 1</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv2 }}</div><div class="col">NÍVEL 2</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv3 }}</div><div class="col">NÍVEL 3</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv4 }}</div><div class="col">NÍVEL 4</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv5 }}</div><div class="col">NÍVEL 5</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv6 }}</div><div class="col">NÍVEL 6</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv7 }}</div><div class="col">NÍVEL 7</div></div>
+      <div><div style="display:flex;justify-content:center">{{ lv8 }}</div><div class="col">NÍVEL 8 🌸</div></div>
+    </div>
+    <div class="cap"><div class="capDesc" style="margin:0">O corpo é sempre o mesmo. O que cresce é o broto na cabeça, de sementinha até virar florzinha. Manteve a sequência, ele floresce. Sumiu, ele murcha de volta.</div></div>
+  </div>
+</div>
+
+<!-- ÍCONE -->
+<div style="position:absolute;left:620px;top:760px;width:560px">
+  <div class="frameLabel" data-drags-parent="1">Ícone do app &amp; avatares</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:24px;padding:26px">
+      {{ icon }}
+      <div style="display:flex;gap:14px">
+        <div style="text-align:center"><div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(150deg,#ffac63,#ff7a2e);display:flex;align-items:flex-end;justify-content:center;overflow:hidden">{{ avT }}</div><div class="col">você</div></div>
+        <div style="text-align:center"><div style="width:64px;height:64px;border-radius:20px;background:linear-gradient(150deg,#c49bf6,#9b5cf0);display:flex;align-items:flex-end;justify-content:center;overflow:hidden">{{ avB }}</div><div class="col">Célia</div></div>
+        <div style="text-align:center"><div style="width:64px;height:64px;border-radius:20px;background:#1b1610;display:flex;align-items:flex-end;justify-content:center;overflow:hidden">{{ avTd }}</div><div class="col">dark</div></div>
+      </div>
+    </div>
+    <div class="cap"><div class="capName">Ícone &amp; avatar</div><div class="capDesc">O broto no quadradinho vira o ícone da home; cada pessoa vira seu avatar na cor dela. Funciona no claro e no escuro.</div></div>
+  </div>
+</div>
+
+<!-- MARCA -->
+<div style="position:absolute;left:620px;top:1090px;width:560px">
+  <div class="frameLabel" data-drags-parent="1">A marca: Brotos + nome</div>
+  <div class="card">
+    <div style="display:flex">
+      <div class="lightbg" style="flex:1.3;padding:30px;display:flex;align-items:center;gap:14px;justify-content:center">
+        {{ markPair }}
+        <div><div style="font:600 32px 'Fredoka';color:#241f17;letter-spacing:-.02em;line-height:1">VitalPair</div><div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#a89a82;margin-top:5px">SAÚDE É MELHOR EM DUPLA</div></div>
+      </div>
+      <div class="darkbg" style="flex:1;padding:28px;display:flex;flex-direction:column;align-items:center;gap:8px;justify-content:center">
+        {{ markPairD }}
+        <div style="text-align:center"><div style="font:600 26px 'Fredoka';color:#fff;letter-spacing:-.02em;line-height:1">VitalPair</div><div style="font-size:8px;font-weight:800;letter-spacing:.08em;color:#b6a288;margin-top:4px">SAÚDE É MELHOR EM DUPLA</div></div>
+      </div>
+    </div>
+    <div class="cap"><div class="capName">Logo + nome</div><div class="capDesc">O Broto ao lado do nome (horizontal, pro header) e empilhado (pro login/splash). É assim que a marca aparece junta: os bichos, o nome VitalPair e o slogan.</div></div>
+  </div>
+</div>
+
+<!-- LEI DA COR -->
+<div style="position:absolute;left:0;top:1090px;width:540px">
+  <div class="frameLabel" data-drags-parent="1">A lei da cor</div>
+  <div class="card" style="padding:22px;display:flex;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:12px;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:11px"><span style="width:26px;height:26px;border-radius:8px;background:#ff7a2e"></span><span style="font:800 12px 'Nunito';color:#241f17">Laranja = você</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><span style="width:26px;height:26px;border-radius:8px;background:#9b5cf0"></span><span style="font:800 12px 'Nunito';color:#241f17">Roxo = a Célia</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><span style="width:26px;height:26px;border-radius:8px;background:#3fae5e"></span><span style="font:800 12px 'Nunito';color:#241f17">Verde = vida (o broto)</span></div>
+    </div>
+    <div style="font-size:11.5px;line-height:1.6;color:#857a68;font-weight:600;border-left:1px solid #f0e8da;padding-left:18px">O verde aparece só no broto, nunca de enfeite. Laranja é sempre você, roxo é sempre a Célia. Se um dia trocar a paleta, troca só essas cores que o significado continua.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  sproutEls(c,lvl){
+    const e=[]; const L=Math.max(1,Math.min(8,lvl));
+    const stemTop=Math.max(4,15-L*1.5);
+    e.push(React.createElement('path',{d:`M50 20 L50 ${stemTop+1}`,fill:'none',stroke:c.sprout,strokeWidth:2.8,strokeLinecap:'round'}));
+    const ly=stemTop, s=0.5+L*0.105;
+    const leaves=[React.createElement('path',{key:'r',d:'M0 2 C6 -4 12 -2 13 3 C7 5 1 4 0 2 Z',fill:c.sproutLt})];
+    if(L>=2) leaves.unshift(React.createElement('path',{key:'l',d:'M0 1 C-6 -5 -12 -3 -13 2 C-7 4 -2 3 0 1 Z',fill:c.sprout}));
+    if(L>=5) leaves.push(React.createElement('path',{key:'c',d:'M0 1 C-2 -7 1 -12 3 -14 C3 -8 3 -3 0 1 Z',fill:c.sprout}));
+    e.push(React.createElement('g',{transform:`translate(50 ${ly}) scale(${s})`},...leaves));
+    if(L===7){
+      e.push(React.createElement('circle',{cx:50,cy:ly-6*s,r:3.4,fill:'#9b2242'}));
+    }
+    if(L>=8){
+      const fy=ly-6*s;
+      [0,1,2,3,4].forEach(i=>{const a=i*72-90;const rad=a*Math.PI/180;const px=50+Math.cos(rad)*4.4,py=fy+Math.sin(rad)*4.4;e.push(React.createElement('ellipse',{cx:px,cy:py,rx:3,ry:4.4,fill:'#9b2242',transform:`rotate(${a+90} ${px} ${py})`}));});
+      e.push(React.createElement('circle',{cx:50,cy:fy,r:2.5,fill:'#ffd98a'}));
+    }
+    return e;
+  }
+
+  base(c, expr, arms, g, lvl){
+    const G=[];
+    const id='g'+Math.random().toString(36).slice(2,7);
+    G.push(React.createElement('defs',null,
+      React.createElement('linearGradient',{id,x1:'0',y1:'0',x2:'0',y2:'1'},
+        React.createElement('stop',{offset:'0%',stopColor:c.light}),
+        React.createElement('stop',{offset:'100%',stopColor:c.body}))));
+    G.push(React.createElement('ellipse',{cx:50,cy:108,rx:27,ry:4.5,fill:'rgba(0,0,0,.08)'}));
+    G.push(React.createElement('ellipse',{cx:42,cy:101,rx:7,ry:4.5,fill:c.dark}));
+    G.push(React.createElement('ellipse',{cx:58,cy:101,rx:7,ry:4.5,fill:c.dark}));
+    if(arms==='up'){
+      G.push(React.createElement('ellipse',{cx:18,cy:50,rx:7,ry:8.5,fill:c.body}));
+      G.push(React.createElement('ellipse',{cx:82,cy:50,rx:7,ry:8.5,fill:c.body}));
+    } else {
+      G.push(React.createElement('ellipse',{cx:15,cy:66,rx:7,ry:9,fill:c.body}));
+      G.push(React.createElement('ellipse',{cx:85,cy:66,rx:7,ry:9,fill:c.body}));
+    }
+    // broto (evolui por nível)
+    this.sproutEls(c, lvl===undefined?6:lvl).forEach(el=>G.push(el));
+    // corpo
+    G.push(React.createElement('path',{d:'M50 18 C72 18 84 35 84 57 C84 80 70 97 50 97 C30 97 16 80 16 57 C16 35 28 18 50 18 Z',fill:`url(#${id})`}));
+    // barriga
+    G.push(React.createElement('path',{d:'M50 47 C63 47 71 59 70 72 C69 86 60 95 50 95 C40 95 31 86 30 72 C29 59 37 47 50 47 Z',fill:c.belly}));
+    // bochechas
+    G.push(React.createElement('ellipse',{cx:30,cy:57,rx:4.6,ry:3,fill:c.cheek}));
+    G.push(React.createElement('ellipse',{cx:70,cy:57,rx:4.6,ry:3,fill:c.cheek}));
+    const ink='#2a1810';
+    [[38,-1],[62,1]].forEach(([x,dir])=>{
+      if(expr==='smug' && dir===1){
+        G.push(React.createElement('path',{d:`M${x-7} 47 Q${x} 53 ${x+7} 47`,fill:'none',stroke:ink,strokeWidth:2.6,strokeLinecap:'round'}));
+      } else {
+        G.push(React.createElement('ellipse',{cx:x,cy:47,rx:7.6,ry:9,fill:'#fff'}));
+        G.push(React.createElement('circle',{cx:x+0.5,cy:49,r:5,fill:ink}));
+        G.push(React.createElement('circle',{cx:x+2.4,cy:46.6,r:1.9,fill:'#fff'}));
+        G.push(React.createElement('circle',{cx:x-1.4,cy:51,r:1,fill:'#fff',opacity:.8}));
+        if(g==='f'){
+          G.push(React.createElement('path',{d:`M${x+dir*5.5} 39.5 q${dir*0.5} -3 ${dir*-0.5} -5.2`,fill:'none',stroke:ink,strokeWidth:1.8,strokeLinecap:'round'}));
+          G.push(React.createElement('path',{d:`M${x+dir*7.4} 40 q${dir*1.5} -3 ${dir*1.2} -5.4`,fill:'none',stroke:ink,strokeWidth:1.8,strokeLinecap:'round'}));
+          G.push(React.createElement('path',{d:`M${x+dir*8.8} 42 q${dir*2.6} -2.4 ${dir*3.2} -4.4`,fill:'none',stroke:ink,strokeWidth:1.8,strokeLinecap:'round'}));
+        }
+      }
+    });
+    if(g==='m'){
+      const bw=3, brow=(d)=>G.push(React.createElement('path',{d,fill:'none',stroke:ink,strokeWidth:bw,strokeLinecap:'round'}));
+      if(expr==='smug'){ brow('M29 32 Q34 28 42 32'); brow('M58 36 Q64 37 70 34'); }
+      else if(expr==='sad'){ brow('M30 38 Q35 34 42 36'); brow('M58 36 Q65 34 70 38'); }
+      else if(expr==='strong'){ brow('M30 32 L42 36'); brow('M58 36 L70 32'); }
+      else { brow('M30 34 Q35 31 42 34'); brow('M58 34 Q65 31 70 34'); }
+    }
+    if(expr==='happy'){
+      G.push(React.createElement('path',{d:'M44 61 Q50 67 56 61',fill:'none',stroke:ink,strokeWidth:2.4,strokeLinecap:'round'}));
+    } else if(expr==='smug'){
+      G.push(React.createElement('path',{d:'M44 62 Q51 66 57 60',fill:'none',stroke:ink,strokeWidth:2.4,strokeLinecap:'round'}));
+    } else if(expr==='sad'){
+      G.push(React.createElement('path',{d:'M44 65 Q50 60 56 65',fill:'none',stroke:ink,strokeWidth:2.4,strokeLinecap:'round'}));
+      G.push(React.createElement('path',{d:'M64 54 q-2.4 4 0 6.4 q2.4 -2.4 0 -6.4 Z',fill:'#6cc4ff'}));
+    } else {
+      G.push(React.createElement('path',{d:'M43 60 Q50 69 57 60 Q50 64 43 60 Z',fill:ink}));
+      G.push(React.createElement('path',{d:'M48 63 Q50 66 52 63 Z',fill:'#ff7a8a'}));
+    }
+    return G;
+  }
+  one(c,expr,px,arms,g,lvl,vb){ return React.createElement('svg',{width:px*0.84,height:px,viewBox:vb||'0 -10 100 122'}, ...this.base(c,expr,arms,g,lvl)); }
+  pair(px){
+    return React.createElement('svg',{width:px*1.4,height:px,viewBox:'0 -8 220 132'},
+      React.createElement('ellipse',{cx:110,cy:118,rx:90,ry:6,fill:'rgba(0,0,0,.06)'}),
+      React.createElement('g',{transform:'translate(108,12) scale(0.96)'}, ...this.base(this.P(),'happy','side','f',5)),
+      React.createElement('g',{transform:'translate(8,14) scale(1.0)'}, ...this.base(this.O(),'smug','side','m',6))
+    );
+  }
+  icon(px,c,dark){
+    return React.createElement('svg',{width:px,height:px,viewBox:'0 0 100 100'},
+      React.createElement('defs',null,
+        React.createElement('linearGradient',{id:'ic'+(dark?'d':'l'),x1:'0',y1:'0',x2:'1',y2:'1'},
+          React.createElement('stop',{offset:'0%',stopColor:dark?'#2a2017':'#fff3e9'}),
+          React.createElement('stop',{offset:'100%',stopColor:dark?'#1b1610':'#ffe3cc'}))),
+      React.createElement('rect',{x:0,y:0,width:100,height:100,rx:26,fill:`url(#ic${dark?'d':'l'})`}),
+      React.createElement('g',{transform:'translate(18,16) scale(0.66)'}, ...this.base(c,'happy','side','m',6))
+    );
+  }
+  O(){return{body:'#ff7a2e',light:'#ffac63',dark:'#dd5a16',belly:'#fff0db',cheek:'rgba(255,120,80,.4)',sprout:'#3fae5e',sproutLt:'#5fce80'};}
+  P(){return{body:'#9b5cf0',light:'#c49bf6',dark:'#7338cf',belly:'#f4eefe',cheek:'rgba(180,120,255,.34)',sprout:'#3fae5e',sproutLt:'#5fce80'};}
+  renderVals(){
+    const O=this.O(),P=this.P();
+    const ex=(c,g)=>({h:this.one(c,'happy',116,'side',g),s:this.one(c,'smug',116,'side',g),d:this.one(c,'sad',116,'side',g),st:this.one(c,'strong',116,'up',g)});
+    const T=ex(O,'m'),B=ex(P,'f');
+    const lv=n=>this.one(O,'happy',110,'side','m',n,'0 -18 100 130');
+    return {
+      hero:this.pair(190), heroD:this.pair(190), loreBig:this.one(O,'happy',96,'side','m',8,'0 -18 100 130'),
+      tHappy:T.h,tSmug:T.s,tSad:T.d,tStrong:T.st,
+      bHappy:B.h,bSmug:B.s,bSad:B.d,bStrong:B.st,
+      lv1:lv(1),lv2:lv(2),lv3:lv(3),lv4:lv(4),lv5:lv(5),lv6:lv(6),lv7:lv(7),lv8:lv(8),
+      icon:this.icon(96,O,false),
+      markPair:this.pair(84), markPairD:this.pair(84),
+      avT:this.one(O,'happy',56,'side','m',6),avB:this.one(P,'happy',56,'side','f',6),avTd:this.one(O,'happy',56,'side','m',6)
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=Nunito:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0}.vp-ico{width:21px;height:21px;display:block;fill:currentColor}
+@keyframes vpFlash{0%,100%{opacity:.55}50%{opacity:1}}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+  <aside style="width:236px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--hair);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;padding:22px 16px">
+    <div style="display:flex;align-items:center;gap:11px;padding:0 8px;margin-bottom:26px">
+      <div style="width:44px;display:flex;align-items:flex-end;justify-content:center;flex-shrink:0"><dc-import name="Broto" who="you" size="44" hint-size="36px,46px"></dc-import></div>
+      <div><div style="font:600 20px 'Fredoka';letter-spacing:-.02em;color:var(--ink);line-height:1">VitalPair</div><div style="font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-top:3px">SAÚDE É MELHOR EM DUPLA</div></div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:2px">
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M12 3l9 8h-2.4v9h-5.1v-5.6h-3v5.6H5.4v-9H3z"/></svg>Início</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M9 4h6l1.2 2H20a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2.8zm3 4.5A4.2 4.2 0 1012 17a4.2 4.2 0 000-8.5zm0 2.2a2 2 0 110 4 2 2 0 010-4z"/></svg>Registrar</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M8 7a3 3 0 116 0 3 3 0 01-6 0zm9 1.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM3 19c0-3 2.7-5 8-5s8 2 8 5v1H3zm16.5-1H21v-1c0-2-1-3.4-2.8-4.2 2 .6 3 2 3 4.2v1z"/></svg>Feed do par</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M6 3h9l4 4v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1zm2.5 7a1.2 1.2 0 100 2.4h7a1.2 1.2 0 000-2.4zm0 4a1.2 1.2 0 100 2.4h4.5a1.2 1.2 0 000-2.4z"/></svg>Plano alimentar</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M3 10.5h2V9a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-1.5H3zm18 0h-2V9a1.5 1.5 0 00-3 0v6a1.5 1.5 0 003 0v-1.5h2zM7.5 11h9v2h-9z"/></svg>Treino</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M7 4h10v2h3v3a4 4 0 01-4 4 5 5 0 01-3 2v2h3v3H8v-3h3v-2a5 5 0 01-3-2 4 4 0 01-4-4V6h3zm0 4H6v1a2 2 0 002 2zm10 0v3a2 2 0 002-2V8z"/></svg>Temporada</a>
+      <a style="{{ navActiveStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M12 2l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17l-5.8 3 1.1-6.5L2.6 8.8l6.5-.9z"/></svg>Missões</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M4 19V11h3v8zm6.5 0V5h3v14zM17 19v-6h3v6z"/></svg>Progresso</a>
+    </nav>
+    <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:9px 8px;border-top:1px solid var(--hair)">
+      <div style="width:32px;height:32px;border-radius:10px;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Nunito';flex-shrink:0">A</div>
+      <div style="line-height:1.2"><div style="font-size:13px;font-weight:800;color:var(--ink)">Alisson</div><div style="font-size:11px;color:var(--muted);font-weight:600">Nível 8 · Ativo</div></div>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;height:100vh;overflow-y:auto">
+    <div style="max-width:820px;margin:0 auto;padding:30px 36px 60px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <h1 style="font:600 28px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0">Missões</h1>
+        <button onClick="{{ toggleTheme }}" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--hair);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center"><sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z"/></svg></sc-if><sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor"><path d="M12 7a5 5 0 100 10 5 5 0 000-10z"/></svg></sc-if></button>
+      </div>
+      <p style="font-size:13.5px;color:var(--muted);font-weight:600;margin:0 0 22px">Desafio extra vale ponto extra. Bora ver o que tá rolando.</p>
+
+      <!-- relâmpago -->
+      <div style="background:var(--missionBg);border:1.5px solid var(--missionBorder);border-radius:18px;padding:20px;margin-bottom:18px;display:flex;align-items:center;gap:16px">
+        <div style="width:48px;height:48px;border-radius:15px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:#fff;animation:vpFlash 1.3s ease-in-out infinite"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></div>
+        <div style="flex:1"><div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--orange-ink);margin-bottom:3px">MISSÃO RELÂMPAGO · ACABA EM 12:00</div><div style="font:600 18px 'Fredoka';color:var(--ink)">Beba 2L de água antes da Célia</div><div style="font-size:12.5px;color:var(--muted);font-weight:600">Quem chegar primeiro leva os pontos</div></div>
+        <div style="text-align:right"><div style="font:600 22px 'Fredoka';color:var(--orange-ink)">+50</div><button style="border:none;background:var(--orange);color:#fff;font:800 12.5px 'Nunito';padding:9px 16px;border-radius:11px;cursor:pointer;margin-top:6px">Topar</button></div>
+      </div>
+
+      <!-- da semana -->
+      <div style="font:600 16px 'Fredoka';color:var(--ink);margin-bottom:12px">Rolando essa semana</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px">
+        <div style="background:var(--surface);border:1px solid var(--hair);border-radius:16px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:13px;margin-bottom:12px">
+            <div style="width:42px;height:42px;border-radius:13px;background:var(--purpleSoft);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:21px;height:21px;fill:var(--purple)"><path d="M3 10.5h2V9a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-1.5H3zm18 0h-2V9a1.5 1.5 0 00-3 0v6a1.5 1.5 0 003 0v-1.5h2zM7.5 11h9v2h-9z"/></svg></div>
+            <div style="flex:1"><div style="font-size:14.5px;font-weight:800;color:var(--ink)">Treinem 3x essa semana, os dois</div><div style="font-size:12px;color:var(--muted);font-weight:600">Missão de dupla — só vale se os dois fizerem</div></div>
+            <span style="font:600 16px 'Fredoka';color:var(--green-ink)">+60</span>
+          </div>
+          <div style="height:8px;border-radius:5px;background:var(--track);overflow:hidden;margin-bottom:6px"><div style="width:66%;height:100%;background:var(--green);border-radius:5px"></div></div>
+          <div style="font-size:11.5px;font-weight:700;color:var(--muted)">2 de 3 treinos — falta um!</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--hair);border-radius:16px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:13px;margin-bottom:12px">
+            <div style="width:42px;height:42px;border-radius:13px;background:var(--greenSoft);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:21px;height:21px;fill:var(--green)"><path d="M9 4h6l1.2 2H20a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2.8zm3 4.5A4.2 4.2 0 1012 17a4.2 4.2 0 000-8.5z"/></svg></div>
+            <div style="flex:1"><div style="font-size:14.5px;font-weight:800;color:var(--ink)">Registre todas as refeições por 5 dias</div><div style="font-size:12px;color:var(--muted);font-weight:600">Sem pular nenhuma</div></div>
+            <span style="font:600 16px 'Fredoka';color:var(--green-ink)">+40</span>
+          </div>
+          <div style="height:8px;border-radius:5px;background:var(--track);overflow:hidden;margin-bottom:6px"><div style="width:80%;height:100%;background:var(--green);border-radius:5px"></div></div>
+          <div style="font-size:11.5px;font-weight:700;color:var(--muted)">4 de 5 dias — tá quase</div>
+        </div>
+      </div>
+
+      <!-- concluídas -->
+      <div style="font:600 16px 'Fredoka';color:var(--ink);margin-bottom:12px">Já concluídas</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:13px 16px;opacity:.72">
+          <span style="width:34px;height:34px;border-radius:11px;background:var(--greenSoft);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--green)"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span>
+          <div style="flex:1;font-size:13.5px;font-weight:800;color:var(--ink)">Bebeu 2L de água 3 dias seguidos</div>
+          <span style="font-size:12px;font-weight:800;color:var(--muted)">+30</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:13px 16px;opacity:.72">
+          <span style="width:34px;height:34px;border-radius:11px;background:var(--greenSoft);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:var(--green)"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span>
+          <div style="flex:1;font-size:13.5px;font-weight:800;color:var(--ink)">Primeira semana sem falhar nenhum dia</div>
+          <span style="font-size:12px;font-weight:800;color:var(--muted)">+80</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'light' };
+  tokens() {
+    const light = this.state.theme === 'light';
+    return light ? {
+      canvas:'#fbf6ee', sidebar:'#ffffff', surface:'#ffffff', ink:'#241f17', muted:'#8a7f6d', hair:'#ece1cf', track:'#f1e7d8',
+      orange:'#ff6b2c','orange-ink':'#e0561c', purple:'#7c3aed', green:'#22c55e','green-ink':'#1aa34a',
+      orangeSoft:'#fff0e4', purpleSoft:'#f3ecff', greenSoft:'#e6f7ec', navActiveBg:'#fff0e4',
+      missionBg:'#fff3e9', missionBorder:'#ffddc2'
+    } : {
+      canvas:'#1b1610', sidebar:'#221b13', surface:'#251e16', ink:'#f7efe1', muted:'#a99a85', hair:'#352a1f', track:'#352a1f',
+      orange:'#ff8a4c','orange-ink':'#ffa066', purple:'#a855f7', green:'#4ade80','green-ink':'#5ed98e',
+      orangeSoft:'rgba(255,138,76,.14)', purpleSoft:'rgba(168,85,247,.16)', greenSoft:'rgba(74,222,128,.14)', navActiveBg:'rgba(255,138,76,.16)',
+      missionBg:'rgba(255,138,76,.1)', missionBorder:'rgba(255,138,76,.3)'
+    };
+  }
+  renderVals() {
+    const t = this.tokens();
+    const light = this.state.theme === 'light';
+    const vars = Object.entries(t).map(([k,v]) => `--${k}:${v}`).join(';');
+    const rootStyle = `${vars};background:${t.canvas};color:${t.ink};min-height:100vh;font-family:'Nunito',sans-serif;display:flex;transition:background .3s ease`;
+    const navStyle = `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:700;color:${t.muted};text-decoration:none;cursor:pointer`;
+    const navActiveStyle = `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:800;color:${t['orange-ink']};background:${t.navActiveBg};text-decoration:none;cursor:pointer`;
+    return {
+      rootStyle, navStyle, navActiveStyle, isLight: light, isDark: !light,
+      toggleTheme: () => this.setState(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
 	<artifactId>vitalpair</artifactId>
 	<version>0.3.0-SNAPSHOT</version>
 	<name>vitalpair</name>
-	<description>VitaPair - Health and fitness app for couples</description>
+	<description>VitalPair - Health and fitness app for couples</description>
 
 	<properties>
 		<java.version>17</java.version>
@@ -106,6 +106,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- ===== MAIL (recuperação de senha, verificação de e-mail) ===== -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
 		<!-- ===== OPENFEIGN (cliente HTTP declarativo para Open Food Facts / Anthropic) ===== -->

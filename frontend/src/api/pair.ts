@@ -1,9 +1,15 @@
 import { api } from './client'
 import type { ApiResponse } from '../types/api'
-import type { Pair, RelationshipType } from '../types/pair'
+import type { InvitePreview, Pair, RelationshipType } from '../types/pair'
 
 export async function getPair(): Promise<Pair> {
   const res = await api.get<ApiResponse<Pair>>('/pair')
+  return res.data.data
+}
+
+// Público: usado na landing de aceitação do convite (a pessoa pode estar deslogada).
+export async function getInvitePreview(code: string): Promise<InvitePreview> {
+  const res = await api.get<ApiResponse<InvitePreview>>(`/pair/invite/${code}`)
   return res.data.data
 }
 

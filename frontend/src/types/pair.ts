@@ -16,3 +16,9 @@ export interface Pair {
   inviteCode: string
   members: PairMember[]
 }
+
+export interface InvitePreview {
+  inviterName: string
+  relationshipType: RelationshipType
+  full: boolean
+}

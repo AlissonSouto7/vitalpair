@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=Nunito:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0}
+.vp-ring{transition:transform .4s ease}
+@keyframes vpDraw{from{stroke-dashoffset:314}to{stroke-dashoffset:92}}
+@keyframes vpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+
+  <!-- ===================== NAV ===================== -->
+  <nav style="max-width:1100px;margin:0 auto;padding:22px 32px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:11px">
+      <svg viewBox="0 0 40 28" style="width:40px;height:28px;flex-shrink:0"><path d="M20 7 Q23 14 20 21 Q17 14 20 7 Z" fill="var(--green)"></path><circle cx="15" cy="14" r="8.6" fill="none" stroke="var(--orange)" stroke-width="4.4"></circle><circle cx="25" cy="14" r="8.6" fill="none" stroke="var(--purple)" stroke-width="4.4"></circle></svg>
+      <div><div style="font:600 21px 'Fredoka';letter-spacing:-.02em;color:var(--ink);line-height:1">VitalPair</div><div style="font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-top:2px">SAÚDE É MELHOR EM DUPLA</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:22px">
+      <span style="font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer">Como funciona</span>
+      <span style="font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer">Preço</span>
+      <button onClick="{{ toggleTheme }}" style="width:36px;height:36px;border-radius:11px;border:1px solid var(--hair);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center"><sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z"/></svg></sc-if><sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6.5a1.3 1.3 0 011.3 1.3v1.4a1.3 1.3 0 01-2.6 0V1.8A1.3 1.3 0 0112 .5zm0 18.6a1.3 1.3 0 011.3 1.3v1.4a1.3 1.3 0 01-2.6 0v-1.4a1.3 1.3 0 011.3-1.3zM23.5 12a1.3 1.3 0 01-1.3 1.3h-1.4a1.3 1.3 0 010-2.6h1.4A1.3 1.3 0 0123.5 12zM4.9 12a1.3 1.3 0 01-1.3 1.3H2.2a1.3 1.3 0 010-2.6h1.4A1.3 1.3 0 014.9 12z"/></svg></sc-if></button>
+      <span style="font-size:13.5px;font-weight:800;color:var(--ink);cursor:pointer">Entrar</span>
+      <button style="border:none;background:var(--orange);color:#fff;font:800 13.5px 'Nunito';padding:11px 18px;border-radius:12px;cursor:pointer">Começar grátis</button>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <header style="max-width:1100px;margin:0 auto;padding:46px 32px 30px;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--purpleSoft);color:var(--purple-ink);font-size:12px;font-weight:800;padding:7px 13px;border-radius:20px;margin-bottom:22px">pra fazer junto com alguém</div>
+      <h1 style="font:600 50px/1.04 'Fredoka';letter-spacing:-.03em;color:var(--ink);margin:0 0 18px">Ninguém cuida da saúde sozinho por muito <span style="color:var(--orange)">tempo</span>.</h1>
+      <p style="font-size:16px;line-height:1.6;color:var(--muted);font-weight:600;margin:0 0 28px;max-width:440px">Então o VitalPair coloca você e mais alguém numa disputa de 30 dias. Você tira foto do que come, junta ponto quando mantém a linha, e o outro tá vendo tudo. Vacilou dois dias? Ela passa na sua frente.</p>
+      <div style="display:flex;align-items:center;gap:13px">
+        <button style="border:none;background:var(--orange);color:#fff;font:800 15px 'Nunito';padding:15px 26px;border-radius:14px;cursor:pointer">Começar grátis</button>
+        <button style="border:1px solid var(--hair);background:var(--surface);color:var(--ink);font:800 15px 'Nunito';padding:15px 22px;border-radius:14px;cursor:pointer">Ver como funciona</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;margin-top:22px">
+        <div style="display:flex"><div style="width:30px;height:30px;border-radius:50%;background:var(--orange);border:2px solid var(--canvas)"></div><div style="width:30px;height:30px;border-radius:50%;background:var(--purple);border:2px solid var(--canvas);margin-left:-9px"></div><div style="width:30px;height:30px;border-radius:50%;background:var(--green);border:2px solid var(--canvas);margin-left:-9px"></div></div>
+        <span style="font-size:12.5px;font-weight:700;color:var(--muted)">dá pra jogar com namorada, amigo, irmão — quem topar</span>
+      </div>
+    </div>
+
+    <!-- visual: mini-arena -->
+    <div style="position:relative">
+      <div style="position:absolute;inset:-8% -4%;background:radial-gradient(circle at 50% 40%,var(--heroGlow),transparent 70%);z-index:0"></div>
+      <div style="position:relative;z-index:1;background:var(--arena);border:1px solid var(--arenaBorder);border-radius:24px;padding:24px;box-shadow:0 24px 60px var(--arenaShadow);animation:vpFloat 4s ease-in-out infinite">
+        <div style="font:700 10px 'Nunito';letter-spacing:.18em;color:var(--arenaMuted);margin-bottom:18px">TEMPORADA 01 · DIA 12 / 30</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px">
+          <div style="text-align:center;flex:1">
+            <div style="width:54px;margin:0 auto 6px;display:flex;align-items:flex-end;justify-content:center"><dc-import name="Broto" who="you" expr="smug" size="54" hint-size="46px,58px"></dc-import></div>
+            <div style="font-size:11px;font-weight:800;color:var(--orange-ink)">VOCÊ</div>
+            <div style="font:600 38px 'Fredoka';color:var(--arenaText);line-height:1">340</div>
+          </div>
+          <div style="font:600 15px 'Fredoka';color:var(--arenaMuted)">vs</div>
+          <div style="text-align:center;flex:1">
+            <div style="width:54px;margin:0 auto 6px;display:flex;align-items:flex-end;justify-content:center"><dc-import name="Broto" who="partner" expr="happy" size="54" hint-size="46px,58px"></dc-import></div>
+            <div style="font-size:11px;font-weight:800;color:var(--purple-ink)">CÉLIA</div>
+            <div style="font:600 38px 'Fredoka';color:var(--arenaText);line-height:1">300</div>
+          </div>
+        </div>
+        <div style="height:9px;border-radius:6px;overflow:hidden;display:flex;background:var(--arenaTrack);margin:18px 0 12px"><div style="width:53%;background:linear-gradient(90deg,#ff7a1a,#ff9447)"></div><div style="flex:1;background:linear-gradient(90deg,#a855f7,#7c3aed)"></div></div>
+        <div style="display:flex;align-items:center;gap:7px;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:var(--green)"><path d="M5 16l-2-9 5 3 4-7 4 7 5-3-2 9zm0 2h14v2H5z"/></svg><span style="font-size:12.5px;font-weight:800;color:var(--green-ink)">Você lidera por 40 pts</span></div>
+      </div>
+      <!-- aposta ticket -->
+      <div style="position:relative;z-index:2;margin:14px auto 0;width:fit-content;background:var(--surface);border:1px solid var(--hair);border-radius:13px;padding:10px 16px;display:flex;align-items:center;gap:9px;box-shadow:0 8px 20px var(--shadow)">
+        <span style="font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--muted)">EM JOGO</span><span style="font-size:13px;font-weight:800;color:var(--ink)">🍣 quem perder paga o jantar</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== COMO FUNCIONA ===================== -->
+  <section style="max-width:1100px;margin:0 auto;padding:50px 32px">
+    <div style="text-align:center;margin-bottom:38px">
+      <div style="font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--orange-ink);margin-bottom:10px">COMO FUNCIONA</div>
+      <h2 style="font:600 34px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0">Na real, é bem de boa</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div style="background:var(--surface);border:1px solid var(--hair);border-radius:20px;padding:26px">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--orangeSoft);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:var(--orange)"><path d="M9 4h6l1.2 2H20a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2.8zm3 4.5A4.2 4.2 0 1012 17a4.2 4.2 0 000-8.5z"/></svg></div>
+        <div style="font:600 18px 'Fredoka';color:var(--ink);margin-bottom:8px">Tira uma foto do prato</div>
+        <div style="font-size:13.5px;line-height:1.55;color:var(--muted);font-weight:600">A IA olha e estima as calorias. Você só confere e confirma. É mais rápido que postar no story.</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--hair);border-radius:20px;padding:26px">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--purpleSoft);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:var(--purple)"><path d="M8 7a3 3 0 116 0 3 3 0 01-6 0zm9 1.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM3 19c0-3 2.7-5 8-5s8 2 8 5v1H3z"/></svg></div>
+        <div style="font:600 18px 'Fredoka';color:var(--ink);margin-bottom:8px">Chama a outra pessoa</div>
+        <div style="font-size:13.5px;line-height:1.55;color:var(--muted);font-weight:600">Vocês combinam o que tá em jogo e começam a temporada. O placar muda toda vez que alguém registra algo.</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--hair);border-radius:20px;padding:26px">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--greenSoft);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:var(--green)"><path d="M12 2l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17l-5.8 3 1.1-6.5L2.6 8.8l6.5-.9z"/></svg></div>
+        <div style="font:600 18px 'Fredoka';color:var(--ink);margin-bottom:8px">Não quebra a sequência</div>
+        <div style="font-size:13.5px;line-height:1.55;color:var(--muted);font-weight:600">Dia seguido vale mais ponto que dia perfeito. Ninguém tá cobrando perfeição aqui, só pra você não sumir.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TEMPORADA EXPLAINER ===================== -->
+  <section style="max-width:1100px;margin:0 auto;padding:30px 32px 60px">
+    <div style="background:var(--arena);border:1px solid var(--arenaBorder);border-radius:26px;padding:44px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;box-shadow:0 20px 50px var(--arenaShadow)">
+      <div>
+        <h2 style="font:600 32px/1.1 'Fredoka';letter-spacing:-.02em;color:var(--arenaText);margin:0 0 16px">O que te faz voltar amanhã?</h2>
+        <p style="font-size:15px;line-height:1.6;color:var(--arenaMuted);font-weight:600;margin:0 0 22px">Sinceramente? Saber que a outra pessoa tá ganhando de você. Tem o placar, tem a sequência pra não perder, tem desafio no meio da semana. Quando uma temporada acaba, já bate vontade de começar a próxima.</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:11px"><span style="width:24px;height:24px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#fff"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span><span style="font-size:14px;font-weight:700;color:var(--arenaText)">Ponto é por aparecer, não por ser perfeito</span></div>
+          <div style="display:flex;align-items:center;gap:11px"><span style="width:24px;height:24px;border-radius:8px;background:var(--purple);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#fff"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span><span style="font-size:14px;font-weight:700;color:var(--arenaText)">Desafio surpresa quando você menos espera</span></div>
+          <div style="display:flex;align-items:center;gap:11px"><span style="width:24px;height:24px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#fff"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span><span style="font-size:14px;font-weight:700;color:var(--arenaText)">Sem par? Joga contra você mesmo da semana passada</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:var(--arenaChipBg);border:1px solid var(--arenaLine);border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between"><div><div style="font:600 28px 'Fredoka';color:var(--arenaText);line-height:1">30</div><div style="font-size:11.5px;font-weight:700;color:var(--arenaMuted);margin-top:3px">dias por temporada</div></div><div style="width:1px;height:38px;background:var(--arenaLine)"></div><div><div style="font:600 28px 'Fredoka';color:var(--arenaText);line-height:1">+10</div><div style="font-size:11.5px;font-weight:700;color:var(--arenaMuted);margin-top:3px">pts por registro</div></div><div style="width:1px;height:38px;background:var(--arenaLine)"></div><div><div style="font:600 28px 'Fredoka';color:var(--arenaText);line-height:1">2</div><div style="font-size:11.5px;font-weight:700;color:var(--arenaMuted);margin-top:3px">jogadores</div></div></div>
+        <div style="background:var(--arenaChipBg);border:1px solid var(--arenaLine);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:13px"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--orange);flex-shrink:0"><path d="M12 2c1 3-1.5 4-1.5 7A1.5 1.5 0 0012 10c.8-1.6 2.5-1.4 2.5.5 0 1-.7 1.5-.7 2.5 2-1 3-3 2.7-5.5C19 10 20 12.5 20 15a8 8 0 01-16 0c0-4 3-5.5 4-8 .8 1.6 2.5 2 4 1.5C15 7 13 4 12 2z"/></svg><div><div style="font-size:14px;font-weight:800;color:var(--arenaText)">7 dias seguidos valem +80 pts</div><div style="font-size:12px;font-weight:700;color:var(--arenaMuted);margin-top:2px">Aguentou a semana inteira? Toma um empurrão</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA FINAL ===================== -->
+  <section style="max-width:760px;margin:0 auto;padding:20px 32px 70px;text-align:center">
+    <svg viewBox="0 0 40 28" style="width:58px;height:40px;margin-bottom:18px"><path d="M20 7 Q23 14 20 21 Q17 14 20 7 Z" fill="var(--green)"></path><circle cx="15" cy="14" r="8.6" fill="none" stroke="var(--orange)" stroke-width="4.4"></circle><circle cx="25" cy="14" r="8.6" fill="none" stroke="var(--purple)" stroke-width="4.4"></circle></svg>
+    <h2 style="font:600 36px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0 0 12px">Então, bora?</h2>
+    <p style="font-size:15px;color:var(--muted);font-weight:600;margin:0 0 26px">O primeiro par joga de graça e a gente nem pede cartão.</p>
+    <button style="border:none;background:var(--orange);color:#fff;font:800 16px 'Nunito';padding:16px 32px;border-radius:15px;cursor:pointer">Criar minha conta</button>
+    <div style="margin-top:46px;padding-top:24px;border-top:1px solid var(--hair);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12.5px;font-weight:700;color:var(--muted)">© 2026 VitalPair · Saúde é melhor em dupla</span>
+      <div style="display:flex;gap:18px;font-size:12.5px;font-weight:700;color:var(--muted)"><span style="cursor:pointer">Privacidade</span><span style="cursor:pointer">Termos</span><span style="cursor:pointer">Contato</span></div>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'light' };
+
+  tokens() {
+    const light = this.state.theme === 'light';
+    return light ? {
+      canvas:'#fbf6ee', surface:'#ffffff', ink:'#241f17', muted:'#8a7f6d', hair:'#ece1cf',
+      orange:'#ff6b2c', 'orange-ink':'#e0561c', purple:'#7c3aed', 'purple-ink':'#6d28d9',
+      green:'#22c55e', 'green-ink':'#1aa34a',
+      orangeSoft:'#fff0e4', purpleSoft:'#f3ecff', greenSoft:'#e6f7ec',
+      heroGlow:'rgba(255,138,76,.18)', shadow:'rgba(120,80,30,.14)',
+      arena:'#ffffff', arenaText:'#241f17', arenaShadow:'rgba(70,45,20,.1)', arenaMuted:'#8a7f6d',
+      arenaLine:'#e8dccb', arenaBorder:'#ece1cf', arenaChipBg:'#faf3e8', arenaTrack:'#efe4d4'
+    } : {
+      canvas:'#1b1610', surface:'#251e16', ink:'#f7efe1', muted:'#a99a85', hair:'#352a1f',
+      orange:'#ff8a4c', 'orange-ink':'#ffa066', purple:'#a855f7', 'purple-ink':'#c4a9f8',
+      green:'#4ade80', 'green-ink':'#5ed98e',
+      orangeSoft:'rgba(255,138,76,.14)', purpleSoft:'rgba(168,85,247,.16)', greenSoft:'rgba(74,222,128,.14)',
+      heroGlow:'rgba(255,138,76,.16)', shadow:'rgba(0,0,0,.4)',
+      arena:'#322619', arenaText:'#ffffff', arenaShadow:'rgba(0,0,0,.5)', arenaMuted:'#b6a288',
+      arenaLine:'rgba(255,255,255,.14)', arenaBorder:'rgba(255,255,255,.07)', arenaChipBg:'rgba(255,255,255,.06)', arenaTrack:'rgba(255,255,255,.1)'
+    };
+  }
+
+  renderVals() {
+    const t = this.tokens();
+    const light = this.state.theme === 'light';
+    const vars = Object.entries(t).map(([k,v]) => `--${k}:${v}`).join(';');
+    const rootStyle = `${vars};background:${t.canvas};color:${t.ink};min-height:100vh;font-family:'Nunito',sans-serif;transition:background .3s ease`;
+    return {
+      rootStyle, isLight: light, isDark: !light,
+      toggleTheme: () => this.setState(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

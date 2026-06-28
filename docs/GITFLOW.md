@@ -1,4 +1,4 @@
-# Git Flow do VitaPair
+# Git Flow do VitalPair
 
 O projeto usa **Git Flow** (extensão AVH). Este documento define o modelo de branches, as convenções de commit/tag e os comandos do dia a dia.
 

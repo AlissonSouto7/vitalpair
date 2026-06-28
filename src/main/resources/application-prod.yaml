@@ -14,5 +14,5 @@ server:
 
 logging:
   level:
-    com.aps.vitapair: INFO
+    com.aps.vitalpair: INFO
     org.hibernate.SQL: WARN

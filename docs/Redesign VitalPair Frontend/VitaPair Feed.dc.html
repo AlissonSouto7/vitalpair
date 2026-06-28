@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=Nunito:wght@400..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0}
+.vp-ico{width:21px;height:21px;display:block;fill:currentColor}
+.vp-react:hover{transform:translateY(-1px)}
+@keyframes vpDraw{from{stroke-dashoffset:314}to{stroke-dashoffset:92}}
+</style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+
+  <!-- SIDEBAR -->
+  <aside style="width:236px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--hair);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;padding:22px 16px">
+    <div style="display:flex;align-items:center;gap:11px;padding:0 8px;margin-bottom:26px">
+      <div style="width:44px;display:flex;align-items:flex-end;justify-content:center;flex-shrink:0"><dc-import name="Broto" who="you" size="44" hint-size="36px,46px"></dc-import></div>
+      <div><div style="font:600 20px 'Fredoka';letter-spacing:-.02em;color:var(--ink);line-height:1">VitalPair</div><div style="font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-top:3px">SAÚDE É MELHOR EM DUPLA</div></div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:2px">
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M12 3l9 8h-2.4v9h-5.1v-5.6h-3v5.6H5.4v-9H3z"/></svg>Início</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M9 4h6l1.2 2H20a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2.8zm3 4.5A4.2 4.2 0 1012 17a4.2 4.2 0 000-8.5zm0 2.2a2 2 0 110 4 2 2 0 010-4z"/></svg>Registrar</a>
+      <a style="{{ navActiveStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M8 7a3 3 0 116 0 3 3 0 01-6 0zm9 1.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM3 19c0-3 2.7-5 8-5s8 2 8 5v1H3zm16.5-1H21v-1c0-2-1-3.4-2.8-4.2 2 .6 3 2 3 4.2v1z"/></svg>Feed do par</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M6 3h9l4 4v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1zm2.5 7a1.2 1.2 0 100 2.4h7a1.2 1.2 0 000-2.4zm0 4a1.2 1.2 0 100 2.4h4.5a1.2 1.2 0 000-2.4z"/></svg>Plano alimentar</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M3 10.5h2V9a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0v-1.5H3zm18 0h-2V9a1.5 1.5 0 00-3 0v6a1.5 1.5 0 003 0v-1.5h2zM7.5 11h9v2h-9z"/></svg>Treino</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M7 4h10v2h3v3a4 4 0 01-4 4 5 5 0 01-3 2v2h3v3H8v-3h3v-2a5 5 0 01-3-2 4 4 0 01-4-4V6h3zm0 4H6v1a2 2 0 002 2zm10 0v3a2 2 0 002-2V8z"/></svg>Temporada</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M12 2l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17l-5.8 3 1.1-6.5L2.6 8.8l6.5-.9z"/></svg>Missões</a>
+      <a style="{{ navStyle }}"><svg class="vp-ico" viewBox="0 0 24 24"><path d="M4 19V11h3v8zm6.5 0V5h3v14zM17 19v-6h3v6z"/></svg>Progresso</a>
+    </nav>
+    <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:9px 8px;border-top:1px solid var(--hair)">
+      <div style="width:32px;height:32px;border-radius:10px;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font:700 13px 'Nunito';flex-shrink:0">A</div>
+      <div style="line-height:1.2"><div style="font-size:13px;font-weight:800;color:var(--ink)">Alisson</div><div style="font-size:11px;color:var(--muted);font-weight:600">Nível 8 · Ativo</div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main style="flex:1;min-width:0;height:100vh;overflow-y:auto">
+    <div style="max-width:620px;margin:0 auto;padding:30px 32px 60px">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <h1 style="font:600 28px 'Fredoka';letter-spacing:-.02em;color:var(--ink);margin:0">Rolê de vocês dois</h1>
+        <button onClick="{{ toggleTheme }}" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--hair);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center"><sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z"/></svg></sc-if><sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor"><path d="M12 7a5 5 0 100 10 5 5 0 000-10z"/></svg></sc-if></button>
+      </div>
+      <p style="font-size:13.5px;color:var(--muted);font-weight:600;margin:0 0 22px">Tudo que vocês dois fizeram hoje. Cutuca, provoca, dá força.</p>
+
+      <!-- timeline -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <!-- Célia: conquista -->
+        <div style="background:var(--surface);border:1px solid var(--hair);border-radius:18px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:11px">
+            <div style="display:flex;align-items:flex-end;justify-content:center;width:42px;flex-shrink:0"><dc-import name="Broto" who="partner" size="42" hint-size="34px,44px"></dc-import></div>
+            <div style="flex:1"><div style="font-size:14px;color:var(--ink);font-weight:800">Célia bateu a meta de proteína 💪</div><div style="font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px">há 20 min</div></div>
+            <span style="font-size:12px;font-weight:800;color:var(--green-ink);background:var(--greenSoft);padding:5px 10px;border-radius:9px">+20 pts</span>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button class="vp-react" style="{{ reactStyle }}"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--orange)"><path d="M12 2c1 3-1.5 4-1.5 7A1.5 1.5 0 0012 10c.8-1.6 2.5-1.4 2.5.5 0 1-.7 1.5-.7 2.5 2-1 3-3 2.7-5.5C19 10 20 12.5 20 15a8 8 0 01-16 0c0-4 3-5.5 4-8 .8 1.6 2.5 2 4 1.5C15 7 13 4 12 2z"/></svg>3</button>
+            <button class="vp-react" style="{{ reactStyle }}"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--purple)"><path d="M7 11V7a2 2 0 014 0v4h1V8a2 2 0 014 0v3h1V9a2 2 0 014 0v6a6 6 0 01-6 6h-3a5 5 0 01-4-2l-4-5a1.6 1.6 0 012.3-2.2z"/></svg>força</button>
+            <button class="vp-react" style="{{ reactStyle }}"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--muted)"><path d="M12 5c-5 0-9 4.5-10 7 1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 3a4 4 0 110 8 4 4 0 010-8z"/></svg>olho</button>
+          </div>
+        </div>
+
+        <!-- Você: refeição com foto -->
+        <div style="background:var(--surface);border:1px solid var(--hair);border-radius:18px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">
+            <div style="display:flex;align-items:flex-end;justify-content:center;width:42px;flex-shrink:0"><dc-import name="Broto" who="you" size="42" hint-size="34px,44px"></dc-import></div>
+            <div style="flex:1"><div style="font-size:14px;color:var(--ink);font-weight:800">Você registrou o almoço</div><div style="font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px">há 2h · 585 kcal</div></div>
+            <span style="font-size:12px;font-weight:800;color:var(--green-ink);background:var(--greenSoft);padding:5px 10px;border-radius:9px">+10 pts</span>
+          </div>
+          <div style="display:flex;gap:9px;align-items:center;background:var(--canvas);border-radius:12px;padding:11px 13px">
+            <div style="width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,#ffd6a5,#ffb877);flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:800;color:var(--ink)">Arroz, feijão e frango + salada</div><div style="font-size:11.5px;color:var(--muted);font-weight:600">P 48g · C 62g · G 14g</div></div>
+          </div>
+        </div>
+
+        <!-- Célia: treino -->
+        <div style="background:var(--surface);border:1px solid var(--hair);border-radius:18px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:11px">
+            <div style="display:flex;align-items:flex-end;justify-content:center;width:42px;flex-shrink:0"><dc-import name="Broto" who="partner" size="42" hint-size="34px,44px"></dc-import></div>
+            <div style="flex:1"><div style="font-size:14px;color:var(--ink);font-weight:800">Célia treinou pernas e tá te ultrapassando</div><div style="font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px">há 4h · 45 min</div></div>
+            <span style="font-size:12px;font-weight:800;color:var(--green-ink);background:var(--greenSoft);padding:5px 10px;border-radius:9px">+15 pts</span>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button class="vp-react" style="{{ reactStyle }}"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--orange)"><path d="M12 2c1 3-1.5 4-1.5 7A1.5 1.5 0 0012 10c.8-1.6 2.5-1.4 2.5.5 0 1-.7 1.5-.7 2.5 2-1 3-3 2.7-5.5C19 10 20 12.5 20 15a8 8 0 01-16 0c0-4 3-5.5 4-8 .8 1.6 2.5 2 4 1.5C15 7 13 4 12 2z"/></svg>fogo</button>
+            <button class="vp-react" style="{{ reactStyle }}"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--purple)"><path d="M7 11V7a2 2 0 014 0v4h1V8a2 2 0 014 0v3h1V9a2 2 0 014 0v6a6 6 0 01-6 6h-3a5 5 0 01-4-2l-4-5a1.6 1.6 0 012.3-2.2z"/></svg>força</button>
+          </div>
+        </div>
+
+        <!-- Você: streak -->
+        <div style="background:var(--surface);border:1px solid var(--hair);border-radius:18px;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="display:flex;align-items:flex-end;justify-content:center;width:42px;flex-shrink:0"><dc-import name="Broto" who="you" size="42" hint-size="34px,44px"></dc-import></div>
+            <div style="flex:1"><div style="font-size:14px;color:var(--ink);font-weight:800">Você fechou 5 dias seguidos 🔥</div><div style="font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px">hoje cedo</div></div>
+            <span style="font-size:12px;font-weight:800;color:var(--green-ink);background:var(--greenSoft);padding:5px 10px;border-radius:9px">+30 pts</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'light' };
+
+  tokens() {
+    const light = this.state.theme === 'light';
+    return light ? {
+      canvas:'#fbf6ee', sidebar:'#ffffff', surface:'#ffffff', ink:'#241f17', muted:'#8a7f6d', hair:'#ece1cf',
+      orange:'#ff6b2c','orange-ink':'#e0561c', purple:'#7c3aed','purple-ink':'#6d28d9', green:'#22c55e','green-ink':'#1aa34a',
+      greenSoft:'#e6f7ec', navActiveBg:'#fff0e4'
+    } : {
+      canvas:'#1b1610', sidebar:'#221b13', surface:'#251e16', ink:'#f7efe1', muted:'#a99a85', hair:'#352a1f',
+      orange:'#ff8a4c','orange-ink':'#ffa066', purple:'#a855f7','purple-ink':'#c4a9f8', green:'#4ade80','green-ink':'#5ed98e',
+      greenSoft:'rgba(74,222,128,.14)', navActiveBg:'rgba(255,138,76,.16)'
+    };
+  }
+
+  renderVals() {
+    const t = this.tokens();
+    const light = this.state.theme === 'light';
+    const vars = Object.entries(t).map(([k,v]) => `--${k}:${v}`).join(';');
+    const rootStyle = `${vars};background:${t.canvas};color:${t.ink};min-height:100vh;font-family:'Nunito',sans-serif;display:flex;transition:background .3s ease`;
+    const navStyle = `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:700;color:${t.muted};text-decoration:none;cursor:pointer`;
+    const navActiveStyle = `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:800;color:${t['orange-ink']};background:${t.navActiveBg};text-decoration:none;cursor:pointer`;
+    const reactStyle = `display:flex;align-items:center;gap:6px;border:1px solid ${t.hair};background:transparent;color:${t.muted};font:800 12px 'Nunito';padding:7px 12px;border-radius:10px;cursor:pointer;transition:transform .12s`;
+    return {
+      rootStyle, navStyle, navActiveStyle, reactStyle,
+      isLight: light, isDark: !light,
+      toggleTheme: () => this.setState(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

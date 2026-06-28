@@ -4,9 +4,12 @@ import { listNotifications, markNotificationsRead } from '../api/notifications'
 import type { AppNotification, NotificationFeed, NotificationType } from '../types/notification'
 
 const DOT: Record<NotificationType, string> = {
-  PARTNER_MEAL: 'bg-lime-400',
-  PARTNER_ACTIVITY: 'bg-amber-400',
-  PAIR_FORMED: 'bg-cyan-400',
+  PARTNER_MEAL: 'bg-success',
+  PARTNER_ACTIVITY: 'bg-rival',
+  PAIR_FORMED: 'bg-success',
+  RIVAL_OVERTOOK: 'bg-rival',
+  FLASH_MISSION: 'bg-brand',
+  LOG_REMINDER: 'bg-brand',
 }
 
 export function NotificationsBell() {
@@ -40,12 +43,18 @@ export function NotificationsBell() {
   function titleOf(n: AppNotification): string {
     if (n.type === 'PARTNER_MEAL') return t('notifications.mealTitle')
     if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityTitle')
+    if (n.type === 'RIVAL_OVERTOOK') return 'Te ultrapassaram!'
+    if (n.type === 'FLASH_MISSION') return 'Missão relâmpago'
+    if (n.type === 'LOG_REMINDER') return 'Faltou registrar'
     return t('notifications.pairTitle')
   }
 
   function bodyOf(n: AppNotification): string {
     if (n.type === 'PARTNER_MEAL') return t('notifications.mealBody', { name: n.actorName, food: n.refText })
     if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityBody', { name: n.actorName, kcal: n.amount })
+    if (n.type === 'RIVAL_OVERTOOK') return `${n.actorName ?? 'Seu par'} passou na sua frente no placar. Corre atrás.`
+    if (n.type === 'FLASH_MISSION') return 'A missão relâmpago de hoje tá no ar. Corre que vale ponto.'
+    if (n.type === 'LOG_REMINDER') return 'O dia tá acabando e você não logou nada. Bora marcar algo?'
     return t('notifications.pairBody')
   }
 

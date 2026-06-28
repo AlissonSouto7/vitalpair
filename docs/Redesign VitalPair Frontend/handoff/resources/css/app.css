@@ -1,0 +1,102 @@
+/* ============================================================
+   Flowpj — Direção "Fluxo" · Tailwind v4 (CSS-first)
+   ------------------------------------------------------------
+   A PALETA INTEIRA mora nos blocos :root (claro) e .dark (escuro).
+   Trocar de paleta = editar só esses dois lugares. As utilities
+   (bg-canvas, text-ink, bg-brand, text-amber-ink…) leem essas vars
+   via @theme inline, então nada mais precisa mudar.
+
+   LEI DAS CORES (cada cor tem UM papel — cor fora do papel é bug):
+     brand  (teal)   → identidade, valor entregue, ação criativa (criar, atribuir, iniciar)
+     amber           → cronômetro ativo AGORA, e nada mais (pulsa)
+     success(verde)  → concluído, "em dia", conquista
+     review (indigo) → pessoas, coordenação, status "em revisão"
+     danger (verm.)  → destrutivo ou ruim (excluir, atrasado, bloqueado)
+     neutros         → estrutura, inventário, chrome
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Geist+Mono:wght@400..600&family=Hanken+Grotesk:wght@400..700&display=swap');
+@import "tailwindcss";
+
+/* expõe utilities Tailwind a partir das vars semânticas abaixo */
+@theme inline {
+  --color-canvas:     var(--canvas);
+  --color-surface:    var(--surface);
+  --color-ink:        var(--ink);
+  --color-muted:      var(--muted);
+  --color-hair:       var(--hair);
+  --color-track:      var(--track);
+  --color-node:       var(--node);
+
+  --color-brand:      var(--brand);
+  --color-brand-2:    var(--brand-2);
+  --color-brand-fg:   var(--brand-fg);
+
+  --color-amber:      var(--amber);
+  --color-amber-ink:  var(--amber-ink);
+  --color-amber-soft: var(--amber-soft);
+
+  --color-success:     var(--success);
+  --color-success-ink: var(--success-ink);
+  --color-success-soft:var(--success-soft);
+
+  --color-review:      var(--review);
+  --color-review-ink:  var(--review-ink);
+  --color-review-soft: var(--review-soft);
+
+  --color-danger:      var(--danger);
+  --color-danger-ink:  var(--danger-ink);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-sans:    "Hanken Grotesk", sans-serif;
+  --font-mono:    "Geist Mono", monospace;
+}
+
+/* ---------- CLARO (neutros quentes / creme) ---------- */
+:root {
+  --canvas:#f4f1ea;  --surface:#ffffff;  --ink:#211d18;  --muted:#9b9081;
+  --hair:#ece4d6;    --track:#e7ddca;    --node:#cfc4b1;
+
+  --brand:#0f9b8a;   --brand-2:#3bb8a3;  --brand-fg:#ffffff;
+
+  --amber:#e8922e;   --amber-ink:#bd7c1c;   --amber-soft:#fbf0db;
+  --success:#4aa564; --success-ink:#388152; --success-soft:#e4f3e8;
+  --review:#6d6af0;  --review-ink:#5a4fd0;  --review-soft:#ecebfb;
+  --danger:#d85544;  --danger-ink:#c0463a;  --danger-soft:#fbe9e6;
+
+  --pulse:rgba(232,146,46,.50);
+  --scrim:rgba(20,16,10,.42);
+}
+
+/* ---------- ESCURO (carvão esverdeado e quente — não navy) ---------- */
+.dark {
+  --canvas:#14181a;  --surface:#1b211f;  --ink:#ede7da;  --muted:#7e857d;
+  --hair:#28322f;    --track:#222b29;    --node:#3b443f;
+
+  --brand:#2bb8a4;   --brand-2:#3fd0bb;  --brand-fg:#06201d;
+
+  --amber:#f0a23e;   --amber-ink:#f0a23e;   --amber-soft:rgba(240,162,62,.14);
+  --success:#57c074; --success-ink:#57c074; --success-soft:rgba(87,192,116,.14);
+  --review:#8a87ff;  --review-ink:#8a87ff;  --review-soft:rgba(138,135,255,.14);
+  --danger:#ff6a5c;  --danger-ink:#ff6a5c;  --danger-soft:rgba(255,106,92,.16);
+
+  --pulse:rgba(240,162,62,.55);
+  --scrim:rgba(0,0,0,.60);
+}
+
+/* ---------- base ---------- */
+html, body { background: var(--canvas); color: var(--ink); }
+body { font-family: var(--font-sans); transition: background .3s ease, color .3s ease; }
+
+/* ---------- assinaturas de movimento ---------- */
+@keyframes flow-pulse { 0%,100% { box-shadow: 0 0 0 0 var(--pulse); } 50% { box-shadow: 0 0 0 8px rgba(0,0,0,0); } }
+@keyframes flow-sheen { 0% { transform: translateX(-160%); } 100% { transform: translateX(520%); } }
+@keyframes flow-rise  { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+
+/* utilitário do cronômetro ativo (o ÚNICO lugar que pulsa) */
+.is-running { animation: flow-pulse 1.7s ease-in-out infinite; }
+.signature-sheen { position:absolute; inset:0; width:40px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  animation: flow-sheen 2.6s linear infinite; }
+.enter { animation: flow-rise .32s ease both; }

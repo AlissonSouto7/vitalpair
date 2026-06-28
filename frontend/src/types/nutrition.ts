@@ -37,6 +37,29 @@ export interface LogMealPayload {
   isPrivate: boolean
 }
 
+export interface FavoriteFood {
+  foodName: string
+  quantityG: number
+  caloriesKcal: number
+  proteinG: number
+  carbG: number
+  fatG: number
+  count: number
+}
+
+export interface DetectedFood {
+  foodName: string
+  quantityG: number
+  caloriesKcal: number
+  proteinG: number
+  carbG: number
+  fatG: number
+}
+
+export interface PhotoAnalysis {
+  items: DetectedFood[]
+}
+
 export interface DailySummary {
   date: string
   consumedCalories: number

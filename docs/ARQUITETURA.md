@@ -1,10 +1,10 @@
-# VitaPair — Documento de Arquitetura e Contexto de Projeto
+# VitalPair — Documento de Arquitetura e Contexto de Projeto
 
-> Versão 1.1. Transcrição do PDF oficial (`VitaPair_Arquitetura.pdf`). Documento de referência permanente: consultar antes de implementar qualquer feature.
+> Versão 1.1. Transcrição do PDF oficial (`VitalPair_Arquitetura.pdf`). Documento de referência permanente: consultar antes de implementar qualquer feature.
 
 ## 1. Visão Geral do Produto
 
-VitaPair é um app web de saúde e fitness para **casais/duplas** com objetivos opostos ou complementares (ex: ela quer perder peso, ele quer ganhar massa). Gerencia ambos de forma independente mas conectada, com competição, compartilhamento e gamificação.
+VitalPair é um app web de saúde e fitness para **casais/duplas** com objetivos opostos ou complementares (ex: ela quer perder peso, ele quer ganhar massa). Gerencia ambos de forma independente mas conectada, com competição, compartilhamento e gamificação.
 
 ### 1.1 Proposta de valor
 - Planos alimentares e de treino gerados por IA com base no perfil/objetivo individual
@@ -166,7 +166,7 @@ src/
 - Campos: product_name, nutriments.energy-kcal_100g, proteins_100g, carbohydrates_100g, fat_100g
 - Cache Redis TTL 24h (chave `off:barcode:<code>`)
 - Fallback para banco local de alimentos BR se API cair
-- **User-Agent obrigatório**: `VitaPair/1.0 (contact@vitapair.app)`
+- **User-Agent obrigatório**: `VitalPair/1.0 (contact@vitapair.app)`
 
 ### 6.3 Cálculo de TDEE (Mifflin-St Jeor)
 - Homem: BMR = (10 × peso_kg) + (6.25 × altura_cm) − (5 × idade) + 5

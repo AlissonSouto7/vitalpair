@@ -7,6 +7,8 @@ export interface FeedItem {
   actorName: string
   type: FeedItemType
   title: string
+  subtitle: string | null
+  points: number
   isPrivate: boolean
   createdAt: string
   reactionCounts: Partial<Record<ReactionType, number>>
