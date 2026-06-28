@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { getSeason } from '../../api/season'
 import { Scoreboard } from '../../components/ui/Scoreboard'
 import { Points } from '../../components/ui/Badge'
 import type { SeasonBreakdown, SeasonDay, SeasonHistoryItem, SeasonView } from '../../types/season'
 
 export function SeasonPage() {
+  const { t } = useTranslation()
   const [season, setSeason] = useState<SeasonView | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -12,16 +14,16 @@ export function SeasonPage() {
   useEffect(() => {
     getSeason()
       .then(setSeason)
-      .catch(() => setError('Não rolou carregar a temporada agora. Tenta de novo daqui a pouco.'))
+      .catch(() => setError(t('season.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
-  if (loading) return <p className="font-bold text-muted">Carregando...</p>
+  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
   if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
   if (!season) return null
 
   const { you, rival, hasPartner } = season
-  const partnerName = rival?.name ?? 'seu par'
+  const partnerName = rival?.name ?? t('season.defaultPartner')
   const leading = you.score - (rival?.score ?? 0)
 
   const overall = season.history.reduce(
@@ -36,21 +38,21 @@ export function SeasonPage() {
     <div className="space-y-5">
       <header>
         <h1 className="font-display text-[28px] font-semibold leading-none tracking-[-0.02em] text-ink">
-          Temporada {String(season.number).padStart(2, '0')}
+          {t('season.title', { n: String(season.number).padStart(2, '0') })}
         </h1>
         <p className="mt-1.5 text-[13px] font-bold text-muted">
           {!hasPartner
-            ? `Faltam ${season.daysLeft} dias. Chama seu par que o VS começa.`
+            ? t('season.subNoPartner', { days: season.daysLeft })
             : leading >= 0
-              ? `Faltam ${season.daysLeft} dias pra fechar, segura a ponta.`
-              : `Faltam ${season.daysLeft} dias e você tá atrás. Hora de virar.`}
+              ? t('season.subLeading', { days: season.daysLeft })
+              : t('season.subBehind', { days: season.daysLeft })}
         </p>
       </header>
 
       {/* Placar */}
       {hasPartner && rival ? (
         <Scoreboard
-          you={{ name: 'Você', score: you.score, initial: 'V' }}
+          you={{ name: t('season.you'), score: you.score, initial: 'V' }}
           rival={{ name: partnerName, score: rival.score, initial: initial(partnerName), tone: 'rival' }}
           stake={season.stake}
           day={season.day}
@@ -58,32 +60,44 @@ export function SeasonPage() {
         />
       ) : (
         <div className="rounded-[22px] border border-dashed border-hair bg-surface px-7 py-7 text-center">
-          <p className="font-display text-lg font-semibold text-ink">Temporada solo</p>
+          <p className="font-display text-lg font-semibold text-ink">{t('season.soloTitle')}</p>
           <p className="mt-1 text-sm font-semibold text-muted">
-            Já são <span className="font-extrabold text-success-ink">{you.score} pts</span> seus nesses{' '}
-            {season.day} dias. Chama seu par e o placar vira um VS.
+            <Trans
+              i18nKey="season.soloText"
+              values={{ points: you.score, days: season.day }}
+              components={[<span className="font-extrabold text-success-ink" />]}
+            />
           </p>
         </div>
       )}
 
       {/* Resumo: aposta + dias + quem lidera */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Stat icon={<DishIcon />} tone="carb" title="A aposta" value={season.stake} />
+        <Stat icon={<DishIcon />} tone="carb" title={t('season.statStakeTitle')} value={season.stake} />
         <Stat
           icon={<ClockIcon />}
           tone="brand"
-          title="Dias restantes"
-          value={`${season.daysLeft} ${season.daysLeft === 1 ? 'dia' : 'dias'}`}
+          title={t('season.statDaysLeftTitle')}
+          value={t(season.daysLeft === 1 ? 'season.daysOne' : 'season.daysOther', { n: season.daysLeft })}
         />
         {hasPartner ? (
           <Stat
             icon={<MedalIcon />}
             tone={leading >= 0 ? 'success' : 'rival'}
-            title="Quem lidera"
-            value={leading >= 0 ? `Você, por ${leading} pts` : `${partnerName}, por ${-leading} pts`}
+            title={t('season.statLeaderTitle')}
+            value={
+              leading >= 0
+                ? t('season.leaderYou', { n: leading })
+                : t('season.leaderPartner', { name: partnerName, n: -leading })
+            }
           />
         ) : (
-          <Stat icon={<MedalIcon />} tone="success" title="Seus pontos" value={`${you.score} pts`} />
+          <Stat
+            icon={<MedalIcon />}
+            tone="success"
+            title={t('season.statYourPointsTitle')}
+            value={t('season.pts', { n: you.score })}
+          />
         )}
       </div>
 
@@ -91,9 +105,9 @@ export function SeasonPage() {
       {season.days.length > 0 && (
         <section className="card">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-display text-base font-semibold text-ink">Ponto a ponto</h2>
+            <h2 className="font-display text-base font-semibold text-ink">{t('season.pointByPoint')}</h2>
             <div className="flex items-center gap-4 text-[11.5px] font-extrabold">
-              <Legend color="bg-brand" label="Você" cls="text-brand-ink" />
+              <Legend color="bg-brand" label={t('season.you')} cls="text-brand-ink" />
               {hasPartner && <Legend color="bg-rival" label={partnerName} cls="text-rival-ink" />}
             </div>
           </div>
@@ -104,8 +118,8 @@ export function SeasonPage() {
       {/* Breakdown */}
       {season.breakdown.length > 0 && (
         <section className="card">
-          <h2 className="mb-1 font-display text-base font-semibold text-ink">De onde vieram os pontos</h2>
-          <p className="mb-4 text-[13px] font-bold text-muted">Quem fez o quê nesta temporada.</p>
+          <h2 className="mb-1 font-display text-base font-semibold text-ink">{t('season.breakdownTitle')}</h2>
+          <p className="mb-4 text-[13px] font-bold text-muted">{t('season.breakdownSubtitle')}</p>
           <div className="space-y-3">
             {season.breakdown.map((b) => (
               <BreakdownRow key={b.source} item={b} hasPartner={hasPartner} partnerName={partnerName} />
@@ -117,7 +131,7 @@ export function SeasonPage() {
       {/* Histórico */}
       {season.history.length > 0 && (
         <section className="space-y-3">
-          <h2 className="font-display text-base font-semibold text-ink">Temporadas anteriores</h2>
+          <h2 className="font-display text-base font-semibold text-ink">{t('season.history')}</h2>
           {season.history.map((h) => (
             <HistoryRow key={h.number} item={h} partnerName={partnerName} />
           ))}
@@ -128,13 +142,18 @@ export function SeasonPage() {
                 <TrophyIcon className="h-[21px] w-[21px] fill-muted" />
               </div>
               <div className="flex-1">
-                <div className="text-sm font-extrabold text-ink">Placar geral entre vocês</div>
+                <div className="text-sm font-extrabold text-ink">{t('season.overallTitle')}</div>
                 <div className="text-[11.5px] font-bold text-muted">
                   {overall.you === overall.rival
-                    ? `${overall.you} a ${overall.rival}, tá empatado no geral.`
+                    ? t('season.overallTie', { you: overall.you, rival: overall.rival })
                     : overall.you > overall.rival
-                      ? `Você ${overall.you} · ${partnerName} ${overall.rival}, na frente no geral também.`
-                      : `Você ${overall.you} · ${partnerName} ${overall.rival}, ${firstName(partnerName)} domina o geral por enquanto.`}
+                      ? t('season.overallYouAhead', { you: overall.you, rival: overall.rival, name: partnerName })
+                      : t('season.overallPartnerAhead', {
+                          you: overall.you,
+                          rival: overall.rival,
+                          name: partnerName,
+                          first: firstName(partnerName),
+                        })}
                 </div>
               </div>
               <div className="flex items-baseline gap-1.5 font-display text-lg font-semibold">
@@ -190,6 +209,7 @@ function Legend({ color, label, cls }: { color: string; label: string; cls: stri
 }
 
 function DayChart({ days, hasPartner, partnerName }: { days: SeasonDay[]; hasPartner: boolean; partnerName: string }) {
+  const { t } = useTranslation()
   const max = Math.max(...days.flatMap((d) => [d.you, d.rival]), 1)
   return (
     <div className="relative flex h-[130px] items-end gap-2 pb-[22px]">
@@ -199,13 +219,13 @@ function DayChart({ days, hasPartner, partnerName }: { days: SeasonDay[]; hasPar
             <div
               className="flex-1 rounded-t-[3px] bg-brand"
               style={{ height: `${(d.you / max) * 100}%` }}
-              title={`Dia ${d.label} · você +${d.you} pts`}
+              title={t('season.dayTipYou', { label: d.label, points: d.you })}
             />
             {hasPartner && (
               <div
                 className="flex-1 rounded-t-[3px] bg-rival"
                 style={{ height: `${(d.rival / max) * 100}%` }}
-                title={`Dia ${d.label} · ${partnerName} +${d.rival} pts`}
+                title={t('season.dayTipPartner', { label: d.label, name: partnerName, points: d.rival })}
               />
             )}
           </div>
@@ -225,6 +245,7 @@ function BreakdownRow({
   hasPartner: boolean
   partnerName: string
 }) {
+  const { t } = useTranslation()
   const Icon = SOURCE_ICONS[item.source] ?? StarIcon
   const youAhead = item.you >= item.rival
   const denom = item.you + item.rival || 1
@@ -237,12 +258,12 @@ function BreakdownRow({
         <div className="mb-1 flex items-center justify-between">
           <span className="text-[13px] font-extrabold text-ink">{item.label}</span>
           <span className="flex items-center gap-2 text-[11px] font-extrabold">
-            <span className="text-brand-ink">você {item.you}</span>
+            <span className="text-brand-ink">{t('season.breakdownYou', { n: item.you })}</span>
             {hasPartner && (
               <>
                 <span className="text-faint">·</span>
                 <span className="text-rival-ink">
-                  {firstName(partnerName)} {item.rival}
+                  {t('season.breakdownPartner', { name: firstName(partnerName), n: item.rival })}
                 </span>
               </>
             )}
@@ -259,9 +280,14 @@ function BreakdownRow({
 }
 
 function HistoryRow({ item, partnerName }: { item: SeasonHistoryItem; partnerName: string }) {
+  const { t } = useTranslation()
   const youWon = item.winner === 'YOU'
   const tie = item.winner === 'TIE'
-  const badge = tie ? 'Empate' : youWon ? 'Você venceu' : `${firstName(partnerName)} venceu`
+  const badge = tie
+    ? t('season.historyWinTie')
+    : youWon
+      ? t('season.historyWinYou')
+      : t('season.historyWinPartner', { name: firstName(partnerName) })
   const badgeCls = tie
     ? 'bg-track text-muted'
     : youWon
@@ -277,13 +303,15 @@ function HistoryRow({ item, partnerName }: { item: SeasonHistoryItem; partnerNam
         <TrophyIcon className={`h-[21px] w-[21px] ${tie ? 'fill-muted' : youWon ? 'fill-brand' : 'fill-rival'}`} />
       </div>
       <div className="flex-1">
-        <div className="text-sm font-extrabold text-ink">Temporada {String(item.number).padStart(2, '0')}</div>
+        <div className="text-sm font-extrabold text-ink">
+          {t('season.seasonNumber', { n: String(item.number).padStart(2, '0') })}
+        </div>
         <div className="text-[11.5px] font-bold text-muted">{item.sub}</div>
         <div className="mt-0.5 text-[11.5px] font-extrabold">
-          <span className="text-brand-ink">você {item.you}</span>
+          <span className="text-brand-ink">{t('season.breakdownYou', { n: item.you })}</span>
           <span className="mx-1 text-faint">·</span>
           <span className="text-rival-ink">
-            {firstName(partnerName)} {item.rival}
+            {t('season.breakdownPartner', { name: firstName(partnerName), n: item.rival })}
           </span>
         </div>
       </div>

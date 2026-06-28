@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AxiosError } from 'axios'
 import { getPair, joinPair, updateRelationshipType } from '../../api/pair'
 import { refreshSession } from '../../api/auth'
@@ -8,20 +9,12 @@ import { Select } from '../../components/ui/Select'
 import { BrandMark } from '../../components/brand/BrandMark'
 import type { Pair, PairMember, RelationshipType } from '../../types/pair'
 
+type TFn = (key: string, opts?: Record<string, unknown>) => string
+
 const RELATIONSHIP_VALUES: RelationshipType[] = ['PAIR', 'DUO', 'FRIENDS', 'CONFIDANTS', 'BROTHERS', 'OTHER']
 
-const REL_LABEL: Record<RelationshipType, string> = {
-  PAIR: 'Casal',
-  DUO: 'Dupla',
-  FRIENDS: 'Amigos',
-  CONFIDANTS: 'Confidentes',
-  BROTHERS: 'Brothers',
-  OTHER: 'Outro',
-}
-
-const relationshipOptions = RELATIONSHIP_VALUES.map((v) => ({ value: v, label: REL_LABEL[v] }))
-
 export function PairPage() {
+  const { t } = useTranslation()
   const userId = useAuthStore((s) => s.userId)
   const [pair, setPair] = useState<Pair | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,16 +26,16 @@ export function PairPage() {
   useEffect(() => {
     getPair()
       .then(setPair)
-      .catch(() => setError('Não rolou carregar sua dupla agora. Tenta de novo daqui a pouco.'))
+      .catch(() => setError(t('pair.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   async function changeType(type: RelationshipType) {
     try {
       const updated = await updateRelationshipType(type)
       setPair(updated)
     } catch {
-      setError('Não consegui trocar o tipo de relação. Tenta de novo.')
+      setError(t('pair.typeError'))
     }
   }
 
@@ -64,13 +57,13 @@ export function PairPage() {
       setCode('')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Esse código não colou. Confere se digitou certinho.')
+      setError(message ?? t('pair.joinError'))
     } finally {
       setJoining(false)
     }
   }
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
 
   const isActive = pair?.status === 'ACTIVE'
   const me = pair?.members.find((m) => m.userId === userId) ?? null
@@ -80,12 +73,10 @@ export function PairPage() {
     <div className="mx-auto max-w-lg space-y-6">
       <header className="space-y-1">
         <h1 className="font-display text-2xl font-semibold text-ink">
-          {isActive ? 'Vocês são uma dupla' : 'Chama seu par'}
+          {isActive ? t('pair.titleActive') : t('pair.titleInvite')}
         </h1>
         <p className="text-sm text-muted">
-          {isActive
-            ? 'Bora começar a temporada juntos. Quem vacilar, paga.'
-            : 'Ninguém cuida da saúde sozinho por muito tempo. Joga essa com alguém.'}
+          {isActive ? t('pair.subtitleActive') : t('pair.subtitleInvite')}
         </p>
       </header>
 
@@ -97,7 +88,7 @@ export function PairPage() {
       )}
 
       {isActive && pair ? (
-        <PairFormed pair={pair} me={me} partner={partner} onChangeType={changeType} />
+        <PairFormed pair={pair} me={me} partner={partner} onChangeType={changeType} t={t} />
       ) : (
         <InvitePanel
           pair={pair}
@@ -109,6 +100,7 @@ export function PairPage() {
           onJoin={handleJoin}
           joining={joining}
           onChangeType={changeType}
+          t={t}
         />
       )}
     </div>
@@ -122,11 +114,13 @@ function PairFormed({
   me,
   partner,
   onChangeType,
+  t,
 }: {
   pair: Pair
   me: PairMember | null
   partner: PairMember | null
-  onChangeType: (t: RelationshipType) => void
+  onChangeType: (type: RelationshipType) => void
+  t: TFn
 }) {
   return (
     <>
@@ -145,20 +139,20 @@ function PairFormed({
 
         <p className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-xs font-extrabold text-success-ink">
           <IconCheck />
-          Dupla formada
+          {t('pair.pairFormed')}
         </p>
         <h2 className="mt-3 font-display text-xl font-semibold text-ink">
           {pair.pairName ?? `${firstName(me?.name)} & ${firstName(partner?.name)}`}
         </h2>
-        <p className="mt-1 text-sm text-muted">Tá valendo. O placar já começou a contar.</p>
+        <p className="mt-1 text-sm text-muted">{t('pair.pairStarted')}</p>
       </div>
 
       <div className="space-y-3">
-        <MemberRow member={me} tone="you" tag="você" />
-        <MemberRow member={partner} tone="rival" tag="seu par" />
+        <MemberRow member={me} tone="you" tag={t('pair.tagYou')} />
+        <MemberRow member={partner} tone="rival" tag={t('pair.tagPartner')} />
       </div>
 
-      <RelationCard pair={pair} onChange={onChangeType} />
+      <RelationCard pair={pair} onChange={onChangeType} t={t} />
     </>
   )
 }
@@ -194,6 +188,7 @@ function InvitePanel({
   onJoin,
   joining,
   onChangeType,
+  t,
 }: {
   pair: Pair | null
   me: PairMember | null
@@ -203,7 +198,8 @@ function InvitePanel({
   onCodeChange: (v: string) => void
   onJoin: (e: FormEvent) => void
   joining: boolean
-  onChangeType: (t: RelationshipType) => void
+  onChangeType: (type: RelationshipType) => void
+  t: TFn
 }) {
   return (
     <>
@@ -225,9 +221,9 @@ function InvitePanel({
           </span>
         </div>
 
-        <h2 className="font-display text-lg font-semibold text-ink">Manda esse código pro seu par</h2>
+        <h2 className="font-display text-lg font-semibold text-ink">{t('pair.sendCode')}</h2>
         <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
-          Ele entra com o código e vocês já começam a temporada juntos.
+          {t('pair.sendCodeHint')}
         </p>
 
         <div className="mt-5 flex items-center justify-between gap-2 rounded-2xl border-[1.5px] border-dashed border-rival bg-rival-soft px-4 py-3.5">
@@ -237,7 +233,7 @@ function InvitePanel({
           <button
             type="button"
             onClick={onCopy}
-            aria-label="Copiar código"
+            aria-label={t('pair.copyCode')}
             className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-extrabold transition ${
               copied
                 ? 'bg-success text-white'
@@ -245,22 +241,22 @@ function InvitePanel({
             }`}
           >
             {copied ? <IconCheck /> : <IconCopy />}
-            {copied ? 'Copiado' : 'Copiar'}
+            {copied ? t('pair.copied') : t('pair.copy')}
           </button>
         </div>
 
-        <CopyLinkButton code={pair?.inviteCode ?? ''} />
+        <CopyLinkButton code={pair?.inviteCode ?? ''} t={t} />
       </div>
 
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-hair" />
-        <span className="text-[11px] font-bold uppercase tracking-wide text-faint">ou</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide text-faint">{t('common.or')}</span>
         <span className="h-px flex-1 bg-hair" />
       </div>
 
       <div className="card">
-        <h2 className="font-display text-base font-semibold text-ink">Já tem um código?</h2>
-        <p className="mb-3 mt-0.5 text-sm text-muted">Cola o código que te mandaram e entra na dupla.</p>
+        <h2 className="font-display text-base font-semibold text-ink">{t('pair.haveCodeTitle')}</h2>
+        <p className="mb-3 mt-0.5 text-sm text-muted">{t('pair.haveCodeHint')}</p>
         <form onSubmit={onJoin} className="flex flex-col gap-2.5 sm:flex-row">
           <div className="relative flex-1">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">
@@ -269,26 +265,26 @@ function InvitePanel({
             <input
               type="text"
               required
-              placeholder="VITA-0000"
+              placeholder={t('pair.codePlaceholder')}
               value={code}
               onChange={(e) => onCodeChange(e.target.value)}
               className="input pl-9 font-display uppercase tracking-[0.18em]"
             />
           </div>
           <button type="submit" disabled={joining} className="btn-primary whitespace-nowrap">
-            {joining ? 'Entrando...' : 'Entrar na dupla'}
+            {joining ? t('pair.joining') : t('pair.joinPair')}
           </button>
         </form>
       </div>
 
-      <RelationCard pair={pair} onChange={onChangeType} />
+      <RelationCard pair={pair} onChange={onChangeType} t={t} />
     </>
   )
 }
 
 /* ---------- copiar link do convite ---------- */
 
-function CopyLinkButton({ code }: { code: string }) {
+function CopyLinkButton({ code, t }: { code: string; t: TFn }) {
   const [done, setDone] = useState(false)
   async function copy() {
     if (!code) return
@@ -304,7 +300,7 @@ function CopyLinkButton({ code }: { code: string }) {
       className="mt-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-rival-ink transition hover:underline"
     >
       {done ? <IconCheck /> : <IconLinkShare />}
-      {done ? 'Link copiado' : 'Copiar link do convite'}
+      {done ? t('pair.linkCopied') : t('pair.copyLink')}
     </button>
   )
 }
@@ -319,11 +315,12 @@ function IconLinkShare() {
 
 /* ---------- tipo de relação (compartilhado) ---------- */
 
-function RelationCard({ pair, onChange }: { pair: Pair | null; onChange: (t: RelationshipType) => void }) {
+function RelationCard({ pair, onChange, t }: { pair: Pair | null; onChange: (type: RelationshipType) => void; t: TFn }) {
+  const relationshipOptions = RELATIONSHIP_VALUES.map((v) => ({ value: v, label: t(`pair.rel.${v}`) }))
   return (
     <div className="card">
-      <label className="label">Tipo de relação</label>
-      <p className="mb-3 text-xs text-muted">Casal, dupla de treino, amigos... é só pra deixar com a cara de vocês.</p>
+      <label className="label">{t('pair.relType')}</label>
+      <p className="mb-3 text-xs text-muted">{t('pair.relTypeHint')}</p>
       <Select
         value={pair?.relationshipType ?? 'PAIR'}
         onChange={onChange}

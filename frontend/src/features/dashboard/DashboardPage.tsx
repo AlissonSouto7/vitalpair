@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { getDashboard } from '../../api/dashboard'
 import { getCompetition, getStreaks } from '../../api/gamification'
@@ -17,6 +18,8 @@ import { Scoreboard } from '../../components/ui/Scoreboard'
 import { Avatar } from '../../components/ui/Avatar'
 import { EmailVerificationBanner } from '../../components/EmailVerificationBanner'
 
+type TFn = (key: string, opts?: Record<string, unknown>) => string
+
 interface DashData {
   dash: Dashboard
   pair: Pair
@@ -28,6 +31,7 @@ interface DashData {
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation()
   const userId = useAuthStore((s) => s.userId)
   const [data, setData] = useState<DashData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -49,7 +53,7 @@ export function DashboardPage() {
         const workouts = activities.filter((a) => a.activityType !== 'STEPS').length
         setData({ dash, pair, competition, streak, workouts, feed: feedPage?.content ?? [], mission })
       })
-      .catch(() => setError('Não rolou carregar agora. Tenta de novo daqui a pouco.'))
+      .catch(() => setError(t('dashboard.loadError')))
       .finally(() => setLoading(false))
   }, [])
 
@@ -62,7 +66,7 @@ export function DashboardPage() {
     }
   }
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
   if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 text-danger">{error}</p>
   if (!data) return null
 
@@ -82,7 +86,7 @@ export function DashboardPage() {
       <header className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink">
-            {greeting()}
+            {greeting(t)}
             {meName ? `, ${meName.split(' ')[0]}` : ''}
           </h1>
           <p className="text-sm font-bold text-muted">{dateLabel(dash.date)}</p>
@@ -91,7 +95,7 @@ export function DashboardPage() {
           <div className="flex shrink-0 items-center gap-2 rounded-full bg-brand-soft px-4 py-2">
             <FlameIcon className="h-[18px] w-[18px] fill-brand" />
             <span className="text-sm font-extrabold text-brand-ink">{streak}</span>
-            <span className="hidden text-xs font-bold text-muted sm:inline">dias seguidos</span>
+            <span className="hidden text-xs font-bold text-muted sm:inline">{t('dashboard.streakDays')}</span>
           </div>
         )}
       </header>
@@ -101,23 +105,23 @@ export function DashboardPage() {
           to="/profile"
           className="block rounded-xl bg-brand-soft px-4 py-3 text-sm font-bold text-brand-ink transition hover:brightness-95"
         >
-          Bora terminar seu perfil pra liberar suas metas e o placar →
+          {t('dashboard.completeProfile')}
         </Link>
       )}
 
       {partner ? (
         <Scoreboard
-          you={{ name: 'Você', score: myScore }}
+          you={{ name: t('dashboard.youLabel'), score: myScore }}
           rival={{ name: partner.name, score: partnerScore, tone: 'rival' }}
-          stake={pair.pairName ? undefined : 'Quem perder paga o jantar'}
+          stake={pair.pairName ? undefined : t('dashboard.stakeDefault')}
           day={day}
           total={total}
         />
       ) : (
         <div className="space-y-3">
           <Scoreboard
-            you={{ name: 'Você', score: myScore }}
-            rival={{ name: 'Semana passada', score: 0, tone: 'ghost' }}
+            you={{ name: t('dashboard.youLabel'), score: myScore }}
+            rival={{ name: t('dashboard.lastWeek'), score: 0, tone: 'ghost' }}
             day={day}
             total={total}
           />
@@ -125,7 +129,7 @@ export function DashboardPage() {
             to="/pair"
             className="block rounded-xl border border-dashed border-hair bg-surface px-4 py-3 text-center text-sm font-bold text-muted transition hover:border-brand hover:text-brand-ink"
           >
-            Ou chama alguém pra competir de verdade →
+            {t('dashboard.callSomeone')}
           </Link>
         </div>
       )}
@@ -135,15 +139,13 @@ export function DashboardPage() {
         <div className="space-y-5">
           <section className="card">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold text-ink">Consumo de hoje</h2>
+              <h2 className="font-display text-lg font-semibold text-ink">{t('dashboard.todayIntake')}</h2>
               {me.remainingCalories != null && (
                 <span className="text-sm font-bold text-muted">
                   {me.remainingCalories >= 0 ? (
-                    <>
-                      faltam <span className="text-success-ink">{me.remainingCalories} kcal</span>
-                    </>
+                    <span className="text-success-ink">{t('dashboard.remainingKcal', { n: me.remainingCalories })}</span>
                   ) : (
-                    `${-me.remainingCalories} kcal acima`
+                    t('dashboard.overKcal', { n: -me.remainingCalories })
                   )}
                 </span>
               )}
@@ -152,9 +154,9 @@ export function DashboardPage() {
             <div className="flex flex-col items-center gap-6 sm:flex-row">
               <CalorieRing current={me.consumedCalories} goal={me.calorieTarget ?? 2000} />
               <div className="w-full flex-1 space-y-4">
-                <Macro label="Proteína" value={me.consumedProteinG} target={me.proteinTargetG} tone="brand" />
-                <Macro label="Carboidrato" value={me.consumedCarbG} target={me.carbTargetG} tone="carb" />
-                <Macro label="Gordura" value={me.consumedFatG} target={me.fatTargetG} tone="success" />
+                <Macro label={t('dashboard.protein')} value={me.consumedProteinG} target={me.proteinTargetG} tone="brand" />
+                <Macro label={t('dashboard.carb')} value={me.consumedCarbG} target={me.carbTargetG} tone="carb" />
+                <Macro label={t('dashboard.fat')} value={me.consumedFatG} target={me.fatTargetG} tone="success" />
               </div>
             </div>
 
@@ -163,21 +165,21 @@ export function DashboardPage() {
               className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3.5 font-extrabold text-white transition hover:brightness-105"
             >
               <CameraIcon className="h-5 w-5 fill-current" />
-              Registrar refeição
+              {t('dashboard.logMeal')}
             </Link>
           </section>
 
           <div className="grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-2xl border border-hair bg-surface">
-            <StatCell value={me.steps.toLocaleString('pt-BR')} label="passos" />
-            <StatCell value={String(workouts)} label={workouts === 1 ? 'treino feito' : 'treinos'} />
-            <StatCell value={Math.round(me.burnedCalories).toLocaleString('pt-BR')} label="kcal gastas" success />
+            <StatCell value={me.steps.toLocaleString('pt-BR')} label={t('dashboard.steps')} />
+            <StatCell value={String(workouts)} label={workouts === 1 ? t('dashboard.workoutDone') : t('dashboard.workouts')} />
+            <StatCell value={Math.round(me.burnedCalories).toLocaleString('pt-BR')} label={t('dashboard.kcalBurned')} success />
           </div>
         </div>
 
         {/* coluna direita */}
         <div className="space-y-5">
-          <MissionCard mission={mission} onAccept={onAcceptMission} />
-          <FeedPreview items={feed} userId={userId} />
+          <MissionCard mission={mission} onAccept={onAcceptMission} t={t} />
+          <FeedPreview items={feed} userId={userId} t={t} />
         </div>
       </div>
     </div>
@@ -224,11 +226,11 @@ function StatCell({ value, label, success }: { value: string; label: string; suc
   )
 }
 
-function MissionCard({ mission, onAccept }: { mission: FlashMission | null; onAccept: () => void }) {
+function MissionCard({ mission, onAccept, t }: { mission: FlashMission | null; onAccept: () => void; t: TFn }) {
   if (!mission) {
     return (
       <section className="rounded-2xl border border-dashed border-hair bg-surface px-5 py-6 text-center">
-        <p className="text-sm font-semibold text-muted">Nenhuma missão rolando agora. Volta mais tarde.</p>
+        <p className="text-sm font-semibold text-muted">{t('dashboard.noMission')}</p>
       </section>
     )
   }
@@ -236,39 +238,41 @@ function MissionCard({ mission, onAccept }: { mission: FlashMission | null; onAc
     <section className="rounded-2xl border-[1.5px] border-brand-soft bg-brand-soft p-5">
       <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
         <BoltIcon className="h-4 w-4 fill-brand" />
-        Missão relâmpago
+        {t('dashboard.flashMission')}
       </div>
       <p className="font-display text-lg font-semibold leading-tight text-ink">{mission.title}</p>
       <p className="mt-1 text-xs font-semibold text-muted">
-        Vale +{mission.reward} pts{mission.description ? ` · ${mission.description}` : ''}
+        {mission.description
+          ? t('dashboard.missionRewardWithDesc', { reward: mission.reward, desc: mission.description })
+          : t('dashboard.missionReward', { reward: mission.reward })}
       </p>
       {mission.accepted ? (
         <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success-ink">
-          <CheckIcon className="h-4 w-4 fill-current" /> Você topou! Agora é cumprir.
+          <CheckIcon className="h-4 w-4 fill-current" /> {t('dashboard.missionAccepted')}
         </div>
       ) : (
         <button
           onClick={onAccept}
           className="mt-3 w-full rounded-xl bg-success px-4 py-3 font-extrabold text-white transition hover:brightness-105"
         >
-          Topar missão
+          {t('dashboard.acceptMission')}
         </button>
       )}
     </section>
   )
 }
 
-function FeedPreview({ items, userId }: { items: FeedItem[]; userId: string | null }) {
+function FeedPreview({ items, userId, t }: { items: FeedItem[]; userId: string | null; t: TFn }) {
   return (
     <section className="card">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display text-base font-semibold text-ink">O que tá rolando</h2>
+        <h2 className="font-display text-base font-semibold text-ink">{t('dashboard.whatsHappening')}</h2>
         <Link to="/feed" className="text-xs font-extrabold text-brand-ink hover:underline">
-          ver tudo
+          {t('dashboard.seeAll')}
         </Link>
       </div>
       {items.length === 0 ? (
-        <p className="text-sm font-semibold text-muted">Ainda não tem nada no feed. Registra algo e dá o pontapé.</p>
+        <p className="text-sm font-semibold text-muted">{t('dashboard.feedEmpty')}</p>
       ) : (
         <div className="space-y-3">
           {items.map((it) => (
@@ -276,7 +280,7 @@ function FeedPreview({ items, userId }: { items: FeedItem[]; userId: string | nu
               <Avatar initial={initial(it.actorName)} tone={it.userId === userId ? 'you' : 'rival'} size={34} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-bold text-ink">{it.title}</p>
-                <p className="text-[11px] font-semibold text-muted">{timeAgo(it.createdAt)}</p>
+                <p className="text-[11px] font-semibold text-muted">{timeAgo(it.createdAt, t)}</p>
               </div>
             </div>
           ))}
@@ -288,11 +292,11 @@ function FeedPreview({ items, userId }: { items: FeedItem[]; userId: string | nu
 
 /* ---------- helpers ---------- */
 
-function greeting(): string {
+function greeting(t: TFn): string {
   const h = new Date().getHours()
-  if (h < 12) return 'Bom dia'
-  if (h < 18) return 'Boa tarde'
-  return 'Boa noite'
+  if (h < 12) return t('dashboard.greetingMorning')
+  if (h < 18) return t('dashboard.greetingAfternoon')
+  return t('dashboard.greetingEvening')
 }
 
 function initial(name: string): string {
@@ -316,13 +320,13 @@ function seasonWeek(weekStart?: string): { day: number; total: number } {
   return { day: Math.min(Math.max(diff, 1), 7), total: 7 }
 }
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: TFn): string {
   const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
-  if (min < 1) return 'agora'
-  if (min < 60) return `há ${min} min`
+  if (min < 1) return t('dashboard.timeNow')
+  if (min < 60) return t('dashboard.timeMin', { n: min })
   const h = Math.floor(min / 60)
-  if (h < 24) return `há ${h}h`
-  return `há ${Math.floor(h / 24)}d`
+  if (h < 24) return t('dashboard.timeHour', { n: h })
+  return t('dashboard.timeDay', { n: Math.floor(h / 24) })
 }
 
 /* ---------- ícones ---------- */

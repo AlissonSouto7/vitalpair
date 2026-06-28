@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /* =====================================================================
    Plano alimentar semanal (shell visual).
@@ -24,12 +25,8 @@ interface Day {
   meals: Meal[]
 }
 
-const MEAL_LABEL: Record<MealKind, string> = {
-  CAFE: 'CAFÉ DA MANHÃ',
-  ALMOCO: 'ALMOÇO',
-  LANCHE: 'LANCHE',
-  JANTA: 'JANTA',
-}
+// Chave i18n do dia da semana (SÁB tem acento; normaliza pra SAB).
+const weekdayKey = (w: string) => (w === 'SÁB' ? 'SAB' : w)
 
 // DADOS FICTÍCIOS — plano de exemplo (7 dias). Macros e kcal inventados.
 const SAMPLE_WEEK: Day[] = [
@@ -109,6 +106,7 @@ const SAMPLE_WEEK: Day[] = [
 const DAILY_GOAL_KCAL = 2080
 
 export function MealPlanPage() {
+  const { t } = useTranslation()
   const [selected, setSelected] = useState(0)
   const day = SAMPLE_WEEK[selected]
 
@@ -132,10 +130,10 @@ export function MealPlanPage() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
-            Cardápio da semana
+            {t('mealplan.title')}
           </h1>
           <p className="mt-1 text-sm font-semibold text-muted">
-            Montado pra bater sua meta. Não curtiu alguma refeição? É só trocar.
+            {t('mealplan.subtitle')}
           </p>
         </div>
 
@@ -143,22 +141,19 @@ export function MealPlanPage() {
         <button
           type="button"
           disabled
-          title="A geração por IA chega já já"
+          title={t('mealplan.generateAiTooltip')}
           // TODO: ligar backend de IA (Anthropic) — gerar plano respeitando macros do usuário
           className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <SparkIcon className="h-[18px] w-[18px]" />
-          Gerar com IA
+          {t('mealplan.generateAi')}
         </button>
       </header>
 
       {/* Aviso: o plano ainda é exemplo */}
       <div className="flex items-start gap-3 rounded-2xl border border-hair bg-brand-soft px-4 py-3">
         <SparkIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand-ink" />
-        <p className="text-sm font-semibold text-brand-ink">
-          Esse aqui é um cardápio de exemplo pra você ver a cara da coisa. Logo logo a IA monta o seu,
-          do seu jeito e na sua meta.
-        </p>
+        <p className="text-sm font-semibold text-brand-ink">{t('mealplan.sampleNotice')}</p>
       </div>
 
       {/* Seletor de dias */}
@@ -178,7 +173,7 @@ export function MealPlanPage() {
               }`}
             >
               <span className={`text-[10px] font-extrabold tracking-wide ${active ? 'opacity-80' : ''}`}>
-                {d.weekday}
+                {t(`mealplan.weekday.${weekdayKey(d.weekday)}`)}
               </span>
               <span className="font-display text-base font-semibold">{d.date}</span>
             </button>
@@ -196,16 +191,16 @@ export function MealPlanPage() {
       {/* Total do dia + comparação com a meta */}
       <section className="card flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted">Total do dia</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted">{t('mealplan.dayTotal')}</p>
           <p className="font-display text-2xl font-semibold text-ink">
             {totals.kcal.toLocaleString('pt-BR')} kcal
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-bold">
-          <MacroPill label="Proteína" value={totals.protein} tone="brand" />
-          <MacroPill label="Carbo" value={totals.carb} tone="carb" />
-          <MacroPill label="Gordura" value={totals.fat} tone="success" />
+          <MacroPill label={t('mealplan.protein')} value={totals.protein} tone="brand" />
+          <MacroPill label={t('mealplan.carb')} value={totals.carb} tone="carb" />
+          <MacroPill label={t('mealplan.fat')} value={totals.fat} tone="success" />
         </div>
 
         <span
@@ -218,10 +213,10 @@ export function MealPlanPage() {
           }`}
         >
           {Math.abs(diff) <= 80
-            ? 'na meta, mandou bem'
+            ? t('mealplan.onTarget')
             : diff > 0
-              ? `${diff} kcal acima da meta`
-              : `faltam ${-diff} kcal pra meta`}
+              ? t('mealplan.overTarget', { n: diff })
+              : t('mealplan.underTarget', { n: -diff })}
         </span>
       </section>
     </div>
@@ -229,23 +224,24 @@ export function MealPlanPage() {
 }
 
 function MealCard({ meal }: { meal: Meal }) {
+  const { t } = useTranslation()
   return (
     <article className="card p-4 sm:p-5">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[11px] font-extrabold uppercase tracking-wider text-brand-ink">
-          {MEAL_LABEL[meal.kind]}
+          {t(`mealplan.mealLabel.${meal.kind}`)}
         </span>
 
         {/* Trocar refeição — visual, sem backend ainda */}
         <button
           type="button"
           disabled
-          title="Em breve você troca a refeição que não curtiu"
+          title={t('mealplan.swapTooltip')}
           // TODO: ligar troca de refeição (IA sugere alternativa na mesma faixa de macros)
           className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-rival-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <SwapIcon className="h-[13px] w-[13px]" />
-          trocar
+          {t('mealplan.swap')}
         </button>
       </div>
 

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Avatar } from '../../components/ui/Avatar'
 import { Points } from '../../components/ui/Badge'
 
@@ -29,6 +30,7 @@ const SEASON = {
 }
 
 export function SeasonEndPage() {
+  const { t } = useTranslation()
   const youWon = SEASON.youScore >= SEASON.rivalScore
   const lead = Math.abs(SEASON.youScore - SEASON.rivalScore)
   const totalRewards = SEASON.rewards.reduce((sum, r) => sum + r.points, 0)
@@ -40,7 +42,7 @@ export function SeasonEndPage() {
       <div className="relative z-10 mx-auto flex max-w-[520px] flex-col items-center px-4 py-10 text-center">
         {/* Faixa de abertura */}
         <p className="vp-rise text-xs font-extrabold uppercase tracking-[0.16em] text-brand-ink">
-          Temporada {String(SEASON.number).padStart(2, '0')} · acabou
+          {t('seasonEnd.banner', { n: String(SEASON.number).padStart(2, '0') })}
         </p>
 
         {/* Troféu com aura */}
@@ -56,15 +58,15 @@ export function SeasonEndPage() {
           className="vp-rise mt-3 font-display text-[38px] font-semibold leading-none tracking-tight text-ink"
           style={{ animationDelay: '0.1s' }}
         >
-          {youWon ? 'Você venceu!' : 'A Célia levou essa.'}
+          {youWon ? t('seasonEnd.youWon') : t('seasonEnd.rivalWon', { rival: SEASON.rivalName })}
         </h1>
         <p
           className="vp-rise mb-6 mt-2 text-[15px] font-bold text-muted"
           style={{ animationDelay: '0.15s' }}
         >
           {youWon
-            ? `Mandou bem demais! 30 dias sem desistir e ${lead} pts na frente. A Célia que se cuide na próxima.`
-            : `Faltou pouco, ${lead} pts. Bora virar o jogo na próxima temporada.`}
+            ? t('seasonEnd.youWonText', { lead, rival: SEASON.rivalName })
+            : t('seasonEnd.rivalWonText', { lead, rival: SEASON.rivalName })}
         </p>
 
         {/* Placar final */}
@@ -84,7 +86,7 @@ export function SeasonEndPage() {
             <div className="flex flex-col items-center gap-1 px-2">
               <StarIcon />
               <span className="whitespace-nowrap text-[10px] font-extrabold text-success-ink">
-                +{lead} de vantagem
+                {t('seasonEnd.lead', { lead })}
               </span>
             </div>
 
@@ -113,7 +115,7 @@ export function SeasonEndPage() {
           style={{ animationDelay: '0.3s' }}
         >
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-display text-base font-semibold text-ink">De onde vieram seus pontos</h2>
+            <h2 className="font-display text-base font-semibold text-ink">{t('seasonEnd.rewardsTitle')}</h2>
             <span className="font-display text-xl font-semibold text-success-ink">{totalRewards}</span>
           </div>
           <ul className="space-y-2.5">
@@ -134,7 +136,7 @@ export function SeasonEndPage() {
             // TODO: ligar backend — iniciar nova temporada.
           }}
         >
-          Começar nova temporada
+          {t('seasonEnd.newSeason')}
         </button>
         <button
           className="vp-rise mt-3 text-[13px] font-extrabold text-muted transition hover:text-ink"
@@ -143,7 +145,7 @@ export function SeasonEndPage() {
             // TODO: ligar backend — abrir resumo completo dos 30 dias.
           }}
         >
-          ver o resumo dos 30 dias
+          {t('seasonEnd.seeSummary')}
         </button>
       </div>
 

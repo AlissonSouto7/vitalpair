@@ -5,6 +5,8 @@ import type { FeedItem, ReactionType } from '../../types/feed'
 import { useAuthStore } from '../../store/authStore'
 import { Avatar } from '../../components/ui/Avatar'
 
+type TFn = (key: string, opts?: Record<string, unknown>) => string
+
 /**
  * Reações do feed. Cada ícone é SVG preenchido (nunca emoji).
  * Cor da reação por papel: fogo = laranja (energia/você), força = roxo (par),
@@ -18,7 +20,7 @@ const REACTIONS: {
 }[] = [
   {
     type: 'FIRE',
-    label: 'fogo',
+    label: 'FIRE',
     activeCls: 'border-brand bg-brand-soft text-brand-ink',
     icon: (cls) => (
       <svg viewBox="0 0 24 24" className={cls} aria-hidden="true">
@@ -28,7 +30,7 @@ const REACTIONS: {
   },
   {
     type: 'STRENGTH',
-    label: 'força',
+    label: 'STRENGTH',
     activeCls: 'border-rival bg-rival-soft text-rival-ink',
     icon: (cls) => (
       <svg viewBox="0 0 24 24" className={cls} aria-hidden="true">
@@ -38,7 +40,7 @@ const REACTIONS: {
   },
   {
     type: 'EYE',
-    label: 'olho',
+    label: 'EYE',
     activeCls: 'border-rival bg-rival-soft text-rival-ink',
     icon: (cls) => (
       <svg viewBox="0 0 24 24" className={cls} aria-hidden="true">
@@ -90,9 +92,9 @@ export function FeedPage() {
     <div className="mx-auto max-w-[620px]">
       {/* Cabeçalho com tom de papo */}
       <header className="mb-5">
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">Rolê de vocês dois</h1>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('feed.pageTitle')}</h1>
         <p className="mt-1 text-sm font-semibold text-muted">
-          Tudo que vocês dois fizeram hoje. Cutuca, provoca, dá força.
+          {t('feed.pageSubtitle')}
         </p>
       </header>
 
@@ -101,7 +103,7 @@ export function FeedPage() {
       )}
 
       {items.length === 0 ? (
-        <EmptyState />
+        <EmptyState t={t} />
       ) : (
         <div className="flex flex-col gap-3">
           {items.map((item) => (
@@ -152,7 +154,7 @@ function FeedCard({
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-bold text-muted">
             <span className="truncate">{item.actorName}</span>
             <span aria-hidden="true">·</span>
-            <span>{relativeTime(item.createdAt, locale)}</span>
+            <span>{relativeTime(item.createdAt, locale, t)}</span>
           </div>
         </div>
 
@@ -187,7 +189,7 @@ function FeedCard({
               }`}
             >
               {r.icon('h-[15px] w-[15px] fill-current')}
-              <span>{count > 0 ? count : r.label}</span>
+              <span>{count > 0 ? count : t(`feed.reactionShort.${r.type}`)}</span>
             </button>
           )
         })}
@@ -230,7 +232,7 @@ function TypeTag({
   )
 }
 
-function EmptyState() {
+function EmptyState({ t }: { t: TFn }) {
   return (
     <div className="card flex flex-col items-center gap-3 py-12 text-center">
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft">
@@ -239,9 +241,9 @@ function EmptyState() {
         </svg>
       </span>
       <div>
-        <p className="font-display text-lg font-semibold text-ink">Ainda tá quieto por aqui...</p>
+        <p className="font-display text-lg font-semibold text-ink">{t('feed.emptyTitle')}</p>
         <p className="mt-1 text-sm font-semibold text-muted">
-          Registra uma refeição ou um treino e dá o pontapé. A Célia tá de olho.
+          {t('feed.emptyText')}
         </p>
       </div>
     </div>
@@ -253,15 +255,15 @@ function initial(name: string): string {
 }
 
 /** Tempo relativo no tom de papo ("agora", "há 20 min", "há 2h", "ontem"). */
-function relativeTime(iso: string, locale: string): string {
+function relativeTime(iso: string, locale: string, t: TFn): string {
   const then = new Date(iso).getTime()
   const diffMin = Math.round((Date.now() - then) / 60000)
-  if (diffMin < 1) return 'agora'
-  if (diffMin < 60) return `há ${diffMin} min`
+  if (diffMin < 1) return t('feed.now')
+  if (diffMin < 60) return t('feed.minAgo', { n: diffMin })
   const diffH = Math.round(diffMin / 60)
-  if (diffH < 24) return `há ${diffH}h`
+  if (diffH < 24) return t('feed.hourAgo', { n: diffH })
   const diffD = Math.round(diffH / 24)
-  if (diffD === 1) return 'ontem'
-  if (diffD < 7) return `há ${diffD} dias`
+  if (diffD === 1) return t('feed.yesterday')
+  if (diffD < 7) return t('feed.daysAgo', { n: diffD })
   return new Date(iso).toLocaleDateString(locale, { day: '2-digit', month: 'short' })
 }

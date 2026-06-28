@@ -35,16 +35,16 @@ export function EmailVerificationBanner() {
 
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-warn sm:flex-row sm:items-center sm:justify-between">
-      <span>⚠️ {t('verifyEmail.bannerText')}</span>
+      <span>⚠️ {t('auth.bannerText')}</span>
       {resent ? (
-        <span className="font-semibold">{t('verifyEmail.bannerResent')}</span>
+        <span className="font-semibold">{t('auth.bannerResent')}</span>
       ) : (
         <button
           onClick={handleResend}
           disabled={sending}
           className="shrink-0 rounded-lg border border-amber-500/40 px-3 py-1 font-semibold transition hover:bg-amber-500/20 disabled:opacity-60"
         >
-          {sending ? t('auth.sending') : t('verifyEmail.bannerResend')}
+          {sending ? t('auth.sending') : t('auth.bannerResend')}
         </button>
       )}
     </div>

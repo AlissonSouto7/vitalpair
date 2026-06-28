@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { getTdee, updateProfile } from '../../api/profile'
 import { joinPair } from '../../api/pair'
 import { Select } from '../../components/ui/Select'
@@ -10,65 +12,81 @@ import { BrandMark } from '../../components/brand/BrandMark'
 import { useTheme } from '../../hooks/useTheme'
 import type { ActivityLevel, Goal, Sex, Tdee } from '../../types/profile'
 
-const STEP_LABELS = ['Você', 'Rotina', 'Sua meta', 'Parceria', 'Aposta']
-const TOTAL_STEPS = STEP_LABELS.length
+const TOTAL_STEPS = 5
 
 type Mode = 'pair' | 'solo'
 
-const SEX_OPTIONS: { value: Sex; label: string }[] = [
-  { value: 'MALE', label: 'Masculino' },
-  { value: 'FEMALE', label: 'Feminino' },
-  { value: 'OTHER', label: 'Outro' },
+const buildStepLabels = (t: TFunction) => [
+  t('onboarding.stepYou'),
+  t('onboarding.stepRoutine'),
+  t('onboarding.stepGoal'),
+  t('onboarding.stepPartner'),
+  t('onboarding.stepBet'),
 ]
 
-const GOAL_OPTIONS: { value: Goal; label: string; hint: string; icon: ReactNode; tone: GoalTone }[] = [
+const buildSexOptions = (t: TFunction): { value: Sex; label: string }[] => [
+  { value: 'MALE', label: t('onboarding.sexMale') },
+  { value: 'FEMALE', label: t('onboarding.sexFemale') },
+  { value: 'OTHER', label: t('onboarding.sexOther') },
+]
+
+const buildGoalOptions = (
+  t: TFunction,
+): { value: Goal; label: string; hint: string; icon: ReactNode; tone: GoalTone }[] => [
   {
     value: 'LOSE_WEIGHT',
-    label: 'Perder peso',
-    hint: 'Comer um pouco menos do que gasta',
+    label: t('onboarding.goalLoseLabel'),
+    hint: t('onboarding.goalLoseHint'),
     icon: <IconDown className="h-5 w-5" />,
     tone: 'brand',
   },
   {
     value: 'GAIN_MUSCLE',
-    label: 'Ganhar massa',
-    hint: 'Comer um pouco mais e treinar pesado',
+    label: t('onboarding.goalGainLabel'),
+    hint: t('onboarding.goalGainHint'),
     icon: <IconMuscle className="h-5 w-5" />,
     tone: 'rival',
   },
   {
     value: 'MAINTAIN',
-    label: 'Manter o peso',
-    hint: 'Tá de boa, só quer constância',
+    label: t('onboarding.goalMaintainLabel'),
+    hint: t('onboarding.goalMaintainHint'),
     icon: <IconEqual className="h-5 w-5" />,
     tone: 'success',
   },
   {
     value: 'IMPROVE_FITNESS',
-    label: 'Melhorar o condicionamento',
-    hint: 'Mais disposição e fôlego no dia a dia',
+    label: t('onboarding.goalFitnessLabel'),
+    hint: t('onboarding.goalFitnessHint'),
     icon: <IconSpark className="h-5 w-5" />,
     tone: 'carb',
   },
 ]
 
-const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string; hint: string }[] = [
-  { value: 'SEDENTARY', label: 'Parado a maior parte', hint: 'Trabalho sentado, pouco movimento' },
-  { value: 'LIGHT', label: 'Me mexo de leve', hint: 'Caminhadas, 1-2 treinos na semana' },
-  { value: 'MODERATE', label: 'Ativo de verdade', hint: 'Treino 3-5 vezes por semana' },
-  { value: 'ACTIVE', label: 'Não paro nunca', hint: 'Treino pesado quase todo dia' },
-  { value: 'VERY_ACTIVE', label: 'Atleta mesmo', hint: 'Treino dobrado, rotina puxada' },
-]
-
-const BET_SUGGESTIONS = [
-  'paga o jantar',
-  'escolhe o filme do mês',
-  'lava a louça a semana toda',
+const buildActivityOptions = (
+  t: TFunction,
+): { value: ActivityLevel; label: string; hint: string }[] => [
+  { value: 'SEDENTARY', label: t('onboarding.actSedentaryLabel'), hint: t('onboarding.actSedentaryHint') },
+  { value: 'LIGHT', label: t('onboarding.actLightLabel'), hint: t('onboarding.actLightHint') },
+  { value: 'MODERATE', label: t('onboarding.actModerateLabel'), hint: t('onboarding.actModerateHint') },
+  { value: 'ACTIVE', label: t('onboarding.actActiveLabel'), hint: t('onboarding.actActiveHint') },
+  { value: 'VERY_ACTIVE', label: t('onboarding.actVeryActiveLabel'), hint: t('onboarding.actVeryActiveHint') },
 ]
 
 export function OnboardingPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
+
+  const STEP_LABELS = buildStepLabels(t)
+  const SEX_OPTIONS = buildSexOptions(t)
+  const GOAL_OPTIONS = buildGoalOptions(t)
+  const ACTIVITY_OPTIONS = buildActivityOptions(t)
+  const BET_SUGGESTIONS = [
+    t('onboarding.betSuggestionDinner'),
+    t('onboarding.betSuggestionMovie'),
+    t('onboarding.betSuggestionDishes'),
+  ]
 
   const [step, setStep] = useState(1)
 
@@ -93,7 +111,7 @@ export function OnboardingPage() {
   const [joining, setJoining] = useState(false)
 
   // passo 5
-  const [bet, setBet] = useState('Quem perder paga o jantar')
+  const [bet, setBet] = useState(t('onboarding.betDefault'))
 
   const [error, setError] = useState<string | null>(null)
   const [finishing, setFinishing] = useState(false)
@@ -115,12 +133,12 @@ export function OnboardingPage() {
     // valida o passo atual
     if (step === 1) {
       if (!step1Valid()) {
-        setError('Preenche tudo aí em cima pra gente calcular sua meta certinho.')
+        setError(t('onboarding.errorStep1'))
         return
       }
     }
     if (step === 2 && activityLevel === '') {
-      setError('Escolhe como é seu dia a dia.')
+      setError(t('onboarding.errorStep2'))
       return
     }
 
@@ -133,7 +151,7 @@ export function OnboardingPage() {
     // passo 4: se escolheu par e digitou código, entra no par
     if (step === 4) {
       if (!mode) {
-        setError('Escolhe se vai jogar com alguém ou começar solo.')
+        setError(t('onboarding.errorStep4'))
         return
       }
       if (mode === 'pair' && inviteCode.trim().length > 0) {
@@ -172,7 +190,7 @@ export function OnboardingPage() {
       setTdee(result)
       setStep(3)
     } catch (err) {
-      setError(apiMessage(err, 'Algum dado ficou estranho. Confere a data de nascimento, o peso e a altura, e tenta de novo.'))
+      setError(apiMessage(err, t('onboarding.errorCalc')))
     } finally {
       setCalculating(false)
     }
@@ -185,7 +203,7 @@ export function OnboardingPage() {
       await joinPair(inviteCode.trim())
       return true
     } catch (err) {
-      setError(apiMessage(err, 'Esse código não colou. Confere com a pessoa e tenta de novo.'))
+      setError(apiMessage(err, t('onboarding.errorJoin')))
       return false
     } finally {
       setJoining(false)
@@ -201,18 +219,18 @@ export function OnboardingPage() {
   const progress = `${(step / TOTAL_STEPS) * 100}%`
   const busy = calculating || joining || finishing
 
-  let nextLabel = 'Continuar'
-  if (step === 2) nextLabel = calculating ? 'Calculando...' : 'Tá bom pra mim'
-  else if (step === 3) nextLabel = 'Bora pro placar'
-  else if (step === 4) nextLabel = joining ? 'Entrando...' : 'Continuar'
-  else if (step === TOTAL_STEPS) nextLabel = finishing ? 'Começando...' : 'Começar a temporada'
+  let nextLabel = t('onboarding.continue')
+  if (step === 2) nextLabel = calculating ? t('onboarding.calculating') : t('onboarding.step2Next')
+  else if (step === 3) nextLabel = t('onboarding.step3Next')
+  else if (step === 4) nextLabel = joining ? t('onboarding.joining') : t('onboarding.continue')
+  else if (step === TOTAL_STEPS) nextLabel = finishing ? t('onboarding.finishing') : t('onboarding.finish')
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-ink">
       <button
         type="button"
         onClick={toggle}
-        aria-label={theme === 'dark' ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+        aria-label={theme === 'dark' ? t('onboarding.themeToLight') : t('onboarding.themeToDark')}
         className="fixed right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-xl border border-hair bg-surface text-muted transition hover:text-ink"
       >
         {theme === 'dark' ? (
@@ -237,7 +255,7 @@ export function OnboardingPage() {
             />
           </div>
           <span className="whitespace-nowrap text-xs font-extrabold text-muted">
-            {step} de {TOTAL_STEPS} · {STEP_LABELS[step - 1]}
+            {t('onboarding.stepProgress', { step, total: TOTAL_STEPS, label: STEP_LABELS[step - 1] })}
           </span>
         </div>
 
@@ -245,24 +263,24 @@ export function OnboardingPage() {
           {step === 1 && (
             <StepWrap>
               <StepHeader
-                title="Bora te conhecer"
-                subtitle="Isso aqui é pra calcular sua meta certinha. Leva 30 segundos."
+                title={t('onboarding.step1Title')}
+                subtitle={t('onboarding.step1Subtitle')}
               />
 
               <div className="mb-4">
-                <label className="label">Como te chamam?</label>
+                <label className="label">{t('onboarding.nameLabel')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu nome"
+                  placeholder={t('onboarding.namePlaceholder')}
                   className="input"
                 />
               </div>
 
               <div className="mb-4 grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Peso</label>
+                  <label className="label">{t('onboarding.weightLabel')}</label>
                   <Unit unit="kg">
                     <input
                       type="number"
@@ -277,7 +295,7 @@ export function OnboardingPage() {
                   </Unit>
                 </div>
                 <div>
-                  <label className="label">Altura</label>
+                  <label className="label">{t('onboarding.heightLabel')}</label>
                   <Unit unit="cm">
                     <input
                       type="number"
@@ -294,17 +312,17 @@ export function OnboardingPage() {
               </div>
 
               <div className="mb-4">
-                <label className="label">Nascimento</label>
+                <label className="label">{t('onboarding.birthLabel')}</label>
                 <DateField value={birthDate} onChange={setBirthDate} />
               </div>
 
               <div className="mb-5">
-                <label className="label">Sexo</label>
-                <Select value={sex} onChange={setSex} options={SEX_OPTIONS} placeholder="Selecione" />
+                <label className="label">{t('onboarding.sexLabel')}</label>
+                <Select value={sex} onChange={setSex} options={SEX_OPTIONS} placeholder={t('onboarding.sexPlaceholder')} />
               </div>
 
               <div>
-                <label className="label">Qual seu foco agora?</label>
+                <label className="label">{t('onboarding.focusLabel')}</label>
                 <div className="grid gap-2.5 sm:grid-cols-2">
                   {GOAL_OPTIONS.map((g) => (
                     <GoalCard
@@ -325,8 +343,8 @@ export function OnboardingPage() {
           {step === 2 && (
             <StepWrap>
               <StepHeader
-                title="Como é seu dia a dia?"
-                subtitle="Sem julgamento. Só pra acertar a conta de quanto você gasta."
+                title={t('onboarding.step2Title')}
+                subtitle={t('onboarding.step2Subtitle')}
               />
               <div className="flex flex-col gap-2.5">
                 {ACTIVITY_OPTIONS.map((a) => (
@@ -345,9 +363,9 @@ export function OnboardingPage() {
           {step === 3 && tdee && (
             <StepWrap>
               <div className="text-center">
-                <p className="mb-1 font-display text-2xl font-semibold text-ink">Tá pronto!</p>
+                <p className="mb-1 font-display text-2xl font-semibold text-ink">{t('onboarding.step3Title')}</p>
                 <p className="mb-5 text-sm font-semibold text-muted">
-                  Com base no que você falou, sua meta por dia é
+                  {t('onboarding.step3Subtitle')}
                 </p>
 
                 <div className="mb-5 flex justify-center">
@@ -359,13 +377,13 @@ export function OnboardingPage() {
                 </div>
 
                 <div className="mb-4 grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-2xl border border-hair">
-                  <MacroCell label="Proteína" grams={tdee.proteinTargetG} tone="brand" />
-                  <MacroCell label="Carbo" grams={tdee.carbTargetG} tone="carb" />
-                  <MacroCell label="Gordura" grams={tdee.fatTargetG} tone="success" />
+                  <MacroCell label={t('onboarding.macroProtein')} grams={tdee.proteinTargetG} tone="brand" />
+                  <MacroCell label={t('onboarding.macroCarb')} grams={tdee.carbTargetG} tone="carb" />
+                  <MacroCell label={t('onboarding.macroFat')} grams={tdee.fatTargetG} tone="success" />
                 </div>
 
                 <p className="text-sm font-semibold leading-relaxed text-muted">
-                  Relaxa, não precisa decorar nada disso. O app cuida da conta, você só registra o que come.
+                  {t('onboarding.step3Footnote')}
                 </p>
               </div>
             </StepWrap>
@@ -374,8 +392,8 @@ export function OnboardingPage() {
           {step === 4 && (
             <StepWrap>
               <StepHeader
-                title="Vai jogar com quem?"
-                subtitle="Os dois jeitos funcionam. Dá pra trocar depois, fica tranquilo."
+                title={t('onboarding.step4Title')}
+                subtitle={t('onboarding.step4Subtitle')}
               />
               <div className="flex flex-col gap-3">
                 <ModeCard active={mode === 'pair'} onClick={() => setMode('pair')} tone="rival">
@@ -384,26 +402,25 @@ export function OnboardingPage() {
                       <IconPair className="h-[22px] w-[22px]" />
                     </span>
                     <div className="text-left">
-                      <div className="text-[15px] font-extrabold text-ink">Com alguém</div>
+                      <div className="text-[15px] font-extrabold text-ink">{t('onboarding.modePairTitle')}</div>
                       <div className="text-xs font-semibold text-muted">
-                        Chama a pessoa pra disputar de verdade
+                        {t('onboarding.modePairHint')}
                       </div>
                     </div>
                   </div>
                   {mode === 'pair' && (
                     <div className="mt-3 border-t border-hair pt-3 text-left">
-                      <label className="label">Já tem um código de convite?</label>
+                      <label className="label">{t('onboarding.inviteLabel')}</label>
                       <input
                         type="text"
                         value={inviteCode}
                         onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                         onClick={(e) => e.stopPropagation()}
-                        placeholder="VITA-XXXX"
+                        placeholder={t('onboarding.invitePlaceholder')}
                         className="input font-display tracking-[0.12em]"
                       />
                       <p className="mt-2 text-[11.5px] font-semibold text-muted">
-                        Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a
-                        gente te dá um pra mandar pra ela.
+                        {t('onboarding.inviteHint')}
                       </p>
                     </div>
                   )}
@@ -415,15 +432,15 @@ export function OnboardingPage() {
                       <IconSolo className="h-[22px] w-[22px]" />
                     </span>
                     <div className="text-left">
-                      <div className="text-[15px] font-extrabold text-ink">Só eu por enquanto</div>
+                      <div className="text-[15px] font-extrabold text-ink">{t('onboarding.modeSoloTitle')}</div>
                       <div className="text-xs font-semibold text-muted">
-                        Compete contra você mesmo da semana passada
+                        {t('onboarding.modeSoloHint')}
                       </div>
                     </div>
                   </div>
                   {mode === 'solo' && (
                     <div className="mt-3 border-t border-hair pt-3 text-left text-[11.5px] font-semibold text-muted">
-                      Fechou. Você começa sozinho e pode chamar alguém quando bater vontade.
+                      {t('onboarding.soloConfirm')}
                     </div>
                   )}
                 </ModeCard>
@@ -434,15 +451,15 @@ export function OnboardingPage() {
           {step === 5 && (
             <StepWrap>
               <StepHeader
-                title={mode === 'solo' ? 'O que você ganha se vencer?' : 'Bora apostar?'}
+                title={mode === 'solo' ? t('onboarding.step5TitleSolo') : t('onboarding.step5TitlePair')}
                 subtitle={
                   mode === 'solo'
-                    ? 'Combine consigo mesmo: bateu a meta da semana, ganha o quê?'
-                    : 'Combina com a pessoa o que tá em jogo. Nada pesado, a graça é provocar.'
+                    ? t('onboarding.step5SubtitleSolo')
+                    : t('onboarding.step5SubtitlePair')
                 }
               />
 
-              <label className="label">O que tá em jogo</label>
+              <label className="label">{t('onboarding.betLabel')}</label>
               <input
                 type="text"
                 value={bet}
@@ -455,7 +472,7 @@ export function OnboardingPage() {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setBet(`Quem perder ${s}`)}
+                    onClick={() => setBet(t('onboarding.betPrefix', { bet: s }))}
                     className="rounded-full border border-hair bg-surface px-3 py-2 text-xs font-bold text-ink transition hover:border-brand/60"
                   >
                     {s}
@@ -464,9 +481,9 @@ export function OnboardingPage() {
               </div>
 
               <div className="flex items-center gap-3 rounded-2xl border border-hair bg-surface px-4 py-4">
-                <span className="font-display text-[13px] font-semibold text-muted">30 dias</span>
+                <span className="font-display text-[13px] font-semibold text-muted">{t('onboarding.betDuration')}</span>
                 <span className="h-px flex-1 bg-hair" />
-                <span className="font-display text-[13px] font-semibold text-ink">vale tudo (de leve)</span>
+                <span className="font-display text-[13px] font-semibold text-ink">{t('onboarding.betFootnote')}</span>
               </div>
 
               {/* TODO: backend de temporada/aposta — a aposta acima é só visual por enquanto. */}
@@ -489,7 +506,7 @@ export function OnboardingPage() {
               disabled={busy}
               className="btn-ghost text-ink disabled:opacity-60"
             >
-              Voltar
+              {t('onboarding.back')}
             </button>
           )}
           <button

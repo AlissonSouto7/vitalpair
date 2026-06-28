@@ -43,18 +43,18 @@ export function NotificationsBell() {
   function titleOf(n: AppNotification): string {
     if (n.type === 'PARTNER_MEAL') return t('notifications.mealTitle')
     if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityTitle')
-    if (n.type === 'RIVAL_OVERTOOK') return 'Te ultrapassaram!'
-    if (n.type === 'FLASH_MISSION') return 'Missão relâmpago'
-    if (n.type === 'LOG_REMINDER') return 'Faltou registrar'
+    if (n.type === 'RIVAL_OVERTOOK') return t('notifications.overtookTitle')
+    if (n.type === 'FLASH_MISSION') return t('notifications.flashTitle')
+    if (n.type === 'LOG_REMINDER') return t('notifications.reminderTitle')
     return t('notifications.pairTitle')
   }
 
   function bodyOf(n: AppNotification): string {
     if (n.type === 'PARTNER_MEAL') return t('notifications.mealBody', { name: n.actorName, food: n.refText })
     if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityBody', { name: n.actorName, kcal: n.amount })
-    if (n.type === 'RIVAL_OVERTOOK') return `${n.actorName ?? 'Seu par'} passou na sua frente no placar. Corre atrás.`
-    if (n.type === 'FLASH_MISSION') return 'A missão relâmpago de hoje tá no ar. Corre que vale ponto.'
-    if (n.type === 'LOG_REMINDER') return 'O dia tá acabando e você não logou nada. Bora marcar algo?'
+    if (n.type === 'RIVAL_OVERTOOK') return t('notifications.overtookBody', { name: n.actorName ?? t('notifications.overtookFallback') })
+    if (n.type === 'FLASH_MISSION') return t('notifications.flashBody')
+    if (n.type === 'LOG_REMINDER') return t('notifications.reminderBody')
     return t('notifications.pairBody')
   }
 
