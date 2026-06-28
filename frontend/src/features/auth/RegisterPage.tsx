@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { joinPair } from '../../api/pair'
 import { GoogleLoginButton } from '../../components/GoogleLoginButton'
@@ -16,6 +17,7 @@ function strength(pw: string): number {
 }
 
 export function RegisterPage() {
+  const { t } = useTranslation()
   const { register } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -41,7 +43,7 @@ export function RegisterPage() {
       navigate('/onboarding')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não rolou criar a conta. Tenta de novo.')
+      setError(message ?? t('auth.errorRegister'))
     } finally {
       setLoading(false)
     }
@@ -49,12 +51,12 @@ export function RegisterPage() {
 
   return (
     <AuthShell>
-      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">Cria sua conta</h1>
-      <p className="mb-6 text-sm font-semibold text-muted">Leva menos tempo que escolher série na Netflix.</p>
+      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">{t('auth.registerTitle')}</h1>
+      <p className="mb-6 text-sm font-semibold text-muted">{t('auth.registerSubtitle')}</p>
 
       {invite && (
         <p className="mb-4 rounded-xl bg-rival-soft px-4 py-2.5 text-sm font-bold text-rival-ink">
-          Você foi convidado pra uma dupla. Cria a conta que eu já te coloco lá dentro.
+          {t('auth.registerInviteHint')}
         </p>
       )}
 
@@ -64,21 +66,21 @@ export function RegisterPage() {
 
       <div className="mb-4 flex items-center gap-3">
         <span className="h-px flex-1 bg-hair" />
-        <span className="text-[11px] font-bold text-muted">ou com email</span>
+        <span className="text-[11px] font-bold text-muted">{t('auth.orWithEmail')}</span>
         <span className="h-px flex-1 bg-hair" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="label">Como te chamam?</label>
+          <label className="label">{t('auth.nameLabel')}</label>
           <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="input" />
         </div>
         <div>
-          <label className="label">Email</label>
+          <label className="label">{t('auth.email')}</label>
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
         </div>
         <div>
-          <label className="label">Senha</label>
+          <label className="label">{t('auth.password')}</label>
           <input
             type="password"
             required
@@ -100,14 +102,14 @@ export function RegisterPage() {
         {error && <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{error}</p>}
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Criando...' : 'Criar conta e bora'}
+          {loading ? t('auth.creating') : t('auth.createAccountCta')}
         </button>
       </form>
 
       <p className="mt-5 text-center text-sm font-semibold text-muted">
-        Já é de casa?{' '}
+        {t('auth.alreadyMember')}{' '}
         <Link to="/login" className="font-extrabold text-brand-ink hover:underline">
-          Entrar
+          {t('auth.goToLogin')}
         </Link>
       </p>
     </AuthShell>

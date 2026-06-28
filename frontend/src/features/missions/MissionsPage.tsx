@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { acceptFlashMission, getFlashMission, getWeeklyMissions } from '../../api/missions'
 import { Points } from '../../components/ui/Badge'
 import type { FlashMission as FlashMissionT, WeeklyMission, WeeklyMissionIcon } from '../../types/missions'
@@ -11,6 +12,7 @@ import type { FlashMission as FlashMissionT, WeeklyMission, WeeklyMissionIcon } 
  *   concluídas (verde)  = missões batidas
  */
 export function MissionsPage() {
+  const { t } = useTranslation()
   const [flash, setFlash] = useState<FlashMissionT | null>(null)
   const [weekly, setWeekly] = useState<WeeklyMission[]>([])
   const [loading, setLoading] = useState(true)
@@ -22,32 +24,30 @@ export function MissionsPage() {
         setFlash(f)
         setWeekly(w)
       })
-      .catch(() => setError('Não rolou carregar as missões agora. Tenta de novo daqui a pouco.'))
+      .catch(() => setError(t('missions.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
-  if (loading) return <p className="font-bold text-muted">Carregando...</p>
+  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
   if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
 
   const selfActive = weekly.filter((m) => m.scope === 'SELF' && !m.completed)
   const pair = weekly.filter((m) => m.scope === 'PAIR' && m.partnerName)
   const done = weekly.filter((m) => m.completed)
-  const partnerName = pair[0]?.partnerName ?? 'seu par'
+  const partnerName = pair[0]?.partnerName ?? t('missions.defaultPartner')
 
   return (
     <div className="space-y-7">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">Missões</h1>
-        <p className="mt-1 text-sm font-bold text-muted">
-          Desafio extra vale ponto extra. Bora ver o que tá rolando.
-        </p>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('missions.title')}</h1>
+        <p className="mt-1 text-sm font-bold text-muted">{t('missions.subtitle')}</p>
       </header>
 
       {flash && <FlashMission mission={flash} onAccept={setFlash} />}
 
       {selfActive.length > 0 && (
         <section>
-          <h2 className="mb-3 font-display text-base font-semibold text-ink">Rolando essa semana</h2>
+          <h2 className="mb-3 font-display text-base font-semibold text-ink">{t('missions.sectionThisWeek')}</h2>
           <div className="space-y-[10px]">
             {selfActive.map((m) => (
               <MissionCard key={m.code} mission={m} />
@@ -58,10 +58,10 @@ export function MissionsPage() {
 
       {pair.length > 0 && (
         <section>
-          <h2 className="mb-1 font-display text-base font-semibold text-ink">Você e a {partnerName}</h2>
-          <p className="mb-3 text-[13px] font-semibold text-muted">
-            Essas só contam se os dois fizerem a parte. Cobra ela.
-          </p>
+          <h2 className="mb-1 font-display text-base font-semibold text-ink">
+            {t('missions.sectionPair', { partner: partnerName })}
+          </h2>
+          <p className="mb-3 text-[13px] font-semibold text-muted">{t('missions.sectionPairHint')}</p>
           <div className="space-y-[10px]">
             {pair.map((m) => (
               <PairMissionCard key={m.code} mission={m} />
@@ -72,7 +72,7 @@ export function MissionsPage() {
 
       {done.length > 0 && (
         <section>
-          <h2 className="mb-3 font-display text-base font-semibold text-ink">Já concluídas</h2>
+          <h2 className="mb-3 font-display text-base font-semibold text-ink">{t('missions.sectionDone')}</h2>
           <div className="space-y-[9px]">
             {done.map((m) => (
               <DoneRow key={m.code} mission={m} />
@@ -83,10 +83,8 @@ export function MissionsPage() {
 
       {selfActive.length === 0 && pair.length === 0 && done.length === 0 && (
         <div className="rounded-2xl border border-dashed border-hair bg-surface px-6 py-10 text-center">
-          <p className="font-display text-base font-semibold text-ink">Sem missão da semana ainda</p>
-          <p className="mt-1 text-sm font-semibold text-muted">
-            Começa a registrar refeição e treino que o progresso vai enchendo aqui.
-          </p>
+          <p className="font-display text-base font-semibold text-ink">{t('missions.emptyTitle')}</p>
+          <p className="mt-1 text-sm font-semibold text-muted">{t('missions.emptyText')}</p>
         </div>
       )}
     </div>
@@ -98,6 +96,7 @@ export function MissionsPage() {
    ============================================================ */
 
 function FlashMission({ mission, onAccept }: { mission: FlashMissionT; onAccept: (m: FlashMissionT) => void }) {
+  const { t } = useTranslation()
   const [now, setNow] = useState(Date.now())
   const [accepting, setAccepting] = useState(false)
 
@@ -130,7 +129,9 @@ function FlashMission({ mission, onAccept }: { mission: FlashMissionT; onAccept:
 
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
-          Missão relâmpago · {acabou ? 'encerrada' : `acaba em ${formatRemaining(secondsLeft)}`}
+          {acabou
+            ? t('missions.flashLabelOver')
+            : t('missions.flashLabelLeft', { time: formatRemaining(secondsLeft) })}
         </p>
         <p className="font-display text-lg font-semibold text-ink">{mission.title}</p>
         {mission.description && <p className="text-xs font-semibold text-muted">{mission.description}</p>}
@@ -144,7 +145,13 @@ function FlashMission({ mission, onAccept }: { mission: FlashMissionT; onAccept:
           disabled={mission.accepted || acabou || accepting}
           className="btn-primary mt-1.5 px-4 py-2 text-[13px] disabled:opacity-60"
         >
-          {mission.accepted ? 'Topou!' : acabou ? 'Passou' : accepting ? '...' : 'Topar'}
+          {mission.accepted
+            ? t('missions.flashAccepted')
+            : acabou
+              ? t('missions.flashOver')
+              : accepting
+                ? '...'
+                : t('missions.flashAccept')}
         </button>
       </div>
     </div>
@@ -156,6 +163,7 @@ function FlashMission({ mission, onAccept }: { mission: FlashMissionT; onAccept:
    ============================================================ */
 
 function MissionCard({ mission }: { mission: WeeklyMission }) {
+  const { t } = useTranslation()
   const pct = Math.min(100, Math.round((mission.current / mission.target) * 100))
   const done = mission.current >= mission.target
   const Icon = WEEKLY_ICON[mission.icon]
@@ -181,7 +189,11 @@ function MissionCard({ mission }: { mission: WeeklyMission }) {
         <div className="h-full rounded-full bg-success transition-[width]" style={{ width: `${pct}%` }} />
       </div>
       <p className="text-[11.5px] font-bold text-muted">
-        {mission.current} de {mission.target} · {progressLabel(mission.current, mission.target)}
+        {t('missions.progressOf', {
+          current: mission.current,
+          target: mission.target,
+          label: t(progressLabelKey(mission.current, mission.target)),
+        })}
       </p>
     </div>
   )
@@ -192,6 +204,7 @@ function MissionCard({ mission }: { mission: WeeklyMission }) {
    ============================================================ */
 
 function PairMissionCard({ mission }: { mission: WeeklyMission }) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-2xl border border-hair bg-surface p-[18px]">
       <div className="mb-[14px] flex items-center gap-[13px]">
@@ -206,7 +219,7 @@ function PairMissionCard({ mission }: { mission: WeeklyMission }) {
       </div>
 
       <div className="space-y-[10px]">
-        <SideProgress label="Você" current={mission.current} total={mission.target} tone="you" />
+        <SideProgress label={t('missions.you')} current={mission.current} total={mission.target} tone="you" />
         <SideProgress
           label={firstName(mission.partnerName)}
           current={mission.partnerCurrent ?? 0}
@@ -229,6 +242,7 @@ function SideProgress({
   total: number
   tone: 'you' | 'rival'
 }) {
+  const { t } = useTranslation()
   const pct = Math.min(100, Math.round((current / total) * 100))
   const done = current >= total
   const barCls = tone === 'you' ? 'bg-brand' : 'bg-rival'
@@ -241,7 +255,7 @@ function SideProgress({
         <div className={`h-full rounded-full ${barCls}`} style={{ width: `${pct}%` }} />
       </div>
       <span className="w-10 shrink-0 text-right text-[11px] font-bold text-muted">
-        {done ? 'feito' : `${current}/${total}`}
+        {done ? t('missions.sideDone') : `${current}/${total}`}
       </span>
     </div>
   )
@@ -252,13 +266,16 @@ function SideProgress({
    ============================================================ */
 
 function DoneRow({ mission }: { mission: WeeklyMission }) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-[13px] rounded-[14px] border border-hair bg-surface px-4 py-[13px] opacity-[0.72]">
       <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] bg-success-soft">
         <CheckIcon className="h-[17px] w-[17px] fill-success" />
       </span>
       <p className="min-w-0 flex-1 text-[13.5px] font-extrabold text-ink">{mission.title}</p>
-      <span className="shrink-0 text-xs font-extrabold text-success-ink">+{mission.reward} pts</span>
+      <span className="shrink-0 text-xs font-extrabold text-success-ink">
+        {t('missions.rewardPts', { reward: mission.reward })}
+      </span>
     </div>
   )
 }
@@ -328,11 +345,11 @@ function formatRemaining(totalSeconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-function progressLabel(current: number, target: number): string {
-  if (current >= target) return 'mandou bem, fechou'
-  if (target - current === 1) return 'falta uma, tá quase'
-  if (current === 0) return 'bora começar'
-  return 'tá indo'
+function progressLabelKey(current: number, target: number): string {
+  if (current >= target) return 'missions.progressDone'
+  if (target - current === 1) return 'missions.progressAlmost'
+  if (current === 0) return 'missions.progressStart'
+  return 'missions.progressGoing'
 }
 
 function firstName(name?: string | null): string {

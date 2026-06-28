@@ -1,12 +1,14 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getBadgeCatalog, getBadges, getStreaks } from '../../api/gamification'
-import type { Badge, BadgeCategory, EarnedBadge, Streak, StreakType } from '../../types/gamification'
+import type { Badge, BadgeCategory, EarnedBadge, Streak } from '../../types/gamification'
 
 /**
  * Conquistas — medalhas e sequências (streaks), dados reais.
  * O placar/temporada vive em /season; missões em /missions.
  */
 export function GamificationPage() {
+  const { t } = useTranslation()
   const [streaks, setStreaks] = useState<Streak[]>([])
   const [earned, setEarned] = useState<EarnedBadge[]>([])
   const [catalog, setCatalog] = useState<Badge[]>([])
@@ -20,11 +22,11 @@ export function GamificationPage() {
         setEarned(b)
         setCatalog(cat)
       })
-      .catch(() => setError('Não rolou carregar agora. Tenta de novo daqui a pouco.'))
+      .catch(() => setError(t('gamification.loadError')))
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
-  if (loading) return <p className="text-muted">Carregando...</p>
+  if (loading) return <p className="text-muted">{t('common.loading')}</p>
   if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
@@ -32,15 +34,13 @@ export function GamificationPage() {
   return (
     <div className="space-y-7">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">Conquistas</h1>
-        <p className="mt-1 text-sm font-bold text-muted">
-          As medalhas que você foi acendendo. Cada uma é um troféu de teimosia.
-        </p>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('gamification.title')}</h1>
+        <p className="mt-1 text-sm font-bold text-muted">{t('gamification.subtitle')}</p>
       </header>
 
       {/* Sequências (streaks) */}
       <section>
-        <h2 className="mb-3 font-display text-base font-semibold text-ink">Suas sequências</h2>
+        <h2 className="mb-3 font-display text-base font-semibold text-ink">{t('gamification.streaks')}</h2>
         {streaks.length === 0 ? (
           <EmptyStreaks />
         ) : (
@@ -55,15 +55,15 @@ export function GamificationPage() {
       {/* Medalhas */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-base font-semibold text-ink">Medalhas</h2>
+          <h2 className="font-display text-base font-semibold text-ink">{t('gamification.badges')}</h2>
           <span className="text-xs font-extrabold text-muted">
-            {earnedCodes.size} de {catalog.length}
+            {t('gamification.badgeCount', { earned: earnedCodes.size, total: catalog.length })}
           </span>
         </div>
 
         {catalog.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-hair bg-surface px-5 py-6 text-center text-sm font-semibold text-muted">
-            Nenhuma medalha por aqui ainda. Começa a registrar e elas vão acendendo.
+            {t('gamification.badgesEmpty')}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -80,6 +80,7 @@ export function GamificationPage() {
 /* ---------- subcomponentes ---------- */
 
 function StreakCard({ streak }: { streak: Streak }) {
+  const { t } = useTranslation()
   const alive = streak.currentCount > 0
   return (
     <div
@@ -95,25 +96,26 @@ function StreakCard({ streak }: { streak: Streak }) {
         <FlameIcon className={`h-6 w-6 ${alive ? 'fill-white' : 'fill-muted'}`} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-extrabold uppercase tracking-wide text-muted">{STREAK_LABEL[streak.type]}</p>
-        <p className="font-display text-2xl font-semibold leading-tight text-ink">
-          {streak.currentCount} {streak.currentCount === 1 ? 'dia' : 'dias'}
+        <p className="text-xs font-extrabold uppercase tracking-wide text-muted">
+          {t(`gamification.streakLabel.${streak.type}`)}
         </p>
-        <p className="text-[11px] font-bold text-faint">recorde: {streak.longestCount} dias</p>
+        <p className="font-display text-2xl font-semibold leading-tight text-ink">
+          {t(streak.currentCount === 1 ? 'gamification.dayOne' : 'gamification.dayOther', { n: streak.currentCount })}
+        </p>
+        <p className="text-[11px] font-bold text-faint">{t('gamification.record', { days: streak.longestCount })}</p>
       </div>
     </div>
   )
 }
 
 function EmptyStreaks() {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-dashed border-hair bg-surface px-5 py-5">
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-track">
         <FlameIcon className="h-6 w-6 fill-muted" />
       </span>
-      <p className="text-sm font-semibold text-muted">
-        Sua chama tá apagada. Registra uma refeição ou um treino que ela acende.
-      </p>
+      <p className="text-sm font-semibold text-muted">{t('gamification.streaksEmpty')}</p>
     </div>
   )
 }
@@ -205,9 +207,4 @@ const CATEGORY_ICON: Record<BadgeCategory, (props: { className?: string }) => Re
   CONSISTENCY: CalendarCheckIcon,
   SOCIAL: UsersIcon,
   WEIGHT: ScaleIcon,
-}
-
-const STREAK_LABEL: Record<StreakType, string> = {
-  NUTRITION_LOG: 'Alimentação',
-  ACTIVITY: 'Atividade',
 }

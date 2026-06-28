@@ -1,14 +1,19 @@
 import { useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { BrandLockup } from '../../components/brand/BrandMark'
+import { useTranslation } from 'react-i18next'
+import { LegalHeader, LegalFooter } from './PrivacyPage'
+
+const MAIL = 'contato@vitapair.app'
 
 /**
  * Página de Contato do VitalPair.
  * Página standalone: sem Layout/sidebar, scroll próprio, só tokens.
+ * Conteúdo via i18n (namespace legal.contact).
  * O formulário ainda não envia: faz preventDefault e mostra estado de "recebido".
  */
 export function ContactPage() {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <LegalHeader />
@@ -18,15 +23,14 @@ export function ContactPage() {
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-success" aria-hidden="true">
             <path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 3.2V6l8 5 8-5v1.2l-8 5z" />
           </svg>
-          tem gente de verdade do outro lado
+          {t('legal.contact.badge')}
         </span>
 
         <h1 className="mb-3 font-display text-[34px] font-semibold leading-[1.05] tracking-[-0.02em] text-ink sm:text-[42px]">
-          Fala com a gente
+          {t('legal.contact.title')}
         </h1>
         <p className="mb-9 max-w-[520px] text-base font-semibold leading-relaxed text-muted">
-          Bug, sugestão, dúvida sobre seus dados ou só pra contar como foi sua temporada. Escreve
-          aqui que a gente responde. Sem robô, sem ticket número 4827.
+          {t('legal.contact.intro')}
         </p>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_.85fr]">
@@ -36,7 +40,7 @@ export function ContactPage() {
 
         <Faq />
 
-        <LegalFooter />
+        <LegalFooter exclude="contact" />
       </main>
     </div>
   )
@@ -45,6 +49,7 @@ export function ContactPage() {
 /* ===================== formulário ===================== */
 
 function ContactForm() {
+  const { t } = useTranslation()
   const [sent, setSent] = useState(false)
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -61,10 +66,9 @@ function ContactForm() {
             <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
           </svg>
         </div>
-        <h2 className="mb-2 font-display text-[22px] font-semibold text-ink">Mensagem recebida</h2>
+        <h2 className="mb-2 font-display text-[22px] font-semibold text-ink">{t('legal.contact.sentTitle')}</h2>
         <p className="mb-6 max-w-[340px] text-[14px] font-semibold leading-relaxed text-muted">
-          Anotamos seu recado. A gente costuma responder em até um dia útil no e-mail que você
-          deixou.
+          {t('legal.contact.sentText')}
         </p>
         <button
           type="button"
@@ -74,7 +78,7 @@ function ContactForm() {
           <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
             <path d="M12 5V2L7 7l5 5V9a5 5 0 11-5 5H5a7 7 0 107-7z" />
           </svg>
-          Mandar outra
+          {t('legal.contact.sendAnother')}
         </button>
       </div>
     )
@@ -85,35 +89,35 @@ function ContactForm() {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 rounded-3xl border border-hair bg-surface p-6 shadow-[0_10px_30px_rgba(70,45,20,0.06)]"
     >
-      <Field id="contact-name" label="Seu nome" icon="user">
+      <Field id="contact-name" label={t('legal.contact.nameLabel')} icon="user">
         <input
           id="contact-name"
           name="name"
           type="text"
           required
-          placeholder="Como te chamamos?"
+          placeholder={t('legal.contact.namePlaceholder')}
           className="w-full rounded-xl border border-hair bg-canvas px-3.5 py-2.5 text-[15px] font-semibold text-ink placeholder-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </Field>
 
-      <Field id="contact-email" label="Seu e-mail" icon="mail">
+      <Field id="contact-email" label={t('legal.contact.emailLabel')} icon="mail">
         <input
           id="contact-email"
           name="email"
           type="email"
           required
-          placeholder="pra gente te responder"
+          placeholder={t('legal.contact.emailPlaceholder')}
           className="w-full rounded-xl border border-hair bg-canvas px-3.5 py-2.5 text-[15px] font-semibold text-ink placeholder-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </Field>
 
-      <Field id="contact-message" label="Sua mensagem" icon="chat">
+      <Field id="contact-message" label={t('legal.contact.messageLabel')} icon="chat">
         <textarea
           id="contact-message"
           name="message"
           required
           rows={5}
-          placeholder="Conta o que rolou ou o que você precisa."
+          placeholder={t('legal.contact.messagePlaceholder')}
           className="w-full resize-y rounded-xl border border-hair bg-canvas px-3.5 py-2.5 text-[15px] font-semibold leading-relaxed text-ink placeholder-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30"
         />
       </Field>
@@ -125,12 +129,10 @@ function ContactForm() {
         <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-white" aria-hidden="true">
           <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
         </svg>
-        Enviar mensagem
+        {t('legal.contact.submit')}
       </button>
 
-      <p className="text-center text-[12px] font-bold text-faint">
-        A gente usa seu e-mail só pra responder este contato.
-      </p>
+      <p className="text-center text-[12px] font-bold text-faint">{t('legal.contact.privacyNote')}</p>
     </form>
   )
 }
@@ -169,6 +171,7 @@ function Field({
 }
 
 function SideInfo() {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-3xl border border-arena-border bg-arena p-6 shadow-[0_20px_50px_var(--arena-shadow)]">
@@ -178,17 +181,16 @@ function SideInfo() {
           </svg>
         </div>
         <div className="mb-1 text-[11px] font-extrabold tracking-[0.12em] text-arena-muted">
-          E-MAIL DIRETO
+          {t('legal.contact.directEmail')}
         </div>
         <a
-          href="mailto:contato@vitapair.app"
+          href={`mailto:${MAIL}`}
           className="cursor-pointer font-display text-[19px] font-semibold text-arena-text underline decoration-transparent underline-offset-2 transition hover:decoration-brand"
         >
-          contato@vitapair.app
+          {MAIL}
         </a>
         <p className="mt-3 text-[13px] font-semibold leading-relaxed text-arena-muted">
-          Prefere mandar do seu próprio e-mail? Pode ser por aqui também. É o mesmo canal pra
-          assuntos de privacidade e exercício dos seus direitos.
+          {t('legal.contact.directEmailText')}
         </p>
       </div>
 
@@ -197,10 +199,10 @@ function SideInfo() {
           <svg viewBox="0 0 24 24" className="h-4 w-4 fill-success" aria-hidden="true">
             <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5h-2v6l5 3 1-1.7-4-2.3z" />
           </svg>
-          Tempo de resposta
+          {t('legal.contact.responseTime')}
         </div>
         <p className="text-[13px] font-semibold leading-relaxed text-muted">
-          Normalmente até 1 dia útil. Bug grave a gente prioriza.
+          {t('legal.contact.responseTimeText')}
         </p>
       </div>
     </div>
@@ -210,47 +212,62 @@ function SideInfo() {
 /* ===================== FAQ ===================== */
 
 function Faq() {
+  const { t } = useTranslation()
+
+  const photoAnswer = t('legal.contact.faqPhotoA')
+  const photoLink = t('legal.contact.faqPhotoLink')
+  // O texto cita "Política de Privacidade"; transformamos essa parte num link.
+  const photoNode: ReactNode = photoAnswer.includes(photoLink) ? (
+    (() => {
+      const [before, after] = photoAnswer.split(photoLink)
+      return (
+        <>
+          {before}
+          <Link
+            to="/privacidade"
+            className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
+          >
+            {photoLink}
+          </Link>
+          {after}
+        </>
+      )
+    })()
+  ) : (
+    photoAnswer
+  )
+
+  const deleteAnswer = t('legal.contact.faqDeleteA')
+  const deleteNode: ReactNode = deleteAnswer.includes('{{mail}}') ? (
+    (() => {
+      const [before, after] = deleteAnswer.split('{{mail}}')
+      return (
+        <>
+          {before}
+          <a
+            href={`mailto:${MAIL}`}
+            className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
+          >
+            {MAIL}
+          </a>
+          {after}
+        </>
+      )
+    })()
+  ) : (
+    deleteAnswer
+  )
+
   const items: [string, ReactNode][] = [
-    [
-      'O VitalPair é gratuito?',
-      <>
-        A primeira temporada é de graça e a gente nem pede cartão. Lá na frente vai ter um plano pago
-        com recursos extras, mas a gente pretende manter um nível gratuito.
-      </>,
-    ],
-    [
-      'A foto do prato vai pra onde?',
-      <>
-        A imagem é analisada por IA (Anthropic) só pra estimar as calorias e te devolver o resultado.
-        Detalhe completo está na{' '}
-        <Link
-          to="/privacidade"
-          className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
-        >
-          Política de Privacidade
-        </Link>
-        .
-      </>,
-    ],
-    [
-      'Como apago minha conta e meus dados?',
-      <>
-        Dá pra encerrar a conta nas configurações, ou mandar um e-mail pra{' '}
-        <a
-          href="mailto:contato@vitapair.app"
-          className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
-        >
-          contato@vitapair.app
-        </a>{' '}
-        que a gente resolve.
-      </>,
-    ],
+    [t('legal.contact.faqFreeQ'), t('legal.contact.faqFreeA')],
+    [t('legal.contact.faqPhotoQ'), photoNode],
+    [t('legal.contact.faqDeleteQ'), deleteNode],
   ]
 
   return (
     <section className="mt-12">
       <h2 className="mb-5 font-display text-[24px] font-semibold tracking-[-0.01em] text-ink">
-        Perguntas rápidas
+        {t('legal.contact.faqTitle')}
       </h2>
       <div className="flex flex-col gap-3">
         {items.map(([q, a]) => (
@@ -266,46 +283,5 @@ function Faq() {
         ))}
       </div>
     </section>
-  )
-}
-
-/* ===================== chrome local ===================== */
-
-function LegalHeader() {
-  return (
-    <header className="border-b border-hair bg-canvas/80 backdrop-blur">
-      <div className="mx-auto flex max-w-[1100px] items-center justify-between px-5 py-4 sm:px-8">
-        <Link to="/" className="cursor-pointer transition hover:opacity-90">
-          <BrandLockup size={38} />
-        </Link>
-        <Link
-          to="/"
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-hair bg-surface px-4 py-2 text-[13.5px] font-extrabold text-ink transition hover:border-brand"
-        >
-          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-            <path d="M14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6z" />
-          </svg>
-          Voltar
-        </Link>
-      </div>
-    </header>
-  )
-}
-
-function LegalFooter() {
-  return (
-    <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-hair pt-6 text-center sm:flex-row sm:text-left">
-      <span className="text-[12.5px] font-bold text-muted">
-        © 2026 VitalPair · Saúde é melhor em dupla
-      </span>
-      <div className="flex gap-4 text-[12.5px] font-bold text-muted">
-        <Link to="/privacidade" className="cursor-pointer transition hover:text-ink">
-          Privacidade
-        </Link>
-        <Link to="/termos" className="cursor-pointer transition hover:text-ink">
-          Termos
-        </Link>
-      </div>
-    </div>
   )
 }

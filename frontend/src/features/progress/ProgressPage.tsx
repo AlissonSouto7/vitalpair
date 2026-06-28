@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getProgress, recordWeight } from '../../api/progress'
 import type { CalorieDay, MacroAverage, ProgressView, WeightPoint } from '../../types/progress'
 
@@ -10,6 +11,7 @@ import type { CalorieDay, MacroAverage, ProgressView, WeightPoint } from '../../
 type Tab = 'peso' | 'calorias' | 'macros'
 
 export function ProgressPage() {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('peso')
   const [data, setData] = useState<ProgressView | null>(null)
   const [loading, setLoading] = useState(true)
@@ -22,19 +24,19 @@ export function ProgressPage() {
 
   useEffect(() => {
     load()
-      .catch(() => setError('Não rolou carregar seu progresso agora. Tenta de novo daqui a pouco.'))
+      .catch(() => setError(t('progress.loadError')))
       .finally(() => setLoading(false))
-  }, [load])
+  }, [load, t])
 
-  if (loading) return <p className="font-bold text-muted">Carregando...</p>
+  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
   if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
   if (!data) return null
 
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">Seu progresso</h1>
-        <p className="mt-1 text-sm font-semibold text-muted">Dá pra ver de longe que você tá indo bem.</p>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('progress.title')}</h1>
+        <p className="mt-1 text-sm font-semibold text-muted">{t('progress.subtitle')}</p>
       </header>
 
       <Tabs tab={tab} onChange={setTab} />
@@ -47,10 +49,11 @@ export function ProgressPage() {
 }
 
 function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
+  const { t } = useTranslation()
   const items: { id: Tab; label: string }[] = [
-    { id: 'peso', label: 'Peso' },
-    { id: 'calorias', label: 'Calorias' },
-    { id: 'macros', label: 'Macros' },
+    { id: 'peso', label: t('progress.tabWeight') },
+    { id: 'calorias', label: t('progress.tabCalories') },
+    { id: 'macros', label: t('progress.tabMacros') },
   ]
   return (
     <div className="flex max-w-[340px] gap-1.5 rounded-2xl bg-track p-1">
@@ -79,6 +82,7 @@ function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
 /* ---------- Peso ---------- */
 
 function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: () => Promise<void> }) {
+  const { t } = useTranslation()
   const [valor, setValor] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -94,7 +98,7 @@ function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: (
       setValor('')
       await onLogged()
     } catch {
-      setErro('Não rolou registrar o peso. Tenta de novo.')
+      setErro(t('progress.weightSaveError'))
     } finally {
       setSalvando(false)
     }
@@ -109,16 +113,14 @@ function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: (
           {weights.length === 1 ? (
             <>
               <span className="font-display text-[32px] font-semibold leading-none text-ink">
-                {fmtKg(weights[0].weightKg)} kg
+                {fmtKg(weights[0].weightKg)} {t('progress.weightUnit')}
               </span>
-              <p className="text-sm font-semibold text-muted">
-                Esse é seu peso de agora. Registra de novo daqui uns dias que a linha começa a desenhar.
-              </p>
+              <p className="text-sm font-semibold text-muted">{t('progress.firstWeightText')}</p>
             </>
           ) : (
             <>
-              <h2 className="font-display text-xl font-semibold text-ink">Sem peso registrado ainda</h2>
-              <p className="text-sm font-semibold text-muted">Joga seu peso aí embaixo que o gráfico nasce.</p>
+              <h2 className="font-display text-xl font-semibold text-ink">{t('progress.noWeightTitle')}</h2>
+              <p className="text-sm font-semibold text-muted">{t('progress.noWeightText')}</p>
             </>
           )}
         </section>
@@ -127,23 +129,23 @@ function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: (
       {/* registrar peso de hoje */}
       <form onSubmit={registrar} className="card flex flex-wrap items-end gap-3">
         <div className="flex-1">
-          <label className="label">Registrar peso de hoje</label>
+          <label className="label">{t('progress.logTodayLabel')}</label>
           <div className="flex items-center gap-2">
             <input
               type="number"
               min={0}
               step="0.1"
               inputMode="decimal"
-              placeholder="ex: 78.0"
+              placeholder={t('progress.weightPlaceholder')}
               value={valor}
               onChange={(e) => setValor(e.target.value)}
               className="input"
             />
-            <span className="text-sm font-extrabold text-muted">kg</span>
+            <span className="text-sm font-extrabold text-muted">{t('progress.weightUnit')}</span>
           </div>
         </div>
         <button type="submit" disabled={salvando || !valor} className="btn-primary disabled:opacity-60">
-          {salvando ? 'Salvando...' : 'Registrar'}
+          {salvando ? t('common.saving') : t('progress.logButton')}
         </button>
       </form>
       {erro && <p className="rounded-xl bg-danger-soft px-4 py-2.5 text-sm font-semibold text-danger">{erro}</p>}
@@ -152,6 +154,7 @@ function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: (
 }
 
 function WeightChart({ weights }: { weights: WeightPoint[] }) {
+  const { t } = useTranslation()
   const values = weights.map((w) => w.weightKg)
   const inicio = values[0]
   const atual = values[values.length - 1]
@@ -179,16 +182,20 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
   return (
     <section className="card !rounded-[18px] !p-6">
       <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-display text-[32px] font-semibold leading-none text-ink">{fmtKg(atual)} kg</span>
+        <span className="font-display text-[32px] font-semibold leading-none text-ink">
+          {fmtKg(atual)} {t('progress.weightUnit')}
+        </span>
         {Math.abs(delta) >= 0.05 && (
           <span className={`text-sm font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}>
-            {perdeu ? '−' : '+'}
-            {fmtKg(Math.abs(delta))} kg desde {fmtDate(weights[0].date)}
+            {t('progress.deltaSince', {
+              delta: `${perdeu ? '−' : '+'}${fmtKg(Math.abs(delta))}`,
+              date: fmtDate(weights[0].date),
+            })}
           </span>
         )}
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-[200px] w-full overflow-visible" role="img" aria-label="Linha do seu peso">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-[200px] w-full overflow-visible" role="img" aria-label={t('progress.chartAria')}>
         {[40, 100, 160].map((y) => (
           <line key={y} x1={0} y1={y} x2={W} y2={y} className="stroke-hair" strokeWidth={1} />
         ))}
@@ -206,7 +213,7 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
 
       <div className="mt-2.5 flex justify-between text-[11px] font-bold text-muted">
         <span>{fmtDate(weights[0].date)}</span>
-        <span>hoje</span>
+        <span>{t('progress.today')}</span>
       </div>
     </section>
   )
@@ -215,6 +222,7 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
 /* ---------- Calorias ---------- */
 
 function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targetKcal: number | null }) {
+  const { t } = useTranslation()
   const maxKcal = Math.max(targetKcal ?? 0, ...calories.map((d) => d.kcal), 1)
   const teto = maxKcal * 1.05
   const metaPct = targetKcal ? (targetKcal / teto) * 100 : 0
@@ -222,16 +230,18 @@ function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targ
   return (
     <section className="card !rounded-[18px] !p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
-        <span className="text-[13px] font-bold text-muted">Consumo vs. meta, últimos 7 dias</span>
+        <span className="text-[13px] font-bold text-muted">{t('progress.caloriesVsGoal')}</span>
         {targetKcal != null && (
-          <span className="text-[13px] font-extrabold text-ink">{targetKcal.toLocaleString('pt-BR')} kcal/dia</span>
+          <span className="text-[13px] font-extrabold text-ink">
+            {t('progress.kcalPerDay', { kcal: targetKcal.toLocaleString('pt-BR') })}
+          </span>
         )}
       </div>
 
       <div className="relative h-[150px]">
         {targetKcal != null && (
           <div className="absolute inset-x-0 z-10 border-t-2 border-dashed border-success/60" style={{ bottom: `${metaPct}%` }}>
-            <span className="absolute -top-4 right-0 text-[10px] font-extrabold text-success-ink">meta</span>
+            <span className="absolute -top-4 right-0 text-[10px] font-extrabold text-success-ink">{t('progress.goalLine')}</span>
           </div>
         )}
 
@@ -260,8 +270,8 @@ function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targ
       </div>
 
       <div className="mt-3 flex items-center gap-4 text-[11.5px] font-extrabold">
-        <Legenda cor="bg-success" texto="dentro da meta" classeTexto="text-success-ink" />
-        <Legenda cor="bg-brand" texto="passou um pouco" classeTexto="text-brand-ink" />
+        <Legenda cor="bg-success" texto={t('progress.legendWithinGoal')} classeTexto="text-success-ink" />
+        <Legenda cor="bg-brand" texto={t('progress.legendOver')} classeTexto="text-brand-ink" />
       </div>
     </section>
   )
@@ -279,6 +289,7 @@ function Legenda({ cor, texto, classeTexto }: { cor: string; texto: string; clas
 /* ---------- Macros ---------- */
 
 function PainelMacros({ macros }: { macros: MacroAverage[] }) {
+  const { t } = useTranslation()
   const barCls: Record<MacroAverage['key'], string> = {
     PROTEIN: 'bg-brand',
     CARB: 'bg-carb',
@@ -293,7 +304,9 @@ function PainelMacros({ macros }: { macros: MacroAverage[] }) {
             <div className="mb-1.5 flex items-center justify-between text-[13px]">
               <span className="font-extrabold text-ink">{m.label}</span>
               <span className="font-bold text-muted">
-                média {m.avgG}g{m.targetG != null ? ` / alvo ${m.targetG}g` : ''} / dia
+                {m.targetG != null
+                  ? t('progress.macrosAvgTarget', { avg: m.avgG, target: m.targetG })
+                  : t('progress.macrosAvg', { avg: m.avgG })}
               </span>
             </div>
             <div className="h-2.5 overflow-hidden rounded-md bg-track">
@@ -302,9 +315,7 @@ function PainelMacros({ macros }: { macros: MacroAverage[] }) {
           </div>
         )
       })}
-      <p className="text-[12.5px] font-semibold text-muted">
-        Média dos últimos 7 dias. Vai registrando que isso aqui fica cada vez mais com a sua cara.
-      </p>
+      <p className="text-[12.5px] font-semibold text-muted">{t('progress.macrosFootnote')}</p>
     </section>
   )
 }

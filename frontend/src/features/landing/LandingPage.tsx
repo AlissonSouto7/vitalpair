@@ -45,7 +45,7 @@ function Nav() {
         <div className="leading-none">
           <div className="font-display text-[19px] font-semibold tracking-tight text-ink">VitalPair</div>
           <div className="mt-[3px] hidden text-[9px] font-extrabold uppercase tracking-[0.05em] text-muted sm:block">
-            Saúde é melhor em dupla
+            {t('landing.brandTagline')}
           </div>
         </div>
       </Link>
@@ -81,7 +81,7 @@ function Nav() {
         </Link>
         <button
           onClick={() => setOpen((o) => !o)}
-          aria-label="Menu"
+          aria-label={t('landing.menuOpen')}
           aria-expanded={open}
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-hair text-ink"
         >
@@ -99,7 +99,7 @@ function Nav() {
       {open && (
         <>
           <button
-            aria-label="Fechar menu"
+            aria-label={t('landing.menuClose')}
             onClick={close}
             className="fixed inset-0 z-20 cursor-default md:hidden"
           />
@@ -126,11 +126,12 @@ function Nav() {
 }
 
 function ThemeToggle() {
+  const { t } = useTranslation()
   const { theme, toggle } = useTheme()
   return (
     <button
       onClick={toggle}
-      aria-label={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+      aria-label={theme === 'dark' ? t('landing.themeToLight') : t('landing.themeToDark')}
       className="flex h-9 w-9 items-center justify-center rounded-xl border border-hair text-muted transition hover:text-ink"
     >
       {theme === 'dark' ? (

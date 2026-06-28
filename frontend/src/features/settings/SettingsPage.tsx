@@ -1,13 +1,16 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTheme } from '../../hooks/useTheme'
 import { useAuth } from '../../hooks/useAuth'
 import { LanguageSelect } from '../../components/LanguageSelect'
+import { BrandMark } from '../../components/brand/BrandMark'
 import { getProfile } from '../../api/profile'
 import { getNotificationPrefs, updateNotificationPrefs } from '../../api/notifications'
 import type { NotificationPrefs } from '../../types/notification'
 
 export function SettingsPage() {
+  const { t } = useTranslation()
   const { theme, toggle } = useTheme()
   const { logout } = useAuth()
   const navigate = useNavigate()
@@ -59,13 +62,13 @@ export function SettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">Ajustes</h1>
-          <p className="mt-1 text-sm font-semibold text-muted">Deixa o VitalPair com a sua cara.</p>
+          <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('settings.title')}</h1>
+          <p className="mt-1 text-sm font-semibold text-muted">{t('settings.subtitle')}</p>
         </div>
         <button
           type="button"
           onClick={toggle}
-          aria-label={isDark ? 'Mudar pro tema claro' : 'Mudar pro tema escuro'}
+          aria-label={isDark ? t('settings.toLightTheme') : t('settings.toDarkTheme')}
           className="flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-hair text-muted transition hover:text-ink"
         >
           {isDark ? <IconSun className="h-[18px] w-[18px]" /> : <IconMoon className="h-[18px] w-[18px]" />}
@@ -73,56 +76,56 @@ export function SettingsPage() {
       </header>
 
       {/* APARÊNCIA */}
-      <Section title="Aparência">
+      <Section title={t('settings.appearance')}>
         <Row
-          title="Tema escuro"
-          hint="Pro olho descansar à noite"
-          control={<Toggle on={isDark} onToggle={toggle} label="Tema escuro" />}
+          title={t('settings.darkTheme')}
+          hint={t('settings.darkThemeHint')}
+          control={<Toggle on={isDark} onToggle={toggle} label={t('settings.darkTheme')} />}
         />
       </Section>
 
       {/* IDIOMA */}
-      <Section title="Idioma">
+      <Section title={t('settings.language')}>
         <Row
-          title="Idioma do app"
-          hint="Escolhe em qual língua você curte usar"
+          title={t('settings.appLanguage')}
+          hint={t('settings.appLanguageHint')}
           control={<LanguageSelect />}
         />
       </Section>
 
       {/* NOTIFICAÇÕES */}
-      <Section title="Notificações">
+      <Section title={t('settings.notifications')}>
         <div className="overflow-hidden rounded-2xl border border-hair bg-surface">
           <RowItem
-            title="Provocação do par"
-            hint="Quando seu par te ultrapassa no placar"
-            control={<Toggle on={prefs.notifyRival} onToggle={() => savePref({ notifyRival: !prefs.notifyRival })} label="Provocação do par" />}
+            title={t('settings.notifyRival')}
+            hint={t('settings.notifyRivalHint')}
+            control={<Toggle on={prefs.notifyRival} onToggle={() => savePref({ notifyRival: !prefs.notifyRival })} label={t('settings.notifyRival')} />}
             divider
           />
           <RowItem
-            title="Missão relâmpago"
-            hint="Pra você não perder os pontos do dia"
-            control={<Toggle on={prefs.notifyFlash} onToggle={() => savePref({ notifyFlash: !prefs.notifyFlash })} label="Missão relâmpago" />}
+            title={t('settings.notifyFlash')}
+            hint={t('settings.notifyFlashHint')}
+            control={<Toggle on={prefs.notifyFlash} onToggle={() => savePref({ notifyFlash: !prefs.notifyFlash })} label={t('settings.notifyFlash')} />}
             divider
           />
           <RowItem
-            title="Lembrete de registro"
-            hint="Se o dia tá acabando e você não logou nada"
-            control={<Toggle on={prefs.notifyReminder} onToggle={() => savePref({ notifyReminder: !prefs.notifyReminder })} label="Lembrete de registro" />}
+            title={t('settings.notifyReminder')}
+            hint={t('settings.notifyReminderHint')}
+            control={<Toggle on={prefs.notifyReminder} onToggle={() => savePref({ notifyReminder: !prefs.notifyReminder })} label={t('settings.notifyReminder')} />}
           />
         </div>
       </Section>
 
       {/* CONTA */}
-      <Section title="Conta">
+      <Section title={t('settings.account')}>
         <div className="overflow-hidden rounded-2xl border border-hair bg-surface">
           <div className="flex items-center gap-3 border-b border-hair px-[18px] py-4">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand font-display text-base font-semibold text-white">
               {initial}
             </span>
             <div className="min-w-0">
-              <div className="text-sm font-extrabold text-ink">{name || 'Você'}</div>
-              <div className="truncate text-xs font-semibold text-muted">{email ?? 'carregando seu e-mail...'}</div>
+              <div className="text-sm font-extrabold text-ink">{name || t('settings.youFallback')}</div>
+              <div className="truncate text-xs font-semibold text-muted">{email ?? t('settings.loadingEmail')}</div>
             </div>
           </div>
 
@@ -131,14 +134,14 @@ export function SettingsPage() {
             className="flex w-full items-center gap-2.5 border-b border-hair px-[18px] py-4 text-left text-sm font-extrabold text-ink transition hover:bg-track/40"
           >
             <IconUser className="h-[18px] w-[18px] text-muted" />
-            Editar perfil e objetivo
+            {t('settings.editProfile')}
           </Link>
           <Link
             to="/nutrition"
             className="flex w-full items-center gap-2.5 border-b border-hair px-[18px] py-4 text-left text-sm font-extrabold text-ink transition hover:bg-track/40"
           >
             <IconLock className="h-[18px] w-[18px] text-muted" />
-            Privacidade dos registros
+            {t('settings.privacy')}
           </Link>
 
           <button
@@ -147,18 +150,18 @@ export function SettingsPage() {
             className="flex w-full items-center gap-2.5 px-[18px] py-4 text-left text-sm font-extrabold text-danger transition hover:bg-danger-soft/40"
           >
             <IconLogout className="h-[18px] w-[18px]" />
-            Sair da conta
+            {t('settings.logout')}
           </button>
         </div>
       </Section>
 
       {/* SOBRE */}
-      <Section title="Sobre">
+      <Section title={t('settings.about')}>
         <div className="flex items-center gap-3.5 rounded-2xl border border-hair bg-surface px-[18px] py-4">
-          <BrandRings className="h-9 w-9 shrink-0" />
+          <BrandMark size={40} />
           <div>
             <div className="font-display text-base font-semibold text-ink">VitalPair</div>
-            <div className="text-xs font-bold uppercase tracking-wide text-muted">Saúde é melhor em dupla</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-muted">{t('settings.tagline')}</div>
           </div>
         </div>
       </Section>
@@ -276,12 +279,3 @@ function IconLogout({ className }: { className?: string }) {
   )
 }
 
-function BrandRings({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 28" className={className} aria-hidden="true">
-      <path d="M20 7 Q23 14 20 21 Q17 14 20 7 Z" className="fill-success" />
-      <circle cx="15" cy="14" r="8.6" fill="none" className="stroke-brand" strokeWidth="4.4" />
-      <circle cx="25" cy="14" r="8.6" fill="none" className="stroke-rival" strokeWidth="4.4" />
-    </svg>
-  )
-}

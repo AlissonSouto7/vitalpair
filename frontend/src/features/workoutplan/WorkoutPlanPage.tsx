@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Plano de treino por objetivo.
@@ -16,18 +17,13 @@ interface ExercicioBase {
 }
 
 interface Plano {
-  foco: string
-  duracao: string
-  resumo: string
   exercicios: ExercicioBase[]
 }
 
 // ⚠️ DADOS FICTÍCIOS de exemplo — substituir pela resposta do backend de IA.
+// foco/duração/resumo de cada objetivo vivem no i18n (workoutplan.plan.*).
 const PLANOS_FICTICIOS: Record<Objetivo, Plano> = {
   perder: {
-    foco: 'Pernas + cardio',
-    duracao: 'uns 45 min',
-    resumo: 'Pernas pesadas pra gastar caloria e segurar a massa enquanto você seca.',
     exercicios: [
       { nome: 'Agachamento livre', series: 4, reps: '12 reps', descanso: '90s' },
       { nome: 'Leg press', series: 4, reps: '12 reps', descanso: '90s' },
@@ -37,9 +33,6 @@ const PLANOS_FICTICIOS: Record<Objetivo, Plano> = {
     ],
   },
   manter: {
-    foco: 'Corpo todo',
-    duracao: 'uns 40 min',
-    resumo: 'Full body equilibrado pra manter a forma sem virar escravo da academia.',
     exercicios: [
       { nome: 'Supino reto', series: 3, reps: '10 reps', descanso: '75s' },
       { nome: 'Remada curvada', series: 3, reps: '10 reps', descanso: '75s' },
@@ -49,9 +42,6 @@ const PLANOS_FICTICIOS: Record<Objetivo, Plano> = {
     ],
   },
   ganhar: {
-    foco: 'Peito + costas',
-    duracao: 'uns 55 min',
-    resumo: 'Carga alta e descanso maior pra empurrar o músculo a crescer.',
     exercicios: [
       { nome: 'Supino reto com barra', series: 4, reps: '8 reps', descanso: '120s' },
       { nome: 'Puxada na frente', series: 4, reps: '10 reps', descanso: '90s' },
@@ -63,13 +53,10 @@ const PLANOS_FICTICIOS: Record<Objetivo, Plano> = {
   },
 }
 
-const OBJETIVOS: { value: Objetivo; label: string }[] = [
-  { value: 'perder', label: 'Perder peso' },
-  { value: 'manter', label: 'Manter' },
-  { value: 'ganhar', label: 'Ganhar massa' },
-]
+const OBJETIVOS: Objetivo[] = ['perder', 'manter', 'ganhar']
 
 export function WorkoutPlanPage() {
+  const { t } = useTranslation()
   const [objetivo, setObjetivo] = useState<Objetivo>('perder')
   // índices dos exercícios já marcados como feitos
   const [feitos, setFeitos] = useState<Set<number>>(() => new Set([0, 1]))
@@ -106,34 +93,38 @@ export function WorkoutPlanPage() {
     <div className="space-y-5 pb-2">
       {/* cabeçalho */}
       <header>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">Treino de hoje</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">{t('workoutplan.title')}</h1>
         <p className="mt-1 text-sm font-semibold text-muted">
-          {plano.foco} · {plano.duracao} · feito pro seu objetivo. {plano.resumo}
+          {t('workoutplan.subtitle', {
+            focus: t(`workoutplan.plan.${objetivo}.focus`),
+            duration: t(`workoutplan.plan.${objetivo}.duration`),
+            summary: t(`workoutplan.plan.${objetivo}.summary`),
+          })}
         </p>
       </header>
 
       {/* aviso de dados fictícios */}
       <p className="flex items-start gap-2 rounded-xl bg-carb/10 px-3.5 py-2.5 text-xs font-bold text-carb-ink">
         <IconInfo className="mt-0.5 shrink-0" />
-        Plano de exemplo, ainda no chute. Toca em "Gerar com IA" que a gente monta um sob medida.
+        {t('workoutplan.sampleNotice')}
       </p>
 
       {/* seletor de objetivo */}
       <div>
-        <span className="mb-2 block text-xs font-bold text-muted">Pra qual objetivo?</span>
+        <span className="mb-2 block text-xs font-bold text-muted">{t('workoutplan.goalQuestion')}</span>
         <div className="flex gap-1 rounded-2xl bg-track p-1">
           {OBJETIVOS.map((o) => (
             <button
-              key={o.value}
+              key={o}
               type="button"
-              onClick={() => trocarObjetivo(o.value)}
+              onClick={() => trocarObjetivo(o)}
               className={`flex-1 rounded-xl py-2.5 text-[13px] font-extrabold transition ${
-                objetivo === o.value
+                objetivo === o
                   ? 'bg-surface text-brand-ink shadow-[0_1px_4px_rgba(0,0,0,.08)]'
                   : 'bg-transparent text-muted hover:text-ink'
               }`}
             >
-              {o.label}
+              {t(`workoutplan.goal.${o}`)}
             </button>
           ))}
         </div>
@@ -146,17 +137,17 @@ export function WorkoutPlanPage() {
         className="flex w-full items-center justify-center gap-2 rounded-2xl border border-brand/40 bg-brand-soft px-4 py-3 font-extrabold text-brand-ink transition hover:brightness-95"
       >
         <IconSpark />
-        Gerar com IA um treino só pra você
+        {t('workoutplan.generateAi')}
       </button>
 
       {/* progresso do treino (arena) */}
       <div className="flex items-center gap-4 rounded-2xl border border-arena-border bg-arena px-5 py-4 shadow-[0_10px_26px_var(--arena-shadow)]">
         <div className="flex-1">
           <div className="text-[11px] font-extrabold uppercase tracking-wider text-arena-muted">
-            Você já fez
+            {t('workoutplan.youDid')}
           </div>
           <div className="font-display text-xl font-semibold leading-tight text-arena-text">
-            {concluidos} de {total} exercícios
+            {t('workoutplan.exercisesCount', { done: concluidos, total })}
           </div>
         </div>
         <div className="w-[130px]">
@@ -184,7 +175,7 @@ export function WorkoutPlanPage() {
                 type="button"
                 onClick={() => toggleExercicio(i)}
                 aria-pressed={done}
-                aria-label={done ? `Desmarcar ${ex.nome}` : `Marcar ${ex.nome} como feito`}
+                aria-label={done ? t('workoutplan.markDone', { name: ex.nome }) : t('workoutplan.markUndone', { name: ex.nome })}
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[9px] transition ${
                   done
                     ? 'border-none bg-success text-white'
@@ -197,7 +188,7 @@ export function WorkoutPlanPage() {
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-extrabold text-ink">{ex.nome}</div>
                 <div className="mt-0.5 text-xs font-bold text-muted">
-                  {ex.series} séries · {ex.reps}
+                  {t('workoutplan.seriesReps', { series: ex.series, reps: ex.reps })}
                 </div>
               </div>
 
@@ -226,17 +217,15 @@ export function WorkoutPlanPage() {
         {treinoFeito ? (
           <>
             <IconCheck />
-            Treino na conta! +15 pts
+            {t('workoutplan.doneCta')}
           </>
         ) : tudoFeito ? (
           <>
             <IconFlame />
-            Marcar treino como feito · +15 pts
+            {t('workoutplan.finishCta')}
           </>
         ) : (
-          <>
-            Faltam {total - concluidos} pra fechar o treino
-          </>
+          <>{t('workoutplan.remainingCta', { n: total - concluidos })}</>
         )}
       </button>
     </div>

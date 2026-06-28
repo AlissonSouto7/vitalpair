@@ -1,17 +1,11 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import type { FoodLog, MealType } from '../../types/nutrition'
+import { useTranslation } from 'react-i18next'
+import type { FoodLog } from '../../types/nutrition'
 
-const MEAL_LABEL: Record<MealType, string> = {
-  BREAKFAST: 'Café',
-  LUNCH: 'Almoço',
-  DINNER: 'Janta',
-  SNACK: 'Lanche',
-}
-
-function formatTime(iso: string): string {
+function formatTime(iso: string, locale: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
 }
 
 interface MacroTone {
@@ -32,6 +26,7 @@ interface MealDetailModalProps {
 }
 
 export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProps) {
+  const { t, i18n } = useTranslation()
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -55,13 +50,13 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
   const pct = (kcal: number) => (macroCal > 0 ? Math.round((kcal / macroCal) * 100) : 0)
 
   const macros: { label: string; grams: number; pct: number; tone: keyof typeof TONES }[] = [
-    { label: 'Proteína', grams: meal.proteinG, pct: pct(pCal), tone: 'brand' },
-    { label: 'Carbo', grams: meal.carbG, pct: pct(cCal), tone: 'carb' },
-    { label: 'Gordura', grams: meal.fatG, pct: pct(fCal), tone: 'success' },
+    { label: t('nutrition.proteinShort'), grams: meal.proteinG, pct: pct(pCal), tone: 'brand' },
+    { label: t('nutrition.carbShort'), grams: meal.carbG, pct: pct(cCal), tone: 'carb' },
+    { label: t('nutrition.fatShort'), grams: meal.fatG, pct: pct(fCal), tone: 'success' },
   ]
 
-  const time = formatTime(meal.loggedAt)
-  const sourceLabel = meal.source === 'OPEN_FOOD_FACTS' ? 'Open Food Facts' : 'Na mão'
+  const time = formatTime(meal.loggedAt, i18n.language)
+  const sourceLabel = meal.source === 'OPEN_FOOD_FACTS' ? t('nutrition.sourceOFF') : t('nutrition.sourceManual')
 
   // anel de calorias: arco proporcional aos macros que de fato bateram (sempre cheio aqui)
   const RADIUS = 50
@@ -71,7 +66,7 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Detalhe da refeição ${meal.foodName}`}
+      aria-label={t('nutrition.modalAria', { name: meal.foodName })}
       className="fixed inset-0 z-50 flex justify-end bg-[rgba(40,28,16,0.45)] backdrop-blur-[2px] dark:bg-[rgba(0,0,0,0.6)]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
@@ -81,14 +76,14 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
         {/* Cabeçalho */}
         <div className="mb-5 flex items-center justify-between">
           <span className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-brand-ink">
-            {MEAL_LABEL[meal.mealType]}
+            {t(`nutrition.mealShort.${meal.mealType}`)}
             {time ? ` · ${time}` : ''}
           </span>
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t('nutrition.close')}
             className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-surface text-muted transition hover:text-ink"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
@@ -108,7 +103,7 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
         <h1 className="mb-1 font-display text-[22px] font-semibold tracking-tight text-ink">
           {meal.foodName}
         </h1>
-        <div className="mb-5 text-[13px] font-bold text-muted">{meal.quantityG}g no prato</div>
+        <div className="mb-5 text-[13px] font-bold text-muted">{t('nutrition.onPlate', { grams: meal.quantityG })}</div>
 
         {/* Anel + breakdown */}
         <div className="mb-4 flex items-center gap-[18px] rounded-2xl border border-hair bg-surface p-[18px]">
@@ -155,11 +150,11 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
 
         {/* Ficha: porção, horário, origem */}
         <div className="mb-1 mt-[18px] text-[11px] font-extrabold uppercase tracking-[0.06em] text-muted">
-          Detalhes
+          {t('nutrition.details')}
         </div>
         <div className="flex flex-col gap-2">
           <InfoRow
-            label="Porção"
+            label={t('nutrition.portion')}
             value={`${meal.quantityG}g`}
             icon={
               <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4 5 9H7z" />
@@ -167,13 +162,13 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
           />
           {time && (
             <InfoRow
-              label="Horário"
+              label={t('nutrition.time')}
               value={time}
               icon={<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5h-2v6l5 3 1-1.7-4-2.3z" />}
             />
           )}
           <InfoRow
-            label="Origem"
+            label={t('nutrition.origin')}
             value={sourceLabel}
             icon={
               <path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6zm-1 13-4-4 1.4-1.4L11 12.2l4.6-4.6L17 9z" />
@@ -191,7 +186,7 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
               <path d="M9 3h6l1 2h4v2H4V5h4zM6 9h12l-1 12H7zm3 2v8h2v-8zm4 0v8h2v-8z" />
             </svg>
-            Tirar do prato
+            {t('nutrition.removeFromPlate')}
           </button>
         )}
       </div>

@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AxiosError } from 'axios'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { joinPair } from '../../api/pair'
 import { GoogleLoginButton } from '../../components/GoogleLoginButton'
 import { AuthShell } from '../../components/auth/AuthShell'
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -28,7 +30,7 @@ export function LoginPage() {
       navigate('/dashboard')
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? 'Não rolou entrar. Confere o email e a senha.')
+      setError(message ?? t('auth.errorLogin'))
     } finally {
       setLoading(false)
     }
@@ -36,12 +38,12 @@ export function LoginPage() {
 
   return (
     <AuthShell>
-      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">Bora de novo</h1>
-      <p className="mb-6 text-sm font-semibold text-muted">Entra aí pra ver se você ainda tá ganhando.</p>
+      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">{t('auth.loginTitle')}</h1>
+      <p className="mb-6 text-sm font-semibold text-muted">{t('auth.loginSubtitle')}</p>
 
       {invite && (
         <p className="mb-4 rounded-xl bg-rival-soft px-4 py-2.5 text-sm font-bold text-rival-ink">
-          Entra que eu já te coloco na dupla que te convidaram.
+          {t('auth.loginInviteHint')}
         </p>
       )}
 
@@ -51,20 +53,20 @@ export function LoginPage() {
 
       <div className="mb-4 flex items-center gap-3">
         <span className="h-px flex-1 bg-hair" />
-        <span className="text-[11px] font-bold text-muted">ou com email</span>
+        <span className="text-[11px] font-bold text-muted">{t('auth.orWithEmail')}</span>
         <span className="h-px flex-1 bg-hair" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="label">Email</label>
+          <label className="label">{t('auth.email')}</label>
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
         </div>
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <label className="label mb-0">Senha</label>
+            <label className="label mb-0">{t('auth.password')}</label>
             <Link to="/forgot-password" className="text-xs font-extrabold text-brand-ink hover:underline">
-              Esqueci
+              {t('auth.forgotShort')}
             </Link>
           </div>
           <input
@@ -79,14 +81,14 @@ export function LoginPage() {
         {error && <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{error}</p>}
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? 'Entrando...' : 'Entrar'}
+          {loading ? t('auth.signingIn') : t('auth.signIn')}
         </button>
       </form>
 
       <p className="mt-5 text-center text-sm font-semibold text-muted">
-        Ainda não tem conta?{' '}
+        {t('auth.noAccount')}{' '}
         <Link to="/register" className="font-extrabold text-brand-ink hover:underline">
-          Cria uma aí
+          {t('auth.createOne')}
         </Link>
       </p>
     </AuthShell>

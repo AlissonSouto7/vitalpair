@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getInvitePreview, joinPair } from '../../api/pair'
 import { refreshSession } from '../../api/auth'
@@ -14,6 +15,7 @@ type State =
   | { kind: 'ok'; preview: InvitePreview }
 
 export function InvitePage() {
+  const { t } = useTranslation()
   const { code = '' } = useParams()
   const navigate = useNavigate()
   const accessToken = useAuthStore((s) => s.accessToken)
@@ -40,7 +42,7 @@ export function InvitePage() {
       await refreshSession()
       navigate('/dashboard')
     } catch {
-      setJoinError('Esse convite não colou. Pode já ter sido usado.')
+      setJoinError(t('pair.inviteJoinError'))
     } finally {
       setJoining(false)
     }
@@ -54,29 +56,29 @@ export function InvitePage() {
         </div>
 
         {state.kind === 'loading' && (
-          <p className="text-center font-bold text-muted">Abrindo o convite...</p>
+          <p className="text-center font-bold text-muted">{t('pair.inviteOpening')}</p>
         )}
 
         {state.kind === 'error' && (
           <Card>
-            <h1 className="font-display text-2xl font-semibold text-ink">Convite não encontrado</h1>
+            <h1 className="font-display text-2xl font-semibold text-ink">{t('pair.inviteNotFoundTitle')}</h1>
             <p className="mt-2 text-sm font-semibold text-muted">
-              Esse código não existe ou já expirou. Pede um novo pro seu par.
+              {t('pair.inviteNotFoundText')}
             </p>
             <Link to="/" className="btn-ghost mt-5 inline-flex">
-              Voltar pro início
+              {t('pair.backHome')}
             </Link>
           </Card>
         )}
 
         {state.kind === 'full' && (
           <Card>
-            <h1 className="font-display text-2xl font-semibold text-ink">Esse convite já foi usado</h1>
+            <h1 className="font-display text-2xl font-semibold text-ink">{t('pair.inviteUsedTitle')}</h1>
             <p className="mt-2 text-sm font-semibold text-muted">
-              A dupla já tá completa. Se foi engano, fala com seu par.
+              {t('pair.inviteUsedText')}
             </p>
             <Link to={accessToken ? '/dashboard' : '/login'} className="btn-primary mt-5 inline-flex">
-              {accessToken ? 'Ir pro app' : 'Entrar'}
+              {accessToken ? t('pair.goToApp') : t('pair.enter')}
             </Link>
           </Card>
         )}
@@ -97,10 +99,10 @@ export function InvitePage() {
             </div>
 
             <h1 className="font-display text-2xl font-semibold leading-tight text-ink">
-              {state.preview.inviterName} te chamou pra jogar
+              {t('pair.inviteCalledYou', { name: state.preview.inviterName })}
             </h1>
             <p className="mx-auto mt-2 max-w-sm text-sm font-semibold text-muted">
-              Já tá esperando do outro lado. É só aceitar que vocês começam a temporada juntos.
+              {t('pair.inviteWaiting')}
             </p>
 
             <div className="mt-5 rounded-2xl border-[1.5px] border-dashed border-rival bg-rival-soft px-4 py-3.5 text-center">
@@ -119,7 +121,7 @@ export function InvitePage() {
               disabled={joining}
               className="btn-primary mt-5 w-full disabled:opacity-60"
             >
-              {joining ? 'Entrando...' : 'Aceitar e começar'}
+              {joining ? t('pair.joining') : t('pair.acceptStart')}
             </button>
 
             <button
@@ -127,14 +129,14 @@ export function InvitePage() {
               onClick={() => navigate('/')}
               className="mt-3 w-full text-sm font-bold text-muted transition hover:text-ink"
             >
-              agora não, só quero dar uma olhada
+              {t('pair.notNow')}
             </button>
 
             {!accessToken && (
               <p className="mt-4 text-center text-xs font-semibold text-muted">
-                Já tem conta?{' '}
+                {t('pair.alreadyHaveAccount')}{' '}
                 <Link to={`/login?convite=${encodeURIComponent(code)}`} className="font-extrabold text-brand-ink hover:underline">
-                  Entrar e aceitar
+                  {t('pair.loginAndAccept')}
                 </Link>
               </p>
             )}

@@ -2,11 +2,9 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { useTheme } from '../hooks/useTheme'
 import { BrandLockup } from './brand/BrandMark'
 import { Avatar } from './ui/Avatar'
 import { NotificationsBell } from './NotificationsBell'
-import { LanguageSelect } from './LanguageSelect'
 
 /** Ícones SVG preenchidos (nada de emoji). 24x24, herdam currentColor. */
 const ICONS: Record<string, ReactNode> = {
@@ -25,20 +23,19 @@ const ICONS: Record<string, ReactNode> = {
   gear: <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4-2.1-.6a7 7 0 0 0-.6-1.5l1.1-1.9-1.4-1.4-1.9 1.1a7 7 0 0 0-1.5-.6L14 3h-2l-.6 2.1a7 7 0 0 0-1.5.6L8 4.6 6.6 6l1.1 1.9a7 7 0 0 0-.6 1.5L5 10v4l2.1.6a7 7 0 0 0 .6 1.5L6.6 18 8 19.4l1.9-1.1a7 7 0 0 0 1.5.6L12 21h2l.6-2.1a7 7 0 0 0 1.5-.6l1.9 1.1 1.4-1.4-1.1-1.9a7 7 0 0 0 .6-1.5L21 14z" />,
 }
 
-// TODO(i18n): rótulos do menu em PT direto por enquanto; voltar pra t('nav.*') quando traduzir.
 const NAV = [
-  { to: '/dashboard', label: 'Início', icon: 'home' },
-  { to: '/nutrition', label: 'Registrar', icon: 'meal' },
-  { to: '/activity', label: 'Atividade', icon: 'activity' },
-  { to: '/feed', label: 'Feed do par', icon: 'feed' },
-  { to: '/meal-plan', label: 'Plano alimentar', icon: 'book' },
-  { to: '/workout-plan', label: 'Treino', icon: 'dumbbell' },
-  { to: '/season', label: 'Temporada', icon: 'flag' },
-  { to: '/missions', label: 'Missões', icon: 'target' },
-  { to: '/gamification', label: 'Conquistas', icon: 'medal' },
-  { to: '/progress', label: 'Progresso', icon: 'chart' },
-  { to: '/pair', label: 'Relação', icon: 'heart' },
-  { to: '/profile', label: 'Perfil', icon: 'user' },
+  { to: '/dashboard', label: 'nav.dashboard', icon: 'home' },
+  { to: '/nutrition', label: 'nav.log', icon: 'meal' },
+  { to: '/activity', label: 'nav.activity', icon: 'activity' },
+  { to: '/feed', label: 'nav.feed', icon: 'feed' },
+  { to: '/meal-plan', label: 'nav.mealPlan', icon: 'book' },
+  { to: '/workout-plan', label: 'nav.workout', icon: 'dumbbell' },
+  { to: '/season', label: 'nav.season', icon: 'flag' },
+  { to: '/missions', label: 'nav.missions', icon: 'target' },
+  { to: '/gamification', label: 'nav.achievements', icon: 'medal' },
+  { to: '/progress', label: 'nav.progress', icon: 'chart' },
+  { to: '/pair', label: 'nav.relationship', icon: 'heart' },
+  { to: '/profile', label: 'nav.profile', icon: 'user' },
 ] as const
 
 function NavIcon({ name }: { name: string }) {
@@ -52,7 +49,6 @@ function NavIcon({ name }: { name: string }) {
 export function Layout() {
   const { t } = useTranslation()
   const { logout } = useAuth()
-  const { theme, toggle } = useTheme()
   const navigate = useNavigate()
 
   async function handleLogout() {
@@ -71,7 +67,7 @@ export function Layout() {
       }
     >
       <NavIcon name={item.icon} />
-      {item.label}
+      {t(item.label)}
     </NavLink>
   ))
 
@@ -95,41 +91,29 @@ export function Layout() {
             }
           >
             <NavIcon name="gear" />
-            Configurações
+            {t('nav.settings')}
           </NavLink>
-          <button
-            onClick={toggle}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-muted transition hover:bg-surface hover:text-ink"
-          >
-            <span className="text-base leading-none">{theme === 'dark' ? '☀' : '☾'}</span>
-            {theme === 'dark' ? t('header.light') : t('header.dark')}
-          </button>
-          <div className="flex items-center justify-between px-1">
-            <LanguageSelect />
-            <NotificationsBell />
-          </div>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-xl bg-surface px-3 py-2.5 text-left transition hover:bg-track"
           >
             <Avatar initial="A" tone="you" size={36} />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-extrabold text-ink">{t('header.logout')}</span>
+              <span className="block truncate text-sm font-extrabold text-ink">{t('nav.logout')}</span>
               <span className="block truncate text-xs text-muted">VitalPair</span>
             </span>
           </button>
         </div>
       </aside>
 
-      {/* Topbar mobile */}
+      {/* Navbar do topo: sino à direita (marca só no mobile, desktop tem a sidebar) */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-hair bg-sidebar/90 px-4 py-3 backdrop-blur md:hidden">
-          <BrandLockup size={30} />
-          <div className="flex items-center gap-2">
+        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-hair bg-sidebar/90 px-4 py-3 backdrop-blur">
+          <div className="md:hidden">
+            <BrandLockup size={30} />
+          </div>
+          <div className="ml-auto flex items-center">
             <NotificationsBell />
-            <button onClick={toggle} className="rounded-lg border border-hair px-2 py-1.5 text-muted">
-              {theme === 'dark' ? '☀' : '☾'}
-            </button>
           </div>
         </header>
         <nav className="flex gap-1 overflow-x-auto border-b border-hair bg-sidebar px-3 py-2 md:hidden">
