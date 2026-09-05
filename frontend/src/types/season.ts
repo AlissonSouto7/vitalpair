@@ -24,6 +24,7 @@ export interface SeasonHistoryItem {
   you: number
   rival: number
   winner: SeasonWinner
+  stake: string | null
 }
 
 export interface SeasonView {

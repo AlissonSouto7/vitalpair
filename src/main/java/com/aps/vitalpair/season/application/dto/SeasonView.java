@@ -33,6 +33,6 @@ public record SeasonView(
     }
 
     /** Resumo de uma temporada já fechada. */
-    public record HistoryRow(int number, String sub, int you, int rival, String winner) {
+    public record HistoryRow(int number, String sub, int you, int rival, String winner, String stake) {
     }
 }
