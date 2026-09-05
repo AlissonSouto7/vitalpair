@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.aps.vitalpair.shared.security.Role;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,6 +23,7 @@ public class User {
     private final String email;
     private final String passwordHash;
     private final boolean emailVerified;
+    private final Role role;
     private final String name;
     private final LocalDate birthDate;
     private final Sex sex;

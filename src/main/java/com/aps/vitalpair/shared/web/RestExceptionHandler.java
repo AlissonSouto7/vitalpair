@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,6 +52,20 @@ public class RestExceptionHandler {
     public ResponseEntity<ApiResponse<ApiError>> handleNoResource(
             NoResourceFoundException ex, HttpServletRequest request) {
         return build(HttpStatus.NOT_FOUND, "Recurso não encontrado", request, List.of());
+    }
+
+    /**
+     * A caller who is authenticated but lacks the role.
+     *
+     * <p>Must be handled explicitly. Without this, the generic handler below catches it and
+     * answers 500, which says "the server broke" when the truth is "the guard worked". It
+     * also hides a genuine authorisation failure inside the noise of real errors, and logs
+     * a stack trace for something that is not a fault.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleAccessDenied(
+            AccessDeniedException ex, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso", request, List.of());
     }
 
     @ExceptionHandler(Exception.class)

@@ -2,6 +2,7 @@ package com.aps.vitalpair.auth.application.service;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.model.RelationshipType;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
+import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
@@ -124,27 +126,54 @@ public class AuthService
 
     @Override
     public AuthResult refresh(String refreshToken) {
-        var userId = refreshTokenStore
-                .findUser(refreshToken)
-                .orElseThrow(() -> new InvalidCredentialsException("Refresh token inválido ou expirado"));
+        var stored = refreshTokenStore.find(refreshToken);
+
+        if (stored.isEmpty()) {
+            // Not active. If it was spent, someone is replaying a token that was already
+            // exchanged. A refresh token is single-use, so the only ways this happens are
+            // theft or a client bug, and there is no way to tell them apart from here.
+            // Revoking the whole family logs out both the attacker and the legitimate
+            // holder, which is the right trade: one forced login beats a silent intruder
+            // who can keep renewing for thirty days.
+            refreshTokenStore.findSpentFamily(refreshToken).ifPresent(familyId -> {
+                log.warn("Refresh token replay detected; revoking token family {}", familyId);
+                refreshTokenStore.revokeFamily(familyId);
+            });
+            throw new InvalidCredentialsException("Refresh token inválido ou expirado");
+        }
 
         User user = userRepository
-                .findById(userId)
+                .findById(stored.get().userId())
                 .orElseThrow(() -> new InvalidCredentialsException("Refresh token inválido ou expirado"));
 
-        refreshTokenStore.revoke(refreshToken);
-        return issueTokens(user);
+        refreshTokenStore.markSpent(refreshToken, stored.get().familyId(), jwtProperties.refreshExpirationMs());
+        return issueTokens(user, stored.get().familyId());
     }
 
     @Override
     public void logout(String refreshToken) {
-        refreshTokenStore.revoke(refreshToken);
+        // Revokes the whole family, not just this token. Logging out should end the session,
+        // and after a rotation the family holds the spent predecessors of the current token
+        // as well; leaving those behind would keep a stolen one usable.
+        refreshTokenStore.find(refreshToken).ifPresent(stored -> refreshTokenStore.revokeFamily(stored.familyId()));
     }
 
+    /** Starts a new token family. Every login and every social sign-in begins one. */
     private AuthResult issueTokens(User user) {
-        String accessToken = tokenProvider.generateAccessToken(user.getId(), user.getTenantId(), user.getEmail());
+        return issueTokens(user, UUID.randomUUID());
+    }
+
+    /**
+     * Issues an access and refresh token pair.
+     *
+     * <p>A rotation passes the family of the token being replaced, so the chain of tokens
+     * descended from one login stays linked and can be revoked together.
+     */
+    private AuthResult issueTokens(User user, UUID familyId) {
+        String accessToken =
+                tokenProvider.generateAccessToken(user.getId(), user.getTenantId(), user.getEmail(), user.getRole());
         String refreshToken = generateOpaqueToken();
-        refreshTokenStore.save(refreshToken, user.getId(), jwtProperties.refreshExpirationMs());
+        refreshTokenStore.save(refreshToken, user.getId(), familyId, jwtProperties.refreshExpirationMs());
         return new AuthResult(accessToken, refreshToken, user.getId());
     }
 
@@ -160,6 +189,9 @@ public class AuthService
                 .passwordHash(passwordHash)
                 .emailVerified(emailVerified)
                 .name(name)
+                // Everyone signs up as a plain user. ADMIN is granted by a database update,
+                // never through a request, so registration cannot be an escalation path.
+                .role(Role.USER)
                 .build());
         pairRepository.save(tenant.toBuilder().user1Id(user.getId()).build());
         return user;

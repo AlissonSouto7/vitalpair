@@ -2,8 +2,10 @@ package com.aps.vitalpair.auth.infrastructure.web;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.aps.vitalpair.auth.application.dto.AuthResult;
 import com.aps.vitalpair.auth.application.dto.LoginCommand;
 import com.aps.vitalpair.auth.application.dto.RegisterCommand;
+import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
 import com.aps.vitalpair.auth.domain.port.in.GoogleLoginUseCase;
 import com.aps.vitalpair.auth.domain.port.in.LoginUseCase;
 import com.aps.vitalpair.auth.domain.port.in.LogoutUseCase;
@@ -36,6 +39,7 @@ public class AuthController {
     private final ResetPasswordUseCase resetPasswordUseCase;
     private final VerifyEmailUseCase verifyEmailUseCase;
     private final ResendEmailVerificationUseCase resendEmailVerificationUseCase;
+    private final RefreshTokenCookie refreshTokenCookie;
 
     public AuthController(
             RegisterUserUseCase registerUserUseCase,
@@ -46,7 +50,8 @@ public class AuthController {
             RequestPasswordResetUseCase requestPasswordResetUseCase,
             ResetPasswordUseCase resetPasswordUseCase,
             VerifyEmailUseCase verifyEmailUseCase,
-            ResendEmailVerificationUseCase resendEmailVerificationUseCase) {
+            ResendEmailVerificationUseCase resendEmailVerificationUseCase,
+            RefreshTokenCookie refreshTokenCookie) {
         this.registerUserUseCase = registerUserUseCase;
         this.loginUseCase = loginUseCase;
         this.refreshTokenUseCase = refreshTokenUseCase;
@@ -56,6 +61,7 @@ public class AuthController {
         this.resetPasswordUseCase = resetPasswordUseCase;
         this.verifyEmailUseCase = verifyEmailUseCase;
         this.resendEmailVerificationUseCase = resendEmailVerificationUseCase;
+        this.refreshTokenCookie = refreshTokenCookie;
     }
 
     @PostMapping("/register")
@@ -63,31 +69,65 @@ public class AuthController {
         AuthResult result =
                 registerUserUseCase.register(new RegisterCommand(request.email(), request.password(), request.name()));
         return ResponseEntity.status(HttpStatus.CREATED)
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        refreshTokenCookie.issue(result.refreshToken()).toString())
                 .body(ApiResponse.ok(TokenResponse.from(result), "Conta criada com sucesso"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResult result = loginUseCase.login(new LoginCommand(request.email(), request.password()));
-        return ResponseEntity.ok(ApiResponse.ok(TokenResponse.from(result)));
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        refreshTokenCookie.issue(result.refreshToken()).toString())
+                .body(ApiResponse.ok(TokenResponse.from(result)));
     }
 
     @PostMapping("/oauth2/google")
     public ResponseEntity<ApiResponse<TokenResponse>> google(@Valid @RequestBody GoogleLoginRequest request) {
         AuthResult result = googleLoginUseCase.loginWithGoogle(request.idToken());
-        return ResponseEntity.ok(ApiResponse.ok(TokenResponse.from(result)));
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        refreshTokenCookie.issue(result.refreshToken()).toString())
+                .body(ApiResponse.ok(TokenResponse.from(result)));
     }
 
+    /**
+     * Renews the session from the cookie. There is no request body: the refresh token is
+     * never handled by client script, which is the point of moving it out of localStorage.
+     */
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<TokenResponse>> refresh(@Valid @RequestBody RefreshRequest request) {
-        AuthResult result = refreshTokenUseCase.refresh(request.refreshToken());
-        return ResponseEntity.ok(ApiResponse.ok(TokenResponse.from(result)));
+    public ResponseEntity<ApiResponse<TokenResponse>> refresh(
+            @CookieValue(name = RefreshTokenCookie.NAME, required = false) String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new InvalidCredentialsException("Sessão expirada. Faça login novamente.");
+        }
+        AuthResult result = refreshTokenUseCase.refresh(refreshToken);
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        refreshTokenCookie.issue(result.refreshToken()).toString())
+                .body(ApiResponse.ok(TokenResponse.from(result)));
     }
 
+    /**
+     * Ends the session and clears the cookie.
+     *
+     * <p>Succeeds even without a cookie: a user clicking "log out" with an already-expired
+     * session should see it work, not an error.
+     */
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody RefreshRequest request) {
-        logoutUseCase.logout(request.refreshToken());
-        return ResponseEntity.ok(ApiResponse.ok(null, "Logout efetuado"));
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @CookieValue(name = RefreshTokenCookie.NAME, required = false) String refreshToken) {
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            logoutUseCase.logout(refreshToken);
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.clear().toString())
+                .body(ApiResponse.ok(null, "Logout efetuado"));
     }
 
     @PostMapping("/forgot-password")

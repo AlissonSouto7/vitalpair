@@ -18,8 +18,9 @@ export async function googleLogin(idToken: string): Promise<TokenResponse> {
   return res.data.data
 }
 
-export async function logout(refreshToken: string): Promise<void> {
-  await api.post('/auth/logout', { refreshToken })
+/** Ends the session server-side. The refresh cookie identifies it and is cleared in the response. */
+export async function logout(): Promise<void> {
+  await api.post('/auth/logout')
 }
 
 export async function forgotPassword(email: string): Promise<void> {
@@ -38,15 +39,13 @@ export async function resendVerification(email: string): Promise<void> {
   await api.post('/auth/resend-verification', { email })
 }
 
-/** Reemite os tokens para refletir mudanças (ex: tenant após formar o par). */
+/**
+ * Re-issues the access token so it reflects a change the server made, such as the tenant
+ * id after joining a pair. The refresh token travels in the cookie, so there is nothing to
+ * read or send here.
+ */
 export async function refreshSession(): Promise<void> {
-  const refreshToken = useAuthStore.getState().refreshToken
-  if (!refreshToken) return
-  const res = await api.post<ApiResponse<TokenResponse>>('/auth/refresh', { refreshToken })
+  const res = await api.post<ApiResponse<TokenResponse>>('/auth/refresh')
   const data = res.data.data
-  useAuthStore.getState().setSession({
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-    userId: data.userId,
-  })
+  useAuthStore.getState().setSession({ accessToken: data.accessToken, userId: data.userId })
 }
