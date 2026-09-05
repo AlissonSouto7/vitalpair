@@ -1,0 +1,62 @@
+name: Epic
+description: A body of work large enough to be split into several issues
+title: "epic: "
+labels: ["type:epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        An epic groups related issues under one goal. It is not implemented
+        directly: the work happens in the issues it links to.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What this epic achieves, and why it matters now.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: In scope
+      description: What this epic covers.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: |
+        What this epic deliberately does not cover. This is the section that
+        stops an epic from growing without limit.
+    validations:
+      required: true
+
+  - type: textarea
+    id: children
+    attributes:
+      label: Issues
+      description: The issues that make up this epic. Add them as they are created.
+      placeholder: |
+        - [ ] #12 feat(auth): move the refresh token to an httpOnly cookie
+        - [ ] #13 feat(auth): detect refresh token reuse
+        - [ ] #14 test(auth): cover the rotation and reuse paths
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of done
+      description: The conditions under which this epic is closed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and dependencies
+      description: What could block this, and what must land first.

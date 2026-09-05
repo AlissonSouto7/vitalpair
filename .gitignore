@@ -1,4 +1,4 @@
-HELP.md
+### Maven ###
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -32,11 +32,21 @@ build/
 ### VS Code ###
 .vscode/
 
-### VitaPair ###
-# Variáveis de ambiente com secrets (nunca versionar). Use .env.example como modelo.
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Merge and patch leftovers ###
+*.orig
+*.rej
+
+### VitalPair ###
+# Environment files hold secrets and are never versioned. See .env.example.
 .env
 .env.*
 !.env.example
+# Local AI session context (notes, worklog, local settings). Never versioned.
+.claude/
 # Logs
 *.log
 logs/

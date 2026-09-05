@@ -1,0 +1,16 @@
+# Every change requires a review from the repository owner.
+# Later lines win, so the catch-all comes first.
+
+* @AlissonSouto7
+
+# Areas called out explicitly. Same owner today, but the entries stay so that
+# adding a second maintainer later is a one-line change per area.
+
+/src/                    @AlissonSouto7
+/frontend/               @AlissonSouto7
+/src/main/resources/db/  @AlissonSouto7
+/.github/                @AlissonSouto7
+/docs/adr/               @AlissonSouto7
+/LICENSE                 @AlissonSouto7
+/SECURITY.md             @AlissonSouto7
+/CLAUDE.md               @AlissonSouto7
