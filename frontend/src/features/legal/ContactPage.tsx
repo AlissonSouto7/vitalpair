@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LegalHeader, LegalFooter } from './PrivacyPage'
 
-const MAIL = 'contato@vitapair.app'
+const MAIL = 'contato@vitalpair.app'
 
 /**
  * Página de Contato do VitalPair.

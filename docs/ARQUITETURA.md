@@ -54,14 +54,14 @@ Monólito modular no backend, separação por feature/domínio (não por camada 
 
 **Fluxo:** browser → Nginx serve React → chamadas REST `/api/*` → Nginx faz proxy para Spring Boot (8080) → autentica JWT → lógica → PostgreSQL/Redis. Busca de alimentos chama Open Food Facts. Wearables via OAuth2 (Google Fit/Strava).
 
-### 3.2 Estrutura de pacotes — Backend (`com.aps.vitapair`)
+### 3.2 Estrutura de pacotes — Backend (`com.aps.vitalpair`)
 
-Arquitetura **hexagonal (Ports & Adapters) por feature**. Regras completas em `docs/adr/0001-arquitetura-hexagonal.md`. Base package real: `com.aps.vitapair` (groupId `com.aps`).
+Arquitetura **hexagonal (Ports & Adapters) por feature**. Regras completas em `docs/adr/0001-arquitetura-hexagonal.md`. Base package real: `com.aps.vitalpair` (groupId `com.aps`).
 
 Blocos transversais:
 ```
-com.aps.vitapair
-├── VitapairApplication.java
+com.aps.vitalpair
+├── VitalpairApplication.java
 ├── shared/        # kernel: web (ApiResponse, PageResponse, ApiError, RestExceptionHandler), exception (DomainException...)
 ├── config/        # SecurityConfig, RedisConfig, CorsConfig, OpenApiConfig, FeignConfig
 └── tenant/        # TenantContext (ThreadLocal), TenantFilter (multi-tenancy)
@@ -166,7 +166,7 @@ src/
 - Campos: product_name, nutriments.energy-kcal_100g, proteins_100g, carbohydrates_100g, fat_100g
 - Cache Redis TTL 24h (chave `off:barcode:<code>`)
 - Fallback para banco local de alimentos BR se API cair
-- **User-Agent obrigatório**: `VitalPair/1.0 (contact@vitapair.app)`
+- **User-Agent obrigatório**: `VitalPair/1.0 (contact@vitalpair.app)`
 
 ### 6.3 Cálculo de TDEE (Mifflin-St Jeor)
 - Homem: BMR = (10 × peso_kg) + (6.25 × altura_cm) − (5 × idade) + 5
@@ -203,8 +203,8 @@ src/
 
 ## 8. Infra e Deploy
 
-- Oracle: VM.Standard.A1.Flex (ARM), 2 OCPUs, 12GB RAM, 200GB; Ubuntu 22.04 LTS; DNS DuckDNS (vitapair.duckdns.org); firewall só 22/80/443.
-- Docker Compose: postgres (15-alpine), redis (7-alpine, requirepass), backend (build ./vitapair-backend, porta 8080), frontend (build ./vitapair-frontend, 3000:80), nginx (80/443, proxy).
+- Oracle: VM.Standard.A1.Flex (ARM), 2 OCPUs, 12GB RAM, 200GB; Ubuntu 22.04 LTS; DNS DuckDNS (vitalpair.duckdns.org); firewall só 22/80/443.
+- Docker Compose: postgres (15-alpine), redis (7-alpine, requirepass), backend (build ./vitalpair-backend, porta 8080), frontend (build ./vitalpair-frontend, 3000:80), nginx (80/443, proxy).
 - CI/CD GitHub Actions: push main → checkout → build Maven → testes → build Docker → push GHCR → SSH Oracle → docker-compose pull+up. Secrets: ORACLE_SSH_KEY, ORACLE_HOST, GHCR_TOKEN. Zero-downtime e rollback (2 últimas imagens).
 - Nginx: location `/` → frontend:80; location `/api/` → backend:8080 (repassa header Authorization); SSL via /certs/live/...
 
@@ -221,7 +221,7 @@ src/
 
 ### 9.3 Convenções
 - Java: camelCase métodos/vars, PascalCase classes, UPPER_SNAKE constantes
-- Pacotes: `com.vitapair.<feature>`
+- Pacotes: `com.vitalpair.<feature>`
 - Endpoints: plural para coleções (/foods, /logs), snake_case em query params
 - **Respostas sempre em `ApiResponse<T> { data, message, success }`**
 - Datas: ISO 8601 (`2025-06-21T10:30:00Z`), nunca timestamp Unix na API
@@ -244,7 +244,7 @@ src/
 13. CI/CD (GitHub Actions → Oracle)
 
 ### 9.5 Variáveis de ambiente
-DATABASE_URL (jdbc:postgresql://postgres:5432/vitapair), DATABASE_USER, DATABASE_PASSWORD, REDIS_HOST, REDIS_PASSWORD, JWT_SECRET (min 256 bits base64), JWT_ACCESS_EXPIRATION_MS (900000), JWT_REFRESH_EXPIRATION_MS (2592000000), GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ANTHROPIC_API_KEY, FRONTEND_URL, OPEN_FOOD_FACTS_USER_AGENT
+DATABASE_URL (jdbc:postgresql://postgres:5432/vitalpair), DATABASE_USER, DATABASE_PASSWORD, REDIS_HOST, REDIS_PASSWORD, JWT_SECRET (min 256 bits base64), JWT_ACCESS_EXPIRATION_MS (900000), JWT_REFRESH_EXPIRATION_MS (2592000000), GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ANTHROPIC_API_KEY, FRONTEND_URL, OPEN_FOOD_FACTS_USER_AGENT
 
 ## 10. Roadmap
 

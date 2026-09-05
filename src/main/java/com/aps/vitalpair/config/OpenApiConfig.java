@@ -19,7 +19,7 @@ public class OpenApiConfig {
     private static final String BEARER_SCHEME = "bearerAuth";
 
     @Bean
-    OpenAPI vitaPairOpenApi() {
+    OpenAPI vitalPairOpenApi() {
         return new OpenAPI()
                 .info(new Info()
                         .title("VitalPair API")

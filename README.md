@@ -22,7 +22,7 @@ Este repositório contém o **backend** (Java 17 + Spring Boot 3). O frontend (R
 Arquitetura **hexagonal (Ports & Adapters) por feature**. Cada feature tem três camadas com a regra de dependência `infrastructure → application → domain` (o domínio não depende de framework):
 
 ```
-com.aps.vitapair
+com.aps.vitalpair
 ├── shared/        # kernel: ApiResponse, ApiError, exceções, tratamento global de erros
 ├── config/        # SecurityConfig, JwtProperties, OpenApiConfig
 ├── tenant/        # TenantContext (multi-tenancy via ThreadLocal)
@@ -54,7 +54,7 @@ O projeto usa `spring-boot-docker-compose`: ao iniciar a aplicação em dev, o P
 
 A API sobe em **`http://localhost:8081`** no profile `dev` (porta 8081 para coexistir com outros serviços locais na 8080; configurável via `SERVER_PORT`). O profile `dev` é o padrão e já traz um `JWT_SECRET` de desenvolvimento.
 
-> Se as portas 5432/6379 já estiverem em uso na sua máquina, defina `VITAPAIR_DB_PORT` e `VITAPAIR_REDIS_PORT` no `.env` (o app detecta a porta publicada automaticamente).
+> Se as portas 5432/6379 já estiverem em uso na sua máquina, defina `VITALPAIR_DB_PORT` e `VITALPAIR_REDIS_PORT` no `.env` (o app detecta a porta publicada automaticamente).
 
 ### Subindo o banco/redis manualmente
 
@@ -65,7 +65,7 @@ docker compose up -d
 
 > As portas do host do Postgres/Redis são parametrizáveis (caso 5432/6379 já estejam em uso):
 > ```bash
-> VITAPAIR_DB_PORT=5433 VITAPAIR_REDIS_PORT=6380 docker compose up -d
+> VITALPAIR_DB_PORT=5433 VITALPAIR_REDIS_PORT=6380 docker compose up -d
 > ```
 
 ## Variáveis de ambiente
@@ -126,12 +126,12 @@ Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 # Registrar
 curl -X POST http://localhost:8081/api/v1/auth/register \
   -H 'Content-Type: application/json' \
-  -d '{"email":"ana@vitapair.app","password":"senha1234","name":"Ana"}'
+  -d '{"email":"ana@vitalpair.app","password":"senha1234","name":"Ana"}'
 
 # Login
 curl -X POST http://localhost:8081/api/v1/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"email":"ana@vitapair.app","password":"senha1234"}'
+  -d '{"email":"ana@vitalpair.app","password":"senha1234"}'
 ```
 
 ## Testes
