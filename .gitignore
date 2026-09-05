@@ -50,3 +50,8 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+### Node (repository tooling: husky, commitlint, prettier) ###
+node_modules/
+# Husky's own generated helper; the hooks themselves are committed.
+.husky/_/
