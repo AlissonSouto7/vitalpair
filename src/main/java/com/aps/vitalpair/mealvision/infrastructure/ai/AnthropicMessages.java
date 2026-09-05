@@ -11,8 +11,13 @@ import java.util.List;
  * <p>O corpo usa {@code output_config.format} (json_schema) para forçar a saída estruturada. Não
  * enviamos {@code temperature}/{@code top_p}/{@code top_k}/{@code thinking}: o modelo
  * {@code claude-opus-4-8} rejeita esses parâmetros com HTTP 400.
+ *
+ * <p>Esta classe e seus records são públicos porque aparecem na assinatura de
+ * {@link AnthropicClient}, que é uma interface pública. O proxy dinâmico que o Feign gera vive em
+ * outro módulo e não consegue acessar tipos package-private: deixá-los sem {@code public} faz a
+ * chamada estourar {@code IllegalAccessError} em runtime.
  */
-final class AnthropicMessages {
+public final class AnthropicMessages {
 
     private AnthropicMessages() {
     }
@@ -20,7 +25,7 @@ final class AnthropicMessages {
     // ===== Request =====
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    record Request(
+    public record Request(
             String model,
             @JsonProperty("max_tokens") int maxTokens,
             String system,
@@ -28,12 +33,12 @@ final class AnthropicMessages {
             @JsonProperty("output_config") OutputConfig outputConfig) {
     }
 
-    record Message(String role, List<Content> content) {
+    public record Message(String role, List<Content> content) {
     }
 
     /** Bloco de conteúdo polimórfico: {@code type=image} usa {@code source}; {@code type=text} usa {@code text}. */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    record Content(String type, ImageSource source, String text) {
+    public record Content(String type, ImageSource source, String text) {
 
         static Content image(String mediaType, String base64Data) {
             return new Content("image", new ImageSource("base64", mediaType, base64Data), null);
@@ -44,13 +49,13 @@ final class AnthropicMessages {
         }
     }
 
-    record ImageSource(String type, @JsonProperty("media_type") String mediaType, String data) {
+    public record ImageSource(String type, @JsonProperty("media_type") String mediaType, String data) {
     }
 
-    record OutputConfig(Format format) {
+    public record OutputConfig(Format format) {
     }
 
-    record Format(String type, Object schema) {
+    public record Format(String type, Object schema) {
 
         static Format jsonSchema(Object schema) {
             return new Format("json_schema", schema);
@@ -60,12 +65,12 @@ final class AnthropicMessages {
     // ===== Response =====
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Response(
+    public record Response(
             List<Block> content,
             @JsonProperty("stop_reason") String stopReason) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Block(String type, String text) {
+    public record Block(String type, String text) {
     }
 }
