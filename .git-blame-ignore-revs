@@ -1,0 +1,8 @@
+# Commits that only reformat code. git blame skips them so line history points at
+# whoever wrote the logic, not at the reformatting.
+#
+# Locally:  git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub reads this file automatically.
+
+# style: apply palantir-java-format across the codebase
+1bdbea4f38714798645388928690ff74d91c60ef
