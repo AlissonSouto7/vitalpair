@@ -1,11 +1,13 @@
 package com.aps.vitalpair.auth.infrastructure.persistence;
 
-import com.aps.vitalpair.auth.domain.port.out.EmailVerificationTokenStorePort;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.auth.domain.port.out.EmailVerificationTokenStorePort;
 
 /** Implementa {@link EmailVerificationTokenStorePort} no Redis (chave {@code emailverify:<token>} → userId, com TTL). */
 @Component

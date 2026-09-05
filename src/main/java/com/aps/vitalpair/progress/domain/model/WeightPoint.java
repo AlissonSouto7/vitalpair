@@ -9,5 +9,4 @@ import java.time.LocalDate;
  * @param date     dia do registro
  * @param weightKg peso em quilos
  */
-public record WeightPoint(LocalDate date, BigDecimal weightKg) {
-}
+public record WeightPoint(LocalDate date, BigDecimal weightKg) {}

@@ -1,14 +1,16 @@
 package com.aps.vitalpair.feed.infrastructure.persistence;
 
-import com.aps.vitalpair.feed.domain.model.FeedItem;
-import com.aps.vitalpair.feed.domain.port.out.FeedItemRepositoryPort;
-import com.aps.vitalpair.shared.web.PageResponse;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.feed.domain.model.FeedItem;
+import com.aps.vitalpair.feed.domain.port.out.FeedItemRepositoryPort;
+import com.aps.vitalpair.shared.web.PageResponse;
 
 @Component
 public class FeedItemPersistenceAdapter implements FeedItemRepositoryPort {
@@ -34,7 +36,8 @@ public class FeedItemPersistenceAdapter implements FeedItemRepositoryPort {
     @Override
     public PageResponse<FeedItem> findVisibleByTenant(UUID tenantId, UUID viewerId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<FeedItem> result = repository.findVisible(tenantId, viewerId, pageRequest).map(mapper::toDomain);
+        Page<FeedItem> result =
+                repository.findVisible(tenantId, viewerId, pageRequest).map(mapper::toDomain);
         return PageResponse.from(result);
     }
 }

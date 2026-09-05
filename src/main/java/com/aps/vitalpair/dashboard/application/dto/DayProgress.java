@@ -19,5 +19,4 @@ public record DayProgress(
         Integer carbTargetG,
         Integer fatTargetG,
         int steps,
-        int mealCount) {
-}
+        int mealCount) {}

@@ -1,8 +1,9 @@
 package com.aps.vitalpair.notification.application.dto;
 
-import com.aps.vitalpair.notification.domain.model.NotificationType;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.aps.vitalpair.notification.domain.model.NotificationType;
 
 public record NotificationView(
         UUID id,
@@ -11,5 +12,4 @@ public record NotificationView(
         String refText,
         Integer amount,
         boolean read,
-        Instant createdAt) {
-}
+        Instant createdAt) {}

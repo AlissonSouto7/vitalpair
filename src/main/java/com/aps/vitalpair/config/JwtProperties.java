@@ -10,5 +10,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @param refreshExpirationMs validade do refresh token em milissegundos
  */
 @ConfigurationProperties(prefix = "vitalpair.jwt")
-public record JwtProperties(String secret, long accessExpirationMs, long refreshExpirationMs) {
-}
+public record JwtProperties(String secret, long accessExpirationMs, long refreshExpirationMs) {}

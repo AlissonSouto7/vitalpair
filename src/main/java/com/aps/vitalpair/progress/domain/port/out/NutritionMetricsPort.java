@@ -1,9 +1,10 @@
 package com.aps.vitalpair.progress.domain.port.out;
 
-import com.aps.vitalpair.progress.domain.model.DailyNutritionTotals;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import com.aps.vitalpair.progress.domain.model.DailyNutritionTotals;
 
 /**
  * Porta de saída read-only para os agregados de {@code food_logs} (calorias e

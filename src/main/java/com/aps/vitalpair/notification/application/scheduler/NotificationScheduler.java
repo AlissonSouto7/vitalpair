@@ -1,5 +1,15 @@
 package com.aps.vitalpair.notification.application.scheduler;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import com.aps.vitalpair.notification.domain.model.NotificationType;
 import com.aps.vitalpair.notification.domain.port.in.CreateNotificationUseCase;
 import com.aps.vitalpair.notification.domain.port.out.DailyLogMetricsRepositoryPort;
@@ -8,14 +18,6 @@ import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 /**
  * Agendadores das notificações geradas no tempo (missão relâmpago e lembrete de fim de dia).

@@ -1,8 +1,9 @@
 package com.aps.vitalpair.nutrition.domain.port.in;
 
-import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
 import java.util.List;
 import java.util.UUID;
+
+import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
 
 public interface GetFavoriteFoodsUseCase {
 

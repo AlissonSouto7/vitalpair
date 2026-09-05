@@ -1,8 +1,9 @@
 package com.aps.vitalpair.mealvision.infrastructure.web;
 
-import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 import java.math.BigDecimal;
 import java.util.List;
+
+import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 
 /** Resposta da análise de foto. Contrato consumido diretamente pelo frontend. */
 public record PhotoAnalysisResponse(List<Item> items) {
@@ -13,8 +14,7 @@ public record PhotoAnalysisResponse(List<Item> items) {
             BigDecimal caloriesKcal,
             BigDecimal proteinG,
             BigDecimal carbG,
-            BigDecimal fatG) {
-    }
+            BigDecimal fatG) {}
 
     public static PhotoAnalysisResponse from(MealPhotoAnalysis analysis) {
         List<Item> items = analysis.items().stream()

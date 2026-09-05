@@ -1,8 +1,9 @@
 package com.aps.vitalpair.mission.infrastructure.persistence;
 
-import com.aps.vitalpair.mission.domain.model.PairMissionState;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import com.aps.vitalpair.mission.domain.model.PairMissionState;
 
 @Mapper
 public interface PairMissionPersistenceMapper {

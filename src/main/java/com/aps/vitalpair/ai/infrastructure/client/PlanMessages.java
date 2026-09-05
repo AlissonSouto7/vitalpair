@@ -1,9 +1,10 @@
 package com.aps.vitalpair.ai.infrastructure.client;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 
 /**
  * DTOs da API {@code POST /v1/messages} da Anthropic para geração de planos (só texto, sem imagem).
@@ -19,8 +20,7 @@ import java.util.List;
  */
 public final class PlanMessages {
 
-    private PlanMessages() {
-    }
+    private PlanMessages() {}
 
     // ===== Request =====
 
@@ -30,11 +30,9 @@ public final class PlanMessages {
             @JsonProperty("max_tokens") int maxTokens,
             String system,
             List<Message> messages,
-            @JsonProperty("output_config") OutputConfig outputConfig) {
-    }
+            @JsonProperty("output_config") OutputConfig outputConfig) {}
 
-    public record Message(String role, List<Content> content) {
-    }
+    public record Message(String role, List<Content> content) {}
 
     public record Content(String type, String text) {
 
@@ -43,8 +41,7 @@ public final class PlanMessages {
         }
     }
 
-    public record OutputConfig(Format format) {
-    }
+    public record OutputConfig(Format format) {}
 
     public record Format(String type, Object schema) {
 
@@ -56,12 +53,8 @@ public final class PlanMessages {
     // ===== Response =====
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Response(
-            List<Block> content,
-            @JsonProperty("stop_reason") String stopReason) {
-    }
+    public record Response(List<Block> content, @JsonProperty("stop_reason") String stopReason) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Block(String type, String text) {
-    }
+    public record Block(String type, String text) {}
 }

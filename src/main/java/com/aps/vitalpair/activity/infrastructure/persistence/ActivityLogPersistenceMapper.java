@@ -1,7 +1,8 @@
 package com.aps.vitalpair.activity.infrastructure.persistence;
 
-import com.aps.vitalpair.activity.domain.model.ActivityLog;
 import org.mapstruct.Mapper;
+
+import com.aps.vitalpair.activity.domain.model.ActivityLog;
 
 @Mapper
 public interface ActivityLogPersistenceMapper {

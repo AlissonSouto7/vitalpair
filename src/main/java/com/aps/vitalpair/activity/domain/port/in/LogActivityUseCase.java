@@ -1,8 +1,9 @@
 package com.aps.vitalpair.activity.domain.port.in;
 
+import java.util.UUID;
+
 import com.aps.vitalpair.activity.application.dto.LogActivityCommand;
 import com.aps.vitalpair.activity.domain.model.ActivityLog;
-import java.util.UUID;
 
 public interface LogActivityUseCase {
 

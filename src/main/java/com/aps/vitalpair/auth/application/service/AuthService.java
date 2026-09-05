@@ -1,5 +1,11 @@
 package com.aps.vitalpair.auth.application.service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.auth.application.dto.AuthResult;
 import com.aps.vitalpair.auth.application.dto.LoginCommand;
 import com.aps.vitalpair.auth.application.dto.RegisterCommand;
@@ -23,10 +29,6 @@ import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.security.SecureRandom;
-import java.util.Base64;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Casos de uso de autenticação. No registro, cria-se também o par (tenant) ao qual o usuário pertence,
@@ -74,8 +76,8 @@ public class AuthService
         if (userRepository.existsByEmail(command.email())) {
             throw new BusinessRuleException("E-mail já cadastrado");
         }
-        User user = createUserWithTenant(
-                command.email(), command.name(), passwordHasher.hash(command.password()), false);
+        User user =
+                createUserWithTenant(command.email(), command.name(), passwordHasher.hash(command.password()), false);
         sendEmailVerification.send(user.getId(), user.getEmail(), user.getName());
         return issueTokens(user);
     }
@@ -87,23 +89,21 @@ public class AuthService
         if (info.email() == null || !info.emailVerified()) {
             throw new InvalidCredentialsException("E-mail do Google não verificado");
         }
-        User user = userRepository.findByEmail(info.email())
+        User user = userRepository
+                .findByEmail(info.email())
                 .orElseGet(() -> createUserWithTenant(
-                        info.email(),
-                        info.name() != null ? info.name() : info.email(),
-                        null,
-                        true));
+                        info.email(), info.name() != null ? info.name() : info.email(), null, true));
         return issueTokens(user);
     }
 
     @Override
     @Transactional(readOnly = true)
     public AuthResult login(LoginCommand command) {
-        User user = userRepository.findByEmail(command.email())
+        User user = userRepository
+                .findByEmail(command.email())
                 .orElseThrow(() -> new InvalidCredentialsException("Credenciais inválidas"));
 
-        if (user.getPasswordHash() == null
-                || !passwordHasher.matches(command.password(), user.getPasswordHash())) {
+        if (user.getPasswordHash() == null || !passwordHasher.matches(command.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException("Credenciais inválidas");
         }
 
@@ -112,10 +112,12 @@ public class AuthService
 
     @Override
     public AuthResult refresh(String refreshToken) {
-        var userId = refreshTokenStore.findUser(refreshToken)
+        var userId = refreshTokenStore
+                .findUser(refreshToken)
                 .orElseThrow(() -> new InvalidCredentialsException("Refresh token inválido ou expirado"));
 
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findById(userId)
                 .orElseThrow(() -> new InvalidCredentialsException("Refresh token inválido ou expirado"));
 
         refreshTokenStore.revoke(refreshToken);

@@ -1,5 +1,17 @@
 package com.aps.vitalpair.auth.application.service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
 import com.aps.vitalpair.auth.domain.port.in.ResendEmailVerificationUseCase;
 import com.aps.vitalpair.auth.domain.port.in.SendEmailVerificationUseCase;
@@ -8,16 +20,6 @@ import com.aps.vitalpair.auth.domain.port.out.EmailVerificationTokenStorePort;
 import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Confirmação de e-mail. O cadastro segue funcionando (login liberado), mas a conta fica marcada
@@ -61,9 +63,11 @@ public class EmailVerificationService
     @Override
     @Transactional
     public void verify(String token) {
-        UUID userId = tokenStore.findUser(token)
+        UUID userId = tokenStore
+                .findUser(token)
                 .orElseThrow(() -> new InvalidCredentialsException("Token inválido ou expirado"));
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findById(userId)
                 .orElseThrow(() -> new InvalidCredentialsException("Token inválido ou expirado"));
 
         if (!user.isEmailVerified()) {
@@ -76,7 +80,8 @@ public class EmailVerificationService
     @Override
     @Transactional(readOnly = true)
     public void resend(String email) {
-        userRepository.findByEmail(email)
+        userRepository
+                .findByEmail(email)
                 .filter(user -> !user.isEmailVerified())
                 .ifPresent(user -> send(user.getId(), user.getEmail(), user.getName()));
     }

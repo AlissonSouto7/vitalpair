@@ -1,5 +1,17 @@
 package com.aps.vitalpair.mission.application.service;
 
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.mission.domain.model.WeeklyMission;
 import com.aps.vitalpair.mission.domain.model.WeeklyMissionMetric;
 import com.aps.vitalpair.mission.domain.model.WeeklyMissionProgress;
@@ -12,16 +24,6 @@ import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
@@ -45,8 +47,7 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<WeeklyMissionProgress> getCurrentWeek(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
         ZoneId zone = ZoneId.systemDefault();
         LocalDate today = LocalDate.now(zone);
@@ -63,10 +64,8 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
             int current = count(mission.getMetric(), userId, weekStart, weekEnd);
 
             if (mission.getScope() == WeeklyMissionScope.PAIR && partner != null) {
-                int partnerCurrent =
-                        count(mission.getMetric(), partner.getId(), weekStart, weekEnd);
-                boolean completed =
-                        current >= mission.getTarget() && partnerCurrent >= mission.getTarget();
+                int partnerCurrent = count(mission.getMetric(), partner.getId(), weekStart, weekEnd);
+                boolean completed = current >= mission.getTarget() && partnerCurrent >= mission.getTarget();
                 result.add(WeeklyMissionProgress.builder()
                         .mission(mission)
                         .current(current)

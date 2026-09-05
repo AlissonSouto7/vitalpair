@@ -1,7 +1,7 @@
 package com.aps.vitalpair.config;
 
-import com.aps.vitalpair.auth.infrastructure.security.JwtAuthenticationFilter;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,16 +18,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.aps.vitalpair.auth.infrastructure.security.JwtAuthenticationFilter;
+
 /** Configuração de segurança: stateless, JWT, CORS e rotas públicas vs protegidas. */
 @Configuration
 public class SecurityConfig {
 
     private static final String[] PUBLIC_PATHS = {
-            "/api/v1/auth/**",
-            "/actuator/health",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/v3/api-docs/**"
+        "/api/v1/auth/**", "/actuator/health", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -41,15 +39,16 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_PATHS).permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers(PUBLIC_PATHS)
+                        .permitAll()
                         // Prévia pública do convite: só leitura, exibida antes de o convidado ter conta.
-                        .requestMatchers(HttpMethod.GET, "/api/v1/pair/invite/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pair/invite/**")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -69,7 +68,6 @@ public class SecurityConfig {
     }
 
     private AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return (request, response, ex) ->
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Não autenticado");
+        return (request, response, ex) -> response.sendError(HttpStatus.UNAUTHORIZED.value(), "Não autenticado");
     }
 }

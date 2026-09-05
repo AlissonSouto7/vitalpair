@@ -1,11 +1,12 @@
 package com.aps.vitalpair.nutrition.domain.port.out;
 
-import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
-import com.aps.vitalpair.nutrition.domain.model.FoodLog;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
+import com.aps.vitalpair.nutrition.domain.model.FoodLog;
 
 public interface FoodLogRepositoryPort {
 

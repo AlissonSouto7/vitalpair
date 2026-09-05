@@ -1,20 +1,24 @@
 package com.aps.vitalpair.season.infrastructure.persistence;
 
-import com.aps.vitalpair.season.domain.model.SeasonStatus;
+import java.time.LocalDate;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.UUID;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import com.aps.vitalpair.season.domain.model.SeasonStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "seasons")

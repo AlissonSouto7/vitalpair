@@ -1,9 +1,10 @@
 package com.aps.vitalpair.mealvision.infrastructure.ai;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 
 /**
  * DTOs da API {@code POST /v1/messages} da Anthropic (apenas os campos usados pela análise de foto).
@@ -19,8 +20,7 @@ import java.util.List;
  */
 public final class AnthropicMessages {
 
-    private AnthropicMessages() {
-    }
+    private AnthropicMessages() {}
 
     // ===== Request =====
 
@@ -30,11 +30,9 @@ public final class AnthropicMessages {
             @JsonProperty("max_tokens") int maxTokens,
             String system,
             List<Message> messages,
-            @JsonProperty("output_config") OutputConfig outputConfig) {
-    }
+            @JsonProperty("output_config") OutputConfig outputConfig) {}
 
-    public record Message(String role, List<Content> content) {
-    }
+    public record Message(String role, List<Content> content) {}
 
     /** Bloco de conteúdo polimórfico: {@code type=image} usa {@code source}; {@code type=text} usa {@code text}. */
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,11 +47,9 @@ public final class AnthropicMessages {
         }
     }
 
-    public record ImageSource(String type, @JsonProperty("media_type") String mediaType, String data) {
-    }
+    public record ImageSource(String type, @JsonProperty("media_type") String mediaType, String data) {}
 
-    public record OutputConfig(Format format) {
-    }
+    public record OutputConfig(Format format) {}
 
     public record Format(String type, Object schema) {
 
@@ -65,12 +61,8 @@ public final class AnthropicMessages {
     // ===== Response =====
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Response(
-            List<Block> content,
-            @JsonProperty("stop_reason") String stopReason) {
-    }
+    public record Response(List<Block> content, @JsonProperty("stop_reason") String stopReason) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Block(String type, String text) {
-    }
+    public record Block(String type, String text) {}
 }

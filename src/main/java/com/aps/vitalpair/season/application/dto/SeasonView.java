@@ -21,18 +21,14 @@ public record SeasonView(
         List<HistoryRow> history) {
 
     /** Placar de um lado da disputa (você ou rival). */
-    public record Side(String name, int score) {
-    }
+    public record Side(String name, int score) {}
 
     /** Pontos de um dia decorrido da temporada. */
-    public record DayScore(String label, int you, int rival) {
-    }
+    public record DayScore(String label, int you, int rival) {}
 
     /** Pontos por fonte (Refeições, Treinos, Sequências, Missões). */
-    public record BreakdownRow(String source, String label, int you, int rival) {
-    }
+    public record BreakdownRow(String source, String label, int you, int rival) {}
 
     /** Resumo de uma temporada já fechada. */
-    public record HistoryRow(int number, String sub, int you, int rival, String winner, String stake) {
-    }
+    public record HistoryRow(int number, String sub, int you, int rival, String winner, String stake) {}
 }

@@ -1,15 +1,18 @@
 package com.aps.vitalpair.auth.infrastructure.web;
 
-import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
-import com.aps.vitalpair.shared.web.ApiError;
-import com.aps.vitalpair.shared.web.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
+import com.aps.vitalpair.shared.web.ApiError;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 /** Tratamento de erros específicos da feature auth. */
 @RestControllerAdvice

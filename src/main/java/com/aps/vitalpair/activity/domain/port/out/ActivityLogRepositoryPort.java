@@ -1,8 +1,9 @@
 package com.aps.vitalpair.activity.domain.port.out;
 
-import com.aps.vitalpair.activity.domain.model.ActivityLog;
 import java.time.LocalDate;
 import java.util.List;
+
+import com.aps.vitalpair.activity.domain.model.ActivityLog;
 
 public interface ActivityLogRepositoryPort {
 

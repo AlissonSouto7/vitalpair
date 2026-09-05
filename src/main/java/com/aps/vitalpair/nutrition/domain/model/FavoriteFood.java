@@ -14,5 +14,4 @@ public record FavoriteFood(
         BigDecimal proteinG,
         BigDecimal carbG,
         BigDecimal fatG,
-        long count) {
-}
+        long count) {}

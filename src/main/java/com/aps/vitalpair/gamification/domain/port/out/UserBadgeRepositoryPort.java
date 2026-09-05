@@ -1,8 +1,9 @@
 package com.aps.vitalpair.gamification.domain.port.out;
 
-import com.aps.vitalpair.gamification.domain.model.UserBadge;
 import java.util.List;
 import java.util.UUID;
+
+import com.aps.vitalpair.gamification.domain.model.UserBadge;
 
 public interface UserBadgeRepositoryPort {
 

@@ -8,5 +8,4 @@ package com.aps.vitalpair.progress.domain.model;
  * @param avgG    média diária em gramas (soma no período / 7, arredondada)
  * @param targetG meta diária do macro em gramas, ou {@code null} se sem meta
  */
-public record MacroAverage(String key, String label, int avgG, Integer targetG) {
-}
+public record MacroAverage(String key, String label, int avgG, Integer targetG) {}

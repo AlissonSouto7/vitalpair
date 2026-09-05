@@ -1,5 +1,14 @@
 package com.aps.vitalpair.auth.infrastructure.web;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.aps.vitalpair.auth.application.dto.AuthResult;
 import com.aps.vitalpair.auth.application.dto.LoginCommand;
 import com.aps.vitalpair.auth.application.dto.RegisterCommand;
@@ -13,13 +22,6 @@ import com.aps.vitalpair.auth.domain.port.in.ResendEmailVerificationUseCase;
 import com.aps.vitalpair.auth.domain.port.in.ResetPasswordUseCase;
 import com.aps.vitalpair.auth.domain.port.in.VerifyEmailUseCase;
 import com.aps.vitalpair.shared.web.ApiResponse;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -58,8 +60,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<TokenResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResult result = registerUserUseCase.register(
-                new RegisterCommand(request.email(), request.password(), request.name()));
+        AuthResult result =
+                registerUserUseCase.register(new RegisterCommand(request.email(), request.password(), request.name()));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(TokenResponse.from(result), "Conta criada com sucesso"));
     }
@@ -91,8 +93,8 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         requestPasswordResetUseCase.requestReset(request.email());
-        return ResponseEntity.ok(ApiResponse.ok(
-                null, "Se houver uma conta com esse e-mail, enviamos um link de redefinição"));
+        return ResponseEntity.ok(
+                ApiResponse.ok(null, "Se houver uma conta com esse e-mail, enviamos um link de redefinição"));
     }
 
     @PostMapping("/reset-password")
@@ -110,7 +112,7 @@ public class AuthController {
     @PostMapping("/resend-verification")
     public ResponseEntity<ApiResponse<Void>> resendVerification(@Valid @RequestBody ForgotPasswordRequest request) {
         resendEmailVerificationUseCase.resend(request.email());
-        return ResponseEntity.ok(ApiResponse.ok(
-                null, "Se a conta existir e ainda não estiver confirmada, reenviamos o e-mail"));
+        return ResponseEntity.ok(
+                ApiResponse.ok(null, "Se a conta existir e ainda não estiver confirmada, reenviamos o e-mail"));
     }
 }

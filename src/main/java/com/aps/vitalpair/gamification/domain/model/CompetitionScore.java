@@ -2,6 +2,7 @@ package com.aps.vitalpair.gamification.domain.model;
 
 import java.time.LocalDate;
 import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Getter;
 

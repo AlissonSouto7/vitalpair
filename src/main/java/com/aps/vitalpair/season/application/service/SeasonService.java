@@ -1,5 +1,18 @@
 package com.aps.vitalpair.season.application.service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.season.application.dto.SeasonView;
@@ -18,17 +31,6 @@ import com.aps.vitalpair.season.domain.port.out.projection.UserPoints;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Sistema de temporada (30 dias) + leitura do ledger de pontos.
@@ -80,9 +82,9 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     @Override
     @Transactional
     public SeasonView getCurrentSeason(UUID userId) {
-        User me = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
-        Pair pair = pairRepository.findById(me.getTenantId())
+        User me = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        Pair pair = pairRepository
+                .findById(me.getTenantId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Par", me.getTenantId()));
 
         Season season = ensureCurrentSeason(pair);
@@ -112,16 +114,25 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         List<SeasonView.HistoryRow> history = buildHistory(pair.getId(), userId, rivalId, hasPartner);
 
         return new SeasonView(
-                season.getNumber(), dayNumber, SEASON_DAYS, daysLeft, season.getStake(),
-                hasPartner, you, rival, days, breakdown, history);
+                season.getNumber(),
+                dayNumber,
+                SEASON_DAYS,
+                daysLeft,
+                season.getStake(),
+                hasPartner,
+                you,
+                rival,
+                days,
+                breakdown,
+                history);
     }
 
     @Override
     @Transactional
     public SeasonView updateStake(UUID userId, String stake) {
-        User me = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
-        Pair pair = pairRepository.findById(me.getTenantId())
+        User me = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        Pair pair = pairRepository
+                .findById(me.getTenantId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Par", me.getTenantId()));
         Season season = ensureCurrentSeason(pair);
         seasonRepository.save(season.toBuilder().stake(stake).build());
@@ -184,12 +195,17 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     // --------------------------------------------------------------- helpers
 
     private List<SeasonView.DayScore> buildDays(
-            LocalDate start, LocalDate today, UUID tenantId,
-            Instant winStart, Instant winEnd, UUID youId, UUID rivalId) {
+            LocalDate start,
+            LocalDate today,
+            UUID tenantId,
+            Instant winStart,
+            Instant winEnd,
+            UUID youId,
+            UUID rivalId) {
         List<DayUserPoints> rows = pointEventRepository.sumByDayAndUser(tenantId, winStart, winEnd);
-        Map<LocalDate, Map<UUID, Long>> byDay = rows.stream().collect(Collectors.groupingBy(
-                DayUserPoints::day,
-                Collectors.toMap(DayUserPoints::userId, DayUserPoints::points)));
+        Map<LocalDate, Map<UUID, Long>> byDay = rows.stream()
+                .collect(Collectors.groupingBy(
+                        DayUserPoints::day, Collectors.toMap(DayUserPoints::userId, DayUserPoints::points)));
 
         List<SeasonView.DayScore> days = new ArrayList<>();
         LocalDate cursor = start;
@@ -208,14 +224,15 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     private List<SeasonView.BreakdownRow> buildBreakdown(
             UUID tenantId, Instant winStart, Instant winEnd, UUID youId, UUID rivalId, boolean hasPartner) {
         List<SourceUserPoints> rows = pointEventRepository.sumBySourceAndUser(tenantId, winStart, winEnd);
-        Map<PointSource, Map<UUID, Long>> bySource = rows.stream().collect(Collectors.groupingBy(
-                SourceUserPoints::source,
-                Collectors.toMap(SourceUserPoints::userId, SourceUserPoints::points)));
+        Map<PointSource, Map<UUID, Long>> bySource = rows.stream()
+                .collect(Collectors.groupingBy(
+                        SourceUserPoints::source,
+                        Collectors.toMap(SourceUserPoints::userId, SourceUserPoints::points)));
 
         List<SeasonView.BreakdownRow> breakdown = new ArrayList<>();
         // Ordem fixa: refeições, treinos, sequências, missões.
-        for (PointSource source : List.of(
-                PointSource.MEAL, PointSource.ACTIVITY, PointSource.STREAK, PointSource.MISSION)) {
+        for (PointSource source :
+                List.of(PointSource.MEAL, PointSource.ACTIVITY, PointSource.STREAK, PointSource.MISSION)) {
             Map<UUID, Long> totals = bySource.getOrDefault(source, Map.of());
             int you = points(totals, youId);
             int rival = hasPartner && rivalId != null ? points(totals, rivalId) : 0;
@@ -226,10 +243,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         return breakdown;
     }
 
-    private List<SeasonView.HistoryRow> buildHistory(
-            UUID tenantId, UUID youId, UUID rivalId, boolean hasPartner) {
-        List<Season> closed =
-                seasonRepository.findByTenantAndStatusOrderByNumberDesc(tenantId, SeasonStatus.CLOSED);
+    private List<SeasonView.HistoryRow> buildHistory(UUID tenantId, UUID youId, UUID rivalId, boolean hasPartner) {
+        List<Season> closed = seasonRepository.findByTenantAndStatusOrderByNumberDesc(tenantId, SeasonStatus.CLOSED);
         List<SeasonView.HistoryRow> history = new ArrayList<>();
         for (Season s : closed) {
             Instant winStart = s.getStartDate().atStartOfDay(ZONE).toInstant();
@@ -278,7 +293,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     }
 
     private String firstName(UUID userId) {
-        return userRepository.findById(userId)
+        return userRepository
+                .findById(userId)
                 .map(User::getName)
                 .map(name -> name.trim().split("\\s+")[0])
                 .orElse("");

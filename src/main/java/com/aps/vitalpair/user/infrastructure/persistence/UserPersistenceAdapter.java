@@ -1,11 +1,13 @@
 package com.aps.vitalpair.user.infrastructure.persistence;
 
-import com.aps.vitalpair.user.domain.model.User;
-import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.user.domain.model.User;
+import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /** Implementa a porta de saída de persistência de usuários sobre Spring Data JPA. */
 @Component

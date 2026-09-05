@@ -11,6 +11,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.aps.vitalpair.auth.application.dto.AuthResult;
 import com.aps.vitalpair.auth.application.dto.LoginCommand;
 import com.aps.vitalpair.auth.application.dto.RegisterCommand;
@@ -28,13 +37,6 @@ import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -45,16 +47,22 @@ class AuthServiceTest {
 
     @Mock
     private UserRepositoryPort userRepository;
+
     @Mock
     private PairRepositoryPort pairRepository;
+
     @Mock
     private PasswordHasherPort passwordHasher;
+
     @Mock
     private TokenProviderPort tokenProvider;
+
     @Mock
     private RefreshTokenStorePort refreshTokenStore;
+
     @Mock
     private GoogleTokenVerifierPort googleTokenVerifier;
+
     @Mock
     private SendEmailVerificationUseCase sendEmailVerification;
 
@@ -64,8 +72,14 @@ class AuthServiceTest {
     void setUp() {
         JwtProperties jwtProperties = new JwtProperties("secret-com-mais-de-32-caracteres-1234", 900_000L, REFRESH_TTL);
         authService = new AuthService(
-                userRepository, pairRepository, passwordHasher, tokenProvider, refreshTokenStore,
-                googleTokenVerifier, sendEmailVerification, jwtProperties);
+                userRepository,
+                pairRepository,
+                passwordHasher,
+                tokenProvider,
+                refreshTokenStore,
+                googleTokenVerifier,
+                sendEmailVerification,
+                jwtProperties);
     }
 
     @Test
@@ -74,7 +88,8 @@ class AuthServiceTest {
         when(pairRepository.save(any())).thenReturn(pairWithId());
         when(passwordHasher.hash("senha1234")).thenReturn("hashed");
         when(userRepository.save(any())).thenReturn(userWithId());
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app")).thenReturn("access");
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+                .thenReturn("access");
 
         AuthResult result = authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
 
@@ -90,8 +105,7 @@ class AuthServiceTest {
     void registerFalhaQuandoEmailJaExiste() {
         when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(true);
 
-        assertThatThrownBy(() ->
-                authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana")))
+        assertThatThrownBy(() -> authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana")))
                 .isInstanceOf(BusinessRuleException.class);
 
         verify(userRepository, never()).save(any());
@@ -102,7 +116,8 @@ class AuthServiceTest {
     void loginComCredenciaisValidasEmiteTokens() {
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
         when(passwordHasher.matches("senha1234", "hashed")).thenReturn(true);
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app")).thenReturn("access");
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+                .thenReturn("access");
 
         AuthResult result = authService.login(new LoginCommand("ana@vitalpair.app", "senha1234"));
 
@@ -131,7 +146,8 @@ class AuthServiceTest {
     void refreshRotacionaTokenEReemite() {
         when(refreshTokenStore.findUser("old-refresh")).thenReturn(Optional.of(USER_ID));
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(userWithId()));
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app")).thenReturn("access");
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+                .thenReturn("access");
 
         AuthResult result = authService.refresh("old-refresh");
 
@@ -144,8 +160,7 @@ class AuthServiceTest {
     void refreshFalhaComTokenInvalido() {
         when(refreshTokenStore.findUser("invalid")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> authService.refresh("invalid"))
-                .isInstanceOf(InvalidCredentialsException.class);
+        assertThatThrownBy(() -> authService.refresh("invalid")).isInstanceOf(InvalidCredentialsException.class);
     }
 
     @Test
@@ -154,8 +169,13 @@ class AuthServiceTest {
                 .thenReturn(new GoogleUserInfo("bob@gmail.com", "Bob", true));
         when(userRepository.findByEmail("bob@gmail.com")).thenReturn(Optional.empty());
         when(pairRepository.save(any())).thenReturn(pairWithId());
-        when(userRepository.save(any())).thenReturn(User.builder()
-                .id(USER_ID).tenantId(TENANT_ID).email("bob@gmail.com").name("Bob").build());
+        when(userRepository.save(any()))
+                .thenReturn(User.builder()
+                        .id(USER_ID)
+                        .tenantId(TENANT_ID)
+                        .email("bob@gmail.com")
+                        .name("Bob")
+                        .build());
         when(tokenProvider.generateAccessToken(any(), any(), anyString())).thenReturn("access");
 
         AuthResult result = authService.loginWithGoogle("google-id-token");
@@ -170,7 +190,8 @@ class AuthServiceTest {
         when(googleTokenVerifier.verify("google-id-token"))
                 .thenReturn(new GoogleUserInfo("ana@vitalpair.app", "Ana", true));
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app")).thenReturn("access");
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+                .thenReturn("access");
 
         AuthResult result = authService.loginWithGoogle("google-id-token");
 
@@ -197,7 +218,11 @@ class AuthServiceTest {
     }
 
     private Pair pairWithId() {
-        return Pair.builder().id(TENANT_ID).inviteCode("ABCD2345").status(PairStatus.PENDING).build();
+        return Pair.builder()
+                .id(TENANT_ID)
+                .inviteCode("ABCD2345")
+                .status(PairStatus.PENDING)
+                .build();
     }
 
     private User userWithId() {

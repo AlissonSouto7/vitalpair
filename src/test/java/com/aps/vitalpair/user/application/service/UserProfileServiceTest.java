@@ -5,6 +5,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
@@ -16,15 +27,6 @@ import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Sex;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class UserProfileServiceTest {
@@ -34,24 +36,37 @@ class UserProfileServiceTest {
 
     @Mock
     private UserRepositoryPort userRepository;
+
     @Mock
     private CalculateTargetsUseCase calculateTargets;
+
     @Mock
     private RecordWeightUseCase recordWeight;
+
     @InjectMocks
     private UserProfileService service;
 
     @Test
     void updateProfileAplicaMetasCalculadasESalva() {
-        User existing = User.builder().id(USER_ID).tenantId(TENANT_ID).email("ana@vitalpair.app").name("antigo").build();
+        User existing = User.builder()
+                .id(USER_ID)
+                .tenantId(TENANT_ID)
+                .email("ana@vitalpair.app")
+                .name("antigo")
+                .build();
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existing));
         when(calculateTargets.calculate(any())).thenReturn(new TdeeResult(1395, 1918, 1418, 130, 107, 52));
         when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         UpdateProfileCommand command = new UpdateProfileCommand(
-                "Ana", LocalDate.of(1999, 5, 20), Sex.FEMALE,
-                BigDecimal.valueOf(165), BigDecimal.valueOf(65),
-                Goal.LOSE_WEIGHT, ActivityLevel.LIGHT, null);
+                "Ana",
+                LocalDate.of(1999, 5, 20),
+                Sex.FEMALE,
+                BigDecimal.valueOf(165),
+                BigDecimal.valueOf(65),
+                Goal.LOSE_WEIGHT,
+                ActivityLevel.LIGHT,
+                null);
 
         User result = service.updateProfile(USER_ID, command);
 
@@ -65,18 +80,20 @@ class UserProfileServiceTest {
 
     @Test
     void getTdeeComPerfilIncompletoLancaErro() {
-        User incompleto = User.builder().id(USER_ID).email("ana@vitalpair.app").name("Ana").build();
+        User incompleto = User.builder()
+                .id(USER_ID)
+                .email("ana@vitalpair.app")
+                .name("Ana")
+                .build();
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(incompleto));
 
-        assertThatThrownBy(() -> service.getTdee(USER_ID))
-                .isInstanceOf(BusinessRuleException.class);
+        assertThatThrownBy(() -> service.getTdee(USER_ID)).isInstanceOf(BusinessRuleException.class);
     }
 
     @Test
     void getProfileInexistenteLancaNotFound() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.getProfile(USER_ID))
-                .isInstanceOf(ResourceNotFoundException.class);
+        assertThatThrownBy(() -> service.getProfile(USER_ID)).isInstanceOf(ResourceNotFoundException.class);
     }
 }

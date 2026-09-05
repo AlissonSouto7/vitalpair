@@ -7,10 +7,4 @@ import com.aps.vitalpair.user.domain.model.Goal;
  * {@code dailyKcal} é obrigatório; os alvos de macros e o objetivo podem ser nulos
  * (entram no prompt só quando informados).
  */
-public record NutritionTargets(
-        int dailyKcal,
-        Integer proteinG,
-        Integer carbG,
-        Integer fatG,
-        Goal goal) {
-}
+public record NutritionTargets(int dailyKcal, Integer proteinG, Integer carbG, Integer fatG, Goal goal) {}

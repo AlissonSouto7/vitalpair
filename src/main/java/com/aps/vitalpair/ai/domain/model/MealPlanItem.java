@@ -7,12 +7,4 @@ import java.util.UUID;
  * Macros em valores inteiros, como o frontend consome.
  */
 public record MealPlanItem(
-        UUID id,
-        int dayIndex,
-        PlanMealType mealType,
-        String name,
-        int kcal,
-        int proteinG,
-        int carbG,
-        int fatG) {
-}
+        UUID id, int dayIndex, PlanMealType mealType, String name, int kcal, int proteinG, int carbG, int fatG) {}

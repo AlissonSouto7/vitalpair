@@ -13,6 +13,5 @@ public interface AnalyzeMealPhotoUseCase {
      * @param imageBase64 imagem em base64 puro (sem o prefixo {@code data:})
      * @param mediaType   tipo da imagem ({@code image/jpeg}, {@code image/png} ou {@code image/webp})
      */
-    record Command(String imageBase64, String mediaType) {
-    }
+    record Command(String imageBase64, String mediaType) {}
 }

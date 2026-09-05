@@ -1,10 +1,10 @@
 package com.aps.vitalpair.shared.web;
 
-import com.aps.vitalpair.shared.exception.BusinessRuleException;
-import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,6 +13,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import com.aps.vitalpair.shared.exception.BusinessRuleException;
+import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 
 /**
  * Tratamento global de erros. Traduz exceções em respostas {@link ApiResponse} padronizadas,
@@ -57,8 +60,7 @@ public class RestExceptionHandler {
     }
 
     private ResponseEntity<ApiResponse<ApiError>> build(
-            HttpStatus status, String message, HttpServletRequest request,
-            List<ApiError.FieldViolation> violations) {
+            HttpStatus status, String message, HttpServletRequest request, List<ApiError.FieldViolation> violations) {
         ApiError detail = new ApiError(
                 Instant.now(), status.value(), status.getReasonPhrase(), request.getRequestURI(), violations);
         return ResponseEntity.status(status).body(ApiResponse.fail(message, detail));

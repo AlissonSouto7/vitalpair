@@ -1,7 +1,8 @@
 package com.aps.vitalpair.dashboard.infrastructure.web;
 
-import com.aps.vitalpair.dashboard.application.dto.PartnerSummary;
 import java.util.UUID;
+
+import com.aps.vitalpair.dashboard.application.dto.PartnerSummary;
 
 public record PartnerResponse(
         UUID userId,
@@ -17,7 +18,12 @@ public record PartnerResponse(
             return null;
         }
         return new PartnerResponse(
-                p.userId(), p.name(), p.avatarUrl(), p.calorieTarget(),
-                p.consumedCalories(), p.burnedCalories(), p.netCalories());
+                p.userId(),
+                p.name(),
+                p.avatarUrl(),
+                p.calorieTarget(),
+                p.consumedCalories(),
+                p.burnedCalories(),
+                p.netCalories());
     }
 }

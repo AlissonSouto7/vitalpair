@@ -1,12 +1,15 @@
 package com.aps.vitalpair.mealvision.infrastructure.ai;
 
-import com.aps.vitalpair.config.AnthropicProperties;
-import feign.Request;
-import feign.RequestInterceptor;
 import java.util.concurrent.TimeUnit;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+
+import com.aps.vitalpair.config.AnthropicProperties;
+
+import feign.Request;
+import feign.RequestInterceptor;
 
 /**
  * Configuração do {@link AnthropicClient}. Injeta os headers obrigatórios da Anthropic em toda
@@ -30,8 +33,6 @@ public class AnthropicClientConfig {
     @Bean
     public Request.Options anthropicTimeouts() {
         return new Request.Options(
-                CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS,
-                READ_TIMEOUT_SECONDS, TimeUnit.SECONDS,
-                true);
+                CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS, READ_TIMEOUT_SECONDS, TimeUnit.SECONDS, true);
     }
 }

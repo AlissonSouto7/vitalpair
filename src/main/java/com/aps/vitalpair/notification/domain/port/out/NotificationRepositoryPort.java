@@ -1,8 +1,9 @@
 package com.aps.vitalpair.notification.domain.port.out;
 
-import com.aps.vitalpair.notification.domain.model.Notification;
 import java.util.List;
 import java.util.UUID;
+
+import com.aps.vitalpair.notification.domain.model.Notification;
 
 public interface NotificationRepositoryPort {
 

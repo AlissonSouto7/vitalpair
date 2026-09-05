@@ -1,5 +1,15 @@
 package com.aps.vitalpair.ai.application.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.activity.application.dto.LogActivityCommand;
 import com.aps.vitalpair.activity.domain.model.ActivitySource;
 import com.aps.vitalpair.activity.domain.model.ActivityType;
@@ -19,14 +29,6 @@ import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Casos de uso do plano de treino semanal por IA. Concluir o treino de hoje registra uma
@@ -34,8 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
  * pontos, feed e streak; nada de somar pontos na mão aqui.
  */
 @Service
-public class WorkoutPlanService implements
-        GetTodayWorkoutUseCase, GenerateWorkoutPlanUseCase, ToggleWorkoutExerciseUseCase, CompleteWorkoutUseCase {
+public class WorkoutPlanService
+        implements GetTodayWorkoutUseCase,
+                GenerateWorkoutPlanUseCase,
+                ToggleWorkoutExerciseUseCase,
+                CompleteWorkoutUseCase {
 
     private final WorkoutPlanRepositoryPort workoutPlanRepository;
     private final WorkoutPlanGeneratorPort generator;
@@ -56,29 +61,30 @@ public class WorkoutPlanService implements
     @Override
     @Transactional(readOnly = true)
     public Optional<WorkoutToday> getToday(UUID userId) {
-        return workoutPlanRepository.findByUserAndWeek(userId, currentWeekStart())
+        return workoutPlanRepository
+                .findByUserAndWeek(userId, currentWeekStart())
                 .map(WorkoutPlanService::todayView);
     }
 
     @Override
     @Transactional
     public WorkoutToday generate(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         if (user.getGoal() == null) {
             throw new BusinessRuleException("Escolhe teu objetivo no perfil primeiro.");
         }
 
         List<WorkoutDay> days = generator.generateWeek(user.getGoal(), user.getActivityLevel());
-        WorkoutPlan saved = workoutPlanRepository.replace(
-                new WorkoutPlan(null, userId, currentWeekStart(), user.getGoal(), days));
+        WorkoutPlan saved =
+                workoutPlanRepository.replace(new WorkoutPlan(null, userId, currentWeekStart(), user.getGoal(), days));
         return todayView(saved);
     }
 
     @Override
     @Transactional
     public WorkoutToday toggle(UUID userId, UUID exerciseId) {
-        WorkoutPlan plan = workoutPlanRepository.findByExerciseId(exerciseId)
+        WorkoutPlan plan = workoutPlanRepository
+                .findByExerciseId(exerciseId)
                 .filter(found -> found.userId().equals(userId))
                 .orElseThrow(() -> ResourceNotFoundException.of("Exercício", exerciseId));
 
@@ -95,7 +101,8 @@ public class WorkoutPlanService implements
     @Override
     @Transactional
     public WorkoutToday complete(UUID userId) {
-        WorkoutPlan plan = workoutPlanRepository.findByUserAndWeek(userId, currentWeekStart())
+        WorkoutPlan plan = workoutPlanRepository
+                .findByUserAndWeek(userId, currentWeekStart())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Plano de treino da semana não encontrado. Gere o plano primeiro."));
 
@@ -108,21 +115,23 @@ public class WorkoutPlanService implements
         }
 
         workoutPlanRepository.setDayCompleted(today.id(), LocalDate.now());
-        logActivityUseCase.logActivity(userId, new LogActivityCommand(
-                ActivityType.WORKOUT,
-                null,
-                null,
-                null,
-                today.durationMin(),
-                ActivitySource.MANUAL,
-                null,
-                null));
+        logActivityUseCase.logActivity(
+                userId,
+                new LogActivityCommand(
+                        ActivityType.WORKOUT,
+                        null,
+                        null,
+                        null,
+                        today.durationMin(),
+                        ActivitySource.MANUAL,
+                        null,
+                        null));
         return requireToday(userId);
     }
 
     private WorkoutToday requireToday(UUID userId) {
-        return getToday(userId).orElseThrow(
-                () -> new ResourceNotFoundException("Plano de treino da semana não encontrado."));
+        return getToday(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Plano de treino da semana não encontrado."));
     }
 
     /** Monta a visão do dia atual; dia ausente no plano é tratado como descanso. */
@@ -135,12 +144,21 @@ public class WorkoutPlanService implements
         }
         List<WorkoutToday.Exercise> exercises = day.exercises().stream()
                 .map(exercise -> new WorkoutToday.Exercise(
-                        exercise.id(), exercise.name(), exercise.sets(),
-                        exercise.reps(), exercise.restSeconds(), exercise.done()))
+                        exercise.id(),
+                        exercise.name(),
+                        exercise.sets(),
+                        exercise.reps(),
+                        exercise.restSeconds(),
+                        exercise.done()))
                 .toList();
         return new WorkoutToday(
-                plan.goal().name(), dayIndex, false, day.focus(), day.durationMin(),
-                day.completedOn() != null, exercises);
+                plan.goal().name(),
+                dayIndex,
+                false,
+                day.focus(),
+                day.durationMin(),
+                day.completedOn() != null,
+                exercises);
     }
 
     private static Optional<WorkoutDay> dayOf(WorkoutPlan plan, int dayIndex) {

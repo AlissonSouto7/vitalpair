@@ -1,7 +1,8 @@
 package com.aps.vitalpair.progress.domain.port.in;
 
-import com.aps.vitalpair.progress.domain.model.ProgressView;
 import java.util.UUID;
+
+import com.aps.vitalpair.progress.domain.model.ProgressView;
 
 /**
  * Caso de uso: montar a visão da tela de Progresso de um usuário
