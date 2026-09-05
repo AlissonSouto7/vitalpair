@@ -11,6 +11,19 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  # Behind nginx, Tomcat sees the proxy's address on every request. Without this the client
+  # IP in logs and in rate-limit keys is the proxy, so one abusive caller looks like all of
+  # them and a per-IP limit blocks everyone at once.
+  forward-headers-strategy: native
+
+# The interactive API browser is a complete map of every endpoint and payload shape. Useful
+# while developing, an invitation in production. Disabled rather than merely unlinked,
+# because an unlinked page is still a page.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 logging:
   level:

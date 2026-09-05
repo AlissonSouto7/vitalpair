@@ -1,11 +1,14 @@
 package com.aps.vitalpair.nutrition.infrastructure.client;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
+import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -27,14 +30,31 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
     private final RestClient productClient;
     private final RestClient searchClient;
 
+    /**
+     * Open Food Facts is a free public service with no availability guarantee. Without
+     * timeouts a stalled call holds its request thread until the socket eventually gives up,
+     * which under load exhausts the pool and takes down endpoints that never touch this API.
+     *
+     * <p>The values are deliberately short: this call sits between a user and a search box,
+     * so failing fast and showing no results beats a page that hangs.
+     */
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
+
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(5);
+
     public OpenFoodFactsAdapter(OpenFoodFactsProperties properties) {
-        this.productClient = RestClient.builder()
-                .baseUrl(properties.baseUrl())
-                .defaultHeader(HttpHeaders.USER_AGENT, properties.userAgent())
-                .build();
-        this.searchClient = RestClient.builder()
-                .baseUrl(properties.searchUrl())
-                .defaultHeader(HttpHeaders.USER_AGENT, properties.userAgent())
+        this.productClient = client(properties.baseUrl(), properties.userAgent());
+        this.searchClient = client(properties.searchUrl(), properties.userAgent());
+    }
+
+    private static RestClient client(String baseUrl, String userAgent) {
+        ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.defaults()
+                .withConnectTimeout(CONNECT_TIMEOUT)
+                .withReadTimeout(READ_TIMEOUT);
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
+                .requestFactory(ClientHttpRequestFactoryBuilder.jdk().build(settings))
                 .build();
     }
 

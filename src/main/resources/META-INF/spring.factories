@@ -1,0 +1,4 @@
+# EnvironmentPostProcessor runs before the context starts, which is the only point where a
+# missing property can still be supplied. Spring finds it through this file, not by scanning.
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.aps.vitalpair.config.DevJwtSecretGenerator

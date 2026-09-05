@@ -3,6 +3,8 @@ package com.aps.vitalpair.auth.application.service;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,8 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 @Service
 public class AuthService
         implements RegisterUserUseCase, LoginUseCase, RefreshTokenUseCase, LogoutUseCase, GoogleLoginUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final String INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -78,7 +82,15 @@ public class AuthService
         }
         User user =
                 createUserWithTenant(command.email(), command.name(), passwordHasher.hash(command.password()), false);
-        sendEmailVerification.send(user.getId(), user.getEmail(), user.getName());
+        // A mail outage must not cost a signup. The account is already created and the
+        // person is about to be logged in; the verification e-mail can be resent from the
+        // app. Letting the exception through would return 500 to someone whose account
+        // does exist, and they would try to register again and hit "e-mail already taken".
+        try {
+            sendEmailVerification.send(user.getId(), user.getEmail(), user.getName());
+        } catch (RuntimeException ex) {
+            log.error("Registration succeeded but the verification e-mail failed for user {}", user.getId(), ex);
+        }
         return issueTokens(user);
     }
 

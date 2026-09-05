@@ -11,8 +11,11 @@ spring:
 
 vitalpair:
   jwt:
-    # Segredo padrão APENAS para desenvolvimento local. Em produção use a env var JWT_SECRET.
-    secret: ${JWT_SECRET:vitalpair-dev-secret-change-me-please-0123456789abcdef}
+    # No default on purpose. A committed secret in the default profile means a deploy that
+    # forgets SPRING_PROFILES_ACTIVE signs real tokens with a value anyone can read in this
+    # repository. When JWT_SECRET is unset, DevJwtSecretGenerator supplies a random one for
+    # this run, so a fresh clone still starts with no configuration.
+    secret: ${JWT_SECRET:}
 
 logging:
   level:
