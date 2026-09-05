@@ -11,7 +11,14 @@ import type { Pair, PairMember, RelationshipType } from '../../types/pair'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
-const RELATIONSHIP_VALUES: RelationshipType[] = ['PAIR', 'DUO', 'FRIENDS', 'CONFIDANTS', 'BROTHERS', 'OTHER']
+const RELATIONSHIP_VALUES: RelationshipType[] = [
+  'PAIR',
+  'DUO',
+  'FRIENDS',
+  'CONFIDANTS',
+  'BROTHERS',
+  'OTHER',
+]
 
 export function PairPage() {
   const { t } = useTranslation()
@@ -157,19 +164,31 @@ function PairFormed({
   )
 }
 
-function MemberRow({ member, tone, tag }: { member: PairMember | null; tone: 'you' | 'rival'; tag: string }) {
-  const tagCls =
-    tone === 'you'
-      ? 'bg-brand-soft text-brand-ink'
-      : 'bg-rival-soft text-rival-ink'
+function MemberRow({
+  member,
+  tone,
+  tag,
+}: {
+  member: PairMember | null
+  tone: 'you' | 'rival'
+  tag: string
+}) {
+  const tagCls = tone === 'you' ? 'bg-brand-soft text-brand-ink' : 'bg-rival-soft text-rival-ink'
   return (
     <div className="card flex items-center gap-3 py-3.5">
-      <Avatar initial={initial(member?.name)} tone={tone} size={44} art={member?.avatarUrl ?? undefined} />
+      <Avatar
+        initial={initial(member?.name)}
+        tone={tone}
+        size={44}
+        art={member?.avatarUrl ?? undefined}
+      />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-bold text-ink">{member?.name ?? '—'}</p>
         <p className="truncate text-xs text-faint">{member?.email ?? ''}</p>
       </div>
-      <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide ${tagCls}`}>
+      <span
+        className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide ${tagCls}`}
+      >
         {tag}
       </span>
     </div>
@@ -222,9 +241,7 @@ function InvitePanel({
         </div>
 
         <h2 className="font-display text-lg font-semibold text-ink">{t('pair.sendCode')}</h2>
-        <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
-          {t('pair.sendCodeHint')}
-        </p>
+        <p className="mx-auto mt-1 max-w-xs text-sm text-muted">{t('pair.sendCodeHint')}</p>
 
         <div className="mt-5 flex items-center justify-between gap-2 rounded-2xl border-[1.5px] border-dashed border-rival bg-rival-soft px-4 py-3.5">
           <span className="font-display text-2xl font-semibold tracking-[0.22em] text-rival-ink">
@@ -235,9 +252,7 @@ function InvitePanel({
             onClick={onCopy}
             aria-label={t('pair.copyCode')}
             className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-extrabold transition ${
-              copied
-                ? 'bg-success text-white'
-                : 'bg-rival text-white hover:brightness-105'
+              copied ? 'bg-success text-white' : 'bg-rival text-white hover:brightness-105'
             }`}
           >
             {copied ? <IconCheck /> : <IconCopy />}
@@ -250,7 +265,9 @@ function InvitePanel({
 
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-hair" />
-        <span className="text-[11px] font-bold uppercase tracking-wide text-faint">{t('common.or')}</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide text-faint">
+          {t('common.or')}
+        </span>
         <span className="h-px flex-1 bg-hair" />
       </div>
 
@@ -315,8 +332,19 @@ function IconLinkShare() {
 
 /* ---------- tipo de relação (compartilhado) ---------- */
 
-function RelationCard({ pair, onChange, t }: { pair: Pair | null; onChange: (type: RelationshipType) => void; t: TFn }) {
-  const relationshipOptions = RELATIONSHIP_VALUES.map((v) => ({ value: v, label: t(`pair.rel.${v}`) }))
+function RelationCard({
+  pair,
+  onChange,
+  t,
+}: {
+  pair: Pair | null
+  onChange: (type: RelationshipType) => void
+  t: TFn
+}) {
+  const relationshipOptions = RELATIONSHIP_VALUES.map((v) => ({
+    value: v,
+    label: t(`pair.rel.${v}`),
+  }))
   return (
     <div className="card">
       <label className="label">{t('pair.relType')}</label>

@@ -1,0 +1,8 @@
+# Generated or vendored
+frontend/dist
+frontend/node_modules
+target
+# Design mockups are exported artefacts, not source
+docs/design
+# Java is formatted by Spotless, not Prettier
+*.java

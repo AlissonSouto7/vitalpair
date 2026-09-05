@@ -2,7 +2,11 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { acceptFlashMission, getFlashMission, getWeeklyMissions } from '../../api/missions'
 import { Points } from '../../components/ui/Badge'
-import type { FlashMission as FlashMissionT, WeeklyMission, WeeklyMissionIcon } from '../../types/missions'
+import type {
+  FlashMission as FlashMissionT,
+  WeeklyMission,
+  WeeklyMissionIcon,
+} from '../../types/missions'
 
 /**
  * Tela de Missões — dados reais.
@@ -29,7 +33,8 @@ export function MissionsPage() {
   }, [t])
 
   if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (error)
+    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
 
   const selfActive = weekly.filter((m) => m.scope === 'SELF' && !m.completed)
   const pair = weekly.filter((m) => m.scope === 'PAIR' && m.partnerName)
@@ -39,7 +44,9 @@ export function MissionsPage() {
   return (
     <div className="space-y-7">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('missions.title')}</h1>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+          {t('missions.title')}
+        </h1>
         <p className="mt-1 text-sm font-bold text-muted">{t('missions.subtitle')}</p>
       </header>
 
@@ -47,7 +54,9 @@ export function MissionsPage() {
 
       {selfActive.length > 0 && (
         <section>
-          <h2 className="mb-3 font-display text-base font-semibold text-ink">{t('missions.sectionThisWeek')}</h2>
+          <h2 className="mb-3 font-display text-base font-semibold text-ink">
+            {t('missions.sectionThisWeek')}
+          </h2>
           <div className="space-y-[10px]">
             {selfActive.map((m) => (
               <MissionCard key={m.code} mission={m} />
@@ -61,7 +70,9 @@ export function MissionsPage() {
           <h2 className="mb-1 font-display text-base font-semibold text-ink">
             {t('missions.sectionPair', { partner: partnerName })}
           </h2>
-          <p className="mb-3 text-[13px] font-semibold text-muted">{t('missions.sectionPairHint')}</p>
+          <p className="mb-3 text-[13px] font-semibold text-muted">
+            {t('missions.sectionPairHint')}
+          </p>
           <div className="space-y-[10px]">
             {pair.map((m) => (
               <PairMissionCard key={m.code} mission={m} />
@@ -72,7 +83,9 @@ export function MissionsPage() {
 
       {done.length > 0 && (
         <section>
-          <h2 className="mb-3 font-display text-base font-semibold text-ink">{t('missions.sectionDone')}</h2>
+          <h2 className="mb-3 font-display text-base font-semibold text-ink">
+            {t('missions.sectionDone')}
+          </h2>
           <div className="space-y-[9px]">
             {done.map((m) => (
               <DoneRow key={m.code} mission={m} />
@@ -83,7 +96,9 @@ export function MissionsPage() {
 
       {selfActive.length === 0 && pair.length === 0 && done.length === 0 && (
         <div className="rounded-2xl border border-dashed border-hair bg-surface px-6 py-10 text-center">
-          <p className="font-display text-base font-semibold text-ink">{t('missions.emptyTitle')}</p>
+          <p className="font-display text-base font-semibold text-ink">
+            {t('missions.emptyTitle')}
+          </p>
           <p className="mt-1 text-sm font-semibold text-muted">{t('missions.emptyText')}</p>
         </div>
       )}
@@ -95,9 +110,16 @@ export function MissionsPage() {
    Missão relâmpago — laranja, countdown real
    ============================================================ */
 
-function FlashMission({ mission, onAccept }: { mission: FlashMissionT; onAccept: (m: FlashMissionT) => void }) {
+function FlashMission({
+  mission,
+  onAccept,
+}: {
+  mission: FlashMissionT
+  onAccept: (m: FlashMissionT) => void
+}) {
   const { t } = useTranslation()
-  const [now, setNow] = useState(Date.now())
+  // Lazy initialiser: Date.now() runs once on mount instead of on every render.
+  const [now, setNow] = useState(() => Date.now())
   const [accepting, setAccepting] = useState(false)
 
   useEffect(() => {
@@ -134,11 +156,15 @@ function FlashMission({ mission, onAccept }: { mission: FlashMissionT; onAccept:
             : t('missions.flashLabelLeft', { time: formatRemaining(secondsLeft) })}
         </p>
         <p className="font-display text-lg font-semibold text-ink">{mission.title}</p>
-        {mission.description && <p className="text-xs font-semibold text-muted">{mission.description}</p>}
+        {mission.description && (
+          <p className="text-xs font-semibold text-muted">{mission.description}</p>
+        )}
       </div>
 
       <div className="shrink-0 text-right">
-        <div className="font-display text-[22px] font-semibold text-success-ink">+{mission.reward}</div>
+        <div className="font-display text-[22px] font-semibold text-success-ink">
+          +{mission.reward}
+        </div>
         <button
           type="button"
           onClick={topar}
@@ -180,13 +206,18 @@ function MissionCard({ mission }: { mission: WeeklyMission }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[14.5px] font-extrabold text-ink">{mission.title}</p>
-          {mission.subtitle && <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>}
+          {mission.subtitle && (
+            <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>
+          )}
         </div>
         <Points value={mission.reward} />
       </div>
 
       <div className="mb-1.5 h-2 overflow-hidden rounded-full bg-track">
-        <div className="h-full rounded-full bg-success transition-[width]" style={{ width: `${pct}%` }} />
+        <div
+          className="h-full rounded-full bg-success transition-[width]"
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <p className="text-[11.5px] font-bold text-muted">
         {t('missions.progressOf', {
@@ -213,13 +244,20 @@ function PairMissionCard({ mission }: { mission: WeeklyMission }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[14.5px] font-extrabold text-ink">{mission.title}</p>
-          {mission.subtitle && <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>}
+          {mission.subtitle && (
+            <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>
+          )}
         </div>
         <Points value={mission.reward} />
       </div>
 
       <div className="space-y-[10px]">
-        <SideProgress label={t('missions.you')} current={mission.current} total={mission.target} tone="you" />
+        <SideProgress
+          label={t('missions.you')}
+          current={mission.current}
+          total={mission.target}
+          tone="you"
+        />
         <SideProgress
           label={firstName(mission.partnerName)}
           current={mission.partnerCurrent ?? 0}
@@ -250,7 +288,9 @@ function SideProgress({
 
   return (
     <div className="flex items-center gap-3">
-      <span className={`w-12 shrink-0 truncate text-[11px] font-extrabold ${labelCls}`}>{label}</span>
+      <span className={`w-12 shrink-0 truncate text-[11px] font-extrabold ${labelCls}`}>
+        {label}
+      </span>
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-track">
         <div className={`h-full rounded-full ${barCls}`} style={{ width: `${pct}%` }} />
       </div>

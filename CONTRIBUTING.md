@@ -57,9 +57,9 @@ emails are not sent. The link is written to the application log instead.
 The project uses **GitHub Flow**. There is one long-lived branch, `main`, and it
 is always deployable.
 
-| | |
-|---|---|
-| `main` | Protected. Always releasable. Never committed to directly. |
+|                 |                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `main`          | Protected. Always releasable. Never committed to directly.                            |
 | Everything else | Short-lived. Branched from `main`, merged back via pull request, deleted after merge. |
 
 There is no `develop` branch, no `release/*` and no `hotfix/*`. An urgent fix is
@@ -67,17 +67,17 @@ just a `fix/` branch that gets reviewed and merged faster.
 
 Branch names are `<type>/<short-kebab-case-description>`:
 
-| Prefix | For |
-|---|---|
-| `feat/` | A new capability |
-| `fix/` | A bug fix |
-| `refactor/` | A change that does not alter behaviour |
-| `test/` | Tests only |
-| `docs/` | Documentation only |
-| `chore/` | Housekeeping, dependencies, repository hygiene |
-| `build/` | Build configuration, quality gates |
-| `ci/` | Continuous integration and delivery |
-| `infra/` | Deployment and infrastructure |
+| Prefix      | For                                            |
+| ----------- | ---------------------------------------------- |
+| `feat/`     | A new capability                               |
+| `fix/`      | A bug fix                                      |
+| `refactor/` | A change that does not alter behaviour         |
+| `test/`     | Tests only                                     |
+| `docs/`     | Documentation only                             |
+| `chore/`    | Housekeeping, dependencies, repository hygiene |
+| `build/`    | Build configuration, quality gates             |
+| `ci/`       | Continuous integration and delivery            |
+| `infra/`    | Deployment and infrastructure                  |
 
 Examples: `feat/refresh-token-rotation`, `fix/macro-rounding`,
 `chore/governance`.
@@ -175,10 +175,10 @@ because deployments roll code back and databases forward.
 
 Renaming a column, done right:
 
-1. *Expand*: add the new column. Nullable, or with a default. Deploy.
-2. *Migrate*: write to both columns, read from the new one, backfill the
+1. _Expand_: add the new column. Nullable, or with a default. Deploy.
+2. _Migrate_: write to both columns, read from the new one, backfill the
    existing rows. Deploy.
-3. *Contract*: in a later release, once nothing reads the old column, drop it.
+3. _Contract_: in a later release, once nothing reads the old column, drop it.
 
 What this forbids in a single release: dropping or renaming a column or table in
 place, adding a `NOT NULL` column with no default to a populated table, and

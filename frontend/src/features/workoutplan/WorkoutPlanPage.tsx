@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AxiosError } from 'axios'
-import { completeWorkout, generateWorkoutPlan, getWorkoutToday, toggleExercise } from '../../api/aiplan'
+import {
+  completeWorkout,
+  generateWorkoutPlan,
+  getWorkoutToday,
+  toggleExercise,
+} from '../../api/aiplan'
 import type { WorkoutToday } from '../../types/aiplan'
 
 /**
@@ -46,7 +51,9 @@ export function WorkoutPlanPage() {
       setToday(await toggleExercise(id))
     } catch {
       setError(t('workoutplan.toggleError'))
-      getWorkoutToday().then(setToday).catch(() => {})
+      getWorkoutToday()
+        .then(setToday)
+        .catch(() => {})
     }
   }
 
@@ -74,7 +81,9 @@ export function WorkoutPlanPage() {
       {/* cabeçalho */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">{t('workoutplan.title')}</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+            {t('workoutplan.title')}
+          </h1>
           {today && !today.rest && (
             <p className="mt-1 text-sm font-semibold text-muted">
               {t('workoutplan.subtitle', {
@@ -100,7 +109,9 @@ export function WorkoutPlanPage() {
       </header>
 
       {error && (
-        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</p>
+        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+          {error}
+        </p>
       )}
 
       {!today ? (
@@ -110,8 +121,12 @@ export function WorkoutPlanPage() {
             <IconSpark className="h-8 w-8 text-brand" />
           </span>
           <div>
-            <h2 className="font-display text-xl font-semibold text-ink">{t('workoutplan.emptyTitle')}</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">{t('workoutplan.emptyText')}</p>
+            <h2 className="font-display text-xl font-semibold text-ink">
+              {t('workoutplan.emptyTitle')}
+            </h2>
+            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">
+              {t('workoutplan.emptyText')}
+            </p>
           </div>
           <button
             type="button"
@@ -122,7 +137,9 @@ export function WorkoutPlanPage() {
             <IconSpark className="h-[18px] w-[18px]" />
             {generating ? t('workoutplan.generating') : t('workoutplan.generate')}
           </button>
-          {generating && <p className="text-xs font-bold text-muted">{t('workoutplan.generatingHint')}</p>}
+          {generating && (
+            <p className="text-xs font-bold text-muted">{t('workoutplan.generatingHint')}</p>
+          )}
         </section>
       ) : today.rest ? (
         /* Dia de descanso */
@@ -131,8 +148,12 @@ export function WorkoutPlanPage() {
             <IconRest className="h-8 w-8 text-success" />
           </span>
           <div>
-            <h2 className="font-display text-xl font-semibold text-ink">{t('workoutplan.restTitle')}</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">{t('workoutplan.restText')}</p>
+            <h2 className="font-display text-xl font-semibold text-ink">
+              {t('workoutplan.restTitle')}
+            </h2>
+            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">
+              {t('workoutplan.restText')}
+            </p>
           </div>
         </section>
       ) : (
@@ -171,7 +192,11 @@ export function WorkoutPlanPage() {
                   onClick={() => toggle(ex.id)}
                   disabled={today.completed}
                   aria-pressed={ex.done}
-                  aria-label={ex.done ? t('workoutplan.markDone', { name: ex.name }) : t('workoutplan.markUndone', { name: ex.name })}
+                  aria-label={
+                    ex.done
+                      ? t('workoutplan.markDone', { name: ex.name })
+                      : t('workoutplan.markUndone', { name: ex.name })
+                  }
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[9px] transition ${
                     ex.done
                       ? 'border-none bg-success text-white'
@@ -237,7 +262,9 @@ function goalLabel(t: (k: string) => string, goal: string): string {
 }
 
 function apiMessage(err: unknown): string | null {
-  return err instanceof AxiosError ? ((err.response?.data?.message as string | undefined) ?? null) : null
+  return err instanceof AxiosError
+    ? ((err.response?.data?.message as string | undefined) ?? null)
+    : null
 }
 
 /* ---------- ícones (SVG preenchidos) ---------- */

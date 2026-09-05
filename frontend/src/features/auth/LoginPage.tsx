@@ -38,7 +38,9 @@ export function LoginPage() {
 
   return (
     <AuthShell>
-      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">{t('auth.loginTitle')}</h1>
+      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">
+        {t('auth.loginTitle')}
+      </h1>
       <p className="mb-6 text-sm font-semibold text-muted">{t('auth.loginSubtitle')}</p>
 
       {invite && (
@@ -60,12 +62,21 @@ export function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">{t('auth.email')}</label>
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+          />
         </div>
         <div>
           <div className="mb-1 flex items-center justify-between">
             <label className="label mb-0">{t('auth.password')}</label>
-            <Link to="/forgot-password" className="text-xs font-extrabold text-brand-ink hover:underline">
+            <Link
+              to="/forgot-password"
+              className="text-xs font-extrabold text-brand-ink hover:underline"
+            >
               {t('auth.forgotShort')}
             </Link>
           </div>
@@ -78,7 +89,11 @@ export function LoginPage() {
           />
         </div>
 
-        {error && <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{error}</p>}
+        {error && (
+          <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+            {error}
+          </p>
+        )}
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? t('auth.signingIn') : t('auth.signIn')}

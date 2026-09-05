@@ -66,7 +66,9 @@ function ContactForm() {
             <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
           </svg>
         </div>
-        <h2 className="mb-2 font-display text-[22px] font-semibold text-ink">{t('legal.contact.sentTitle')}</h2>
+        <h2 className="mb-2 font-display text-[22px] font-semibold text-ink">
+          {t('legal.contact.sentTitle')}
+        </h2>
         <p className="mb-6 max-w-[340px] text-[14px] font-semibold leading-relaxed text-muted">
           {t('legal.contact.sentText')}
         </p>
@@ -132,7 +134,9 @@ function ContactForm() {
         {t('legal.contact.submit')}
       </button>
 
-      <p className="text-center text-[12px] font-bold text-faint">{t('legal.contact.privacyNote')}</p>
+      <p className="text-center text-[12px] font-bold text-faint">
+        {t('legal.contact.privacyNote')}
+      </p>
     </form>
   )
 }
@@ -217,46 +221,42 @@ function Faq() {
   const photoAnswer = t('legal.contact.faqPhotoA')
   const photoLink = t('legal.contact.faqPhotoLink')
   // O texto cita "Política de Privacidade"; transformamos essa parte num link.
-  const photoNode: ReactNode = photoAnswer.includes(photoLink) ? (
-    (() => {
-      const [before, after] = photoAnswer.split(photoLink)
-      return (
-        <>
-          {before}
-          <Link
-            to="/privacidade"
-            className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
-          >
-            {photoLink}
-          </Link>
-          {after}
-        </>
-      )
-    })()
-  ) : (
-    photoAnswer
-  )
+  const photoNode: ReactNode = photoAnswer.includes(photoLink)
+    ? (() => {
+        const [before, after] = photoAnswer.split(photoLink)
+        return (
+          <>
+            {before}
+            <Link
+              to="/privacidade"
+              className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
+            >
+              {photoLink}
+            </Link>
+            {after}
+          </>
+        )
+      })()
+    : photoAnswer
 
   const deleteAnswer = t('legal.contact.faqDeleteA')
-  const deleteNode: ReactNode = deleteAnswer.includes('{{mail}}') ? (
-    (() => {
-      const [before, after] = deleteAnswer.split('{{mail}}')
-      return (
-        <>
-          {before}
-          <a
-            href={`mailto:${MAIL}`}
-            className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
-          >
-            {MAIL}
-          </a>
-          {after}
-        </>
-      )
-    })()
-  ) : (
-    deleteAnswer
-  )
+  const deleteNode: ReactNode = deleteAnswer.includes('{{mail}}')
+    ? (() => {
+        const [before, after] = deleteAnswer.split('{{mail}}')
+        return (
+          <>
+            {before}
+            <a
+              href={`mailto:${MAIL}`}
+              className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
+            >
+              {MAIL}
+            </a>
+            {after}
+          </>
+        )
+      })()
+    : deleteAnswer
 
   const items: [string, ReactNode][] = [
     [t('legal.contact.faqFreeQ'), t('legal.contact.faqFreeA')],
@@ -273,7 +273,11 @@ function Faq() {
         {items.map(([q, a]) => (
           <div key={q} className="rounded-2xl border border-hair bg-surface p-5">
             <h3 className="mb-1.5 flex items-start gap-2.5 font-display text-[16px] font-semibold text-ink">
-              <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 flex-shrink-0 fill-brand" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                className="mt-0.5 h-4 w-4 flex-shrink-0 fill-brand"
+                aria-hidden="true"
+              >
                 <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 15.5a1.3 1.3 0 110 2.6 1.3 1.3 0 010-2.6zm1.6-4.4c-.6.5-.6.6-.6 1.4h-2c0-1.4.3-2 1.2-2.7.7-.6 1-.9 1-1.6a1.2 1.2 0 00-2.4-.1H8.8a3.2 3.2 0 116.4.1c0 1.3-.5 1.9-1.6 2.5z" />
               </svg>
               {q}

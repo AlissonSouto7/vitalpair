@@ -6,16 +6,16 @@ Este repositório contém o **backend** (Java 17 + Spring Boot 3). O frontend (R
 
 ## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| Linguagem/Runtime | Java 17 |
-| Framework | Spring Boot 3.5 (Web, Security, Data JPA, Data Redis, Validation, Actuator) |
-| Banco | PostgreSQL 15 + Flyway (migrations) |
-| Cache/Sessões | Redis 7 |
-| Auth | Spring Security + JWT (jjwt) |
-| Docs | springdoc-openapi (Swagger UI) |
-| Mapeamento | MapStruct + Lombok |
-| Testes | JUnit 5, Mockito, Testcontainers |
+| Camada            | Tecnologia                                                                  |
+| ----------------- | --------------------------------------------------------------------------- |
+| Linguagem/Runtime | Java 17                                                                     |
+| Framework         | Spring Boot 3.5 (Web, Security, Data JPA, Data Redis, Validation, Actuator) |
+| Banco             | PostgreSQL 15 + Flyway (migrations)                                         |
+| Cache/Sessões     | Redis 7                                                                     |
+| Auth              | Spring Security + JWT (jjwt)                                                |
+| Docs              | springdoc-openapi (Swagger UI)                                              |
+| Mapeamento        | MapStruct + Lombok                                                          |
+| Testes            | JUnit 5, Mockito, Testcontainers                                            |
 
 ## Arquitetura
 
@@ -64,6 +64,7 @@ docker compose up -d
 ```
 
 > As portas do host do Postgres/Redis são parametrizáveis (caso 5432/6379 já estejam em uso):
+>
 > ```bash
 > VITALPAIR_DB_PORT=5433 VITALPAIR_REDIS_PORT=6380 docker compose up -d
 > ```
@@ -85,40 +86,40 @@ Para testar endpoints protegidos: faça `POST /api/v1/auth/login`, copie o `acce
 
 Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
 
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| POST | `/api/v1/auth/register` | Cria conta (e o tenant do usuário) | público |
-| POST | `/api/v1/auth/login` | Autentica, retorna access + refresh token | público |
-| POST | `/api/v1/auth/oauth2/google` | Login com Google (valida o `idToken`, find-or-create) | público |
-| POST | `/api/v1/auth/refresh` | Renova tokens (rotação do refresh) | público |
-| POST | `/api/v1/auth/logout` | Revoga o refresh token | público |
-| GET | `/api/v1/users/me` | Perfil do usuário autenticado | JWT |
-| PUT | `/api/v1/users/me` | Atualiza o perfil e recalcula TDEE/macros | JWT |
-| GET | `/api/v1/users/me/tdee` | BMR, TDEE, meta calórica e macros | JWT |
-| GET | `/api/v1/pair` | Relação atual (membros, status e tipo) | JWT |
-| POST | `/api/v1/pair/invite` | Retorna o código de convite do par | JWT |
-| POST | `/api/v1/pair/join/{code}` | Aceita um convite e forma o par | JWT |
-| PUT | `/api/v1/pair/type` | Define o tipo de relação (casal, dupla, amigos...) | JWT |
-| GET | `/api/v1/pair/feed?page=&size=` | Timeline do par (refeições privadas só aparecem para o autor) | JWT |
-| POST | `/api/v1/pair/feed/{id}/reactions` | Reage a um item (FIRE, EYE, STRENGTH) | JWT |
-| DELETE | `/api/v1/pair/feed/{id}/reactions/{type}` | Remove a reação | JWT |
-| GET | `/api/v1/nutrition/foods/search?q=` | Busca alimentos (Open Food Facts) | JWT |
-| GET | `/api/v1/nutrition/foods/barcode/{code}` | Busca por código de barras | JWT |
-| POST | `/api/v1/nutrition/logs` | Registra uma refeição | JWT |
-| GET | `/api/v1/nutrition/logs?date=` | Refeições do dia | JWT |
-| DELETE | `/api/v1/nutrition/logs/{id}` | Remove um registro | JWT |
-| GET | `/api/v1/nutrition/summary?date=` | Resumo diário (consumido vs meta) | JWT |
-| POST | `/api/v1/activity/logs` | Registra atividade (estima kcal de passos) | JWT |
-| GET | `/api/v1/activity/logs?date=` | Atividades do dia | JWT |
-| GET | `/api/v1/activity/summary?date=` | Total de calorias gastas e passos | JWT |
-| GET | `/api/v1/dashboard?date=` | Balanço do dia (consumido − gasto vs meta) + parceiro | JWT |
-| GET | `/api/v1/gamification/streaks` | Sequências (streaks) do usuário | JWT |
-| GET | `/api/v1/gamification/competition` | Placar semanal do par | JWT |
-| GET | `/api/v1/gamification/badges` | Conquistas do usuário | JWT |
-| GET | `/api/v1/gamification/badges/catalog` | Catálogo de conquistas | JWT |
-| GET | `/api/v1/notifications` | Notificações do usuário + total não lidas | JWT |
-| PUT | `/api/v1/notifications/read` | Marca todas as notificações como lidas | JWT |
-| GET | `/actuator/health` | Health check | público |
+| Método | Rota                                      | Descrição                                                     | Auth    |
+| ------ | ----------------------------------------- | ------------------------------------------------------------- | ------- |
+| POST   | `/api/v1/auth/register`                   | Cria conta (e o tenant do usuário)                            | público |
+| POST   | `/api/v1/auth/login`                      | Autentica, retorna access + refresh token                     | público |
+| POST   | `/api/v1/auth/oauth2/google`              | Login com Google (valida o `idToken`, find-or-create)         | público |
+| POST   | `/api/v1/auth/refresh`                    | Renova tokens (rotação do refresh)                            | público |
+| POST   | `/api/v1/auth/logout`                     | Revoga o refresh token                                        | público |
+| GET    | `/api/v1/users/me`                        | Perfil do usuário autenticado                                 | JWT     |
+| PUT    | `/api/v1/users/me`                        | Atualiza o perfil e recalcula TDEE/macros                     | JWT     |
+| GET    | `/api/v1/users/me/tdee`                   | BMR, TDEE, meta calórica e macros                             | JWT     |
+| GET    | `/api/v1/pair`                            | Relação atual (membros, status e tipo)                        | JWT     |
+| POST   | `/api/v1/pair/invite`                     | Retorna o código de convite do par                            | JWT     |
+| POST   | `/api/v1/pair/join/{code}`                | Aceita um convite e forma o par                               | JWT     |
+| PUT    | `/api/v1/pair/type`                       | Define o tipo de relação (casal, dupla, amigos...)            | JWT     |
+| GET    | `/api/v1/pair/feed?page=&size=`           | Timeline do par (refeições privadas só aparecem para o autor) | JWT     |
+| POST   | `/api/v1/pair/feed/{id}/reactions`        | Reage a um item (FIRE, EYE, STRENGTH)                         | JWT     |
+| DELETE | `/api/v1/pair/feed/{id}/reactions/{type}` | Remove a reação                                               | JWT     |
+| GET    | `/api/v1/nutrition/foods/search?q=`       | Busca alimentos (Open Food Facts)                             | JWT     |
+| GET    | `/api/v1/nutrition/foods/barcode/{code}`  | Busca por código de barras                                    | JWT     |
+| POST   | `/api/v1/nutrition/logs`                  | Registra uma refeição                                         | JWT     |
+| GET    | `/api/v1/nutrition/logs?date=`            | Refeições do dia                                              | JWT     |
+| DELETE | `/api/v1/nutrition/logs/{id}`             | Remove um registro                                            | JWT     |
+| GET    | `/api/v1/nutrition/summary?date=`         | Resumo diário (consumido vs meta)                             | JWT     |
+| POST   | `/api/v1/activity/logs`                   | Registra atividade (estima kcal de passos)                    | JWT     |
+| GET    | `/api/v1/activity/logs?date=`             | Atividades do dia                                             | JWT     |
+| GET    | `/api/v1/activity/summary?date=`          | Total de calorias gastas e passos                             | JWT     |
+| GET    | `/api/v1/dashboard?date=`                 | Balanço do dia (consumido − gasto vs meta) + parceiro         | JWT     |
+| GET    | `/api/v1/gamification/streaks`            | Sequências (streaks) do usuário                               | JWT     |
+| GET    | `/api/v1/gamification/competition`        | Placar semanal do par                                         | JWT     |
+| GET    | `/api/v1/gamification/badges`             | Conquistas do usuário                                         | JWT     |
+| GET    | `/api/v1/gamification/badges/catalog`     | Catálogo de conquistas                                        | JWT     |
+| GET    | `/api/v1/notifications`                   | Notificações do usuário + total não lidas                     | JWT     |
+| PUT    | `/api/v1/notifications/read`              | Marca todas as notificações como lidas                        | JWT     |
+| GET    | `/actuator/health`                        | Health check                                                  | público |
 
 ### Exemplo
 

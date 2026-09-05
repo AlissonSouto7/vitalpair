@@ -15,16 +15,16 @@ across seasons. Meal photos are analysed by AI to estimate calories.
 
 Stack:
 
-| Layer | Technology |
-|---|---|
-| Backend | Java 17, Spring Boot 3.5, Maven |
-| Persistence | PostgreSQL, Flyway migrations, Spring Data JPA |
-| Cache and tokens | Redis |
-| Auth | JWT access token, opaque refresh token in Redis, Google OAuth2 |
-| API docs | springdoc-openapi |
-| Mapping | MapStruct |
-| External APIs | Anthropic (meal photo analysis, plan generation), Open Food Facts |
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, Zustand, react-i18next |
+| Layer            | Technology                                                         |
+| ---------------- | ------------------------------------------------------------------ |
+| Backend          | Java 17, Spring Boot 3.5, Maven                                    |
+| Persistence      | PostgreSQL, Flyway migrations, Spring Data JPA                     |
+| Cache and tokens | Redis                                                              |
+| Auth             | JWT access token, opaque refresh token in Redis, Google OAuth2     |
+| API docs         | springdoc-openapi                                                  |
+| Mapping          | MapStruct                                                          |
+| External APIs    | Anthropic (meal photo analysis, plan generation), Open Food Facts  |
+| Frontend         | React 19, TypeScript, Vite, Tailwind CSS 4, Zustand, react-i18next |
 
 Repository map:
 
@@ -230,13 +230,13 @@ A change is done when all of these are true:
 
 ## 10. Documentation map
 
-| Document | What it holds |
-|---|---|
-| [README.md](README.md) | What the project is, how to run it |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Branching, commits, pull requests, migrations, i18n |
-| [SECURITY.md](SECURITY.md) | How to report a vulnerability, known open issues |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
-| [docs/adr/](docs/adr/) | Architecture decision records, one per decision |
-| [docs/features/](docs/features/) | One living document per feature |
-| [docs/design/](docs/design/) | Mockups, the colour law, themes, voice and tone. Read before building or changing a screen. |
-| `docs/ARQUITETURA.md` | Current architecture overview, being rewritten in English |
+| Document                                 | What it holds                                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [README.md](README.md)                   | What the project is, how to run it                                                          |
+| [CONTRIBUTING.md](CONTRIBUTING.md)       | Branching, commits, pull requests, migrations, i18n                                         |
+| [SECURITY.md](SECURITY.md)               | How to report a vulnerability, known open issues                                            |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards                                                                         |
+| [docs/adr/](docs/adr/)                   | Architecture decision records, one per decision                                             |
+| [docs/features/](docs/features/)         | One living document per feature                                                             |
+| [docs/design/](docs/design/)             | Mockups, the colour law, themes, voice and tone. Read before building or changing a screen. |
+| `docs/ARQUITETURA.md`                    | Current architecture overview, being rewritten in English                                   |

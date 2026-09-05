@@ -3,7 +3,8 @@ export const mealplan = {
     title: 'Cardápio da semana',
     subtitle: 'Montado pela IA pra bater sua meta. Não gostou de algo? Troca.',
     emptyTitle: 'Sem cardápio ainda',
-    emptyText: 'A IA monta uma semana inteira de comida de verdade, na sua meta e com prato de brasileiro. É um clique.',
+    emptyText:
+      'A IA monta uma semana inteira de comida de verdade, na sua meta e com prato de brasileiro. É um clique.',
     generate: 'Gerar meu cardápio',
     regenerate: 'Gerar de novo',
     generating: 'A IA tá cozinhando...',
@@ -92,7 +93,12 @@ export const mealplan = {
     underTarget: 'il manque {{n}} kcal pour l’objectif',
     swap: 'changer',
     swapping: 'changement...',
-    mealLabel: { BREAKFAST: 'PETIT-DÉJEUNER', LUNCH: 'DÉJEUNER', SNACK: 'COLLATION', DINNER: 'DÎNER' },
+    mealLabel: {
+      BREAKFAST: 'PETIT-DÉJEUNER',
+      LUNCH: 'DÉJEUNER',
+      SNACK: 'COLLATION',
+      DINNER: 'DÎNER',
+    },
     weekday: { SEG: 'LUN', TER: 'MAR', QUA: 'MER', QUI: 'JEU', SEX: 'VEN', SAB: 'SAM', DOM: 'DIM' },
   },
 } as const

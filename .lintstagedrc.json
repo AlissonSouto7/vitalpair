@@ -1,0 +1,7 @@
+{
+  "frontend/**/*.{ts,tsx}": [
+    "prettier --write",
+    "npm --prefix frontend exec -- eslint --fix --no-warn-ignored"
+  ],
+  "*.{md,yml,yaml,json}": ["prettier --write"]
+}

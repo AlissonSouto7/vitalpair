@@ -26,7 +26,11 @@ export async function getWorkoutToday(): Promise<WorkoutToday | null> {
 }
 
 export async function generateWorkoutPlan(): Promise<WorkoutToday | null> {
-  const res = await api.post<ApiResponse<WorkoutToday | null>>('/workout-plan/generate', undefined, SLOW)
+  const res = await api.post<ApiResponse<WorkoutToday | null>>(
+    '/workout-plan/generate',
+    undefined,
+    SLOW,
+  )
   return res.data.data
 }
 

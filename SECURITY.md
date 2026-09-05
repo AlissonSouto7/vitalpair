@@ -12,10 +12,10 @@ between minor versions.
 Only the latest release on `main` receives security fixes. Older tags are not
 patched.
 
-| Version | Supported |
-|---|---|
-| Latest release on `main` | Yes |
-| Any earlier tag | No |
+| Version                  | Supported |
+| ------------------------ | --------- |
+| Latest release on `main` | Yes       |
+| Any earlier tag          | No        |
 
 ## Reporting a vulnerability
 

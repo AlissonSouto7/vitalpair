@@ -4,7 +4,8 @@ export const seasonEnd = {
     youWon: 'Você venceu!',
     rivalWon: 'A {{rival}} levou essa.',
     tie: 'Deu empate!',
-    youWonText: 'Mandou bem demais! 30 dias sem desistir e {{lead}} pts na frente. A {{rival}} que se cuide na próxima.',
+    youWonText:
+      'Mandou bem demais! 30 dias sem desistir e {{lead}} pts na frente. A {{rival}} que se cuide na próxima.',
     rivalWonText: 'Faltou pouco, {{lead}} pts. Bora virar o jogo na próxima temporada.',
     tieText: 'Ninguém cedeu um ponto. Você e {{rival}} vão ter que decidir na próxima.',
     lead: '+{{lead}} de vantagem',
@@ -14,7 +15,8 @@ export const seasonEnd = {
     newSeason: 'Bora pra temporada {{n}}',
     seeSummary: 'ver o resumo dos 30 dias',
     emptyTitle: 'Nenhuma temporada fechada ainda',
-    emptyText: 'A atual ainda tá rolando: faltam {{days}} dias. Quando fechar, a festa acontece aqui.',
+    emptyText:
+      'A atual ainda tá rolando: faltam {{days}} dias. Quando fechar, a festa acontece aqui.',
     emptyTextNoSeason: 'Quando a primeira temporada fechar, a festa acontece aqui.',
     backToSeason: 'Ver a temporada atual',
   },
@@ -23,7 +25,8 @@ export const seasonEnd = {
     youWon: 'You won!',
     rivalWon: '{{rival}} took this one.',
     tie: 'It’s a tie!',
-    youWonText: 'Crushed it! 30 days without quitting and {{lead}} pts ahead. {{rival}} better watch out next time.',
+    youWonText:
+      'Crushed it! 30 days without quitting and {{lead}} pts ahead. {{rival}} better watch out next time.',
     rivalWonText: 'So close, {{lead}} pts. Let’s turn it around next season.',
     tieText: 'Nobody gave an inch. You and {{rival}} will settle this next season.',
     lead: '+{{lead}} lead',
@@ -33,7 +36,8 @@ export const seasonEnd = {
     newSeason: 'On to season {{n}}',
     seeSummary: 'see the 30-day summary',
     emptyTitle: 'No season finished yet',
-    emptyText: 'The current one is still on: {{days}} days left. When it wraps, the party happens here.',
+    emptyText:
+      'The current one is still on: {{days}} days left. When it wraps, the party happens here.',
     emptyTextNoSeason: 'When the first season wraps, the party happens here.',
     backToSeason: 'See the current season',
   },
@@ -42,7 +46,8 @@ export const seasonEnd = {
     youWon: '¡Ganaste!',
     rivalWon: '{{rival}} se llevó esta.',
     tie: '¡Empate!',
-    youWonText: '¡Lo bordaste! 30 días sin rendirte y {{lead}} pts por delante. Que {{rival}} se cuide la próxima.',
+    youWonText:
+      '¡Lo bordaste! 30 días sin rendirte y {{lead}} pts por delante. Que {{rival}} se cuide la próxima.',
     rivalWonText: 'Te faltó poco, {{lead}} pts. A darle la vuelta la próxima temporada.',
     tieText: 'Nadie cedió un punto. Tú y {{rival}} lo deciden la próxima.',
     lead: '+{{lead}} de ventaja',
@@ -61,7 +66,8 @@ export const seasonEnd = {
     youWon: 'Tu as gagné !',
     rivalWon: '{{rival}} a remporté celle-ci.',
     tie: 'Égalité !',
-    youWonText: 'Énorme ! 30 jours sans lâcher et {{lead}} pts d’avance. Que {{rival}} fasse gaffe la prochaine fois.',
+    youWonText:
+      'Énorme ! 30 jours sans lâcher et {{lead}} pts d’avance. Que {{rival}} fasse gaffe la prochaine fois.',
     rivalWonText: 'À si peu, {{lead}} pts. On renverse tout la saison prochaine.',
     tieText: 'Personne n’a lâché un point. Toi et {{rival}} réglerez ça la prochaine fois.',
     lead: '+{{lead}} d’avance',
@@ -71,7 +77,8 @@ export const seasonEnd = {
     newSeason: 'En route pour la saison {{n}}',
     seeSummary: 'voir le résumé des 30 jours',
     emptyTitle: 'Aucune saison terminée pour l’instant',
-    emptyText: 'La saison en cours n’est pas finie : encore {{days}} jours. Quand elle se termine, la fête est ici.',
+    emptyText:
+      'La saison en cours n’est pas finie : encore {{days}} jours. Quand elle se termine, la fête est ici.',
     emptyTextNoSeason: 'Quand la première saison se termine, la fête est ici.',
     backToSeason: 'Voir la saison en cours',
   },
