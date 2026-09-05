@@ -6,3 +6,6 @@
 
 # style: apply palantir-java-format across the codebase
 1bdbea4f38714798645388928690ff74d91c60ef
+
+# style(frontend): apply Prettier across the codebase
+d40d6b742b14f264d4c0634837b1ae50a0c69a13
