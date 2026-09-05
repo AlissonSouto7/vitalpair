@@ -5,6 +5,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import com.aps.vitalpair.activity.domain.port.in.GetActivitySummaryUseCase;
 import com.aps.vitalpair.dashboard.application.dto.DashboardView;
@@ -15,14 +25,6 @@ import com.aps.vitalpair.pair.application.dto.PairView;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.model.RelationshipType;
 import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DashboardServiceTest {
@@ -33,10 +35,13 @@ class DashboardServiceTest {
 
     @Mock
     private GetDailySummaryUseCase nutritionSummary;
+
     @Mock
     private GetActivitySummaryUseCase activitySummary;
+
     @Mock
     private GetCurrentPairUseCase currentPair;
+
     @InjectMocks
     private DashboardService service;
 
@@ -44,20 +49,21 @@ class DashboardServiceTest {
     void agregaConsumoGastoEParceiro() {
         when(nutritionSummary.getSummary(eq(ME), any())).thenReturn(nutrition(2000, 1800));
         when(activitySummary.getSummary(eq(ME), any())).thenReturn(activity(500, 8000));
-        when(currentPair.getCurrentPair(ME)).thenReturn(pair(
-                new MemberView(ME, "Alisson", "a@a.com", null),
-                new MemberView(PARTNER, "Ana", "ana@a.com", null)));
+        when(currentPair.getCurrentPair(ME))
+                .thenReturn(pair(
+                        new MemberView(ME, "Alisson", "a@a.com", null),
+                        new MemberView(PARTNER, "Ana", "ana@a.com", null)));
         when(nutritionSummary.getSummary(eq(PARTNER), any())).thenReturn(nutrition(1500, 2200));
         when(activitySummary.getSummary(eq(PARTNER), any())).thenReturn(activity(300, 5000));
 
         DashboardView view = service.getDashboard(ME, TODAY);
 
-        assertThat(view.me().netCalories()).isEqualTo(1500);        // 2000 - 500
-        assertThat(view.me().remainingCalories()).isEqualTo(300);   // 1800 - 1500
+        assertThat(view.me().netCalories()).isEqualTo(1500); // 2000 - 500
+        assertThat(view.me().remainingCalories()).isEqualTo(300); // 1800 - 1500
         assertThat(view.me().steps()).isEqualTo(8000);
         assertThat(view.partner()).isNotNull();
         assertThat(view.partner().name()).isEqualTo("Ana");
-        assertThat(view.partner().netCalories()).isEqualTo(1200);   // 1500 - 300
+        assertThat(view.partner().netCalories()).isEqualTo(1200); // 1500 - 300
     }
 
     @Test
@@ -81,6 +87,7 @@ class DashboardServiceTest {
     }
 
     private PairView pair(MemberView... members) {
-        return new PairView(UUID.randomUUID(), "Par", PairStatus.ACTIVE, RelationshipType.PAIR, "CODE1234", List.of(members));
+        return new PairView(
+                UUID.randomUUID(), "Par", PairStatus.ACTIVE, RelationshipType.PAIR, "CODE1234", List.of(members));
     }
 }

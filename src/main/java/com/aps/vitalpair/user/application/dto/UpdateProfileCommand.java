@@ -1,10 +1,11 @@
 package com.aps.vitalpair.user.application.dto;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Sex;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 /** Dados de atualização do perfil. Os campos de TDEE são obrigatórios para o cálculo das metas. */
 public record UpdateProfileCommand(
@@ -15,5 +16,4 @@ public record UpdateProfileCommand(
         BigDecimal weightKg,
         Goal goal,
         ActivityLevel activityLevel,
-        String avatarUrl) {
-}
+        String avatarUrl) {}

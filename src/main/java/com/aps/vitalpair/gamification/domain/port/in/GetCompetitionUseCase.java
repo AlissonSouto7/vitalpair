@@ -1,7 +1,8 @@
 package com.aps.vitalpair.gamification.domain.port.in;
 
-import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
 import java.util.UUID;
+
+import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
 
 public interface GetCompetitionUseCase {
 

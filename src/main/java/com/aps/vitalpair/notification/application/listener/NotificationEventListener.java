@@ -1,5 +1,13 @@
 package com.aps.vitalpair.notification.application.listener;
 
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
 import com.aps.vitalpair.notification.domain.model.NotificationType;
 import com.aps.vitalpair.notification.domain.port.in.CreateNotificationUseCase;
 import com.aps.vitalpair.pair.domain.model.Pair;
@@ -8,12 +16,6 @@ import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.shared.event.PairFormedEvent;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Gera notificações in-app a partir dos eventos de domínio. Roda APÓS o commit e em transação
@@ -45,8 +47,13 @@ public class NotificationEventListener {
         if (partner == null) {
             return;
         }
-        notifications.create(event.tenantId(), partner, NotificationType.PARTNER_MEAL,
-                nameOf(event.userId()), event.foodName(), null);
+        notifications.create(
+                event.tenantId(),
+                partner,
+                NotificationType.PARTNER_MEAL,
+                nameOf(event.userId()),
+                event.foodName(),
+                null);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -56,8 +63,13 @@ public class NotificationEventListener {
         if (partner == null) {
             return;
         }
-        notifications.create(event.tenantId(), partner, NotificationType.PARTNER_ACTIVITY,
-                nameOf(event.userId()), null, event.caloriesBurned());
+        notifications.create(
+                event.tenantId(),
+                partner,
+                NotificationType.PARTNER_ACTIVITY,
+                nameOf(event.userId()),
+                null,
+                event.caloriesBurned());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

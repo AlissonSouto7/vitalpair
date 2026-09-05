@@ -1,8 +1,9 @@
 package com.aps.vitalpair.feed.infrastructure.persistence;
 
-import com.aps.vitalpair.feed.domain.model.FeedItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import com.aps.vitalpair.feed.domain.model.FeedItem;
 
 @Mapper
 public interface FeedItemPersistenceMapper {

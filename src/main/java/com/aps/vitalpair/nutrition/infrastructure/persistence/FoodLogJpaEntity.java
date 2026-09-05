@@ -1,22 +1,26 @@
 package com.aps.vitalpair.nutrition.infrastructure.persistence;
 
-import com.aps.vitalpair.nutrition.domain.model.FoodSource;
-import com.aps.vitalpair.nutrition.domain.model.MealType;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import com.aps.vitalpair.nutrition.domain.model.FoodSource;
+import com.aps.vitalpair.nutrition.domain.model.MealType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "food_logs")

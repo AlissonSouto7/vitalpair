@@ -1,7 +1,5 @@
 package com.aps.vitalpair.progress.infrastructure.persistence;
 
-import com.aps.vitalpair.progress.domain.model.DailyNutritionTotals;
-import com.aps.vitalpair.progress.domain.port.out.NutritionMetricsPort;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -9,7 +7,11 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.progress.domain.model.DailyNutritionTotals;
+import com.aps.vitalpair.progress.domain.port.out.NutritionMetricsPort;
 
 @Component
 public class NutritionMetricsPersistenceAdapter implements NutritionMetricsPort {

@@ -1,11 +1,13 @@
 package com.aps.vitalpair.feed.infrastructure.persistence;
 
-import com.aps.vitalpair.feed.domain.model.ReactionType;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.aps.vitalpair.feed.domain.model.ReactionType;
 
 public interface FeedReactionJpaRepository extends JpaRepository<FeedReactionJpaEntity, UUID> {
 

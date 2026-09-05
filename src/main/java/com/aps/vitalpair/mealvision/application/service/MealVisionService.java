@@ -1,9 +1,10 @@
 package com.aps.vitalpair.mealvision.application.service;
 
+import org.springframework.stereotype.Service;
+
 import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 import com.aps.vitalpair.mealvision.domain.port.in.AnalyzeMealPhotoUseCase;
 import com.aps.vitalpair.mealvision.domain.port.out.MealPhotoAnalyzerPort;
-import org.springframework.stereotype.Service;
 
 /** Orquestra o use case de análise de foto, delegando à porta de IA (stateless, nada é persistido). */
 @Service

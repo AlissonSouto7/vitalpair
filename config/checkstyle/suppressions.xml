@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+
+    <!--
+        ArchUnit rules are static final fields whose names become the test name in the
+        failure output. snake_case reads as a sentence there ("domain depends on no
+        framework"), which is the whole point; SCREAMING_CASE would make failures harder to
+        read to satisfy a naming convention that exists for constants holding values.
+    -->
+    <suppress files="[\\/]architecture[\\/].*Test\.java" checks="ConstantName"/>
+
+</suppressions>

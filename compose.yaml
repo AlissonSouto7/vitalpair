@@ -26,5 +26,25 @@ services:
       timeout: 3s
       retries: 10
 
+  # Fake SMTP server for development. Password reset and verification e-mails are
+  # delivered here instead of to a real inbox, and read at http://localhost:8025.
+  #
+  # This replaces the old habit of logging the reset link: that link carries a
+  # single-use token, so anyone able to read the log could take over any account.
+  # Set MAIL_ENABLED=true with SPRING_MAIL_HOST=localhost and SPRING_MAIL_PORT=1025.
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    ports:
+      - '${VITALPAIR_SMTP_PORT:-1025}:1025'
+      - '${VITALPAIR_MAILPIT_UI_PORT:-8025}:8025'
+    environment:
+      - 'MP_SMTP_AUTH_ACCEPT_ANY=true'
+      - 'MP_SMTP_AUTH_ALLOW_INSECURE=true'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8025/readyz']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   vitalpair_postgres_data:

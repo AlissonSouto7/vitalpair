@@ -1,19 +1,23 @@
 package com.aps.vitalpair.auth.infrastructure.security;
 
-import com.aps.vitalpair.auth.domain.model.TokenPayload;
-import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
-import com.aps.vitalpair.config.JwtProperties;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+
 import javax.crypto.SecretKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.auth.domain.model.TokenPayload;
+import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
+import com.aps.vitalpair.config.JwtProperties;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 /** Implementação de {@link TokenProviderPort} com JWT assinado em HS256 (jjwt). */
 @Component

@@ -1,8 +1,9 @@
 package com.aps.vitalpair.nutrition.infrastructure.persistence;
 
-import com.aps.vitalpair.nutrition.domain.model.FoodLog;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import com.aps.vitalpair.nutrition.domain.model.FoodLog;
 
 @Mapper
 public interface FoodLogPersistenceMapper {

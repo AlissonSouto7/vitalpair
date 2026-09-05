@@ -1,7 +1,8 @@
 package com.aps.vitalpair.pair.infrastructure.web;
 
-import com.aps.vitalpair.pair.application.dto.MemberView;
 import java.util.UUID;
+
+import com.aps.vitalpair.pair.application.dto.MemberView;
 
 public record PairMemberResponse(UUID userId, String name, String email, String avatarUrl) {
 

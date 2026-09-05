@@ -1,5 +1,16 @@
 package com.aps.vitalpair.ai.infrastructure.client;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
 import com.aps.vitalpair.ai.domain.model.MealPlanItem;
 import com.aps.vitalpair.ai.domain.model.NutritionTargets;
@@ -9,15 +20,6 @@ import com.aps.vitalpair.user.domain.model.Goal;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Adaptador da porta de geração de cardápio sobre a Anthropic. Monta o prompt com as metas do
@@ -114,10 +116,14 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
         properties.put("carbG", number);
         properties.put("fatG", number);
         return Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", properties,
-                "required", List.of("mealType", "name", "kcal", "proteinG", "carbG", "fatG"));
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "properties",
+                properties,
+                "required",
+                List.of("mealType", "name", "kcal", "proteinG", "carbG", "fatG"));
     }
 
     private static Map<String, Object> weekSchema() {
@@ -125,15 +131,23 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
         dayProperties.put("dayIndex", Map.of("type", "integer"));
         dayProperties.put("meals", Map.of("type", "array", "items", mealSchema()));
         Map<String, Object> daySchema = Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", dayProperties,
-                "required", List.of("dayIndex", "meals"));
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "properties",
+                dayProperties,
+                "required",
+                List.of("dayIndex", "meals"));
         return Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", Map.of("days", Map.of("type", "array", "items", daySchema)),
-                "required", List.of("days"));
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "properties",
+                Map.of("days", Map.of("type", "array", "items", daySchema)),
+                "required",
+                List.of("days"));
     }
 
     // ===== Parse =====
@@ -194,7 +208,7 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
         try {
             return objectMapper.readTree(json);
         } catch (JsonProcessingException ex) {
-            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage());
+            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
             throw new PlanGenerationException("A IA retornou um resultado em formato inesperado.", ex);
         }
     }

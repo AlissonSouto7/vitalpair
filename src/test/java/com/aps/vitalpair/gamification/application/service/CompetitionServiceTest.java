@@ -6,20 +6,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
-import com.aps.vitalpair.gamification.domain.port.out.CompetitionScoreRepositoryPort;
-import com.aps.vitalpair.pair.domain.model.Pair;
-import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
-import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
+import com.aps.vitalpair.gamification.domain.port.out.CompetitionScoreRepositoryPort;
+import com.aps.vitalpair.pair.domain.model.Pair;
+import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
+import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 @ExtendWith(MockitoExtension.class)
 class CompetitionServiceTest {
@@ -31,10 +33,13 @@ class CompetitionServiceTest {
 
     @Mock
     private CompetitionScoreRepositoryPort competitionRepository;
+
     @Mock
     private PairRepositoryPort pairRepository;
+
     @Mock
     private UserRepositoryPort userRepository;
+
     @InjectMocks
     private CompetitionService service;
 
@@ -56,7 +61,11 @@ class CompetitionServiceTest {
     @Test
     void addPointsAcumulaEViraOVencedor() {
         CompetitionScore existing = CompetitionScore.builder()
-                .tenantId(TENANT).weekStart(DATE).user1Score(10).user2Score(5).build();
+                .tenantId(TENANT)
+                .weekStart(DATE)
+                .user1Score(10)
+                .user2Score(5)
+                .build();
         when(pairRepository.findById(TENANT)).thenReturn(Optional.of(pair()));
         when(competitionRepository.findByTenantAndWeek(eq(TENANT), any())).thenReturn(Optional.of(existing));
         when(competitionRepository.save(any())).thenAnswer(i -> i.getArgument(0));

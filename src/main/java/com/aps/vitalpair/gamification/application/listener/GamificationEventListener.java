@@ -1,5 +1,14 @@
 package com.aps.vitalpair.gamification.application.listener;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
 import com.aps.vitalpair.gamification.application.service.BadgeService;
 import com.aps.vitalpair.gamification.application.service.CompetitionService;
 import com.aps.vitalpair.gamification.application.service.StreakService;
@@ -12,13 +21,6 @@ import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.shared.event.PairFormedEvent;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.LocalDate;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Atualiza streaks, placar e conquistas a partir dos eventos de outras features. Roda APÓS o commit
@@ -58,15 +60,29 @@ public class GamificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMealLogged(MealLoggedEvent event) {
-        award(event.userId(), event.tenantId(), StreakType.NUTRITION_LOG, event.date(),
-                MEAL_POINTS, PointSource.MEAL, "FIRST_MEAL", "STREAK_7_NUTRITION");
+        award(
+                event.userId(),
+                event.tenantId(),
+                StreakType.NUTRITION_LOG,
+                event.date(),
+                MEAL_POINTS,
+                PointSource.MEAL,
+                "FIRST_MEAL",
+                "STREAK_7_NUTRITION");
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onActivityLogged(ActivityLoggedEvent event) {
-        award(event.userId(), event.tenantId(), StreakType.ACTIVITY, event.date(),
-                ACTIVITY_POINTS, PointSource.ACTIVITY, "FIRST_ACTIVITY", "STREAK_7_ACTIVITY");
+        award(
+                event.userId(),
+                event.tenantId(),
+                StreakType.ACTIVITY,
+                event.date(),
+                ACTIVITY_POINTS,
+                PointSource.ACTIVITY,
+                "FIRST_ACTIVITY",
+                "STREAK_7_ACTIVITY");
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -78,16 +94,22 @@ public class GamificationEventListener {
         }
     }
 
-    private void award(UUID userId, UUID tenantId, StreakType type, LocalDate date,
-                       int basePoints, PointSource baseSource, String firstBadgeCode, String streakBadgeCode) {
+    private void award(
+            UUID userId,
+            UUID tenantId,
+            StreakType type,
+            LocalDate date,
+            int basePoints,
+            PointSource baseSource,
+            String firstBadgeCode,
+            String streakBadgeCode) {
         badgeService.awardByCode(userId, tenantId, firstBadgeCode);
         // Só pontua/avança a streak no primeiro registro do dia para o tipo.
         streakService.registerActivity(userId, tenantId, type, date).ifPresent(streak -> {
             UUID partner = competitionService.partnerOf(tenantId, userId);
             // Placar antes de pontuar, para detectar a transição de ultrapassagem.
             int actorBefore = competitionService.currentScoreOf(tenantId, userId, date);
-            Integer partnerScore = partner == null ? null
-                    : competitionService.currentScoreOf(tenantId, partner, date);
+            Integer partnerScore = partner == null ? null : competitionService.currentScoreOf(tenantId, partner, date);
 
             competitionService.addPoints(tenantId, userId, basePoints, date);
             // Espelha o incremento do placar no ledger, no mesmo ponto, para baterem exato.
@@ -119,7 +141,8 @@ public class GamificationEventListener {
     }
 
     private String firstNameOf(UUID userId) {
-        return userRepository.findById(userId)
+        return userRepository
+                .findById(userId)
                 .map(u -> {
                     String name = u.getName();
                     if (name == null || name.isBlank()) {

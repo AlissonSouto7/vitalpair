@@ -1,9 +1,11 @@
 package com.aps.vitalpair.notification.infrastructure.persistence;
 
-import com.aps.vitalpair.notification.domain.port.out.DailyLogMetricsRepositoryPort;
 import java.time.Instant;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.notification.domain.port.out.DailyLogMetricsRepositoryPort;
 
 @Component
 public class DailyLogMetricsPersistenceAdapter implements DailyLogMetricsRepositoryPort {

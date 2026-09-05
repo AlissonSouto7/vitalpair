@@ -1,12 +1,14 @@
 package com.aps.vitalpair.activity.infrastructure.web;
 
-import com.aps.vitalpair.activity.domain.model.ActivitySource;
-import com.aps.vitalpair.activity.domain.model.ActivityType;
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.time.Instant;
+
+import com.aps.vitalpair.activity.domain.model.ActivitySource;
+import com.aps.vitalpair.activity.domain.model.ActivityType;
 
 public record LogActivityRequest(
         @NotNull ActivityType activityType,
@@ -16,5 +18,4 @@ public record LogActivityRequest(
         @PositiveOrZero Integer durationMinutes,
         @NotNull ActivitySource source,
         @Size(max = 255) String externalId,
-        Instant loggedAt) {
-}
+        Instant loggedAt) {}

@@ -1,5 +1,11 @@
 package com.aps.vitalpair.notification.application.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.notification.application.dto.NotificationFeed;
 import com.aps.vitalpair.notification.application.dto.NotificationView;
 import com.aps.vitalpair.notification.domain.model.Notification;
@@ -10,10 +16,6 @@ import com.aps.vitalpair.notification.domain.port.in.ListNotificationsUseCase;
 import com.aps.vitalpair.notification.domain.port.in.MarkNotificationsReadUseCase;
 import com.aps.vitalpair.notification.domain.port.out.NotificationPreferencesRepositoryPort;
 import com.aps.vitalpair.notification.domain.port.out.NotificationRepositoryPort;
-import java.util.List;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NotificationService
@@ -25,8 +27,7 @@ public class NotificationService
     private final NotificationPreferencesRepositoryPort preferencesRepository;
 
     public NotificationService(
-            NotificationRepositoryPort repository,
-            NotificationPreferencesRepositoryPort preferencesRepository) {
+            NotificationRepositoryPort repository, NotificationPreferencesRepositoryPort preferencesRepository) {
         this.repository = repository;
         this.preferencesRepository = preferencesRepository;
     }
@@ -48,7 +49,8 @@ public class NotificationService
 
     @Override
     @Transactional
-    public void create(UUID tenantId, UUID userId, NotificationType type, String actorName, String refText, Integer amount) {
+    public void create(
+            UUID tenantId, UUID userId, NotificationType type, String actorName, String refText, Integer amount) {
         if (suppressedByPreference(userId, type)) {
             return;
         }
@@ -73,8 +75,8 @@ public class NotificationService
                 && type != NotificationType.LOG_REMINDER) {
             return false;
         }
-        NotificationPreferences prefs = preferencesRepository.findByUserId(userId)
-                .orElseGet(() -> NotificationPreferences.defaultsFor(userId));
+        NotificationPreferences prefs =
+                preferencesRepository.findByUserId(userId).orElseGet(() -> NotificationPreferences.defaultsFor(userId));
         return switch (type) {
             case RIVAL_OVERTOOK -> !prefs.isNotifyRival();
             case FLASH_MISSION -> !prefs.isNotifyFlash();

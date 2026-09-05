@@ -1,10 +1,11 @@
 package com.aps.vitalpair.progress.domain.port.out;
 
-import com.aps.vitalpair.progress.domain.model.WeightPoint;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import com.aps.vitalpair.progress.domain.model.WeightPoint;
 
 /**
  * Porta de saída para o histórico de peso ({@code weight_logs}).

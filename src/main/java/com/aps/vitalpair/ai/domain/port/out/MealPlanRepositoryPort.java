@@ -1,9 +1,10 @@
 package com.aps.vitalpair.ai.domain.port.out;
 
-import com.aps.vitalpair.ai.domain.model.MealPlan;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.ai.domain.model.MealPlan;
 
 /** Porta de saída de persistência do plano alimentar semanal. */
 public interface MealPlanRepositoryPort {

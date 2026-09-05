@@ -1,15 +1,10 @@
 package com.aps.vitalpair.feed.infrastructure.web;
 
-import com.aps.vitalpair.feed.application.dto.FeedItemView;
-import com.aps.vitalpair.feed.domain.model.ReactionType;
-import com.aps.vitalpair.feed.domain.port.in.GetFeedUseCase;
-import com.aps.vitalpair.feed.domain.port.in.ReactToFeedItemUseCase;
-import com.aps.vitalpair.shared.security.AuthenticatedUser;
-import com.aps.vitalpair.shared.web.ApiResponse;
-import com.aps.vitalpair.shared.web.PageResponse;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.aps.vitalpair.feed.application.dto.FeedItemView;
+import com.aps.vitalpair.feed.domain.model.ReactionType;
+import com.aps.vitalpair.feed.domain.port.in.GetFeedUseCase;
+import com.aps.vitalpair.feed.domain.port.in.ReactToFeedItemUseCase;
+import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.PageResponse;
 
 @RestController
 @RequestMapping("/api/v1/pair/feed")
@@ -41,7 +44,8 @@ public class FeedController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
         PageResponse<FeedItemView> result = getFeedUseCase.getFeed(principal.userId(), page, Math.min(size, MAX_SIZE));
-        List<FeedItemResponse> content = result.content().stream().map(FeedItemResponse::from).toList();
+        List<FeedItemResponse> content =
+                result.content().stream().map(FeedItemResponse::from).toList();
         PageResponse<FeedItemResponse> body = new PageResponse<>(
                 content, result.page(), result.size(), result.totalElements(), result.totalPages(), result.last());
         return ResponseEntity.ok(ApiResponse.ok(body));

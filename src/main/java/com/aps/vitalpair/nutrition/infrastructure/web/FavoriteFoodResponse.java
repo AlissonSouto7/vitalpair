@@ -1,7 +1,8 @@
 package com.aps.vitalpair.nutrition.infrastructure.web;
 
-import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
 import java.math.BigDecimal;
+
+import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
 
 public record FavoriteFoodResponse(
         String foodName,

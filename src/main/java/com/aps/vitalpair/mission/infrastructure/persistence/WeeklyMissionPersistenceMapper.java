@@ -1,7 +1,8 @@
 package com.aps.vitalpair.mission.infrastructure.persistence;
 
-import com.aps.vitalpair.mission.domain.model.WeeklyMission;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.mission.domain.model.WeeklyMission;
 
 @Component
 public class WeeklyMissionPersistenceMapper {

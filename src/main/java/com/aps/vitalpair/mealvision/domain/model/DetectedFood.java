@@ -12,5 +12,4 @@ public record DetectedFood(
         BigDecimal caloriesKcal,
         BigDecimal proteinG,
         BigDecimal carbG,
-        BigDecimal fatG) {
-}
+        BigDecimal fatG) {}

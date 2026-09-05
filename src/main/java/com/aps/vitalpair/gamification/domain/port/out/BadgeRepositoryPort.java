@@ -1,8 +1,9 @@
 package com.aps.vitalpair.gamification.domain.port.out;
 
-import com.aps.vitalpair.gamification.domain.model.Badge;
 import java.util.List;
 import java.util.Optional;
+
+import com.aps.vitalpair.gamification.domain.model.Badge;
 
 public interface BadgeRepositoryPort {
 

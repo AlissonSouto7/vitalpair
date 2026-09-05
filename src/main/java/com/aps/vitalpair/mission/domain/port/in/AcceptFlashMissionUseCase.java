@@ -1,7 +1,8 @@
 package com.aps.vitalpair.mission.domain.port.in;
 
-import com.aps.vitalpair.mission.domain.model.FlashMissionView;
 import java.util.UUID;
+
+import com.aps.vitalpair.mission.domain.model.FlashMissionView;
 
 public interface AcceptFlashMissionUseCase {
 

@@ -1,12 +1,14 @@
 package com.aps.vitalpair.gamification.infrastructure.persistence;
 
-import com.aps.vitalpair.gamification.domain.model.StreakType;
-import com.aps.vitalpair.gamification.domain.model.UserStreak;
-import com.aps.vitalpair.gamification.domain.port.out.UserStreakRepositoryPort;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.gamification.domain.model.StreakType;
+import com.aps.vitalpair.gamification.domain.model.UserStreak;
+import com.aps.vitalpair.gamification.domain.port.out.UserStreakRepositoryPort;
 
 @Component
 public class UserStreakPersistenceAdapter implements UserStreakRepositoryPort {
