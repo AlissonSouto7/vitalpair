@@ -36,6 +36,7 @@ frontend/src/                      React application
 frontend/src/locales/              i18n bundles, one module per namespace
 docs/adr/                          architecture decision records
 docs/features/                     one living document per feature
+docs/design/                       mockups, screenshots, colour law, voice
 .github/                           workflows, issue and PR templates
 compose.yaml                       local Postgres and Redis
 ```
@@ -237,4 +238,5 @@ A change is done when all of these are true:
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
 | [docs/adr/](docs/adr/) | Architecture decision records, one per decision |
 | [docs/features/](docs/features/) | One living document per feature |
+| [docs/design/](docs/design/) | Mockups, the colour law, themes, voice and tone. Read before building or changing a screen. |
 | `docs/ARQUITETURA.md` | Current architecture overview, being rewritten in English |
