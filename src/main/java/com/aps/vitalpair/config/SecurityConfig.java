@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.aps.vitalpair.auth.infrastructure.security.JwtAuthenticationFilter;
+import com.aps.vitalpair.shared.ratelimit.RateLimitFilter;
 
 /** Configuração de segurança: stateless, JWT, CORS e rotas públicas vs protegidas. */
 @Configuration
@@ -29,12 +30,14 @@ public class SecurityConfig {
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Value("${vitalpair.cors.allowed-origins}")
     private List<String> allowedOrigins;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, RateLimitFilter rateLimitFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -63,7 +66,12 @@ public class SecurityConfig {
                         .anyRequest()
                         .authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedEntryPoint()))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // After authentication on purpose: the per-user policies need to know who is
+                // calling. Registered here rather than left as a servlet filter, because a
+                // plain @Component filter runs before the security chain, where the security
+                // context is still empty and every caller would be counted by IP.
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
