@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle catches defects, not formatting. Spotless already owns layout, so every
+    whitespace, indentation and line-length rule is deliberately absent: two tools fighting
+    over the same file is worse than either alone.
+
+    What is left are the mistakes a formatter cannot see.
+-->
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- A tab in a Java file renders differently in every editor. -->
+    <module name="FileTabCharacter"/>
+
+    <!--
+        A TODO with no issue number is a note nobody will ever find again. Requiring the
+        reference turns it into tracked work.
+    -->
+    <module name="RegexpSingleline">
+        <property name="format" value="(TODO|FIXME)(?!\s*\(#\d+\))"/>
+        <property name="message" value="TODO/FIXME must reference an issue, e.g. TODO(#42)"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <!-- Star imports hide where a name comes from and break on upstream additions. -->
+        <module name="AvoidStarImport"/>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="IllegalImport"/>
+
+        <!--
+            Console output cannot be filtered, levelled or routed once the app is in a
+            container. printStackTrace loses the stack in the same way.
+        -->
+        <module name="Regexp">
+            <property name="format" value="System\.(out|err)\.print"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message" value="Use a logger, not console output"/>
+        </module>
+        <module name="Regexp">
+            <property name="format" value="printStackTrace\(\)"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message" value="Log the exception with a logger instead"/>
+        </module>
+
+        <!--
+            Logging only getMessage() throws away the stack trace, which is the part that
+            says where the failure came from. This bit us on the Anthropic clients.
+        -->
+        <module name="Regexp">
+            <property name="format" value="log\.(warn|error)\([^;]*getMessage\(\)\s*\)"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message"
+                     value="Pass the exception itself so the stack trace survives"/>
+        </module>
+
+        <!-- A swallowed exception is a failure nobody will ever hear about. -->
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected|ignored"/>
+        </module>
+
+        <!-- Classic correctness traps. -->
+        <module name="EqualsHashCode"/>
+        <module name="CovariantEquals"/>
+        <module name="StringLiteralEquality"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="FallThrough"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="IllegalThrows"/>
+        <module name="DefaultComesLast"/>
+        <module name="OneTopLevelClass"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="NoFinalizer"/>
+
+        <!--
+            Braces on every conditional. Without them, adding a second statement to an if
+            silently changes control flow, which is how goto fail happened.
+        -->
+        <module name="NeedBraces"/>
+
+        <!-- Naming, so a reader can tell a constant from a field at a glance. -->
+        <module name="TypeName"/>
+        <module name="MethodName"/>
+        <module name="MemberName"/>
+        <module name="ParameterName"/>
+        <module name="LocalVariableName"/>
+        <!--
+            "log" is exempt: Lombok's @Slf4j generates a private static final field with
+            that exact name, and it is the universal convention in Java. Renaming it would
+            mean dropping @Slf4j across the codebase to satisfy a naming rule.
+        -->
+        <module name="ConstantName">
+            <property name="format" value="^(log|[A-Z][A-Z0-9]*(_[A-Z0-9]+)*)$"/>
+        </module>
+        <module name="PackageName"/>
+
+        <!--
+            HideUtilityClassConstructor is deliberately not enabled. It cannot tell a real
+            utility class from a Spring entry point: it flags VitalpairApplication and the
+            ArchUnit test class, both of which the framework has to instantiate. All noise,
+            no findings.
+        -->
+
+    </module>
+</module>

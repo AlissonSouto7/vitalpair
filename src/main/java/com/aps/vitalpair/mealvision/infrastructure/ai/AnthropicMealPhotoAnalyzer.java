@@ -61,7 +61,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
         } catch (AiNotConfiguredException ex) {
             throw ex;
         } catch (RuntimeException ex) {
-            log.warn("Falha ao chamar a Anthropic para análise de foto: {}", ex.getMessage());
+            log.warn("Falha ao chamar a Anthropic para análise de foto: {}", ex.getMessage(), ex);
             throw new MealPhotoAnalysisException(
                     "Não foi possível analisar a foto agora. Tente novamente em instantes.", ex);
         }
@@ -157,7 +157,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
             }
             return new MealPhotoAnalysis(foods);
         } catch (JsonProcessingException ex) {
-            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage());
+            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
             throw new MealPhotoAnalysisException("A IA retornou um resultado em formato inesperado.", ex);
         }
     }

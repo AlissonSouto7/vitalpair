@@ -60,7 +60,7 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
                     .map(this::toFoodProduct)
                     .toList();
         } catch (RestClientException ex) {
-            log.warn("Falha ao buscar alimentos na Open Food Facts: {}", ex.getMessage());
+            log.warn("Falha ao buscar alimentos na Open Food Facts: {}", ex.getMessage(), ex);
             return List.of();
         }
     }
@@ -86,7 +86,7 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
         } catch (HttpClientErrorException.NotFound ex) {
             return Optional.empty();
         } catch (RestClientException ex) {
-            log.warn("Falha ao consultar código de barras na Open Food Facts: {}", ex.getMessage());
+            log.warn("Falha ao consultar código de barras na Open Food Facts: {}", ex.getMessage(), ex);
             return Optional.empty();
         }
     }

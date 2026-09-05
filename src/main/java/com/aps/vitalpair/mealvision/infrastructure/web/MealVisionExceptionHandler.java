@@ -36,7 +36,7 @@ public class MealVisionExceptionHandler {
     @ExceptionHandler(MealPhotoAnalysisException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleAnalysisFailure(
             MealPhotoAnalysisException ex, HttpServletRequest request) {
-        log.warn("Falha na análise de foto em {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Falha na análise de foto em {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
     }
 

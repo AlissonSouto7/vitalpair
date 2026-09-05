@@ -46,7 +46,7 @@ class PlanAiGateway {
         try {
             response = client.createMessage(request);
         } catch (RuntimeException ex) {
-            log.warn("Falha ao chamar a Anthropic para gerar plano: {}", ex.getMessage());
+            log.warn("Falha ao chamar a Anthropic para gerar plano: {}", ex.getMessage(), ex);
             throw new PlanGenerationException(
                     "Não foi possível gerar o plano agora. Tente novamente em instantes.", ex);
         }
