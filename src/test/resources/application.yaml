@@ -1,5 +1,6 @@
-# Configuração de teste. Testes unitários (Mockito) não sobem contexto Spring.
-# Testes de integração exigem um Postgres/Redis acessível (ou Testcontainers, a adicionar).
+# Test configuration. This file shadows the main application.yaml on the test classpath,
+# so every property the context needs at startup must be declared here.
+# Spring-context tests get Postgres and Redis from TestcontainersConfiguration.
 spring:
   docker:
     compose:
@@ -12,3 +13,8 @@ vitalpair:
     refresh-expiration-ms: 2592000000
   cors:
     allowed-origins: http://localhost:5173
+  ai:
+    anthropic:
+      # Required by the Feign clients to build their base URL. No test calls it;
+      # integration tests will point it at a WireMock server.
+      base-url: http://localhost:1

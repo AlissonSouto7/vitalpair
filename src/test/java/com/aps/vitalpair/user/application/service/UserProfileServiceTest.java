@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.tdee.domain.model.TdeeResult;
@@ -35,6 +36,8 @@ class UserProfileServiceTest {
     private UserRepositoryPort userRepository;
     @Mock
     private CalculateTargetsUseCase calculateTargets;
+    @Mock
+    private RecordWeightUseCase recordWeight;
     @InjectMocks
     private UserProfileService service;
 
