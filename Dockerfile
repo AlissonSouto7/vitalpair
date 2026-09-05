@@ -7,7 +7,7 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn -B -DskipTests clean package
 
 # ---- runtime ----
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 # Usuário não-root
 RUN addgroup -S app && adduser -S app -G app
