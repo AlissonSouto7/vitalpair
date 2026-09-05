@@ -39,6 +39,19 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // CSRF protection defends session cookies, which the browser attaches to a
+        // cross-site request automatically. This API keeps no session
+        // (SessionCreationPolicy.STATELESS) and authenticates from the Authorization
+        // header, which a cross-site request cannot set. There is no ambient credential
+        // to abuse, so the protection has nothing to protect and only breaks clients.
+        //
+        // This must be revisited if authentication ever moves to a cookie. Phase 6 of the
+        // professionalization plan proposes exactly that for the refresh token, and CSRF
+        // defences have to come back with it: SameSite=Strict, a path-scoped cookie, and
+        // JSON-only endpoints.
+        //
+        // CodeQL reports this as java/spring-disabled-csrf-protection. Dismissed as a
+        // false positive for a stateless API; see the pull request that added this comment.
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
