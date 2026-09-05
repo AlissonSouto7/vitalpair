@@ -227,6 +227,43 @@
 	<build>
 		<plugins>
 			<!--
+				Formatting is settled by a tool, not in review. palantir-java-format keeps the
+				4-space indentation and 120-column width this codebase already uses, so
+				adopting it rewrapped lines instead of rewriting every file: 349 files touched
+				for a net 586 lines.
+
+				Only Java is formatted. sortPom was tried and rejected: it reindents the whole
+				pom from tabs to spaces, 642 lines of churn that hides real changes in review
+				and improves nothing.
+			-->
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless.version}</version>
+				<configuration>
+					<java>
+						<palantirJavaFormat>
+							<version>${palantir.version}</version>
+						</palantirJavaFormat>
+						<removeUnusedImports/>
+						<importOrder>
+							<order>java,javax,jakarta,org,com,</order>
+						</importOrder>
+						<trimTrailingWhitespace/>
+						<endWithNewline/>
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<phase>verify</phase>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--
 				Coverage measurement. The threshold in the check goal is not a guess: it is
 				the value this build actually produced, rounded down, so it can only ratchet
 				upwards as tests are added.
