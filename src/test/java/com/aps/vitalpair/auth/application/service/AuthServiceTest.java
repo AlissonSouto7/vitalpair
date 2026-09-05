@@ -36,6 +36,7 @@ import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
+import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
@@ -89,7 +90,7 @@ class AuthServiceTest {
         when(pairRepository.save(any())).thenReturn(pairWithId());
         when(passwordHasher.hash("senha1234")).thenReturn("hashed");
         when(userRepository.save(any())).thenReturn(userWithId());
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
                 .thenReturn("access");
 
         AuthResult result = authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
@@ -99,7 +100,7 @@ class AuthServiceTest {
         assertThat(result.userId()).isEqualTo(USER_ID);
         // pair salvo duas vezes: criação + associação do user1
         verify(pairRepository, times(2)).save(any());
-        verify(refreshTokenStore).save(anyString(), eq(USER_ID), eq(REFRESH_TTL));
+        verify(refreshTokenStore).save(anyString(), eq(USER_ID), any(UUID.class), eq(REFRESH_TTL));
     }
 
     @Test
@@ -108,7 +109,7 @@ class AuthServiceTest {
         when(pairRepository.save(any())).thenReturn(pairWithId());
         when(passwordHasher.hash("senha1234")).thenReturn("hashed");
         when(userRepository.save(any())).thenReturn(userWithId());
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
                 .thenReturn("access");
         doThrow(new RuntimeException("SMTP unreachable"))
                 .when(sendEmailVerification)
@@ -138,13 +139,13 @@ class AuthServiceTest {
     void loginComCredenciaisValidasEmiteTokens() {
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
         when(passwordHasher.matches("senha1234", "hashed")).thenReturn(true);
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
                 .thenReturn("access");
 
         AuthResult result = authService.login(new LoginCommand("ana@vitalpair.app", "senha1234"));
 
         assertThat(result.accessToken()).isEqualTo("access");
-        verify(refreshTokenStore).save(anyString(), eq(USER_ID), eq(REFRESH_TTL));
+        verify(refreshTokenStore).save(anyString(), eq(USER_ID), any(UUID.class), eq(REFRESH_TTL));
     }
 
     @Test
@@ -166,21 +167,62 @@ class AuthServiceTest {
 
     @Test
     void refreshRotacionaTokenEReemite() {
-        when(refreshTokenStore.findUser("old-refresh")).thenReturn(Optional.of(USER_ID));
+        UUID familyId = UUID.randomUUID();
+        when(refreshTokenStore.find("old-refresh"))
+                .thenReturn(Optional.of(new RefreshTokenStorePort.StoredRefreshToken(USER_ID, familyId)));
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(userWithId()));
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
                 .thenReturn("access");
 
         AuthResult result = authService.refresh("old-refresh");
 
         assertThat(result.refreshToken()).isNotEqualTo("old-refresh");
-        verify(refreshTokenStore).revoke("old-refresh");
-        verify(refreshTokenStore).save(anyString(), eq(USER_ID), anyLong());
+        verify(refreshTokenStore).markSpent(eq("old-refresh"), eq(familyId), anyLong());
+        // The replacement stays in the same family, otherwise a later replay of the old
+        // token would have nothing to revoke.
+        verify(refreshTokenStore).save(anyString(), eq(USER_ID), eq(familyId), anyLong());
+    }
+
+    @Test
+    void refreshRevokesTheWholeFamilyWhenASpentTokenIsReplayed() {
+        UUID familyId = UUID.randomUUID();
+        when(refreshTokenStore.find("stolen")).thenReturn(Optional.empty());
+        when(refreshTokenStore.findSpentFamily("stolen")).thenReturn(Optional.of(familyId));
+
+        assertThatThrownBy(() -> authService.refresh("stolen")).isInstanceOf(InvalidCredentialsException.class);
+
+        // A refresh token is single-use. A spent one coming back means either theft or a
+        // client bug, and there is no way to tell from here, so both sessions end.
+        verify(refreshTokenStore).revokeFamily(familyId);
+    }
+
+    @Test
+    void refreshRevokesNothingForATokenThatWasNeverIssued() {
+        when(refreshTokenStore.find("garbage")).thenReturn(Optional.empty());
+        when(refreshTokenStore.findSpentFamily("garbage")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.refresh("garbage")).isInstanceOf(InvalidCredentialsException.class);
+
+        // Random strings must not be able to trigger a revocation: that would be a way to
+        // log other people out by guessing.
+        verify(refreshTokenStore, never()).revokeFamily(any());
+    }
+
+    @Test
+    void logoutRevokesTheWholeFamily() {
+        UUID familyId = UUID.randomUUID();
+        when(refreshTokenStore.find("current"))
+                .thenReturn(Optional.of(new RefreshTokenStorePort.StoredRefreshToken(USER_ID, familyId)));
+
+        authService.logout("current");
+
+        verify(refreshTokenStore).revokeFamily(familyId);
     }
 
     @Test
     void refreshFalhaComTokenInvalido() {
-        when(refreshTokenStore.findUser("invalid")).thenReturn(Optional.empty());
+        when(refreshTokenStore.find("invalid")).thenReturn(Optional.empty());
+        when(refreshTokenStore.findSpentFamily("invalid")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.refresh("invalid")).isInstanceOf(InvalidCredentialsException.class);
     }
@@ -198,13 +240,14 @@ class AuthServiceTest {
                         .email("bob@gmail.com")
                         .name("Bob")
                         .build());
-        when(tokenProvider.generateAccessToken(any(), any(), anyString())).thenReturn("access");
+        when(tokenProvider.generateAccessToken(any(), any(), anyString(), any()))
+                .thenReturn("access");
 
         AuthResult result = authService.loginWithGoogle("google-id-token");
 
         assertThat(result.accessToken()).isEqualTo("access");
         verify(pairRepository, times(2)).save(any());
-        verify(refreshTokenStore).save(anyString(), eq(USER_ID), eq(REFRESH_TTL));
+        verify(refreshTokenStore).save(anyString(), eq(USER_ID), any(UUID.class), eq(REFRESH_TTL));
     }
 
     @Test
@@ -212,7 +255,7 @@ class AuthServiceTest {
         when(googleTokenVerifier.verify("google-id-token"))
                 .thenReturn(new GoogleUserInfo("ana@vitalpair.app", "Ana", true));
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
                 .thenReturn("access");
 
         AuthResult result = authService.loginWithGoogle("google-id-token");
@@ -233,12 +276,6 @@ class AuthServiceTest {
         verify(userRepository, never()).save(any());
     }
 
-    @Test
-    void logoutRevogaToken() {
-        authService.logout("some-token");
-        verify(refreshTokenStore).revoke("some-token");
-    }
-
     private Pair pairWithId() {
         return Pair.builder()
                 .id(TENANT_ID)
@@ -254,6 +291,7 @@ class AuthServiceTest {
                 .email("ana@vitalpair.app")
                 .passwordHash("hashed")
                 .name("Ana")
+                .role(Role.USER)
                 .build();
     }
 }
