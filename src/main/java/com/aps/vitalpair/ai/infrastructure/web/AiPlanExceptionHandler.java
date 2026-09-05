@@ -37,7 +37,7 @@ public class AiPlanExceptionHandler {
     @ExceptionHandler(PlanGenerationException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleGenerationFailure(
             PlanGenerationException ex, HttpServletRequest request) {
-        log.warn("Falha na geração de plano em {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Falha na geração de plano em {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
     }
 

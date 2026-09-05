@@ -208,7 +208,7 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
         try {
             return objectMapper.readTree(json);
         } catch (JsonProcessingException ex) {
-            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage());
+            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
             throw new PlanGenerationException("A IA retornou um resultado em formato inesperado.", ex);
         }
     }

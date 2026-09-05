@@ -139,7 +139,7 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
         try {
             root = objectMapper.readTree(json);
         } catch (JsonProcessingException ex) {
-            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage());
+            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
             throw new PlanGenerationException("A IA retornou um resultado em formato inesperado.", ex);
         }
 
