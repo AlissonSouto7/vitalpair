@@ -2,13 +2,25 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+
+# Read-only by default. A job that needs more asks for it explicitly.
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the run still in progress, except on
+# main, where every commit is kept because it is the deployable branch.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  build-and-test:
+  backend:
+    name: Backend build and tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -19,6 +31,6 @@ jobs:
           java-version: '17'
           cache: maven
 
-      # O runner ubuntu-latest já tem Docker, necessário para os testes com Testcontainers.
-      - name: Build e testes
-        run: ./mvnw -B verify
+      # ubuntu-latest ships with Docker, which Testcontainers needs.
+      - name: Build and test
+        run: ./mvnw -B -ntp verify

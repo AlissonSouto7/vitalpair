@@ -1,0 +1,92 @@
+name: Bug report
+description: Something behaves differently from what it should
+title: "fix: "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Follow
+        [SECURITY.md](../blob/main/SECURITY.md) instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happens
+      description: The wrong behaviour, in one or two sentences.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps someone else can follow from a clean state.
+      placeholder: |
+        1. Sign in as a user with a pair
+        2. Open /nutrition
+        3. Log a meal of 250 g
+        4. Look at the daily total
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include the exact message, status code or value you saw.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - backend
+        - frontend
+        - infrastructure
+        - ci
+        - docs
+        - not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Version or commit SHA, browser, operating system, profile.
+      placeholder: |
+        Commit: 2202c85
+        Profile: dev
+        Browser: Firefox 142
+        OS: Windows 11
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Relevant application log or browser console output. Remove tokens,
+        passwords and personal data before pasting.
+      render: text
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this is not a duplicate
+          required: true
+        - label: I removed every secret and personal detail from the text above
+          required: true
