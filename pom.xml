@@ -18,10 +18,18 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2025.0.3</spring-cloud.version>
-		<!-- Versões das dependências manuais -->
+		<!-- Manually managed dependency versions -->
 		<jjwt.version>0.12.6</jjwt.version>
 		<springdoc.version>2.8.9</springdoc.version>
 		<mapstruct.version>1.6.2</mapstruct.version>
+		<archunit.version>1.3.0</archunit.version>
+		<!-- Build quality gates -->
+		<spotless.version>2.44.0</spotless.version>
+		<palantir.version>2.50.0</palantir.version>
+		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+		<checkstyle.version>10.21.0</checkstyle.version>
+		<jacoco.version>0.8.12</jacoco.version>
+		<enforcer.version>3.5.0</enforcer.version>
 	</properties>
 
 	<dependencies>
@@ -191,6 +199,17 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!--
+			ArchUnit turns the hexagonal rules in docs/adr/0001 into tests. Without it the
+			layering is a convention that only holds while everyone remembers it.
+		-->
+		<dependency>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit-junit5</artifactId>
+			<version>${archunit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -207,6 +226,77 @@
 
 	<build>
 		<plugins>
+			<!--
+				Coverage measurement. The threshold in the check goal is not a guess: it is
+				the value this build actually produced, rounded down, so it can only ratchet
+				upwards as tests are added.
+			-->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+					<excludes>
+						<!-- Generated or declaration-only code: covering it measures nothing. -->
+						<exclude>**/*JpaEntity.class</exclude>
+						<exclude>**/*Request.class</exclude>
+						<exclude>**/*Response.class</exclude>
+						<exclude>**/dto/**</exclude>
+						<exclude>**/config/**</exclude>
+						<exclude>**/*MapperImpl.class</exclude>
+						<exclude>**/VitalpairApplication.class</exclude>
+						<exclude>**/package-info.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<!--
+						Ratchet, not a target. Measured on 2026-09-05: 35.9% line, 15.4% branch.
+						The limits below are those numbers rounded down, so the build fails if
+						coverage drops but never blocks work for being merely low. Raise them
+						whenever a phase adds tests; never lower them to make a build pass.
+					-->
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.35</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.15</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
