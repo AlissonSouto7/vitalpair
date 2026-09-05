@@ -16,5 +16,4 @@ public record WorkoutDay(
         Integer durationMin,
         boolean rest,
         LocalDate completedOn,
-        List<WorkoutExercise> exercises) {
-}
+        List<WorkoutExercise> exercises) {}

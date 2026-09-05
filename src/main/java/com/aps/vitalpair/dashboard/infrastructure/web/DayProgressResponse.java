@@ -19,8 +19,18 @@ public record DayProgressResponse(
 
     public static DayProgressResponse from(DayProgress p) {
         return new DayProgressResponse(
-                p.calorieTarget(), p.consumedCalories(), p.burnedCalories(), p.netCalories(), p.remainingCalories(),
-                p.consumedProteinG(), p.consumedCarbG(), p.consumedFatG(),
-                p.proteinTargetG(), p.carbTargetG(), p.fatTargetG(), p.steps(), p.mealCount());
+                p.calorieTarget(),
+                p.consumedCalories(),
+                p.burnedCalories(),
+                p.netCalories(),
+                p.remainingCalories(),
+                p.consumedProteinG(),
+                p.consumedCarbG(),
+                p.consumedFatG(),
+                p.proteinTargetG(),
+                p.carbTargetG(),
+                p.fatTargetG(),
+                p.steps(),
+                p.mealCount());
     }
 }

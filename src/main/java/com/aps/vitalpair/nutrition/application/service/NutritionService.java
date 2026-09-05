@@ -1,5 +1,18 @@
 package com.aps.vitalpair.nutrition.application.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.nutrition.application.dto.DailySummary;
 import com.aps.vitalpair.nutrition.application.dto.LogMealCommand;
 import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
@@ -18,23 +31,16 @@ import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class NutritionService implements
-        SearchFoodUseCase, FindFoodByBarcodeUseCase, LogMealUseCase,
-        DeleteFoodLogUseCase, GetDailyLogsUseCase, GetDailySummaryUseCase,
-        GetFavoriteFoodsUseCase {
+public class NutritionService
+        implements SearchFoodUseCase,
+                FindFoodByBarcodeUseCase,
+                LogMealUseCase,
+                DeleteFoodLogUseCase,
+                GetDailyLogsUseCase,
+                GetDailySummaryUseCase,
+                GetFavoriteFoodsUseCase {
 
     private static final int FAVORITES_LIMIT = 8;
 
@@ -61,7 +67,8 @@ public class NutritionService implements
 
     @Override
     public FoodProduct findByBarcode(String barcode) {
-        return openFoodFacts.findByBarcode(barcode)
+        return openFoodFacts
+                .findByBarcode(barcode)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o código " + barcode));
     }
 
@@ -102,7 +109,8 @@ public class NutritionService implements
     @Override
     @Transactional
     public void delete(UUID userId, UUID foodLogId) {
-        FoodLog log = foodLogRepository.findById(foodLogId)
+        FoodLog log = foodLogRepository
+                .findById(foodLogId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Registro", foodLogId));
         if (!log.getUserId().equals(userId)) {
             throw ResourceNotFoundException.of("Registro", foodLogId);
@@ -131,9 +139,17 @@ public class NutritionService implements
         Integer remaining = target != null ? target - calories : null;
 
         return new DailySummary(
-                date, calories, protein, carb, fat,
-                target, user.getProteinTargetG(), user.getCarbTargetG(), user.getFatTargetG(),
-                remaining, logs.size());
+                date,
+                calories,
+                protein,
+                carb,
+                fat,
+                target,
+                user.getProteinTargetG(),
+                user.getCarbTargetG(),
+                user.getFatTargetG(),
+                remaining,
+                logs.size());
     }
 
     @Override
@@ -143,8 +159,7 @@ public class NutritionService implements
     }
 
     private User requireUser(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        return userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
     }
 
     private static BigDecimal orZero(BigDecimal value) {

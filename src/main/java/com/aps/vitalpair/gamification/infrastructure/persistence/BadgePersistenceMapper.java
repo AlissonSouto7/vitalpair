@@ -1,7 +1,8 @@
 package com.aps.vitalpair.gamification.infrastructure.persistence;
 
-import com.aps.vitalpair.gamification.domain.model.Badge;
 import org.mapstruct.Mapper;
+
+import com.aps.vitalpair.gamification.domain.model.Badge;
 
 @Mapper
 public interface BadgePersistenceMapper {

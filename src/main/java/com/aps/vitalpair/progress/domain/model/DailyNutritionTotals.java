@@ -13,5 +13,4 @@ import java.time.LocalDate;
  * @param carbG    total de carboidrato (g) no dia
  * @param fatG     total de gordura (g) no dia
  */
-public record DailyNutritionTotals(LocalDate date, int kcal, int proteinG, int carbG, int fatG) {
-}
+public record DailyNutritionTotals(LocalDate date, int kcal, int proteinG, int carbG, int fatG) {}

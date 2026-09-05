@@ -6,17 +6,19 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.aps.vitalpair.gamification.domain.model.StreakType;
-import com.aps.vitalpair.gamification.domain.model.UserStreak;
-import com.aps.vitalpair.gamification.domain.port.out.UserStreakRepositoryPort;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.aps.vitalpair.gamification.domain.model.StreakType;
+import com.aps.vitalpair.gamification.domain.model.UserStreak;
+import com.aps.vitalpair.gamification.domain.port.out.UserStreakRepositoryPort;
 
 @ExtendWith(MockitoExtension.class)
 class StreakServiceTest {
@@ -27,6 +29,7 @@ class StreakServiceTest {
 
     @Mock
     private UserStreakRepositoryPort repository;
+
     @InjectMocks
     private StreakService service;
 
@@ -79,8 +82,12 @@ class StreakServiceTest {
 
     private UserStreak streak(int current, int longest, LocalDate last) {
         return UserStreak.builder()
-                .userId(USER).tenantId(TENANT).type(StreakType.NUTRITION_LOG)
-                .currentCount(current).longestCount(longest).lastActivityDate(last)
+                .userId(USER)
+                .tenantId(TENANT)
+                .type(StreakType.NUTRITION_LOG)
+                .currentCount(current)
+                .longestCount(longest)
+                .lastActivityDate(last)
                 .build();
     }
 }

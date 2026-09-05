@@ -1,16 +1,18 @@
 package com.aps.vitalpair.nutrition.infrastructure.persistence;
 
-import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
-import com.aps.vitalpair.nutrition.domain.model.FoodLog;
-import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
+import com.aps.vitalpair.nutrition.domain.model.FoodLog;
+import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
 
 @Component
 public class FoodLogPersistenceAdapter implements FoodLogRepositoryPort {

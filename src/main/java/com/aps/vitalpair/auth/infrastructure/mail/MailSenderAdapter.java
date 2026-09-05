@@ -1,8 +1,8 @@
 package com.aps.vitalpair.auth.infrastructure.mail;
 
-import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 
 /**
  * Adapter de e-mail. Quando {@code vitalpair.mail.enabled=true} e há um {@link JavaMailSender}
@@ -42,7 +44,7 @@ public class MailSenderAdapter implements MailSenderPort {
                 "Criar nova senha",
                 resetLink,
                 "O link vale por 30 minutos. Se não foi você, pode ignorar este e-mail: sua senha continua a mesma.");
-        send(toEmail, "Redefinição de senha do VitalPair", html, "redefinição", resetLink);
+        send(toEmail, "Redefinição de senha do VitalPair", html, "redefinição");
     }
 
     @Override
@@ -53,13 +55,17 @@ public class MailSenderAdapter implements MailSenderPort {
                 "Confirmar e-mail",
                 verifyLink,
                 "O link vale por 24 horas. Se não foi você que criou a conta, pode ignorar este e-mail.");
-        send(toEmail, "Confirme seu e-mail no VitalPair", html, "confirmação", verifyLink);
+        send(toEmail, "Confirme seu e-mail no VitalPair", html, "confirmação");
     }
 
-    private void send(String toEmail, String subject, String html, String kind, String link) {
+    private void send(String toEmail, String subject, String html, String kind) {
         JavaMailSender mailSender = enabled ? mailSenderProvider.getIfAvailable() : null;
         if (mailSender == null) {
-            log.warn("[MAIL DESABILITADO] Link de {} para {}: {}", kind, toEmail, link);
+            // Never log the link: it carries a single-use token that grants account
+            // takeover to anyone who can read the log. The masked address is enough to
+            // tell which flow ran, and the warning makes a misconfigured MAIL_ENABLED
+            // visible in production instead of silently dropping mail.
+            log.warn("Mail disabled, {} e-mail for {} was not sent", kind, mask(toEmail));
             return;
         }
         try {
@@ -88,6 +94,24 @@ public class MailSenderAdapter implements MailSenderPort {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * Masks an address for logging: {@code person@example.com} becomes {@code p***@example.com}.
+     *
+     * <p>Enough to tell which account a log line refers to when reading it next to the
+     * database, without writing personal data into a file that gets shipped, archived and
+     * read by tooling.
+     */
+    private static String mask(String email) {
+        if (email == null || email.isBlank()) {
+            return "<none>";
+        }
+        int at = email.indexOf('@');
+        if (at <= 0) {
+            return "***";
+        }
+        return email.charAt(0) + "***" + email.substring(at);
+    }
+
     private String brandedHtml(String greeting, String intro, String ctaLabel, String ctaUrl, String note) {
         return EMAIL_TEMPLATE
                 .replace("{{greeting}}", greeting)
@@ -97,7 +121,8 @@ public class MailSenderAdapter implements MailSenderPort {
                 .replace("{{ctaUrl}}", ctaUrl);
     }
 
-    private static final String EMAIL_TEMPLATE = """
+    private static final String EMAIL_TEMPLATE =
+            """
             <!doctype html>
             <html lang="pt-BR">
               <body style="margin:0;padding:0;background:#fbf6ee;">

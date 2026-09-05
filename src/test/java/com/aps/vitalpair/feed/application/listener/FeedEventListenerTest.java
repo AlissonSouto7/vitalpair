@@ -3,6 +3,17 @@ package com.aps.vitalpair.feed.application.listener;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.aps.vitalpair.feed.domain.model.FeedItem;
 import com.aps.vitalpair.feed.domain.model.FeedItemType;
 import com.aps.vitalpair.feed.domain.port.out.FeedItemRepositoryPort;
@@ -10,15 +21,6 @@ import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class FeedEventListenerTest {
@@ -29,15 +31,22 @@ class FeedEventListenerTest {
 
     @Mock
     private FeedItemRepositoryPort feedItemRepository;
+
     @Mock
     private UserRepositoryPort userRepository;
+
     @InjectMocks
     private FeedEventListener listener;
 
     @Test
     void criaItemDeRefeicaoComTituloFormatado() {
-        when(userRepository.findById(USER)).thenReturn(Optional.of(
-                User.builder().id(USER).tenantId(TENANT).email("ana@a.com").name("Ana").build()));
+        when(userRepository.findById(USER))
+                .thenReturn(Optional.of(User.builder()
+                        .id(USER)
+                        .tenantId(TENANT)
+                        .email("ana@a.com")
+                        .name("Ana")
+                        .build()));
 
         listener.onMealLogged(new MealLoggedEvent(USER, TENANT, TODAY, "Arroz", "LUNCH", false, 585, 48, 62, 14));
 
@@ -51,8 +60,13 @@ class FeedEventListenerTest {
 
     @Test
     void criaItemDeAtividadeComTituloFormatado() {
-        when(userRepository.findById(USER)).thenReturn(Optional.of(
-                User.builder().id(USER).tenantId(TENANT).email("ana@a.com").name("Ana").build()));
+        when(userRepository.findById(USER))
+                .thenReturn(Optional.of(User.builder()
+                        .id(USER)
+                        .tenantId(TENANT)
+                        .email("ana@a.com")
+                        .name("Ana")
+                        .build()));
 
         listener.onActivityLogged(new ActivityLoggedEvent(USER, TENANT, TODAY, "RUN", 320, 35));
 

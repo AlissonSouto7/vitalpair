@@ -1,7 +1,8 @@
 package com.aps.vitalpair.season.infrastructure.persistence;
 
-import com.aps.vitalpair.season.domain.model.PointEvent;
 import org.mapstruct.Mapper;
+
+import com.aps.vitalpair.season.domain.model.PointEvent;
 
 @Mapper
 public interface PointEventPersistenceMapper {

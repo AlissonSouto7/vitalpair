@@ -1,10 +1,11 @@
 package com.aps.vitalpair.gamification.domain.port.out;
 
-import com.aps.vitalpair.gamification.domain.model.StreakType;
-import com.aps.vitalpair.gamification.domain.model.UserStreak;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.gamification.domain.model.StreakType;
+import com.aps.vitalpair.gamification.domain.model.UserStreak;
 
 public interface UserStreakRepositoryPort {
 

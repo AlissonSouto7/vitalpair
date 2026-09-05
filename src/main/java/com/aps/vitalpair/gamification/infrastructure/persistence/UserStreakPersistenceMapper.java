@@ -1,7 +1,8 @@
 package com.aps.vitalpair.gamification.infrastructure.persistence;
 
-import com.aps.vitalpair.gamification.domain.model.UserStreak;
 import org.mapstruct.Mapper;
+
+import com.aps.vitalpair.gamification.domain.model.UserStreak;
 
 @Mapper
 public interface UserStreakPersistenceMapper {

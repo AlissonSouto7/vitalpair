@@ -3,6 +3,7 @@ package com.aps.vitalpair.nutrition.infrastructure.persistence;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,8 @@ public interface FoodLogJpaRepository extends JpaRepository<FoodLogJpaEntity, UU
      * Nomes dos alimentos que o usuário mais registrou, ordenados por
      * frequência (desc). Isolado por usuário, igual às demais queries.
      */
-    @Query("""
+    @Query(
+            """
             SELECT f.foodName AS foodName, COUNT(f) AS count
             FROM FoodLogJpaEntity f
             WHERE f.userId = :userId

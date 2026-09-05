@@ -2,6 +2,7 @@ package com.aps.vitalpair.mission.domain.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
+
 import lombok.Builder;
 import lombok.Getter;
 

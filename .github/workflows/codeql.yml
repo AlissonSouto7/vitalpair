@@ -1,0 +1,64 @@
+name: CodeQL
+
+# Static security analysis. Runs on every pull request so a vulnerability is caught
+# before it reaches main, and weekly so newly published rules are applied to code that
+# has not changed.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Mondays at 06:00 UTC. Off-hours so a long run never competes with a pull request.
+    - cron: '0 6 * * 1'
+
+# Cancel an in-progress analysis when the branch is pushed again; only the latest
+# commit's result matters.
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze ${{ matrix.language }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      # Least privilege: read the code, write the findings, nothing else.
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [java-kotlin, javascript-typescript]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # security-and-quality adds maintainability rules on top of the security ones.
+          queries: security-and-quality
+
+      # The Java analysis needs compiled bytecode. Tests are skipped because CI already
+      # runs them; this build exists only to produce classes for CodeQL to read.
+      - name: Build backend
+        if: matrix.language == 'java-kotlin'
+        run: ./mvnw -B -ntp -DskipTests compile
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}

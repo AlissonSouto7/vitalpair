@@ -1,5 +1,15 @@
 package com.aps.vitalpair.mission.application.service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.mission.domain.model.FlashMissionView;
 import com.aps.vitalpair.mission.domain.model.Mission;
 import com.aps.vitalpair.mission.domain.model.MissionKind;
@@ -11,14 +21,6 @@ import com.aps.vitalpair.mission.domain.port.out.PairMissionRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissionUseCase {
@@ -42,7 +44,8 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
         UUID tenantId = resolveTenant(userId);
         LocalDate today = LocalDate.now();
         Mission mission = missionOfDay(today);
-        boolean accepted = pairMissionRepository.find(tenantId, today)
+        boolean accepted = pairMissionRepository
+                .find(tenantId, today)
                 .map(PairMissionState::isAccepted)
                 .orElse(false);
         return view(mission, today, accepted);
@@ -55,7 +58,8 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
         LocalDate today = LocalDate.now();
         Mission mission = missionOfDay(today);
 
-        PairMissionState state = pairMissionRepository.find(tenantId, today)
+        PairMissionState state = pairMissionRepository
+                .find(tenantId, today)
                 .map(existing -> existing.toBuilder()
                         .accepted(true)
                         .acceptedAt(Instant.now())
@@ -73,8 +77,7 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
     }
 
     private UUID resolveTenant(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         return user.getTenantId();
     }
 

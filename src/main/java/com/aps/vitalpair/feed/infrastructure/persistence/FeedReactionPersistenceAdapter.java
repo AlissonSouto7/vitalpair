@@ -1,12 +1,14 @@
 package com.aps.vitalpair.feed.infrastructure.persistence;
 
-import com.aps.vitalpair.feed.domain.model.FeedReaction;
-import com.aps.vitalpair.feed.domain.model.ReactionType;
-import com.aps.vitalpair.feed.domain.port.out.FeedReactionRepositoryPort;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.feed.domain.model.FeedReaction;
+import com.aps.vitalpair.feed.domain.model.ReactionType;
+import com.aps.vitalpair.feed.domain.port.out.FeedReactionRepositoryPort;
 
 @Component
 public class FeedReactionPersistenceAdapter implements FeedReactionRepositoryPort {
@@ -14,8 +16,7 @@ public class FeedReactionPersistenceAdapter implements FeedReactionRepositoryPor
     private final FeedReactionJpaRepository repository;
     private final FeedReactionPersistenceMapper mapper;
 
-    public FeedReactionPersistenceAdapter(
-            FeedReactionJpaRepository repository, FeedReactionPersistenceMapper mapper) {
+    public FeedReactionPersistenceAdapter(FeedReactionJpaRepository repository, FeedReactionPersistenceMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -40,6 +41,8 @@ public class FeedReactionPersistenceAdapter implements FeedReactionRepositoryPor
         if (feedItemIds.isEmpty()) {
             return List.of();
         }
-        return repository.findByFeedItemIdIn(feedItemIds).stream().map(mapper::toDomain).toList();
+        return repository.findByFeedItemIdIn(feedItemIds).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

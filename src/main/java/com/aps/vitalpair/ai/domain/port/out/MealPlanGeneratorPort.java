@@ -1,8 +1,9 @@
 package com.aps.vitalpair.ai.domain.port.out;
 
+import java.util.List;
+
 import com.aps.vitalpair.ai.domain.model.MealPlanItem;
 import com.aps.vitalpair.ai.domain.model.NutritionTargets;
-import java.util.List;
 
 /** Porta de saída para a IA que monta o cardápio (implementada sobre a Anthropic). */
 public interface MealPlanGeneratorPort {

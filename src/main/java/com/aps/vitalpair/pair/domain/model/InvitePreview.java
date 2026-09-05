@@ -9,5 +9,4 @@ package com.aps.vitalpair.pair.domain.model;
  * @param relationshipType tipo de vínculo proposto pelo par
  * @param full             {@code true} se o par já está ativo / já tem dois membros
  */
-public record InvitePreview(String inviterName, RelationshipType relationshipType, boolean full) {
-}
+public record InvitePreview(String inviterName, RelationshipType relationshipType, boolean full) {}

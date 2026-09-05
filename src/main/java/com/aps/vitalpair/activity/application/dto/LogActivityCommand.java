@@ -1,9 +1,10 @@
 package com.aps.vitalpair.activity.application.dto;
 
-import com.aps.vitalpair.activity.domain.model.ActivitySource;
-import com.aps.vitalpair.activity.domain.model.ActivityType;
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import com.aps.vitalpair.activity.domain.model.ActivitySource;
+import com.aps.vitalpair.activity.domain.model.ActivityType;
 
 /**
  * Dados para registrar uma atividade. Se {@code caloriesBurned} for nulo e houver {@code steps},
@@ -17,5 +18,4 @@ public record LogActivityCommand(
         Integer durationMinutes,
         ActivitySource source,
         String externalId,
-        Instant loggedAt) {
-}
+        Instant loggedAt) {}

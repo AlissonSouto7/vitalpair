@@ -1,13 +1,15 @@
 package com.aps.vitalpair.progress.infrastructure.persistence;
 
-import com.aps.vitalpair.nutrition.infrastructure.persistence.FoodLogJpaEntity;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.aps.vitalpair.nutrition.infrastructure.persistence.FoodLogJpaEntity;
 
 /**
  * Agregados read-only de {@code food_logs} para a tela de Progresso: calorias e
@@ -23,7 +25,8 @@ public interface NutritionMetricsJpaRepository extends JpaRepository<FoodLogJpaE
      * Totais diários de calorias e macros do usuário no intervalo
      * {@code [start, end)}. Um registro por dia que tem refeição.
      */
-    @Query("""
+    @Query(
+            """
             SELECT CAST(f.loggedAt AS LocalDate) AS day,
                    SUM(f.caloriesKcal) AS kcal,
                    SUM(f.proteinG) AS proteinG,
@@ -37,9 +40,7 @@ public interface NutritionMetricsJpaRepository extends JpaRepository<FoodLogJpaE
             ORDER BY CAST(f.loggedAt AS LocalDate) ASC
             """)
     List<DailyTotalsView> findDailyTotals(
-            @Param("userId") UUID userId,
-            @Param("start") Instant start,
-            @Param("end") Instant end);
+            @Param("userId") UUID userId, @Param("start") Instant start, @Param("end") Instant end);
 
     /** Projeção dos totais somados por dia. */
     interface DailyTotalsView {

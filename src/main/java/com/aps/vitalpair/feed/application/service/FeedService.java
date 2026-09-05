@@ -1,5 +1,14 @@
 package com.aps.vitalpair.feed.application.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.feed.application.dto.FeedItemView;
 import com.aps.vitalpair.feed.domain.model.FeedItem;
 import com.aps.vitalpair.feed.domain.model.FeedReaction;
@@ -11,13 +20,6 @@ import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.shared.web.PageResponse;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FeedService implements GetFeedUseCase {
@@ -38,20 +40,20 @@ public class FeedService implements GetFeedUseCase {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<FeedItemView> getFeed(UUID userId, int page, int size) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
         PageResponse<FeedItem> items = feedItemRepository.findVisibleByTenant(user.getTenantId(), userId, page, size);
         List<UUID> itemIds = items.content().stream().map(FeedItem::getId).toList();
         List<FeedReaction> reactions = reactionRepository.findByItemIds(itemIds);
 
         Map<UUID, Map<ReactionType, Long>> countsByItem = reactions.stream()
-                .collect(Collectors.groupingBy(FeedReaction::getFeedItemId,
+                .collect(Collectors.groupingBy(
+                        FeedReaction::getFeedItemId,
                         Collectors.groupingBy(FeedReaction::getType, Collectors.counting())));
         Map<UUID, Set<ReactionType>> mineByItem = reactions.stream()
                 .filter(r -> r.getUserId().equals(userId))
-                .collect(Collectors.groupingBy(FeedReaction::getFeedItemId,
-                        Collectors.mapping(FeedReaction::getType, Collectors.toSet())));
+                .collect(Collectors.groupingBy(
+                        FeedReaction::getFeedItemId, Collectors.mapping(FeedReaction::getType, Collectors.toSet())));
 
         List<FeedItemView> views = items.content().stream()
                 .map(item -> new FeedItemView(

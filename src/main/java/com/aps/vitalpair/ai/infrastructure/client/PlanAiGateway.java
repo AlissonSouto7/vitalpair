@@ -1,12 +1,14 @@
 package com.aps.vitalpair.ai.infrastructure.client;
 
-import com.aps.vitalpair.ai.domain.exception.AiPlanNotConfiguredException;
-import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
-import com.aps.vitalpair.config.AnthropicProperties;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.ai.domain.exception.AiPlanNotConfiguredException;
+import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
+import com.aps.vitalpair.config.AnthropicProperties;
 
 /**
  * Passo comum das gerações por IA: valida a configuração, chama a Anthropic com saída
@@ -44,7 +46,7 @@ class PlanAiGateway {
         try {
             response = client.createMessage(request);
         } catch (RuntimeException ex) {
-            log.warn("Falha ao chamar a Anthropic para gerar plano: {}", ex.getMessage());
+            log.warn("Falha ao chamar a Anthropic para gerar plano: {}", ex.getMessage(), ex);
             throw new PlanGenerationException(
                     "Não foi possível gerar o plano agora. Tente novamente em instantes.", ex);
         }
@@ -59,7 +61,9 @@ class PlanAiGateway {
             throw new PlanGenerationException("A IA retornou uma resposta vazia.");
         }
         return response.content().stream()
-                .filter(block -> "text".equals(block.type()) && block.text() != null && !block.text().isBlank())
+                .filter(block -> "text".equals(block.type())
+                        && block.text() != null
+                        && !block.text().isBlank())
                 .map(PlanMessages.Block::text)
                 .findFirst()
                 .orElseThrow(() -> new PlanGenerationException("A IA não retornou o plano gerado."));

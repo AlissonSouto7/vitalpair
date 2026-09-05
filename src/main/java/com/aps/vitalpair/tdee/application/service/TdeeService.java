@@ -1,12 +1,13 @@
 package com.aps.vitalpair.tdee.application.service;
 
+import org.springframework.stereotype.Service;
+
 import com.aps.vitalpair.tdee.domain.model.TdeeInput;
 import com.aps.vitalpair.tdee.domain.model.TdeeResult;
 import com.aps.vitalpair.tdee.domain.port.in.CalculateTargetsUseCase;
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Sex;
-import org.springframework.stereotype.Service;
 
 /**
  * Cálculo de TDEE pela fórmula de Mifflin-St Jeor e definição de meta calórica/macros conforme
@@ -36,12 +37,7 @@ public class TdeeService implements CalculateTargetsUseCase {
         int carbG = Math.max(0, remainingCalories / CALORIES_PER_GRAM_CARB);
 
         return new TdeeResult(
-                (int) Math.round(bmr),
-                (int) Math.round(tdee),
-                (int) Math.round(dailyCalories),
-                proteinG,
-                carbG,
-                fatG);
+                (int) Math.round(bmr), (int) Math.round(tdee), (int) Math.round(dailyCalories), proteinG, carbG, fatG);
     }
 
     private double sexConstant(Sex sex) {

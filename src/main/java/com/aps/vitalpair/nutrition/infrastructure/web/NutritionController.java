@@ -1,19 +1,11 @@
 package com.aps.vitalpair.nutrition.infrastructure.web;
 
-import com.aps.vitalpair.nutrition.application.dto.LogMealCommand;
-import com.aps.vitalpair.nutrition.domain.port.in.DeleteFoodLogUseCase;
-import com.aps.vitalpair.nutrition.domain.port.in.FindFoodByBarcodeUseCase;
-import com.aps.vitalpair.nutrition.domain.port.in.GetDailyLogsUseCase;
-import com.aps.vitalpair.nutrition.domain.port.in.GetDailySummaryUseCase;
-import com.aps.vitalpair.nutrition.domain.port.in.GetFavoriteFoodsUseCase;
-import com.aps.vitalpair.nutrition.domain.port.in.LogMealUseCase;
-import com.aps.vitalpair.nutrition.domain.port.in.SearchFoodUseCase;
-import com.aps.vitalpair.shared.security.AuthenticatedUser;
-import com.aps.vitalpair.shared.web.ApiResponse;
-import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.validation.Valid;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +18,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.aps.vitalpair.nutrition.application.dto.LogMealCommand;
+import com.aps.vitalpair.nutrition.domain.port.in.DeleteFoodLogUseCase;
+import com.aps.vitalpair.nutrition.domain.port.in.FindFoodByBarcodeUseCase;
+import com.aps.vitalpair.nutrition.domain.port.in.GetDailyLogsUseCase;
+import com.aps.vitalpair.nutrition.domain.port.in.GetDailySummaryUseCase;
+import com.aps.vitalpair.nutrition.domain.port.in.GetFavoriteFoodsUseCase;
+import com.aps.vitalpair.nutrition.domain.port.in.LogMealUseCase;
+import com.aps.vitalpair.nutrition.domain.port.in.SearchFoodUseCase;
+import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/nutrition")
@@ -66,17 +69,25 @@ public class NutritionController {
 
     @GetMapping("/foods/barcode/{code}")
     public ResponseEntity<ApiResponse<FoodProductResponse>> byBarcode(@PathVariable String code) {
-        return ResponseEntity.ok(ApiResponse.ok(FoodProductResponse.from(findFoodByBarcodeUseCase.findByBarcode(code))));
+        return ResponseEntity.ok(
+                ApiResponse.ok(FoodProductResponse.from(findFoodByBarcodeUseCase.findByBarcode(code))));
     }
 
     @PostMapping("/logs")
     public ResponseEntity<ApiResponse<FoodLogResponse>> log(
-            @AuthenticationPrincipal AuthenticatedUser principal,
-            @Valid @RequestBody LogMealRequest request) {
+            @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody LogMealRequest request) {
         var command = new LogMealCommand(
-                request.foodName(), request.barcode(), request.quantityG(), request.caloriesKcal(),
-                request.proteinG(), request.carbG(), request.fatG(),
-                request.mealType(), request.source(), request.isPrivate(), request.loggedAt());
+                request.foodName(),
+                request.barcode(),
+                request.quantityG(),
+                request.caloriesKcal(),
+                request.proteinG(),
+                request.carbG(),
+                request.fatG(),
+                request.mealType(),
+                request.source(),
+                request.isPrivate(),
+                request.loggedAt());
         var saved = logMealUseCase.logMeal(principal.userId(), command);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(FoodLogResponse.from(saved), "Refeição registrada"));
@@ -85,7 +96,8 @@ public class NutritionController {
     @GetMapping("/logs")
     public ResponseEntity<ApiResponse<List<FoodLogResponse>>> logs(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate date) {
         List<FoodLogResponse> logs = getDailyLogsUseCase.getLogs(principal.userId(), orToday(date)).stream()
                 .map(FoodLogResponse::from)
                 .toList();
@@ -94,8 +106,7 @@ public class NutritionController {
 
     @DeleteMapping("/logs/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
-            @AuthenticationPrincipal AuthenticatedUser principal,
-            @PathVariable UUID id) {
+            @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable UUID id) {
         deleteFoodLogUseCase.delete(principal.userId(), id);
         return ResponseEntity.ok(ApiResponse.ok(null, "Registro removido"));
     }
@@ -103,7 +114,8 @@ public class NutritionController {
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<DailySummaryResponse>> summary(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate date) {
         var summary = getDailySummaryUseCase.getSummary(principal.userId(), orToday(date));
         return ResponseEntity.ok(ApiResponse.ok(DailySummaryResponse.from(summary)));
     }

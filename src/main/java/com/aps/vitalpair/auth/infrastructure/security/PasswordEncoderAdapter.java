@@ -1,8 +1,9 @@
 package com.aps.vitalpair.auth.infrastructure.security;
 
-import com.aps.vitalpair.auth.domain.port.out.PasswordHasherPort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.auth.domain.port.out.PasswordHasherPort;
 
 /** Implementa {@link PasswordHasherPort} com BCrypt (strength 12, conforme §7.1 da arquitetura). */
 @Component

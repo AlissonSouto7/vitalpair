@@ -1,11 +1,9 @@
 package com.aps.vitalpair.nutrition.infrastructure.client;
 
-import com.aps.vitalpair.config.OpenFoodFactsProperties;
-import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
-import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+
+import com.aps.vitalpair.config.OpenFoodFactsProperties;
+import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
+import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
 
 /** Adaptador da porta de busca de alimentos sobre a API pública da Open Food Facts. */
 @Component
@@ -39,7 +41,8 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
     @Override
     public List<FoodProduct> searchByName(String query) {
         try {
-            OffResponses.SearchResponse response = searchClient.get()
+            OffResponses.SearchResponse response = searchClient
+                    .get()
                     .uri(builder -> builder.path("/search")
                             .queryParam("q", query)
                             .queryParam("page_size", SEARCH_PAGE_SIZE)
@@ -52,11 +55,12 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
                 return List.of();
             }
             return response.hits().stream()
-                    .filter(product -> product.productName() != null && !product.productName().isBlank())
+                    .filter(product -> product.productName() != null
+                            && !product.productName().isBlank())
                     .map(this::toFoodProduct)
                     .toList();
         } catch (RestClientException ex) {
-            log.warn("Falha ao buscar alimentos na Open Food Facts: {}", ex.getMessage());
+            log.warn("Falha ao buscar alimentos na Open Food Facts: {}", ex.getMessage(), ex);
             return List.of();
         }
     }
@@ -64,14 +68,17 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
     @Override
     public Optional<FoodProduct> findByBarcode(String barcode) {
         try {
-            OffResponses.ProductResponse response = productClient.get()
+            OffResponses.ProductResponse response = productClient
+                    .get()
                     .uri(builder -> builder.path("/api/v2/product/{barcode}.json")
                             .queryParam("fields", FIELDS)
                             .build(barcode))
                     .retrieve()
                     .body(OffResponses.ProductResponse.class);
 
-            if (response == null || response.status() != 1 || response.product() == null
+            if (response == null
+                    || response.status() != 1
+                    || response.product() == null
                     || response.product().productName() == null) {
                 return Optional.empty();
             }
@@ -79,7 +86,7 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
         } catch (HttpClientErrorException.NotFound ex) {
             return Optional.empty();
         } catch (RestClientException ex) {
-            log.warn("Falha ao consultar código de barras na Open Food Facts: {}", ex.getMessage());
+            log.warn("Falha ao consultar código de barras na Open Food Facts: {}", ex.getMessage(), ex);
             return Optional.empty();
         }
     }

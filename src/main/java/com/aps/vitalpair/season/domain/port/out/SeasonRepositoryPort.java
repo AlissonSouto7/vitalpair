@@ -1,10 +1,11 @@
 package com.aps.vitalpair.season.domain.port.out;
 
-import com.aps.vitalpair.season.domain.model.Season;
-import com.aps.vitalpair.season.domain.model.SeasonStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.season.domain.model.Season;
+import com.aps.vitalpair.season.domain.model.SeasonStatus;
 
 /** Porta de saída para persistência de temporadas. */
 public interface SeasonRepositoryPort {

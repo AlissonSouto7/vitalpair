@@ -7,11 +7,4 @@ import java.util.UUID;
  * {@code done} marca o check individual do usuário durante o treino.
  */
 public record WorkoutExercise(
-        UUID id,
-        int position,
-        String name,
-        int sets,
-        String reps,
-        int restSeconds,
-        boolean done) {
-}
+        UUID id, int position, String name, int sets, String reps, int restSeconds, boolean done) {}

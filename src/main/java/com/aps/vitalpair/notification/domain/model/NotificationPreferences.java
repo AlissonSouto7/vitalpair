@@ -1,6 +1,7 @@
 package com.aps.vitalpair.notification.domain.model;
 
 import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Getter;
 

@@ -10,5 +10,4 @@ public record PartnerSummary(
         Integer calorieTarget,
         int consumedCalories,
         int burnedCalories,
-        int netCalories) {
-}
+        int netCalories) {}

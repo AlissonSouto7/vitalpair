@@ -1,5 +1,15 @@
 package com.aps.vitalpair.ai.infrastructure.client;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
 import com.aps.vitalpair.ai.domain.model.WorkoutDay;
 import com.aps.vitalpair.ai.domain.model.WorkoutExercise;
@@ -9,14 +19,6 @@ import com.aps.vitalpair.user.domain.model.Goal;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Adaptador da porta de geração de plano de treino sobre a Anthropic. O json_schema exige todos
@@ -45,8 +47,8 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
 
     @Override
     public List<WorkoutDay> generateWeek(Goal goal, ActivityLevel activityLevel) {
-        String json = gateway.generateJson(
-                SYSTEM_PROMPT, weekPrompt(goal, activityLevel), weekSchema(), WEEK_MAX_TOKENS);
+        String json =
+                gateway.generateJson(SYSTEM_PROMPT, weekPrompt(goal, activityLevel), weekSchema(), WEEK_MAX_TOKENS);
         return parseWeek(json);
     }
 
@@ -94,10 +96,14 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
         exerciseProperties.put("reps", Map.of("type", "string"));
         exerciseProperties.put("restSeconds", Map.of("type", "integer"));
         Map<String, Object> exerciseSchema = Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", exerciseProperties,
-                "required", List.of("name", "sets", "reps", "restSeconds"));
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "properties",
+                exerciseProperties,
+                "required",
+                List.of("name", "sets", "reps", "restSeconds"));
 
         Map<String, Object> dayProperties = new LinkedHashMap<>();
         dayProperties.put("dayIndex", Map.of("type", "integer"));
@@ -106,16 +112,24 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
         dayProperties.put("durationMin", Map.of("type", "integer"));
         dayProperties.put("exercises", Map.of("type", "array", "items", exerciseSchema));
         Map<String, Object> daySchema = Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", dayProperties,
-                "required", List.of("dayIndex", "rest", "focus", "durationMin", "exercises"));
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "properties",
+                dayProperties,
+                "required",
+                List.of("dayIndex", "rest", "focus", "durationMin", "exercises"));
 
         return Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "properties", Map.of("days", Map.of("type", "array", "items", daySchema)),
-                "required", List.of("days"));
+                "type",
+                "object",
+                "additionalProperties",
+                false,
+                "properties",
+                Map.of("days", Map.of("type", "array", "items", daySchema)),
+                "required",
+                List.of("days"));
     }
 
     // ===== Parse + normalização =====
@@ -125,7 +139,7 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
         try {
             root = objectMapper.readTree(json);
         } catch (JsonProcessingException ex) {
-            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage());
+            log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
             throw new PlanGenerationException("A IA retornou um resultado em formato inesperado.", ex);
         }
 

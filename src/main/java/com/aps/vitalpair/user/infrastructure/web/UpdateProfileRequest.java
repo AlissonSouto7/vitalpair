@@ -1,15 +1,17 @@
 package com.aps.vitalpair.user.infrastructure.web;
 
-import com.aps.vitalpair.user.domain.model.ActivityLevel;
-import com.aps.vitalpair.user.domain.model.Goal;
-import com.aps.vitalpair.user.domain.model.Sex;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+
+import com.aps.vitalpair.user.domain.model.ActivityLevel;
+import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.Sex;
 
 public record UpdateProfileRequest(
         @NotNull @Size(min = 1, max = 100) String name,
@@ -19,5 +21,4 @@ public record UpdateProfileRequest(
         @NotNull @DecimalMin("20.0") @DecimalMax("500.0") BigDecimal weightKg,
         @NotNull Goal goal,
         @NotNull ActivityLevel activityLevel,
-        @Size(max = 500) String avatarUrl) {
-}
+        @Size(max = 500) String avatarUrl) {}

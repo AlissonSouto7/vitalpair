@@ -1,13 +1,15 @@
 package com.aps.vitalpair.activity.infrastructure.persistence;
 
-import com.aps.vitalpair.activity.domain.model.ActivityLog;
-import com.aps.vitalpair.activity.domain.port.out.ActivityLogRepositoryPort;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.activity.domain.model.ActivityLog;
+import com.aps.vitalpair.activity.domain.port.out.ActivityLogRepositoryPort;
 
 @Component
 public class ActivityLogPersistenceAdapter implements ActivityLogRepositoryPort {

@@ -6,6 +6,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.aps.vitalpair.feed.domain.model.FeedItem;
 import com.aps.vitalpair.feed.domain.model.ReactionType;
 import com.aps.vitalpair.feed.domain.port.out.FeedItemRepositoryPort;
@@ -13,13 +22,6 @@ import com.aps.vitalpair.feed.domain.port.out.FeedReactionRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ReactionServiceTest {
@@ -30,10 +32,13 @@ class ReactionServiceTest {
 
     @Mock
     private FeedReactionRepositoryPort reactionRepository;
+
     @Mock
     private FeedItemRepositoryPort feedItemRepository;
+
     @Mock
     private UserRepositoryPort userRepository;
+
     @InjectMocks
     private ReactionService service;
 
@@ -59,10 +64,20 @@ class ReactionServiceTest {
     }
 
     private User user(UUID tenantId) {
-        return User.builder().id(USER).tenantId(tenantId).email("a@a.com").name("Ana").build();
+        return User.builder()
+                .id(USER)
+                .tenantId(tenantId)
+                .email("a@a.com")
+                .name("Ana")
+                .build();
     }
 
     private FeedItem item(UUID tenantId) {
-        return FeedItem.builder().id(ITEM).tenantId(tenantId).userId(USER).actorName("Ana").build();
+        return FeedItem.builder()
+                .id(ITEM)
+                .tenantId(tenantId)
+                .userId(USER)
+                .actorName("Ana")
+                .build();
     }
 }

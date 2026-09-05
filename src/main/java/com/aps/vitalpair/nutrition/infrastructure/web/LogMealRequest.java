@@ -1,13 +1,15 @@
 package com.aps.vitalpair.nutrition.infrastructure.web;
 
-import com.aps.vitalpair.nutrition.domain.model.FoodSource;
-import com.aps.vitalpair.nutrition.domain.model.MealType;
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.time.Instant;
+
+import com.aps.vitalpair.nutrition.domain.model.FoodSource;
+import com.aps.vitalpair.nutrition.domain.model.MealType;
 
 public record LogMealRequest(
         @NotBlank @Size(max = 255) String foodName,
@@ -20,5 +22,4 @@ public record LogMealRequest(
         @NotNull MealType mealType,
         @NotNull FoodSource source,
         boolean isPrivate,
-        Instant loggedAt) {
-}
+        Instant loggedAt) {}

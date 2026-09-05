@@ -1,8 +1,9 @@
 package com.aps.vitalpair.nutrition.domain.port.out;
 
-import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 import java.util.List;
 import java.util.Optional;
+
+import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 
 public interface OpenFoodFactsPort {
 

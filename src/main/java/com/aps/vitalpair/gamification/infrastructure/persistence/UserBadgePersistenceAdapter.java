@@ -1,10 +1,12 @@
 package com.aps.vitalpair.gamification.infrastructure.persistence;
 
-import com.aps.vitalpair.gamification.domain.model.UserBadge;
-import com.aps.vitalpair.gamification.domain.port.out.UserBadgeRepositoryPort;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.gamification.domain.model.UserBadge;
+import com.aps.vitalpair.gamification.domain.port.out.UserBadgeRepositoryPort;
 
 @Component
 public class UserBadgePersistenceAdapter implements UserBadgeRepositoryPort {

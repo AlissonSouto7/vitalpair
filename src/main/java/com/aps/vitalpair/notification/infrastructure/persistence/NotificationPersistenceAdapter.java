@@ -1,11 +1,13 @@
 package com.aps.vitalpair.notification.infrastructure.persistence;
 
-import com.aps.vitalpair.notification.domain.model.Notification;
-import com.aps.vitalpair.notification.domain.port.out.NotificationRepositoryPort;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.notification.domain.model.Notification;
+import com.aps.vitalpair.notification.domain.port.out.NotificationRepositoryPort;
 
 @Component
 public class NotificationPersistenceAdapter implements NotificationRepositoryPort {

@@ -1,10 +1,7 @@
 package com.aps.vitalpair.auth.infrastructure.security;
 
-import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
-import com.aps.vitalpair.auth.domain.model.GoogleUserInfo;
-import com.aps.vitalpair.auth.domain.port.out.GoogleTokenVerifierPort;
-import com.aps.vitalpair.config.GoogleOAuthProperties;
 import java.util.Set;
+
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -13,6 +10,11 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
+import com.aps.vitalpair.auth.domain.model.GoogleUserInfo;
+import com.aps.vitalpair.auth.domain.port.out.GoogleTokenVerifierPort;
+import com.aps.vitalpair.config.GoogleOAuthProperties;
 
 /**
  * Verifica o id_token do Google contra as chaves públicas do Google (JWK Set).

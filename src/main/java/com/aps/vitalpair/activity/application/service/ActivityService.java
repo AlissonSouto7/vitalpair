@@ -1,5 +1,18 @@
 package com.aps.vitalpair.activity.application.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import com.aps.vitalpair.activity.application.dto.LogActivityCommand;
 import com.aps.vitalpair.activity.domain.model.ActivityLog;
@@ -11,17 +24,6 @@ import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUseCase, GetActivitySummaryUseCase {
@@ -45,8 +47,7 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
     @Override
     @Transactional
     public ActivityLog logActivity(UUID userId, LogActivityCommand command) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
         ActivityLog log = ActivityLog.builder()
                 .tenantId(user.getTenantId())
@@ -101,8 +102,7 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
             return command.caloriesBurned();
         }
         if (command.steps() != null) {
-            return KCAL_PER_STEP.multiply(BigDecimal.valueOf(command.steps()))
-                    .setScale(2, RoundingMode.HALF_UP);
+            return KCAL_PER_STEP.multiply(BigDecimal.valueOf(command.steps())).setScale(2, RoundingMode.HALF_UP);
         }
         return BigDecimal.ZERO;
     }

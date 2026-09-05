@@ -1,9 +1,10 @@
 package com.aps.vitalpair.feed.domain.port.out;
 
-import com.aps.vitalpair.feed.domain.model.FeedItem;
-import com.aps.vitalpair.shared.web.PageResponse;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.feed.domain.model.FeedItem;
+import com.aps.vitalpair.shared.web.PageResponse;
 
 public interface FeedItemRepositoryPort {
 

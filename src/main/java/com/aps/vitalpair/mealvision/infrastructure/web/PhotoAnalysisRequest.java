@@ -11,8 +11,8 @@ import jakarta.validation.constraints.Pattern;
  */
 public record PhotoAnalysisRequest(
         @NotBlank String imageBase64,
-        @NotBlank @Pattern(
-                regexp = "image/(jpeg|png|webp)",
-                message = "mediaType deve ser image/jpeg, image/png ou image/webp")
-        String mediaType) {
-}
+        @NotBlank
+                @Pattern(
+                        regexp = "image/(jpeg|png|webp)",
+                        message = "mediaType deve ser image/jpeg, image/png ou image/webp")
+                String mediaType) {}

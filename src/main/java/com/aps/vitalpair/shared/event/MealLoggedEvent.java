@@ -14,5 +14,4 @@ public record MealLoggedEvent(
         int caloriesKcal,
         int proteinG,
         int carbG,
-        int fatG) {
-}
+        int fatG) {}

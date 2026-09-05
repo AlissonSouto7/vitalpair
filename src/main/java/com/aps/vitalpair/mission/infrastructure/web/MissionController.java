@@ -1,17 +1,19 @@
 package com.aps.vitalpair.mission.infrastructure.web;
 
-import com.aps.vitalpair.mission.domain.port.in.AcceptFlashMissionUseCase;
-import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
-import com.aps.vitalpair.mission.domain.port.in.GetWeeklyMissionsUseCase;
-import com.aps.vitalpair.shared.security.AuthenticatedUser;
-import com.aps.vitalpair.shared.web.ApiResponse;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.aps.vitalpair.mission.domain.port.in.AcceptFlashMissionUseCase;
+import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
+import com.aps.vitalpair.mission.domain.port.in.GetWeeklyMissionsUseCase;
+import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/missions")
@@ -47,10 +49,9 @@ public class MissionController {
     @GetMapping("/weekly")
     public ResponseEntity<ApiResponse<List<WeeklyMissionResponse>>> weekly(
             @AuthenticationPrincipal AuthenticatedUser principal) {
-        List<WeeklyMissionResponse> missions =
-                getWeeklyMissionsUseCase.getCurrentWeek(principal.userId()).stream()
-                        .map(WeeklyMissionResponse::from)
-                        .toList();
+        List<WeeklyMissionResponse> missions = getWeeklyMissionsUseCase.getCurrentWeek(principal.userId()).stream()
+                .map(WeeklyMissionResponse::from)
+                .toList();
         return ResponseEntity.ok(ApiResponse.ok(missions));
     }
 }

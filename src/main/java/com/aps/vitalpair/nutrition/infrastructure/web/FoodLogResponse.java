@@ -1,11 +1,12 @@
 package com.aps.vitalpair.nutrition.infrastructure.web;
 
-import com.aps.vitalpair.nutrition.domain.model.FoodLog;
-import com.aps.vitalpair.nutrition.domain.model.FoodSource;
-import com.aps.vitalpair.nutrition.domain.model.MealType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.aps.vitalpair.nutrition.domain.model.FoodLog;
+import com.aps.vitalpair.nutrition.domain.model.FoodSource;
+import com.aps.vitalpair.nutrition.domain.model.MealType;
 
 public record FoodLogResponse(
         UUID id,

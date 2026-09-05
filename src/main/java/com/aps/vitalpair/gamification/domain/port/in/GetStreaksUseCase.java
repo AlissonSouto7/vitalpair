@@ -1,8 +1,9 @@
 package com.aps.vitalpair.gamification.domain.port.in;
 
-import com.aps.vitalpair.gamification.domain.model.UserStreak;
 import java.util.List;
 import java.util.UUID;
+
+import com.aps.vitalpair.gamification.domain.model.UserStreak;
 
 public interface GetStreaksUseCase {
 

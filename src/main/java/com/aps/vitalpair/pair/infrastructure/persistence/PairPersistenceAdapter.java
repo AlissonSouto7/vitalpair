@@ -1,10 +1,12 @@
 package com.aps.vitalpair.pair.infrastructure.persistence;
 
-import com.aps.vitalpair.pair.domain.model.Pair;
-import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.pair.domain.model.Pair;
+import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 
 /** Implementa a porta de saída de persistência de pares sobre Spring Data JPA. */
 @Component

@@ -1,11 +1,12 @@
 package com.aps.vitalpair.activity.infrastructure.web;
 
-import com.aps.vitalpair.activity.domain.model.ActivityLog;
-import com.aps.vitalpair.activity.domain.model.ActivitySource;
-import com.aps.vitalpair.activity.domain.model.ActivityType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.aps.vitalpair.activity.domain.model.ActivityLog;
+import com.aps.vitalpair.activity.domain.model.ActivitySource;
+import com.aps.vitalpair.activity.domain.model.ActivityType;
 
 public record ActivityLogResponse(
         UUID id,

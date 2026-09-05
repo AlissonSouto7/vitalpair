@@ -9,13 +9,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableScheduling
-@EnableFeignClients(basePackages = {
-		"com.aps.vitalpair.mealvision.infrastructure.ai",
-		"com.aps.vitalpair.ai.infrastructure.client"})
+@EnableFeignClients(
+        basePackages = {"com.aps.vitalpair.mealvision.infrastructure.ai", "com.aps.vitalpair.ai.infrastructure.client"})
 public class VitalpairApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(VitalpairApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(VitalpairApplication.class, args);
+    }
 }
