@@ -41,11 +41,7 @@ export function GoogleLoginButton({ onError }: { onError?: (message: string) => 
         callback: async (res) => {
           try {
             const token = await googleLogin(res.credential)
-            setSession({
-              accessToken: token.accessToken,
-              refreshToken: token.refreshToken,
-              userId: token.userId,
-            })
+            setSession({ accessToken: token.accessToken, userId: token.userId })
             navigate('/dashboard')
           } catch {
             onError?.('Não foi possível entrar com o Google.')

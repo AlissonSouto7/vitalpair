@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -40,8 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             extractToken(request).flatMap(tokenProvider::parseAccessToken).ifPresent(payload -> {
                 AuthenticatedUser principal =
-                        new AuthenticatedUser(payload.userId(), payload.tenantId(), payload.email());
-                var authentication = new UsernamePasswordAuthenticationToken(principal, null, List.of());
+                        new AuthenticatedUser(payload.userId(), payload.tenantId(), payload.email(), payload.role());
+                // Spring Security expects the ROLE_ prefix: hasRole("ADMIN") looks for an
+                // authority literally named ROLE_ADMIN. Without it the check silently never
+                // matches, which fails closed but is baffling to debug.
+                var authorities = List.of(
+                        new SimpleGrantedAuthority("ROLE_" + payload.role().name()));
+                var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 TenantContext.set(payload.tenantId());
