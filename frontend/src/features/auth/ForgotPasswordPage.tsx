@@ -40,9 +40,19 @@ export function ForgotPasswordPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="label">{t('auth.email')}</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+            />
           </div>
-          {error && <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{error}</p>}
+          {error && (
+            <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+              {error}
+            </p>
+          )}
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? t('auth.sending') : t('auth.forgotCta')}
           </button>

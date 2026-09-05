@@ -85,7 +85,8 @@ export const workoutplan = {
     toggleError: 'Impossible de cocher celui-là. Réessaie.',
     completeError: 'Impossible de boucler la séance. Réessaie.',
     restTitle: 'Aujourd’hui, repos',
-    restText: 'Le repos fait partie de l’entraînement. C’est là que le muscle pousse. Reviens demain.',
+    restText:
+      'Le repos fait partie de l’entraînement. C’est là que le muscle pousse. Reviens demain.',
     youDid: 'Tu as déjà fait',
     exercisesCount: '{{done}} sur {{total}} exercices',
     seriesReps: '{{series}} séries · {{reps}}',

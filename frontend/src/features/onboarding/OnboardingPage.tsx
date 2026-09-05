@@ -66,11 +66,23 @@ const buildGoalOptions = (
 const buildActivityOptions = (
   t: TFunction,
 ): { value: ActivityLevel; label: string; hint: string }[] => [
-  { value: 'SEDENTARY', label: t('onboarding.actSedentaryLabel'), hint: t('onboarding.actSedentaryHint') },
+  {
+    value: 'SEDENTARY',
+    label: t('onboarding.actSedentaryLabel'),
+    hint: t('onboarding.actSedentaryHint'),
+  },
   { value: 'LIGHT', label: t('onboarding.actLightLabel'), hint: t('onboarding.actLightHint') },
-  { value: 'MODERATE', label: t('onboarding.actModerateLabel'), hint: t('onboarding.actModerateHint') },
+  {
+    value: 'MODERATE',
+    label: t('onboarding.actModerateLabel'),
+    hint: t('onboarding.actModerateHint'),
+  },
   { value: 'ACTIVE', label: t('onboarding.actActiveLabel'), hint: t('onboarding.actActiveHint') },
-  { value: 'VERY_ACTIVE', label: t('onboarding.actVeryActiveLabel'), hint: t('onboarding.actVeryActiveHint') },
+  {
+    value: 'VERY_ACTIVE',
+    label: t('onboarding.actVeryActiveLabel'),
+    hint: t('onboarding.actVeryActiveHint'),
+  },
 ]
 
 export function OnboardingPage() {
@@ -223,7 +235,8 @@ export function OnboardingPage() {
   if (step === 2) nextLabel = calculating ? t('onboarding.calculating') : t('onboarding.step2Next')
   else if (step === 3) nextLabel = t('onboarding.step3Next')
   else if (step === 4) nextLabel = joining ? t('onboarding.joining') : t('onboarding.continue')
-  else if (step === TOTAL_STEPS) nextLabel = finishing ? t('onboarding.finishing') : t('onboarding.finish')
+  else if (step === TOTAL_STEPS)
+    nextLabel = finishing ? t('onboarding.finishing') : t('onboarding.finish')
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-ink">
@@ -235,7 +248,13 @@ export function OnboardingPage() {
       >
         {theme === 'dark' ? (
           <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" aria-hidden="true">
-            <path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+            <path
+              d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+            />
           </svg>
         ) : (
           <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" aria-hidden="true">
@@ -255,7 +274,11 @@ export function OnboardingPage() {
             />
           </div>
           <span className="whitespace-nowrap text-xs font-extrabold text-muted">
-            {t('onboarding.stepProgress', { step, total: TOTAL_STEPS, label: STEP_LABELS[step - 1] })}
+            {t('onboarding.stepProgress', {
+              step,
+              total: TOTAL_STEPS,
+              label: STEP_LABELS[step - 1],
+            })}
           </span>
         </div>
 
@@ -318,7 +341,12 @@ export function OnboardingPage() {
 
               <div className="mb-5">
                 <label className="label">{t('onboarding.sexLabel')}</label>
-                <Select value={sex} onChange={setSex} options={SEX_OPTIONS} placeholder={t('onboarding.sexPlaceholder')} />
+                <Select
+                  value={sex}
+                  onChange={setSex}
+                  options={SEX_OPTIONS}
+                  placeholder={t('onboarding.sexPlaceholder')}
+                />
               </div>
 
               <div>
@@ -363,7 +391,9 @@ export function OnboardingPage() {
           {step === 3 && tdee && (
             <StepWrap>
               <div className="text-center">
-                <p className="mb-1 font-display text-2xl font-semibold text-ink">{t('onboarding.step3Title')}</p>
+                <p className="mb-1 font-display text-2xl font-semibold text-ink">
+                  {t('onboarding.step3Title')}
+                </p>
                 <p className="mb-5 text-sm font-semibold text-muted">
                   {t('onboarding.step3Subtitle')}
                 </p>
@@ -377,9 +407,21 @@ export function OnboardingPage() {
                 </div>
 
                 <div className="mb-4 grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-2xl border border-hair">
-                  <MacroCell label={t('onboarding.macroProtein')} grams={tdee.proteinTargetG} tone="brand" />
-                  <MacroCell label={t('onboarding.macroCarb')} grams={tdee.carbTargetG} tone="carb" />
-                  <MacroCell label={t('onboarding.macroFat')} grams={tdee.fatTargetG} tone="success" />
+                  <MacroCell
+                    label={t('onboarding.macroProtein')}
+                    grams={tdee.proteinTargetG}
+                    tone="brand"
+                  />
+                  <MacroCell
+                    label={t('onboarding.macroCarb')}
+                    grams={tdee.carbTargetG}
+                    tone="carb"
+                  />
+                  <MacroCell
+                    label={t('onboarding.macroFat')}
+                    grams={tdee.fatTargetG}
+                    tone="success"
+                  />
                 </div>
 
                 <p className="text-sm font-semibold leading-relaxed text-muted">
@@ -402,7 +444,9 @@ export function OnboardingPage() {
                       <IconPair className="h-[22px] w-[22px]" />
                     </span>
                     <div className="text-left">
-                      <div className="text-[15px] font-extrabold text-ink">{t('onboarding.modePairTitle')}</div>
+                      <div className="text-[15px] font-extrabold text-ink">
+                        {t('onboarding.modePairTitle')}
+                      </div>
                       <div className="text-xs font-semibold text-muted">
                         {t('onboarding.modePairHint')}
                       </div>
@@ -432,7 +476,9 @@ export function OnboardingPage() {
                       <IconSolo className="h-[22px] w-[22px]" />
                     </span>
                     <div className="text-left">
-                      <div className="text-[15px] font-extrabold text-ink">{t('onboarding.modeSoloTitle')}</div>
+                      <div className="text-[15px] font-extrabold text-ink">
+                        {t('onboarding.modeSoloTitle')}
+                      </div>
                       <div className="text-xs font-semibold text-muted">
                         {t('onboarding.modeSoloHint')}
                       </div>
@@ -451,7 +497,9 @@ export function OnboardingPage() {
           {step === 5 && (
             <StepWrap>
               <StepHeader
-                title={mode === 'solo' ? t('onboarding.step5TitleSolo') : t('onboarding.step5TitlePair')}
+                title={
+                  mode === 'solo' ? t('onboarding.step5TitleSolo') : t('onboarding.step5TitlePair')
+                }
                 subtitle={
                   mode === 'solo'
                     ? t('onboarding.step5SubtitleSolo')
@@ -481,9 +529,13 @@ export function OnboardingPage() {
               </div>
 
               <div className="flex items-center gap-3 rounded-2xl border border-hair bg-surface px-4 py-4">
-                <span className="font-display text-[13px] font-semibold text-muted">{t('onboarding.betDuration')}</span>
+                <span className="font-display text-[13px] font-semibold text-muted">
+                  {t('onboarding.betDuration')}
+                </span>
                 <span className="h-px flex-1 bg-hair" />
-                <span className="font-display text-[13px] font-semibold text-ink">{t('onboarding.betFootnote')}</span>
+                <span className="font-display text-[13px] font-semibold text-ink">
+                  {t('onboarding.betFootnote')}
+                </span>
               </div>
 
               {/* TODO: backend de temporada/aposta — a aposta acima é só visual por enquanto. */}
@@ -631,7 +683,8 @@ function ModeCard({
   tone: 'brand' | 'rival'
   children: ReactNode
 }) {
-  const activeBorder = tone === 'rival' ? 'border-rival bg-rival-soft' : 'border-brand bg-brand-soft'
+  const activeBorder =
+    tone === 'rival' ? 'border-rival bg-rival-soft' : 'border-brand bg-brand-soft'
   return (
     <button
       type="button"

@@ -31,7 +31,12 @@ export function CalorieRing({
           strokeDashoffset={offset}
           transform="rotate(-90 60 60)"
           className="stroke-success"
-          style={{ '--vp-off': offset, animation: 'vp-ring-draw 1.1s cubic-bezier(.4,0,.2,1) both' } as CSSProperties}
+          style={
+            {
+              '--vp-off': offset,
+              animation: 'vp-ring-draw 1.1s cubic-bezier(.4,0,.2,1) both',
+            } as CSSProperties
+          }
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">

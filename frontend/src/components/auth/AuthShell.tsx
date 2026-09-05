@@ -38,8 +38,13 @@ export function AuthShell({ children }: { children: ReactNode }) {
               { c: 'bg-success', label: t('auth.shellPoint2') },
               { c: 'bg-rival', label: t('auth.shellPoint3') },
             ].map((p) => (
-              <li key={p.label} className="flex items-center gap-3 text-[14px] font-bold text-arena-text">
-                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${p.c}`}>
+              <li
+                key={p.label}
+                className="flex items-center gap-3 text-[14px] font-bold text-arena-text"
+              >
+                <span
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${p.c}`}
+                >
                   <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-white" aria-hidden="true">
                     <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
                   </svg>
@@ -50,9 +55,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           </ul>
         </div>
 
-        <p className="text-[12.5px] font-bold text-arena-muted">
-          {t('auth.shellFootnote')}
-        </p>
+        <p className="text-[12.5px] font-bold text-arena-muted">{t('auth.shellFootnote')}</p>
       </aside>
 
       {/* Direita: formulário */}
@@ -62,4 +65,3 @@ export function AuthShell({ children }: { children: ReactNode }) {
     </div>
   )
 }
-

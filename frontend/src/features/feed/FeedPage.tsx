@@ -92,14 +92,16 @@ export function FeedPage() {
     <div className="mx-auto max-w-[620px]">
       {/* Cabeçalho com tom de papo */}
       <header className="mb-5">
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('feed.pageTitle')}</h1>
-        <p className="mt-1 text-sm font-semibold text-muted">
-          {t('feed.pageSubtitle')}
-        </p>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+          {t('feed.pageTitle')}
+        </h1>
+        <p className="mt-1 text-sm font-semibold text-muted">{t('feed.pageSubtitle')}</p>
       </header>
 
       {error && (
-        <p className="mb-4 rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</p>
+        <p className="mb-4 rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+          {error}
+        </p>
       )}
 
       {items.length === 0 ? (
@@ -159,7 +161,13 @@ function FeedCard({
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <TypeTag isMeal={isMeal} isPrivate={item.isPrivate} mealLabel={t('feed.meal')} activityLabel={t('feed.activity')} privateLabel={t('feed.private')} />
+          <TypeTag
+            isMeal={isMeal}
+            isPrivate={item.isPrivate}
+            mealLabel={t('feed.meal')}
+            activityLabel={t('feed.activity')}
+            privateLabel={t('feed.private')}
+          />
           {item.points > 0 && (
             <span className="rounded-lg bg-success-soft px-2 py-1 text-[11px] font-extrabold text-success-ink">
               +{item.points} pts
@@ -242,9 +250,7 @@ function EmptyState({ t }: { t: TFn }) {
       </span>
       <div>
         <p className="font-display text-lg font-semibold text-ink">{t('feed.emptyTitle')}</p>
-        <p className="mt-1 text-sm font-semibold text-muted">
-          {t('feed.emptyText')}
-        </p>
+        <p className="mt-1 text-sm font-semibold text-muted">{t('feed.emptyText')}</p>
       </div>
     </div>
   )

@@ -23,7 +23,14 @@ export function ProgressRing({
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="var(--color-line)" strokeWidth={stroke} fill="none" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="var(--color-line)"
+          strokeWidth={stroke}
+          fill="none"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -34,10 +41,15 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 0.6s ease', filter: `drop-shadow(0 0 6px ${color}aa)` }}
+          style={{
+            transition: 'stroke-dashoffset 0.6s ease',
+            filter: `drop-shadow(0 0 6px ${color}aa)`,
+          }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{children}</div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        {children}
+      </div>
     </div>
   )
 }

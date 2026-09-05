@@ -61,10 +61,10 @@ export function InvitePage() {
 
         {state.kind === 'error' && (
           <Card>
-            <h1 className="font-display text-2xl font-semibold text-ink">{t('pair.inviteNotFoundTitle')}</h1>
-            <p className="mt-2 text-sm font-semibold text-muted">
-              {t('pair.inviteNotFoundText')}
-            </p>
+            <h1 className="font-display text-2xl font-semibold text-ink">
+              {t('pair.inviteNotFoundTitle')}
+            </h1>
+            <p className="mt-2 text-sm font-semibold text-muted">{t('pair.inviteNotFoundText')}</p>
             <Link to="/" className="btn-ghost mt-5 inline-flex">
               {t('pair.backHome')}
             </Link>
@@ -73,11 +73,14 @@ export function InvitePage() {
 
         {state.kind === 'full' && (
           <Card>
-            <h1 className="font-display text-2xl font-semibold text-ink">{t('pair.inviteUsedTitle')}</h1>
-            <p className="mt-2 text-sm font-semibold text-muted">
-              {t('pair.inviteUsedText')}
-            </p>
-            <Link to={accessToken ? '/dashboard' : '/login'} className="btn-primary mt-5 inline-flex">
+            <h1 className="font-display text-2xl font-semibold text-ink">
+              {t('pair.inviteUsedTitle')}
+            </h1>
+            <p className="mt-2 text-sm font-semibold text-muted">{t('pair.inviteUsedText')}</p>
+            <Link
+              to={accessToken ? '/dashboard' : '/login'}
+              className="btn-primary mt-5 inline-flex"
+            >
               {accessToken ? t('pair.goToApp') : t('pair.enter')}
             </Link>
           </Card>
@@ -112,7 +115,9 @@ export function InvitePage() {
             </div>
 
             {joinError && (
-              <p className="mt-3 rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{joinError}</p>
+              <p className="mt-3 rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+                {joinError}
+              </p>
             )}
 
             <button
@@ -135,7 +140,10 @@ export function InvitePage() {
             {!accessToken && (
               <p className="mt-4 text-center text-xs font-semibold text-muted">
                 {t('pair.alreadyHaveAccount')}{' '}
-                <Link to={`/login?convite=${encodeURIComponent(code)}`} className="font-extrabold text-brand-ink hover:underline">
+                <Link
+                  to={`/login?convite=${encodeURIComponent(code)}`}
+                  className="font-extrabold text-brand-ink hover:underline"
+                >
                   {t('pair.loginAndAccept')}
                 </Link>
               </p>

@@ -51,7 +51,9 @@ export function RegisterPage() {
 
   return (
     <AuthShell>
-      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">{t('auth.registerTitle')}</h1>
+      <h1 className="mb-1.5 font-display text-[28px] font-semibold tracking-tight text-ink">
+        {t('auth.registerTitle')}
+      </h1>
       <p className="mb-6 text-sm font-semibold text-muted">{t('auth.registerSubtitle')}</p>
 
       {invite && (
@@ -73,11 +75,23 @@ export function RegisterPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">{t('auth.nameLabel')}</label>
-          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="input" />
+          <input
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input"
+          />
         </div>
         <div>
           <label className="label">{t('auth.email')}</label>
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input" />
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+          />
         </div>
         <div>
           <label className="label">{t('auth.password')}</label>
@@ -99,7 +113,11 @@ export function RegisterPage() {
           </div>
         </div>
 
-        {error && <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{error}</p>}
+        {error && (
+          <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+            {error}
+          </p>
+        )}
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? t('auth.creating') : t('auth.createAccountCta')}

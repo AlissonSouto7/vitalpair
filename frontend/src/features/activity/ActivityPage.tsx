@@ -2,12 +2,24 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNo
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import { getActivities, getActivitySummary, logActivity } from '../../api/activity'
-import type { ActivityLog, ActivitySource, ActivitySummary, ActivityType } from '../../types/activity'
+import type {
+  ActivityLog,
+  ActivitySource,
+  ActivitySummary,
+  ActivityType,
+} from '../../types/activity'
 import { Select } from '../../components/ui/Select'
 import { Points } from '../../components/ui/Badge'
 
 const TYPE_VALUES: ActivityType[] = ['STEPS', 'RUN', 'WALK', 'CYCLE', 'WORKOUT', 'OTHER']
-const SOURCE_VALUES: ActivitySource[] = ['MANUAL', 'WEWARD', 'GOOGLE_FIT', 'STRAVA', 'GARMIN', 'APPLE_HEALTH']
+const SOURCE_VALUES: ActivitySource[] = [
+  'MANUAL',
+  'WEWARD',
+  'GOOGLE_FIT',
+  'STRAVA',
+  'GARMIN',
+  'APPLE_HEALTH',
+]
 
 type Tab = 'treino' | 'passos' | 'importar'
 
@@ -19,7 +31,11 @@ const stepsToKcal = (steps: number) => Math.round(steps * 0.04)
 export function ActivityPage() {
   const { t, i18n } = useTranslation()
   const typeOptions = useMemo(
-    () => TYPE_VALUES.filter((v) => v !== 'STEPS').map((v) => ({ value: v, label: t(`activity.typeLabel.${v}`) })),
+    () =>
+      TYPE_VALUES.filter((v) => v !== 'STEPS').map((v) => ({
+        value: v,
+        label: t(`activity.typeLabel.${v}`),
+      })),
     [t],
   )
   const sourceOptions = useMemo(
@@ -100,27 +116,37 @@ export function ActivityPage() {
     <div className="space-y-5 pb-2">
       {/* cabeçalho com personalidade */}
       <header>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">{t('activity.pageTitle')}</h1>
-        <p className="mt-1 text-sm font-semibold text-muted">
-          {t('activity.pageSubtitle')}
-        </p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+          {t('activity.pageTitle')}
+        </h1>
+        <p className="mt-1 text-sm font-semibold text-muted">{t('activity.pageSubtitle')}</p>
       </header>
 
       {/* tabs */}
       <div className="flex gap-1 rounded-2xl bg-track p-1">
-        <TabButton active={tab === 'treino'} onClick={() => setTab('treino')} icon={<IconDumbbell />}>
+        <TabButton
+          active={tab === 'treino'}
+          onClick={() => setTab('treino')}
+          icon={<IconDumbbell />}
+        >
           {t('activity.tabWorkout')}
         </TabButton>
         <TabButton active={tab === 'passos'} onClick={() => setTab('passos')} icon={<IconShoe />}>
           {t('activity.tabSteps')}
         </TabButton>
-        <TabButton active={tab === 'importar'} onClick={() => setTab('importar')} icon={<IconPlug />}>
+        <TabButton
+          active={tab === 'importar'}
+          onClick={() => setTab('importar')}
+          icon={<IconPlug />}
+        >
           {t('activity.tabImport')}
         </TabButton>
       </div>
 
       {error && (
-        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</p>
+        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+          {error}
+        </p>
       )}
 
       {/* ===== TREINO ===== */}
@@ -133,8 +159,16 @@ export function ActivityPage() {
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Num label={t('activity.distance')} value={distanceKm} onChange={setDistanceKm} />
-              <Num label={t('activity.duration')} value={durationMinutes} onChange={setDurationMinutes} />
-              <Num label={t('activity.calories')} value={caloriesBurned} onChange={setCaloriesBurned} />
+              <Num
+                label={t('activity.duration')}
+                value={durationMinutes}
+                onChange={setDurationMinutes}
+              />
+              <Num
+                label={t('activity.calories')}
+                value={caloriesBurned}
+                onChange={setCaloriesBurned}
+              />
             </div>
             <div>
               <label className="label">{t('activity.source')}</label>
@@ -144,7 +178,11 @@ export function ActivityPage() {
               <IconSpark className="mt-0.5 shrink-0 text-brand" />
               {t('activity.autoEstimate')}
             </p>
-            <button type="submit" disabled={saving} className="btn-primary flex w-full items-center justify-center gap-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="btn-primary flex w-full items-center justify-center gap-2"
+            >
               <IconPlus />
               {saving ? t('common.saving') : t('activity.registerWorkout')}
               {!saving && <Points value={15} />}
@@ -172,7 +210,9 @@ export function ActivityPage() {
               />
               <p className="mt-2 text-[13px] font-extrabold text-success-ink">
                 {stepsNum > 0
-                  ? t('activity.stepsBurn', { kcal: stepsToKcal(stepsNum).toLocaleString(i18n.language) })
+                  ? t('activity.stepsBurn', {
+                      kcal: stepsToKcal(stepsNum).toLocaleString(i18n.language),
+                    })
                   : t('activity.stepsPrompt')}
               </p>
             </div>
@@ -212,9 +252,7 @@ export function ActivityPage() {
       {/* ===== IMPORTAR ===== */}
       {tab === 'importar' && (
         <div className="space-y-3">
-          <p className="text-xs font-bold text-muted">
-            {t('activity.importHint')}
-          </p>
+          <p className="text-xs font-bold text-muted">{t('activity.importHint')}</p>
           <div className="space-y-2">
             <SourceRow badge="S" color="#fc5200" name="Strava" t={t} />
             <SourceRow badge="W" color="#4f7cff" name="WeWard" t={t} />
@@ -252,7 +290,13 @@ export function ActivityPage() {
   )
 }
 
-function TodayList({ logs, t }: { logs: ActivityLog[]; t: (k: string, o?: Record<string, unknown>) => string }) {
+function TodayList({
+  logs,
+  t,
+}: {
+  logs: ActivityLog[]
+  t: (k: string, o?: Record<string, unknown>) => string
+}) {
   return (
     <div>
       <h2 className="mb-2.5 text-xs font-bold text-muted">{t('activity.todayLogs')}</h2>
@@ -260,9 +304,7 @@ function TodayList({ logs, t }: { logs: ActivityLog[]; t: (k: string, o?: Record
         <div className="rounded-2xl border border-dashed border-hair bg-surface/60 px-5 py-8 text-center">
           <IconEmpty className="mx-auto mb-2 text-faint" />
           <p className="text-sm font-bold text-ink">{t('activity.empty')}</p>
-          <p className="mt-1 text-xs font-semibold text-muted">
-            {t('activity.emptyHint')}
-          </p>
+          <p className="mt-1 text-xs font-semibold text-muted">{t('activity.emptyHint')}</p>
         </div>
       ) : (
         <ul className="space-y-2">
@@ -295,7 +337,8 @@ function TodayList({ logs, t }: { logs: ActivityLog[]; t: (k: string, o?: Record
 
 function logDetail(log: ActivityLog, t: (k: string) => string): string {
   const parts: string[] = []
-  if (log.steps != null) parts.push(`${log.steps.toLocaleString('pt-BR')} ${t('activity.steps').toLowerCase()}`)
+  if (log.steps != null)
+    parts.push(`${log.steps.toLocaleString('pt-BR')} ${t('activity.steps').toLowerCase()}`)
   if (log.distanceKm != null) parts.push(`${log.distanceKm} km`)
   if (log.durationMinutes != null) parts.push(`${log.durationMinutes} min`)
   parts.push(t(`activity.sourceLabel.${log.source}`))
@@ -325,14 +368,15 @@ function SourceRow({
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-sm font-extrabold text-ink">{name}</div>
-        <div
-          className={`text-[11.5px] font-bold ${connected ? 'text-success-ink' : 'text-muted'}`}
-        >
+        <div className={`text-[11.5px] font-bold ${connected ? 'text-success-ink' : 'text-muted'}`}>
           {connected ? t('activity.connected') : t('activity.notConnected')}
         </div>
       </div>
       {connected ? (
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-success" aria-label={t('activity.connectedAria')} />
+        <span
+          className="h-2.5 w-2.5 shrink-0 rounded-full bg-success"
+          aria-label={t('activity.connectedAria')}
+        />
       ) : (
         <button
           type="button"
@@ -347,7 +391,15 @@ function SourceRow({
   )
 }
 
-function Num({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Num({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+}) {
   return (
     <div>
       <label className="label">{label}</label>
@@ -474,5 +526,7 @@ function IconEmpty({ className = '' }: { className?: string }) {
 }
 
 function apiMessage(err: unknown): string | null {
-  return err instanceof AxiosError ? (err.response?.data?.message as string | undefined) ?? null : null
+  return err instanceof AxiosError
+    ? ((err.response?.data?.message as string | undefined) ?? null)
+    : null
 }

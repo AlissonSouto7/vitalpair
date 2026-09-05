@@ -19,7 +19,8 @@ export function SeasonPage() {
   }, [t])
 
   if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (error)
+    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
   if (!season) return null
 
   const { you, rival, hasPartner } = season
@@ -53,7 +54,12 @@ export function SeasonPage() {
       {hasPartner && rival ? (
         <Scoreboard
           you={{ name: t('season.you'), score: you.score, initial: 'V' }}
-          rival={{ name: partnerName, score: rival.score, initial: initial(partnerName), tone: 'rival' }}
+          rival={{
+            name: partnerName,
+            score: rival.score,
+            initial: initial(partnerName),
+            tone: 'rival',
+          }}
           stake={season.stake}
           day={season.day}
           total={season.total}
@@ -73,12 +79,19 @@ export function SeasonPage() {
 
       {/* Resumo: aposta + dias + quem lidera */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Stat icon={<DishIcon />} tone="carb" title={t('season.statStakeTitle')} value={season.stake} />
+        <Stat
+          icon={<DishIcon />}
+          tone="carb"
+          title={t('season.statStakeTitle')}
+          value={season.stake}
+        />
         <Stat
           icon={<ClockIcon />}
           tone="brand"
           title={t('season.statDaysLeftTitle')}
-          value={t(season.daysLeft === 1 ? 'season.daysOne' : 'season.daysOther', { n: season.daysLeft })}
+          value={t(season.daysLeft === 1 ? 'season.daysOne' : 'season.daysOther', {
+            n: season.daysLeft,
+          })}
         />
         {hasPartner ? (
           <Stat
@@ -105,7 +118,9 @@ export function SeasonPage() {
       {season.days.length > 0 && (
         <section className="card">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-display text-base font-semibold text-ink">{t('season.pointByPoint')}</h2>
+            <h2 className="font-display text-base font-semibold text-ink">
+              {t('season.pointByPoint')}
+            </h2>
             <div className="flex items-center gap-4 text-[11.5px] font-extrabold">
               <Legend color="bg-brand" label={t('season.you')} cls="text-brand-ink" />
               {hasPartner && <Legend color="bg-rival" label={partnerName} cls="text-rival-ink" />}
@@ -118,11 +133,18 @@ export function SeasonPage() {
       {/* Breakdown */}
       {season.breakdown.length > 0 && (
         <section className="card">
-          <h2 className="mb-1 font-display text-base font-semibold text-ink">{t('season.breakdownTitle')}</h2>
+          <h2 className="mb-1 font-display text-base font-semibold text-ink">
+            {t('season.breakdownTitle')}
+          </h2>
           <p className="mb-4 text-[13px] font-bold text-muted">{t('season.breakdownSubtitle')}</p>
           <div className="space-y-3">
             {season.breakdown.map((b) => (
-              <BreakdownRow key={b.source} item={b} hasPartner={hasPartner} partnerName={partnerName} />
+              <BreakdownRow
+                key={b.source}
+                item={b}
+                hasPartner={hasPartner}
+                partnerName={partnerName}
+              />
             ))}
           </div>
         </section>
@@ -147,7 +169,11 @@ export function SeasonPage() {
                   {overall.you === overall.rival
                     ? t('season.overallTie', { you: overall.you, rival: overall.rival })
                     : overall.you > overall.rival
-                      ? t('season.overallYouAhead', { you: overall.you, rival: overall.rival, name: partnerName })
+                      ? t('season.overallYouAhead', {
+                          you: overall.you,
+                          rival: overall.rival,
+                          name: partnerName,
+                        })
                       : t('season.overallPartnerAhead', {
                           you: overall.you,
                           rival: overall.rival,
@@ -190,9 +216,15 @@ function Stat({
   }
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-hair bg-surface px-4 py-3.5">
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${soft[tone]}`}>{icon}</div>
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${soft[tone]}`}
+      >
+        {icon}
+      </div>
       <div className="min-w-0">
-        <div className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">{title}</div>
+        <div className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">
+          {title}
+        </div>
         <div className="truncate font-display text-[15px] font-semibold text-ink">{value}</div>
       </div>
     </div>
@@ -208,13 +240,24 @@ function Legend({ color, label, cls }: { color: string; label: string; cls: stri
   )
 }
 
-function DayChart({ days, hasPartner, partnerName }: { days: SeasonDay[]; hasPartner: boolean; partnerName: string }) {
+function DayChart({
+  days,
+  hasPartner,
+  partnerName,
+}: {
+  days: SeasonDay[]
+  hasPartner: boolean
+  partnerName: string
+}) {
   const { t } = useTranslation()
   const max = Math.max(...days.flatMap((d) => [d.you, d.rival]), 1)
   return (
     <div className="relative flex h-[130px] items-end gap-2 pb-[22px]">
       {days.map((d) => (
-        <div key={d.label} className="relative flex h-full flex-1 flex-col items-center justify-end">
+        <div
+          key={d.label}
+          className="relative flex h-full flex-1 flex-col items-center justify-end"
+        >
           <div className="flex h-full w-full items-end gap-0.5">
             <div
               className="flex-1 rounded-t-[3px] bg-brand"
@@ -225,11 +268,17 @@ function DayChart({ days, hasPartner, partnerName }: { days: SeasonDay[]; hasPar
               <div
                 className="flex-1 rounded-t-[3px] bg-rival"
                 style={{ height: `${(d.rival / max) * 100}%` }}
-                title={t('season.dayTipPartner', { label: d.label, name: partnerName, points: d.rival })}
+                title={t('season.dayTipPartner', {
+                  label: d.label,
+                  name: partnerName,
+                  points: d.rival,
+                })}
               />
             )}
           </div>
-          <span className="absolute bottom-[-20px] text-[9.5px] font-extrabold text-muted">{d.label}</span>
+          <span className="absolute bottom-[-20px] text-[9.5px] font-extrabold text-muted">
+            {d.label}
+          </span>
         </div>
       ))}
     </div>
@@ -300,7 +349,9 @@ function HistoryRow({ item, partnerName }: { item: SeasonHistoryItem; partnerNam
           tie ? 'bg-track' : youWon ? 'bg-brand-soft' : 'bg-rival-soft'
         }`}
       >
-        <TrophyIcon className={`h-[21px] w-[21px] ${tie ? 'fill-muted' : youWon ? 'fill-brand' : 'fill-rival'}`} />
+        <TrophyIcon
+          className={`h-[21px] w-[21px] ${tie ? 'fill-muted' : youWon ? 'fill-brand' : 'fill-rival'}`}
+        />
       </div>
       <div className="flex-1">
         <div className="text-sm font-extrabold text-ink">
@@ -315,7 +366,11 @@ function HistoryRow({ item, partnerName }: { item: SeasonHistoryItem; partnerNam
           </span>
         </div>
       </div>
-      <span className={`shrink-0 rounded-[9px] px-[11px] py-[5px] text-xs font-extrabold ${badgeCls}`}>{badge}</span>
+      <span
+        className={`shrink-0 rounded-[9px] px-[11px] py-[5px] text-xs font-extrabold ${badgeCls}`}
+      >
+        {badge}
+      </span>
     </div>
   )
 }
