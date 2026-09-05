@@ -44,7 +44,7 @@ public class MailSenderAdapter implements MailSenderPort {
                 "Criar nova senha",
                 resetLink,
                 "O link vale por 30 minutos. Se não foi você, pode ignorar este e-mail: sua senha continua a mesma.");
-        send(toEmail, "Redefinição de senha do VitalPair", html, "redefinição", resetLink);
+        send(toEmail, "Redefinição de senha do VitalPair", html, "redefinição");
     }
 
     @Override
@@ -55,10 +55,10 @@ public class MailSenderAdapter implements MailSenderPort {
                 "Confirmar e-mail",
                 verifyLink,
                 "O link vale por 24 horas. Se não foi você que criou a conta, pode ignorar este e-mail.");
-        send(toEmail, "Confirme seu e-mail no VitalPair", html, "confirmação", verifyLink);
+        send(toEmail, "Confirme seu e-mail no VitalPair", html, "confirmação");
     }
 
-    private void send(String toEmail, String subject, String html, String kind, String link) {
+    private void send(String toEmail, String subject, String html, String kind) {
         JavaMailSender mailSender = enabled ? mailSenderProvider.getIfAvailable() : null;
         if (mailSender == null) {
             // Never log the link: it carries a single-use token that grants account
