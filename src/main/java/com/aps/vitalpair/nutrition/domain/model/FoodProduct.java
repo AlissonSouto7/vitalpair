@@ -9,5 +9,4 @@ public record FoodProduct(
         BigDecimal caloriesPer100g,
         BigDecimal proteinPer100g,
         BigDecimal carbPer100g,
-        BigDecimal fatPer100g) {
-}
+        BigDecimal fatPer100g) {}

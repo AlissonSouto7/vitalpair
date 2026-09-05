@@ -1,13 +1,14 @@
 package com.aps.vitalpair.feed.infrastructure.web;
 
-import com.aps.vitalpair.feed.application.dto.FeedItemView;
-import com.aps.vitalpair.feed.domain.model.FeedItem;
-import com.aps.vitalpair.feed.domain.model.FeedItemType;
-import com.aps.vitalpair.feed.domain.model.ReactionType;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.aps.vitalpair.feed.application.dto.FeedItemView;
+import com.aps.vitalpair.feed.domain.model.FeedItem;
+import com.aps.vitalpair.feed.domain.model.FeedItemType;
+import com.aps.vitalpair.feed.domain.model.ReactionType;
 
 public record FeedItemResponse(
         UUID id,
@@ -25,8 +26,16 @@ public record FeedItemResponse(
     public static FeedItemResponse from(FeedItemView view) {
         FeedItem item = view.item();
         return new FeedItemResponse(
-                item.getId(), item.getUserId(), item.getActorName(), item.getType(), item.getTitle(),
-                item.getSubtitle(), item.getPoints(), item.isPrivate(), item.getCreatedAt(),
-                view.reactionCounts(), view.myReactions());
+                item.getId(),
+                item.getUserId(),
+                item.getActorName(),
+                item.getType(),
+                item.getTitle(),
+                item.getSubtitle(),
+                item.getPoints(),
+                item.isPrivate(),
+                item.getCreatedAt(),
+                view.reactionCounts(),
+                view.myReactions());
     }
 }

@@ -1,7 +1,8 @@
 package com.aps.vitalpair.user.domain.port.in;
 
-import com.aps.vitalpair.tdee.domain.model.TdeeResult;
 import java.util.UUID;
+
+import com.aps.vitalpair.tdee.domain.model.TdeeResult;
 
 public interface GetTdeeUseCase {
 

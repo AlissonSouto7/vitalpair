@@ -1,8 +1,9 @@
 package com.aps.vitalpair.activity.domain.port.in;
 
-import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 
 public interface GetActivitySummaryUseCase {
 

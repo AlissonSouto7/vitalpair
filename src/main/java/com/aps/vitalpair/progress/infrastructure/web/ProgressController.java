@@ -1,10 +1,7 @@
 package com.aps.vitalpair.progress.infrastructure.web;
 
-import com.aps.vitalpair.progress.domain.port.in.GetProgressUseCase;
-import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
-import com.aps.vitalpair.shared.security.AuthenticatedUser;
-import com.aps.vitalpair.shared.web.ApiResponse;
 import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.aps.vitalpair.progress.domain.port.in.GetProgressUseCase;
+import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
+import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/progress")
@@ -34,8 +36,7 @@ public class ProgressController {
 
     @PostMapping("/weight")
     public ResponseEntity<ApiResponse<Void>> recordWeight(
-            @AuthenticationPrincipal AuthenticatedUser principal,
-            @Valid @RequestBody RecordWeightRequest request) {
+            @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody RecordWeightRequest request) {
         recordWeightUseCase.recordTodayWeight(principal.userId(), request.weightKg());
         return ResponseEntity.ok(ApiResponse.ok(null, "Peso registrado"));
     }

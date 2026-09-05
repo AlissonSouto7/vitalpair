@@ -1,7 +1,8 @@
 package com.aps.vitalpair.notification.infrastructure.persistence;
 
-import com.aps.vitalpair.notification.domain.model.Notification;
 import org.mapstruct.Mapper;
+
+import com.aps.vitalpair.notification.domain.model.Notification;
 
 @Mapper
 public interface NotificationPersistenceMapper {

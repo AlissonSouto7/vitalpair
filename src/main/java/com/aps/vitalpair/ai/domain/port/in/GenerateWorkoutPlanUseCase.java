@@ -1,7 +1,8 @@
 package com.aps.vitalpair.ai.domain.port.in;
 
-import com.aps.vitalpair.ai.application.dto.WorkoutToday;
 import java.util.UUID;
+
+import com.aps.vitalpair.ai.application.dto.WorkoutToday;
 
 public interface GenerateWorkoutPlanUseCase {
 

@@ -1,19 +1,22 @@
 package com.aps.vitalpair.ai.infrastructure.web;
 
-import com.aps.vitalpair.ai.domain.exception.AiPlanNotConfiguredException;
-import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
-import com.aps.vitalpair.ai.domain.exception.WorkoutAlreadyCompletedException;
-import com.aps.vitalpair.shared.web.ApiError;
-import com.aps.vitalpair.shared.web.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.aps.vitalpair.ai.domain.exception.AiPlanNotConfiguredException;
+import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
+import com.aps.vitalpair.ai.domain.exception.WorkoutAlreadyCompletedException;
+import com.aps.vitalpair.shared.web.ApiError;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 /**
  * Tradução para HTTP das exceções específicas dos planos por IA, no mesmo formato
@@ -44,8 +47,7 @@ public class AiPlanExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage(), request);
     }
 
-    private ResponseEntity<ApiResponse<ApiError>> build(
-            HttpStatus status, String message, HttpServletRequest request) {
+    private ResponseEntity<ApiResponse<ApiError>> build(HttpStatus status, String message, HttpServletRequest request) {
         ApiError detail = new ApiError(
                 Instant.now(), status.value(), status.getReasonPhrase(), request.getRequestURI(), List.of());
         return ResponseEntity.status(status).body(ApiResponse.fail(message, detail));

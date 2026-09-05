@@ -9,5 +9,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * a busca por código de barras usa a API principal ({@code baseUrl}).
  */
 @ConfigurationProperties(prefix = "vitalpair.openfoodfacts")
-public record OpenFoodFactsProperties(String baseUrl, String searchUrl, String userAgent) {
-}
+public record OpenFoodFactsProperties(String baseUrl, String searchUrl, String userAgent) {}

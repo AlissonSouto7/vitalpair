@@ -1,6 +1,7 @@
 package com.aps.vitalpair.feed.infrastructure.persistence;
 
 import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

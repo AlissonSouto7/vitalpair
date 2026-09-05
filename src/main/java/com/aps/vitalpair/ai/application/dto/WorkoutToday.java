@@ -18,6 +18,5 @@ public record WorkoutToday(
         List<Exercise> exercises) {
 
     /** Exercício do treino de hoje com o estado do check ({@code done}). */
-    public record Exercise(UUID id, String name, int sets, String reps, int restSeconds, boolean done) {
-    }
+    public record Exercise(UUID id, String name, int sets, String reps, int restSeconds, boolean done) {}
 }

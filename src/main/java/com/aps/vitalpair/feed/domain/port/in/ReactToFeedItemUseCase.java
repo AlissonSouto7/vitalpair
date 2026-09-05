@@ -1,7 +1,8 @@
 package com.aps.vitalpair.feed.domain.port.in;
 
-import com.aps.vitalpair.feed.domain.model.ReactionType;
 import java.util.UUID;
+
+import com.aps.vitalpair.feed.domain.model.ReactionType;
 
 public interface ReactToFeedItemUseCase {
 

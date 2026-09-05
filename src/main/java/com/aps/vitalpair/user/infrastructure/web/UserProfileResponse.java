@@ -1,13 +1,14 @@
 package com.aps.vitalpair.user.infrastructure.web;
 
-import com.aps.vitalpair.user.domain.model.ActivityLevel;
-import com.aps.vitalpair.user.domain.model.Goal;
-import com.aps.vitalpair.user.domain.model.Sex;
-import com.aps.vitalpair.user.domain.model.User;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import com.aps.vitalpair.user.domain.model.ActivityLevel;
+import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.Sex;
+import com.aps.vitalpair.user.domain.model.User;
 
 /** Representação pública do perfil (nunca expõe a entidade de domínio nem o hash de senha). */
 public record UserProfileResponse(

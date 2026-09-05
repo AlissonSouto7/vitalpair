@@ -10,5 +10,4 @@ import java.time.LocalDate;
  * @param kcal       total de calorias consumidas no dia (0 se sem registro)
  * @param withinGoal true se {@code kcal <= meta}; true também quando não há meta
  */
-public record CalorieDay(LocalDate date, String label, int kcal, boolean withinGoal) {
-}
+public record CalorieDay(LocalDate date, String label, int kcal, boolean withinGoal) {}

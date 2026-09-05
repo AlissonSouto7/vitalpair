@@ -1,8 +1,9 @@
 package com.aps.vitalpair.notification.domain.port.out;
 
-import com.aps.vitalpair.notification.domain.model.NotificationPreferences;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.notification.domain.model.NotificationPreferences;
 
 /** Porta de saída para persistência das preferências de notificação. */
 public interface NotificationPreferencesRepositoryPort {

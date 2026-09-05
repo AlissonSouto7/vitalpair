@@ -1,13 +1,7 @@
 package com.aps.vitalpair.pair.infrastructure.web;
 
-import com.aps.vitalpair.pair.domain.port.in.GenerateInviteUseCase;
-import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
-import com.aps.vitalpair.pair.domain.port.in.GetInvitePreviewUseCase;
-import com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase;
-import com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
-import com.aps.vitalpair.shared.security.AuthenticatedUser;
-import com.aps.vitalpair.shared.web.ApiResponse;
 import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +11,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.aps.vitalpair.pair.domain.port.in.GenerateInviteUseCase;
+import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
+import com.aps.vitalpair.pair.domain.port.in.GetInvitePreviewUseCase;
+import com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase;
+import com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
+import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/pair")
@@ -42,8 +44,7 @@ public class PairController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PairResponse>> current(
-            @AuthenticationPrincipal AuthenticatedUser principal) {
+    public ResponseEntity<ApiResponse<PairResponse>> current(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = getCurrentPairUseCase.getCurrentPair(principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view)));
     }
@@ -55,10 +56,10 @@ public class PairController {
     }
 
     @PostMapping("/invite")
-    public ResponseEntity<ApiResponse<PairResponse>> invite(
-            @AuthenticationPrincipal AuthenticatedUser principal) {
+    public ResponseEntity<ApiResponse<PairResponse>> invite(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = generateInviteUseCase.generateInvite(principal.userId());
-        return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view), "Compartilhe o código de convite com seu parceiro"));
+        return ResponseEntity.ok(
+                ApiResponse.ok(PairResponse.from(view), "Compartilhe o código de convite com seu parceiro"));
     }
 
     @PutMapping("/type")
@@ -71,8 +72,7 @@ public class PairController {
 
     @PostMapping("/join/{code}")
     public ResponseEntity<ApiResponse<PairResponse>> join(
-            @AuthenticationPrincipal AuthenticatedUser principal,
-            @PathVariable String code) {
+            @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable String code) {
         var view = joinPairUseCase.joinPair(principal.userId(), code);
         return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view), "Par formado com sucesso"));
     }

@@ -1,5 +1,13 @@
 package com.aps.vitalpair.gamification.application.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
 import com.aps.vitalpair.gamification.domain.port.in.GetCompetitionUseCase;
 import com.aps.vitalpair.gamification.domain.port.out.CompetitionScoreRepositoryPort;
@@ -8,12 +16,6 @@ import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CompetitionService implements GetCompetitionUseCase {
@@ -34,10 +36,10 @@ public class CompetitionService implements GetCompetitionUseCase {
     @Override
     @Transactional(readOnly = true)
     public CompetitionScore getCurrentCompetition(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         LocalDate week = weekStart(LocalDate.now());
-        return competitionRepository.findByTenantAndWeek(user.getTenantId(), week)
+        return competitionRepository
+                .findByTenantAndWeek(user.getTenantId(), week)
                 .orElseGet(() -> emptyScore(user.getTenantId(), week));
     }
 
@@ -48,8 +50,8 @@ public class CompetitionService implements GetCompetitionUseCase {
             return;
         }
         LocalDate week = weekStart(date);
-        CompetitionScore score = competitionRepository.findByTenantAndWeek(tenantId, week)
-                .orElseGet(() -> emptyScore(tenantId, week));
+        CompetitionScore score =
+                competitionRepository.findByTenantAndWeek(tenantId, week).orElseGet(() -> emptyScore(tenantId, week));
 
         int user1Score = score.getUser1Score();
         int user2Score = score.getUser2Score();
@@ -61,11 +63,13 @@ public class CompetitionService implements GetCompetitionUseCase {
             return;
         }
 
-        UUID winner = user1Score > user2Score ? pair.getUser1Id()
-                : (user2Score > user1Score ? pair.getUser2Id() : null);
+        UUID winner =
+                user1Score > user2Score ? pair.getUser1Id() : (user2Score > user1Score ? pair.getUser2Id() : null);
 
         competitionRepository.save(score.toBuilder()
-                .user1Score(user1Score).user2Score(user2Score).winnerId(winner)
+                .user1Score(user1Score)
+                .user2Score(user2Score)
+                .winnerId(winner)
                 .build());
     }
 
@@ -76,7 +80,8 @@ public class CompetitionService implements GetCompetitionUseCase {
         if (pair == null) {
             return 0;
         }
-        CompetitionScore score = competitionRepository.findByTenantAndWeek(tenantId, weekStart(date))
+        CompetitionScore score = competitionRepository
+                .findByTenantAndWeek(tenantId, weekStart(date))
                 .orElse(null);
         if (score == null) {
             return 0;
@@ -108,7 +113,10 @@ public class CompetitionService implements GetCompetitionUseCase {
 
     private CompetitionScore emptyScore(UUID tenantId, LocalDate week) {
         return CompetitionScore.builder()
-                .tenantId(tenantId).weekStart(week).user1Score(0).user2Score(0)
+                .tenantId(tenantId)
+                .weekStart(week)
+                .user1Score(0)
+                .user2Score(0)
                 .build();
     }
 

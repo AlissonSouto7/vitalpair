@@ -11,10 +11,4 @@ package com.aps.vitalpair.tdee.domain.model;
  * @param fatTargetG         meta de gordura (g)
  */
 public record TdeeResult(
-        int bmr,
-        int tdee,
-        int dailyCalorieTarget,
-        int proteinTargetG,
-        int carbTargetG,
-        int fatTargetG) {
-}
+        int bmr, int tdee, int dailyCalorieTarget, int proteinTargetG, int carbTargetG, int fatTargetG) {}

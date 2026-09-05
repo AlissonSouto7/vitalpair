@@ -1,15 +1,17 @@
 package com.aps.vitalpair.gamification.application.service;
 
-import com.aps.vitalpair.gamification.domain.model.StreakType;
-import com.aps.vitalpair.gamification.domain.model.UserStreak;
-import com.aps.vitalpair.gamification.domain.port.in.GetStreaksUseCase;
-import com.aps.vitalpair.gamification.domain.port.out.UserStreakRepositoryPort;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.aps.vitalpair.gamification.domain.model.StreakType;
+import com.aps.vitalpair.gamification.domain.model.UserStreak;
+import com.aps.vitalpair.gamification.domain.port.in.GetStreaksUseCase;
+import com.aps.vitalpair.gamification.domain.port.out.UserStreakRepositoryPort;
 
 @Service
 public class StreakService implements GetStreaksUseCase {
@@ -36,8 +38,12 @@ public class StreakService implements GetStreaksUseCase {
 
         if (existing == null) {
             return Optional.of(streakRepository.save(UserStreak.builder()
-                    .tenantId(tenantId).userId(userId).type(type)
-                    .currentCount(1).longestCount(1).lastActivityDate(date)
+                    .tenantId(tenantId)
+                    .userId(userId)
+                    .type(type)
+                    .currentCount(1)
+                    .longestCount(1)
+                    .lastActivityDate(date)
                     .build()));
         }
 
@@ -50,7 +56,9 @@ public class StreakService implements GetStreaksUseCase {
         int longest = Math.max(existing.getLongestCount(), current);
 
         return Optional.of(streakRepository.save(existing.toBuilder()
-                .currentCount(current).longestCount(longest).lastActivityDate(date)
+                .currentCount(current)
+                .longestCount(longest)
+                .lastActivityDate(date)
                 .build()));
     }
 }

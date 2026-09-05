@@ -2,6 +2,7 @@ package com.aps.vitalpair.notification.domain.model;
 
 import java.time.Instant;
 import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Getter;
 

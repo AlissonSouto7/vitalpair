@@ -1,15 +1,17 @@
 package com.aps.vitalpair.ai.infrastructure.persistence;
 
-import com.aps.vitalpair.ai.domain.model.MealPlan;
-import com.aps.vitalpair.ai.domain.model.MealPlanItem;
-import com.aps.vitalpair.ai.domain.port.out.MealPlanRepositoryPort;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.ai.domain.model.MealPlan;
+import com.aps.vitalpair.ai.domain.model.MealPlanItem;
+import com.aps.vitalpair.ai.domain.port.out.MealPlanRepositoryPort;
 
 /**
  * Adaptador JPA do plano alimentar. {@code replace} apaga o plano existente do usuário/semana
@@ -19,15 +21,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MealPlanPersistenceAdapter implements MealPlanRepositoryPort {
 
-    private static final Comparator<MealPlanItem> ITEM_ORDER = Comparator
-            .comparingInt(MealPlanItem::dayIndex)
+    private static final Comparator<MealPlanItem> ITEM_ORDER = Comparator.comparingInt(MealPlanItem::dayIndex)
             .thenComparing(item -> item.mealType().ordinal());
 
     private final MealPlanJpaRepository planRepository;
     private final MealPlanItemJpaRepository itemRepository;
 
-    public MealPlanPersistenceAdapter(
-            MealPlanJpaRepository planRepository, MealPlanItemJpaRepository itemRepository) {
+    public MealPlanPersistenceAdapter(MealPlanJpaRepository planRepository, MealPlanItemJpaRepository itemRepository) {
         this.planRepository = planRepository;
         this.itemRepository = itemRepository;
     }
@@ -80,8 +80,14 @@ public class MealPlanPersistenceAdapter implements MealPlanRepositoryPort {
     private MealPlan toDomain(MealPlanJpaEntity entity) {
         List<MealPlanItem> items = itemRepository.findByPlanId(entity.getId()).stream()
                 .map(item -> new MealPlanItem(
-                        item.getId(), item.getDayIndex(), item.getMealType(), item.getName(),
-                        item.getKcal(), item.getProteinG(), item.getCarbG(), item.getFatG()))
+                        item.getId(),
+                        item.getDayIndex(),
+                        item.getMealType(),
+                        item.getName(),
+                        item.getKcal(),
+                        item.getProteinG(),
+                        item.getCarbG(),
+                        item.getFatG()))
                 .sorted(ITEM_ORDER)
                 .toList();
         return new MealPlan(entity.getId(), entity.getUserId(), entity.getWeekStart(), entity.getCreatedAt(), items);

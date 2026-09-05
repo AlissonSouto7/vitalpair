@@ -1,12 +1,14 @@
 package com.aps.vitalpair.season.infrastructure.persistence;
 
-import com.aps.vitalpair.season.domain.model.Season;
-import com.aps.vitalpair.season.domain.model.SeasonStatus;
-import com.aps.vitalpair.season.domain.port.out.SeasonRepositoryPort;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.season.domain.model.Season;
+import com.aps.vitalpair.season.domain.model.SeasonStatus;
+import com.aps.vitalpair.season.domain.port.out.SeasonRepositoryPort;
 
 @Component
 public class SeasonPersistenceAdapter implements SeasonRepositoryPort {

@@ -15,9 +15,7 @@ import com.tngtech.archunit.lang.ArchRule;
  * as long as everyone remembers it, which is why the one thing these tests protect is the
  * direction of dependencies: {@code infrastructure -> application -> domain}, never back.
  */
-@AnalyzeClasses(
-        packages = "com.aps.vitalpair",
-        importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = "com.aps.vitalpair", importOptions = ImportOption.DoNotIncludeTests.class)
 class HexagonalArchitectureTest {
 
     /**
@@ -36,8 +34,7 @@ class HexagonalArchitectureTest {
                     "jakarta.validation..",
                     "com.fasterxml.jackson..",
                     "feign..")
-            .because("the domain must stay framework-free so it can be tested and reasoned "
-                    + "about on its own");
+            .because("the domain must stay framework-free so it can be tested and reasoned " + "about on its own");
 
     /** Application orchestrates use cases; it must not know how data arrives or is stored. */
     @ArchTest
@@ -111,10 +108,9 @@ class HexagonalArchitectureTest {
      * new one fails the build. Shrink the baseline, never grow it.
      */
     @ArchTest
-    static final ArchRule features_are_free_of_cycles =
-            com.tngtech.archunit.library.freeze.FreezingArchRule.freeze(
-                    com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices()
-                            .matching("com.aps.vitalpair.(*)..")
-                            .should()
-                            .beFreeOfCycles());
+    static final ArchRule features_are_free_of_cycles = com.tngtech.archunit.library.freeze.FreezingArchRule.freeze(
+            com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices()
+                    .matching("com.aps.vitalpair.(*)..")
+                    .should()
+                    .beFreeOfCycles());
 }

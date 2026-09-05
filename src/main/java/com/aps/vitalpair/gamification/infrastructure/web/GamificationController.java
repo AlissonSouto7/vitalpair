@@ -1,17 +1,19 @@
 package com.aps.vitalpair.gamification.infrastructure.web;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.aps.vitalpair.gamification.domain.port.in.GetBadgeCatalogUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetCompetitionUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetStreaksUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetUserBadgesUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
-import java.util.List;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/gamification")

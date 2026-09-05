@@ -1,13 +1,16 @@
 package com.aps.vitalpair.gamification.infrastructure.persistence;
 
-import com.aps.vitalpair.gamification.domain.model.BadgeCategory;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.UUID;
+
+import com.aps.vitalpair.gamification.domain.model.BadgeCategory;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

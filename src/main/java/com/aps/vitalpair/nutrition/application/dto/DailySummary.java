@@ -14,5 +14,4 @@ public record DailySummary(
         Integer targetCarbG,
         Integer targetFatG,
         Integer remainingCalories,
-        int mealCount) {
-}
+        int mealCount) {}

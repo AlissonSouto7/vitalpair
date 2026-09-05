@@ -1,5 +1,18 @@
 package com.aps.vitalpair.progress.application.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.progress.domain.model.CalorieDay;
 import com.aps.vitalpair.progress.domain.model.DailyNutritionTotals;
 import com.aps.vitalpair.progress.domain.model.MacroAverage;
@@ -12,17 +25,6 @@ import com.aps.vitalpair.progress.domain.port.out.WeightLogRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Casos de uso da tela de Progresso. Histórico de peso vem de {@code weight_logs};
@@ -63,8 +65,7 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
     @Override
     @Transactional(readOnly = true)
     public ProgressView getProgress(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
         LocalDate today = LocalDate.now();
         LocalDate from = today.minusDays(WINDOW_DAYS - 1L);
@@ -91,10 +92,7 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
     }
 
     private List<CalorieDay> buildCalorieDays(
-            LocalDate from,
-            LocalDate today,
-            Integer targetKcal,
-            Map<LocalDate, DailyNutritionTotals> totalsByDate) {
+            LocalDate from, LocalDate today, Integer targetKcal, Map<LocalDate, DailyNutritionTotals> totalsByDate) {
         List<CalorieDay> days = new ArrayList<>(WINDOW_DAYS);
         for (LocalDate date = from; !date.isAfter(today); date = date.plusDays(1)) {
             DailyNutritionTotals totals = totalsByDate.get(date);
@@ -105,8 +103,7 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
         return days;
     }
 
-    private List<MacroAverage> buildMacroAverages(
-            java.util.Collection<DailyNutritionTotals> totals, User user) {
+    private List<MacroAverage> buildMacroAverages(java.util.Collection<DailyNutritionTotals> totals, User user) {
         int protein = avg(totals, DailyNutritionTotals::proteinG);
         int carb = avg(totals, DailyNutritionTotals::carbG);
         int fat = avg(totals, DailyNutritionTotals::fatG);

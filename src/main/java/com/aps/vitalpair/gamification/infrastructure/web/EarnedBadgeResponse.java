@@ -1,7 +1,8 @@
 package com.aps.vitalpair.gamification.infrastructure.web;
 
-import com.aps.vitalpair.gamification.application.dto.EarnedBadge;
 import java.time.Instant;
+
+import com.aps.vitalpair.gamification.application.dto.EarnedBadge;
 
 public record EarnedBadgeResponse(BadgeResponse badge, Instant earnedAt) {
 

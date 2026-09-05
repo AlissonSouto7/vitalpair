@@ -1,7 +1,8 @@
 package com.aps.vitalpair.nutrition.infrastructure.web;
 
-import com.aps.vitalpair.nutrition.application.dto.DailySummary;
 import java.time.LocalDate;
+
+import com.aps.vitalpair.nutrition.application.dto.DailySummary;
 
 public record DailySummaryResponse(
         LocalDate date,
@@ -18,8 +19,16 @@ public record DailySummaryResponse(
 
     public static DailySummaryResponse from(DailySummary s) {
         return new DailySummaryResponse(
-                s.date(), s.consumedCalories(), s.consumedProteinG(), s.consumedCarbG(), s.consumedFatG(),
-                s.targetCalories(), s.targetProteinG(), s.targetCarbG(), s.targetFatG(),
-                s.remainingCalories(), s.mealCount());
+                s.date(),
+                s.consumedCalories(),
+                s.consumedProteinG(),
+                s.consumedCarbG(),
+                s.consumedFatG(),
+                s.targetCalories(),
+                s.targetProteinG(),
+                s.targetCarbG(),
+                s.targetFatG(),
+                s.remainingCalories(),
+                s.mealCount());
     }
 }

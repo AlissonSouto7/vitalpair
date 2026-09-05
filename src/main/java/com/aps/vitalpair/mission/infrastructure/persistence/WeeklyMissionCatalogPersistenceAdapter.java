@@ -1,9 +1,11 @@
 package com.aps.vitalpair.mission.infrastructure.persistence;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.aps.vitalpair.mission.domain.model.WeeklyMission;
 import com.aps.vitalpair.mission.domain.port.out.WeeklyMissionCatalogRepositoryPort;
-import java.util.List;
-import org.springframework.stereotype.Component;
 
 @Component
 public class WeeklyMissionCatalogPersistenceAdapter implements WeeklyMissionCatalogRepositoryPort {
@@ -19,6 +21,8 @@ public class WeeklyMissionCatalogPersistenceAdapter implements WeeklyMissionCata
 
     @Override
     public List<WeeklyMission> findAllOrdered() {
-        return repository.findAllByOrderByDisplayOrderAsc().stream().map(mapper::toDomain).toList();
+        return repository.findAllByOrderByDisplayOrderAsc().stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

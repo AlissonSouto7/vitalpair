@@ -1,9 +1,10 @@
 package com.aps.vitalpair.progress.infrastructure.web;
 
-import com.aps.vitalpair.progress.domain.model.ProgressView;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+
+import com.aps.vitalpair.progress.domain.model.ProgressView;
 
 /**
  * DTO de resposta da tela de Progresso. Contrato consumido pelo frontend.
@@ -28,12 +29,9 @@ public record ProgressResponse(
                         .toList());
     }
 
-    public record WeightPointResponse(LocalDate date, BigDecimal weightKg) {
-    }
+    public record WeightPointResponse(LocalDate date, BigDecimal weightKg) {}
 
-    public record CalorieDayResponse(LocalDate date, String label, int kcal, boolean withinGoal) {
-    }
+    public record CalorieDayResponse(LocalDate date, String label, int kcal, boolean withinGoal) {}
 
-    public record MacroAverageResponse(String key, String label, int avgG, Integer targetG) {
-    }
+    public record MacroAverageResponse(String key, String label, int avgG, Integer targetG) {}
 }

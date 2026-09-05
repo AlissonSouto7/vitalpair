@@ -1,15 +1,16 @@
 package com.aps.vitalpair.notification.infrastructure.web;
 
-import com.aps.vitalpair.notification.domain.port.in.ListNotificationsUseCase;
-import com.aps.vitalpair.notification.domain.port.in.MarkNotificationsReadUseCase;
-import com.aps.vitalpair.shared.security.AuthenticatedUser;
-import com.aps.vitalpair.shared.web.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.aps.vitalpair.notification.domain.port.in.ListNotificationsUseCase;
+import com.aps.vitalpair.notification.domain.port.in.MarkNotificationsReadUseCase;
+import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -33,8 +34,7 @@ public class NotificationController {
     }
 
     @PutMapping("/read")
-    public ResponseEntity<ApiResponse<Void>> markAllRead(
-            @AuthenticationPrincipal AuthenticatedUser principal) {
+    public ResponseEntity<ApiResponse<Void>> markAllRead(@AuthenticationPrincipal AuthenticatedUser principal) {
         markNotificationsReadUseCase.markAllRead(principal.userId());
         return ResponseEntity.ok(ApiResponse.<Void>ok(null, "Notificações marcadas como lidas"));
     }

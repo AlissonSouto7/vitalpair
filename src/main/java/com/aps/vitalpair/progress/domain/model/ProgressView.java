@@ -12,8 +12,4 @@ import java.util.List;
  * @param macros     médias diárias de proteína, carboidrato e gordura
  */
 public record ProgressView(
-        List<WeightPoint> weights,
-        Integer targetKcal,
-        List<CalorieDay> calories,
-        List<MacroAverage> macros) {
-}
+        List<WeightPoint> weights, Integer targetKcal, List<CalorieDay> calories, List<MacroAverage> macros) {}

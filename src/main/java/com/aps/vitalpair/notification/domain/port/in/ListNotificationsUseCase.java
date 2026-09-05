@@ -1,7 +1,8 @@
 package com.aps.vitalpair.notification.domain.port.in;
 
-import com.aps.vitalpair.notification.application.dto.NotificationFeed;
 import java.util.UUID;
+
+import com.aps.vitalpair.notification.application.dto.NotificationFeed;
 
 public interface ListNotificationsUseCase {
 

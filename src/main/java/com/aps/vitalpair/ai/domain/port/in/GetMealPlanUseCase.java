@@ -1,8 +1,9 @@
 package com.aps.vitalpair.ai.domain.port.in;
 
-import com.aps.vitalpair.ai.application.dto.MealPlanView;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.ai.application.dto.MealPlanView;
 
 public interface GetMealPlanUseCase {
 

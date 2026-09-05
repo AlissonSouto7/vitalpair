@@ -1,7 +1,8 @@
 package com.aps.vitalpair.notification.domain.port.in;
 
-import com.aps.vitalpair.notification.domain.model.NotificationPreferences;
 import java.util.UUID;
+
+import com.aps.vitalpair.notification.domain.model.NotificationPreferences;
 
 public interface GetNotificationPreferencesUseCase {
 

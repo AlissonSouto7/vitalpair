@@ -6,21 +6,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.aps.vitalpair.gamification.application.dto.EarnedBadge;
 import com.aps.vitalpair.gamification.domain.model.Badge;
 import com.aps.vitalpair.gamification.domain.model.BadgeCategory;
 import com.aps.vitalpair.gamification.domain.model.UserBadge;
 import com.aps.vitalpair.gamification.domain.port.out.BadgeRepositoryPort;
 import com.aps.vitalpair.gamification.domain.port.out.UserBadgeRepositoryPort;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class BadgeServiceTest {
@@ -31,8 +33,10 @@ class BadgeServiceTest {
 
     @Mock
     private BadgeRepositoryPort badgeRepository;
+
     @Mock
     private UserBadgeRepositoryPort userBadgeRepository;
+
     @InjectMocks
     private BadgeService service;
 
@@ -68,8 +72,13 @@ class BadgeServiceTest {
     @Test
     void getUserBadgesJuntaDetalhesDoCatalogo() {
         when(badgeRepository.findAll()).thenReturn(List.of(badge()));
-        when(userBadgeRepository.findByUser(USER)).thenReturn(List.of(
-                UserBadge.builder().userId(USER).tenantId(TENANT).badgeId(BADGE_ID).earnedAt(Instant.now()).build()));
+        when(userBadgeRepository.findByUser(USER))
+                .thenReturn(List.of(UserBadge.builder()
+                        .userId(USER)
+                        .tenantId(TENANT)
+                        .badgeId(BADGE_ID)
+                        .earnedAt(Instant.now())
+                        .build()));
 
         List<EarnedBadge> result = service.getUserBadges(USER);
 
@@ -79,8 +88,11 @@ class BadgeServiceTest {
 
     private Badge badge() {
         return Badge.builder()
-                .id(BADGE_ID).code("FIRST_MEAL").name("Primeira refeição")
-                .description("Registrou a primeira refeição").icon("fa-utensils")
+                .id(BADGE_ID)
+                .code("FIRST_MEAL")
+                .name("Primeira refeição")
+                .description("Registrou a primeira refeição")
+                .icon("fa-utensils")
                 .category(BadgeCategory.NUTRITION)
                 .build();
     }

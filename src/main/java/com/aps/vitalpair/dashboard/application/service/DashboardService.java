@@ -1,5 +1,11 @@
 package com.aps.vitalpair.dashboard.application.service;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import com.aps.vitalpair.activity.domain.port.in.GetActivitySummaryUseCase;
 import com.aps.vitalpair.dashboard.application.dto.DashboardView;
@@ -11,10 +17,6 @@ import com.aps.vitalpair.nutrition.domain.port.in.GetDailySummaryUseCase;
 import com.aps.vitalpair.pair.application.dto.MemberView;
 import com.aps.vitalpair.pair.application.dto.PairView;
 import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
-import java.time.LocalDate;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Monta o dashboard diário agregando nutrição (consumido), atividade (gasto) e a meta do usuário,

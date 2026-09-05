@@ -1,17 +1,19 @@
 package com.aps.vitalpair.feed.application.listener;
 
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
 import com.aps.vitalpair.feed.domain.model.FeedItem;
 import com.aps.vitalpair.feed.domain.model.FeedItemType;
 import com.aps.vitalpair.feed.domain.port.out.FeedItemRepositoryPort;
 import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /** Cria itens da timeline do par a partir dos eventos de nutrição/atividade. */
 @Component
@@ -33,9 +35,14 @@ public class FeedEventListener {
     public void onMealLogged(MealLoggedEvent event) {
         String title = event.foodName() + " (" + mealTypeLabel(event.mealType()) + ")";
         String subtitle = String.format(
-                "%d kcal · P %dg · C %dg · G %dg",
-                event.caloriesKcal(), event.proteinG(), event.carbG(), event.fatG());
-        save(event.userId(), event.tenantId(), FeedItemType.MEAL_LOGGED, title, subtitle, MEAL_POINTS,
+                "%d kcal · P %dg · C %dg · G %dg", event.caloriesKcal(), event.proteinG(), event.carbG(), event.fatG());
+        save(
+                event.userId(),
+                event.tenantId(),
+                FeedItemType.MEAL_LOGGED,
+                title,
+                subtitle,
+                MEAL_POINTS,
                 event.isPrivate());
     }
 
@@ -49,7 +56,13 @@ public class FeedEventListener {
         save(event.userId(), event.tenantId(), FeedItemType.ACTIVITY_LOGGED, title, subtitle, ACTIVITY_POINTS, false);
     }
 
-    private void save(UUID userId, UUID tenantId, FeedItemType type, String title, String subtitle, int points,
+    private void save(
+            UUID userId,
+            UUID tenantId,
+            FeedItemType type,
+            String title,
+            String subtitle,
+            int points,
             boolean isPrivate) {
         String actorName = userRepository.findById(userId).map(u -> u.getName()).orElse("Alguém");
         feedItemRepository.save(FeedItem.builder()

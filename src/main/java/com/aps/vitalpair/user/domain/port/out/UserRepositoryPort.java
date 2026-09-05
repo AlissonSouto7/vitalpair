@@ -1,9 +1,10 @@
 package com.aps.vitalpair.user.domain.port.out;
 
-import com.aps.vitalpair.user.domain.model.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.user.domain.model.User;
 
 /**
  * Porta de saída para persistência de usuários. Implementada por um adapter em

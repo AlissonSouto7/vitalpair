@@ -1,22 +1,26 @@
 package com.aps.vitalpair.activity.infrastructure.persistence;
 
-import com.aps.vitalpair.activity.domain.model.ActivitySource;
-import com.aps.vitalpair.activity.domain.model.ActivityType;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import com.aps.vitalpair.activity.domain.model.ActivitySource;
+import com.aps.vitalpair.activity.domain.model.ActivityType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "activity_logs")

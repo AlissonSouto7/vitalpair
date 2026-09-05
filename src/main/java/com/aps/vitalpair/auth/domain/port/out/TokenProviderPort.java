@@ -1,8 +1,9 @@
 package com.aps.vitalpair.auth.domain.port.out;
 
-import com.aps.vitalpair.auth.domain.model.TokenPayload;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.aps.vitalpair.auth.domain.model.TokenPayload;
 
 /** Geração e validação do access token (JWT). */
 public interface TokenProviderPort {

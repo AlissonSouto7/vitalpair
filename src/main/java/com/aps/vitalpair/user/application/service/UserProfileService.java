@@ -1,5 +1,12 @@
 package com.aps.vitalpair.user.application.service;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
@@ -12,11 +19,6 @@ import com.aps.vitalpair.user.domain.port.in.GetProfileUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetTdeeUseCase;
 import com.aps.vitalpair.user.domain.port.in.UpdateProfileUseCase;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.UUID;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Casos de uso do perfil do usuário. Ao atualizar o perfil, recalcula automaticamente a meta
@@ -41,15 +43,13 @@ public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCa
     @Override
     @Transactional(readOnly = true)
     public User getProfile(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        return userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
     }
 
     @Override
     @Transactional
     public User updateProfile(UUID userId, UpdateProfileCommand command) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
         TdeeResult targets = calculateTargets.calculate(new TdeeInput(
                 command.sex(),

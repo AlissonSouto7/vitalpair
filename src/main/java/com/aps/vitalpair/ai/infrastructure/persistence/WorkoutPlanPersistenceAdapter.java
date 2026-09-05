@@ -1,9 +1,5 @@
 package com.aps.vitalpair.ai.infrastructure.persistence;
 
-import com.aps.vitalpair.ai.domain.model.WorkoutDay;
-import com.aps.vitalpair.ai.domain.model.WorkoutExercise;
-import com.aps.vitalpair.ai.domain.model.WorkoutPlan;
-import com.aps.vitalpair.ai.domain.port.out.WorkoutPlanRepositoryPort;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,7 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.ai.domain.model.WorkoutDay;
+import com.aps.vitalpair.ai.domain.model.WorkoutExercise;
+import com.aps.vitalpair.ai.domain.model.WorkoutPlan;
+import com.aps.vitalpair.ai.domain.port.out.WorkoutPlanRepositoryPort;
 
 /**
  * Adaptador JPA do plano de treino. {@code replace} apaga exercícios, dias e plano da mesma
@@ -87,7 +89,8 @@ public class WorkoutPlanPersistenceAdapter implements WorkoutPlanRepositoryPort 
 
     @Override
     public Optional<WorkoutPlan> findByExerciseId(UUID exerciseId) {
-        return exerciseRepository.findById(exerciseId)
+        return exerciseRepository
+                .findById(exerciseId)
                 .flatMap(exercise -> dayRepository.findById(exercise.getDayId()))
                 .flatMap(day -> planRepository.findById(day.getPlanId()))
                 .map(this::toDomain);
@@ -113,7 +116,10 @@ public class WorkoutPlanPersistenceAdapter implements WorkoutPlanRepositoryPort 
         List<WorkoutDayJpaEntity> dayEntities = dayRepository.findByPlanId(entity.getId());
         Map<UUID, List<WorkoutExerciseJpaEntity>> exercisesByDay = dayEntities.isEmpty()
                 ? Map.of()
-                : exerciseRepository.findByDayIdIn(dayEntities.stream().map(WorkoutDayJpaEntity::getId).toList())
+                : exerciseRepository
+                        .findByDayIdIn(dayEntities.stream()
+                                .map(WorkoutDayJpaEntity::getId)
+                                .toList())
                         .stream()
                         .collect(Collectors.groupingBy(WorkoutExerciseJpaEntity::getDayId));
 
@@ -122,12 +128,22 @@ public class WorkoutPlanPersistenceAdapter implements WorkoutPlanRepositoryPort 
             List<WorkoutExercise> exercises = exercisesByDay.getOrDefault(day.getId(), List.of()).stream()
                     .sorted(Comparator.comparingInt(WorkoutExerciseJpaEntity::getPosition))
                     .map(exercise -> new WorkoutExercise(
-                            exercise.getId(), exercise.getPosition(), exercise.getName(),
-                            exercise.getSets(), exercise.getReps(), exercise.getRestSeconds(), exercise.isDone()))
+                            exercise.getId(),
+                            exercise.getPosition(),
+                            exercise.getName(),
+                            exercise.getSets(),
+                            exercise.getReps(),
+                            exercise.getRestSeconds(),
+                            exercise.isDone()))
                     .toList();
             days.add(new WorkoutDay(
-                    day.getId(), day.getDayIndex(), day.getFocus(), day.getDurationMin(),
-                    day.isRest(), day.getCompletedOn(), exercises));
+                    day.getId(),
+                    day.getDayIndex(),
+                    day.getFocus(),
+                    day.getDurationMin(),
+                    day.isRest(),
+                    day.getCompletedOn(),
+                    exercises));
         }
         days.sort(Comparator.comparingInt(WorkoutDay::dayIndex));
         return new WorkoutPlan(entity.getId(), entity.getUserId(), entity.getWeekStart(), entity.getGoal(), days);

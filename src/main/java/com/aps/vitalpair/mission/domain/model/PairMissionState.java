@@ -3,6 +3,7 @@ package com.aps.vitalpair.mission.domain.model;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Getter;
 

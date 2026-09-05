@@ -1,8 +1,8 @@
 package com.aps.vitalpair.auth.infrastructure.mail;
 
-import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+
+import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 
 /**
  * Adapter de e-mail. Quando {@code vitalpair.mail.enabled=true} e há um {@link JavaMailSender}
@@ -97,7 +99,8 @@ public class MailSenderAdapter implements MailSenderPort {
                 .replace("{{ctaUrl}}", ctaUrl);
     }
 
-    private static final String EMAIL_TEMPLATE = """
+    private static final String EMAIL_TEMPLATE =
+            """
             <!doctype html>
             <html lang="pt-BR">
               <body style="margin:0;padding:0;background:#fbf6ee;">

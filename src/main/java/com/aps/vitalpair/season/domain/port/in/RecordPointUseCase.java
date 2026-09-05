@@ -1,8 +1,9 @@
 package com.aps.vitalpair.season.domain.port.in;
 
-import com.aps.vitalpair.season.domain.model.PointSource;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import com.aps.vitalpair.season.domain.model.PointSource;
 
 /**
  * Registra um award no ledger de pontos. Chamado pela gamification no MESMO ponto

@@ -3,6 +3,7 @@ package com.aps.vitalpair.activity.domain.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Getter;
 
