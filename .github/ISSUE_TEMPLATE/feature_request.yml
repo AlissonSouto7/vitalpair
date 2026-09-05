@@ -1,0 +1,78 @@
+name: Feature request
+description: Propose a new capability or an improvement to an existing one
+title: "feat: "
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: |
+        The problem this solves, from the user's point of view. Describe the
+        problem before the solution.
+      placeholder: A user who logs a meal cannot tell how much of the daily target is left.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should happen. Include the user-visible behaviour.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How anyone can tell this is finished. One checkable item per line.
+      placeholder: |
+        - [ ] The daily summary shows remaining calories
+        - [ ] The value updates without a page reload after logging a meal
+        - [ ] Strings exist in pt, en, es and fr
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, and why this one is better.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - backend
+        - frontend
+        - infrastructure
+        - ci
+        - docs
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Rough size
+      options:
+        - XS - under an hour
+        - S - a few hours
+        - M - a day or two
+        - L - several days
+        - XL - needs to be split
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: considerations
+    attributes:
+      label: Considerations
+      options:
+        - label: This needs new user-facing strings in all four languages
+        - label: This needs a database migration
+        - label: This changes an existing API contract
+        - label: This touches authentication or authorization
