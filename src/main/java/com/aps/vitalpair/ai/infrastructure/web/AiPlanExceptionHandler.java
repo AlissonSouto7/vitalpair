@@ -17,6 +17,7 @@ import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
 import com.aps.vitalpair.ai.domain.exception.WorkoutAlreadyCompletedException;
 import com.aps.vitalpair.shared.web.ApiError;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.LogSafe;
 
 /**
  * Tradução para HTTP das exceções específicas dos planos por IA, no mesmo formato
@@ -37,7 +38,7 @@ public class AiPlanExceptionHandler {
     @ExceptionHandler(PlanGenerationException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleGenerationFailure(
             PlanGenerationException ex, HttpServletRequest request) {
-        log.warn("Falha na geração de plano em {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        log.warn("Falha na geração de plano em {}: {}", LogSafe.value(request.getRequestURI()), ex.getMessage(), ex);
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
     }
 

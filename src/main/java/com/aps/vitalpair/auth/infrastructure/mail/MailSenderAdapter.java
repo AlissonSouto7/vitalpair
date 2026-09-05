@@ -61,7 +61,11 @@ public class MailSenderAdapter implements MailSenderPort {
     private void send(String toEmail, String subject, String html, String kind, String link) {
         JavaMailSender mailSender = enabled ? mailSenderProvider.getIfAvailable() : null;
         if (mailSender == null) {
-            log.warn("[MAIL DESABILITADO] Link de {} para {}: {}", kind, toEmail, link);
+            // Never log the link: it carries a single-use token that grants account
+            // takeover to anyone who can read the log. The masked address is enough to
+            // tell which flow ran, and the warning makes a misconfigured MAIL_ENABLED
+            // visible in production instead of silently dropping mail.
+            log.warn("Mail disabled, {} e-mail for {} was not sent", kind, mask(toEmail));
             return;
         }
         try {
@@ -88,6 +92,24 @@ public class MailSenderAdapter implements MailSenderPort {
 
     private static String esc(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
+    /**
+     * Masks an address for logging: {@code person@example.com} becomes {@code p***@example.com}.
+     *
+     * <p>Enough to tell which account a log line refers to when reading it next to the
+     * database, without writing personal data into a file that gets shipped, archived and
+     * read by tooling.
+     */
+    private static String mask(String email) {
+        if (email == null || email.isBlank()) {
+            return "<none>";
+        }
+        int at = email.indexOf('@');
+        if (at <= 0) {
+            return "***";
+        }
+        return email.charAt(0) + "***" + email.substring(at);
     }
 
     private String brandedHtml(String greeting, String intro, String ctaLabel, String ctaUrl, String note) {
