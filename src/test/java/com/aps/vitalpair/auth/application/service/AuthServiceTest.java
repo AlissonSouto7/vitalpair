@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -99,6 +100,27 @@ class AuthServiceTest {
         // pair salvo duas vezes: criação + associação do user1
         verify(pairRepository, times(2)).save(any());
         verify(refreshTokenStore).save(anyString(), eq(USER_ID), eq(REFRESH_TTL));
+    }
+
+    @Test
+    void registerSucceedsWhenTheVerificationEmailCannotBeSent() {
+        when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(false);
+        when(pairRepository.save(any())).thenReturn(pairWithId());
+        when(passwordHasher.hash("senha1234")).thenReturn("hashed");
+        when(userRepository.save(any())).thenReturn(userWithId());
+        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app"))
+                .thenReturn("access");
+        doThrow(new RuntimeException("SMTP unreachable"))
+                .when(sendEmailVerification)
+                .send(any(), anyString(), anyString());
+
+        AuthResult result = authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
+
+        // The account exists and the user is logged in. A mail outage must not cost a
+        // signup: the verification e-mail can be resent, but a 500 sends the person away
+        // and leaves a half-created account behind.
+        assertThat(result.accessToken()).isEqualTo("access");
+        assertThat(result.userId()).isEqualTo(USER_ID);
     }
 
     @Test
