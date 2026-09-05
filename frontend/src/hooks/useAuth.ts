@@ -10,26 +10,18 @@ export function useAuth() {
 
   async function login(payload: LoginPayload) {
     const token = await authApi.login(payload)
-    setSession({
-      accessToken: token.accessToken,
-      refreshToken: token.refreshToken,
-      userId: token.userId,
-    })
+    setSession({ accessToken: token.accessToken, userId: token.userId })
   }
 
   async function register(payload: RegisterPayload) {
     const token = await authApi.register(payload)
-    setSession({
-      accessToken: token.accessToken,
-      refreshToken: token.refreshToken,
-      userId: token.userId,
-    })
+    setSession({ accessToken: token.accessToken, userId: token.userId })
   }
 
   async function logout() {
-    const refreshToken = useAuthStore.getState().refreshToken
     try {
-      if (refreshToken) await authApi.logout(refreshToken)
+      // The server reads the cookie and clears it; the client has nothing to hand over.
+      await authApi.logout()
     } catch {
       // ignora falha de logout remoto; limpa a sessão local de qualquer forma
     }

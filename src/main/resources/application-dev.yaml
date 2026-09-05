@@ -10,6 +10,10 @@ spring:
         format_sql: true
 
 vitalpair:
+  auth:
+    # Local development runs on http, and a Secure cookie is never sent over it, so the
+    # session would silently never work. Production leaves this at its default of true.
+    cookie-secure: false
   jwt:
     # No default on purpose. A committed secret in the default profile means a deploy that
     # forgets SPRING_PROFILES_ACTIVE signs real tokens with a value anyone can read in this
