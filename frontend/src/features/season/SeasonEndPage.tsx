@@ -1,39 +1,60 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getSeason } from '../../api/season'
 import { Avatar } from '../../components/ui/Avatar'
-import { Points } from '../../components/ui/Badge'
+import type { SeasonHistoryItem, SeasonView } from '../../types/season'
 
 /**
- * Fim de temporada — a ÚNICA tela de celebração do app.
- * Confete nas 3 cores da marca (laranja=você, roxo=Célia, verde=vitória),
- * troféu com aura, placar final, aposta a pagar e recompensas.
- * Renderiza só o conteúdo: o Layout (sidebar etc.) já vem por fora.
- *
- * Lei das cores: laranja = você · roxo = Célia · verde = pontos/vitória · dourado = carb.
- * Tudo via tokens; só as partículas de confete usam var(--brand|rival|success).
+ * Fim de temporada — a ÚNICA tela de celebração do app (dados reais).
+ * Mostra a última temporada FECHADA (do histórico). Confete nas 3 cores da marca.
  */
-
-// TODO: ligar backend — buscar resultado real da temporada (vencedor, placar, aposta, recompensas).
-const SEASON = {
-  number: 1,
-  youName: 'Você',
-  youInitial: 'A',
-  youScore: 980,
-  rivalName: 'Célia',
-  rivalInitial: 'C',
-  rivalScore: 920,
-  stake: 'A Célia te paga o jantar. Combinado é combinado.',
-  rewards: [
-    { points: 320, label: 'Streak de 21 dias seguidos' },
-    { points: 180, label: 'Bateu a meta de calorias 26 vezes' },
-    { points: 120, label: 'Venceu 4 missões relâmpago' },
-  ],
-}
-
 export function SeasonEndPage() {
   const { t } = useTranslation()
-  const youWon = SEASON.youScore >= SEASON.rivalScore
-  const lead = Math.abs(SEASON.youScore - SEASON.rivalScore)
-  const totalRewards = SEASON.rewards.reduce((sum, r) => sum + r.points, 0)
+  const [season, setSeason] = useState<SeasonView | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    getSeason()
+      .then(setSeason)
+      .catch(() => setError(t('season.loadError')))
+      .finally(() => setLoading(false))
+  }, [t])
+
+  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+
+  const last: SeasonHistoryItem | undefined = season?.history[0]
+  const partnerName = season?.rival?.name ?? t('season.defaultPartner')
+
+  // Ainda não fechou nenhuma temporada: nada pra celebrar por aqui.
+  if (!season || !last) {
+    return (
+      <div className="mx-auto max-w-[520px]">
+        <section className="card flex flex-col items-center gap-4 py-14 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-soft">
+            <TrophyIcon className="h-8 w-8 fill-brand" />
+          </span>
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-ink">{t('seasonEnd.emptyTitle')}</h1>
+            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">
+              {season
+                ? t('seasonEnd.emptyText', { days: season.daysLeft })
+                : t('seasonEnd.emptyTextNoSeason')}
+            </p>
+          </div>
+          <Link to="/season" className="btn-primary">
+            {t('seasonEnd.backToSeason')}
+          </Link>
+        </section>
+      </div>
+    )
+  }
+
+  const youWon = last.winner === 'YOU'
+  const tie = last.winner === 'TIE'
+  const lead = Math.abs(last.you - last.rival)
 
   return (
     <div className="relative -mx-4 -my-4 min-h-[calc(100vh-6rem)] overflow-hidden sm:-mx-6 sm:-my-6">
@@ -42,14 +63,14 @@ export function SeasonEndPage() {
       <div className="relative z-10 mx-auto flex max-w-[520px] flex-col items-center px-4 py-10 text-center">
         {/* Faixa de abertura */}
         <p className="vp-rise text-xs font-extrabold uppercase tracking-[0.16em] text-brand-ink">
-          {t('seasonEnd.banner', { n: String(SEASON.number).padStart(2, '0') })}
+          {t('seasonEnd.banner', { n: String(last.number).padStart(2, '0') })}
         </p>
 
         {/* Troféu com aura */}
         <div className="vp-pop relative my-2 h-[150px] w-[150px]">
           <div className="vp-glow absolute -inset-3 rounded-full bg-[radial-gradient(circle,var(--brand-soft),transparent_68%)]" />
           <div className="vp-bob relative flex h-[150px] w-[150px] items-center justify-center rounded-[42px] bg-gradient-to-br from-brand to-brand-ink shadow-[0_16px_40px_rgba(255,107,44,0.45)]">
-            <TrophyIcon />
+            <TrophyIcon className="h-[74px] w-[74px] fill-white" />
           </div>
         </div>
 
@@ -58,15 +79,14 @@ export function SeasonEndPage() {
           className="vp-rise mt-3 font-display text-[38px] font-semibold leading-none tracking-tight text-ink"
           style={{ animationDelay: '0.1s' }}
         >
-          {youWon ? t('seasonEnd.youWon') : t('seasonEnd.rivalWon', { rival: SEASON.rivalName })}
+          {tie ? t('seasonEnd.tie') : youWon ? t('seasonEnd.youWon') : t('seasonEnd.rivalWon', { rival: partnerName })}
         </h1>
-        <p
-          className="vp-rise mb-6 mt-2 text-[15px] font-bold text-muted"
-          style={{ animationDelay: '0.15s' }}
-        >
-          {youWon
-            ? t('seasonEnd.youWonText', { lead, rival: SEASON.rivalName })
-            : t('seasonEnd.rivalWonText', { lead, rival: SEASON.rivalName })}
+        <p className="vp-rise mb-6 mt-2 text-[15px] font-bold text-muted" style={{ animationDelay: '0.15s' }}>
+          {tie
+            ? t('seasonEnd.tieText', { rival: partnerName })
+            : youWon
+              ? t('seasonEnd.youWonText', { lead, rival: partnerName })
+              : t('seasonEnd.rivalWonText', { lead, rival: partnerName })}
         </p>
 
         {/* Placar final */}
@@ -75,78 +95,55 @@ export function SeasonEndPage() {
           style={{ animationDelay: '0.2s' }}
         >
           <div className="flex items-center justify-between">
-            <ScoreSide
-              name={SEASON.youName}
-              initial={SEASON.youInitial}
-              score={SEASON.youScore}
-              tone="you"
-              winner={youWon}
-            />
+            <ScoreSide name={t('season.you')} initial="V" score={last.you} tone="you" winner={youWon || tie} />
 
             <div className="flex flex-col items-center gap-1 px-2">
               <StarIcon />
               <span className="whitespace-nowrap text-[10px] font-extrabold text-success-ink">
-                {t('seasonEnd.lead', { lead })}
+                {tie ? t('seasonEnd.tieShort') : t('seasonEnd.lead', { lead })}
               </span>
             </div>
 
             <ScoreSide
-              name={SEASON.rivalName}
-              initial={SEASON.rivalInitial}
-              score={SEASON.rivalScore}
+              name={partnerName}
+              initial={initial(partnerName)}
+              score={last.rival}
               tone="rival"
-              winner={!youWon}
+              winner={!youWon || tie}
             />
           </div>
         </div>
 
         {/* Aposta a pagar */}
-        <div
-          className="vp-rise mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-carb/30 bg-carb/10 px-5 py-4"
-          style={{ animationDelay: '0.25s' }}
-        >
-          <BowlIcon />
-          <span className="text-sm font-extrabold text-ink">{SEASON.stake}</span>
-        </div>
-
-        {/* Recompensas da temporada */}
-        <div
-          className="vp-rise mt-3 w-full rounded-2xl border border-hair bg-surface p-5 text-left"
-          style={{ animationDelay: '0.3s' }}
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-display text-base font-semibold text-ink">{t('seasonEnd.rewardsTitle')}</h2>
-            <span className="font-display text-xl font-semibold text-success-ink">{totalRewards}</span>
+        {last.stake && !tie && (
+          <div
+            className="vp-rise mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-carb/30 bg-carb/10 px-5 py-4"
+            style={{ animationDelay: '0.25s' }}
+          >
+            <BowlIcon />
+            <span className="text-sm font-extrabold text-ink">
+              {youWon
+                ? t('seasonEnd.stakeWon', { rival: partnerName, stake: lowerFirst(last.stake) })
+                : t('seasonEnd.stakeLost', { stake: lowerFirst(last.stake) })}
+            </span>
           </div>
-          <ul className="space-y-2.5">
-            {SEASON.rewards.map((r) => (
-              <li key={r.label} className="flex items-center justify-between gap-3">
-                <span className="text-sm font-bold text-ink">{r.label}</span>
-                <Points value={r.points} />
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
 
         {/* Ações */}
-        <button
-          className="vp-rise btn-primary mt-6 w-full py-4 text-base shadow-[0_8px_22px_rgba(255,107,44,0.35)]"
+        <Link
+          to="/season"
+          className="vp-rise btn-primary mt-6 w-full py-4 text-center text-base shadow-[0_8px_22px_rgba(255,107,44,0.35)]"
           style={{ animationDelay: '0.35s' }}
-          onClick={() => {
-            // TODO: ligar backend — iniciar nova temporada.
-          }}
         >
-          {t('seasonEnd.newSeason')}
-        </button>
-        <button
+          {t('seasonEnd.newSeason', { n: last.number + 1 })}
+        </Link>
+        <Link
+          to="/progress"
           className="vp-rise mt-3 text-[13px] font-extrabold text-muted transition hover:text-ink"
           style={{ animationDelay: '0.4s' }}
-          onClick={() => {
-            // TODO: ligar backend — abrir resumo completo dos 30 dias.
-          }}
         >
           {t('seasonEnd.seeSummary')}
-        </button>
+        </Link>
       </div>
 
       <ScopedStyles />
@@ -175,18 +172,10 @@ function ScoreSide({
       <div className={winner ? '' : 'opacity-80'}>
         <Avatar initial={initial} tone={tone} size={48} />
       </div>
-      <div
-        className={`text-[11px] font-extrabold uppercase tracking-wide ${
-          isYou ? 'text-brand-ink' : 'text-rival-ink'
-        }`}
-      >
+      <div className={`text-[11px] font-extrabold uppercase tracking-wide ${isYou ? 'text-brand-ink' : 'text-rival-ink'}`}>
         {name}
       </div>
-      <div
-        className={`font-display text-[32px] font-semibold leading-none ${
-          winner ? 'text-arena-text' : 'text-arena-muted'
-        }`}
-      >
+      <div className={`font-display text-[32px] font-semibold leading-none ${winner ? 'text-arena-text' : 'text-arena-muted'}`}>
         {score}
       </div>
     </div>
@@ -195,7 +184,6 @@ function ScoreSide({
 
 /** Confete nas 3 cores da marca, feito com CSS. Respeita prefers-reduced-motion. */
 function Confetti() {
-  // posição/cor/timing fixos pra ficar determinístico (sem layout shift).
   const pieces = [
     { left: '8%', color: 'var(--brand)', dur: '3.2s', delay: '0s' },
     { left: '18%', color: 'var(--success)', dur: '3.8s', delay: '0.6s' },
@@ -213,21 +201,16 @@ function Confetti() {
         <span
           key={i}
           className="vp-conf"
-          style={{
-            left: p.left,
-            background: p.color,
-            animationDuration: p.dur,
-            animationDelay: p.delay,
-          }}
+          style={{ left: p.left, background: p.color, animationDuration: p.dur, animationDelay: p.delay }}
         />
       ))}
     </div>
   )
 }
 
-function TrophyIcon() {
+function TrophyIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-[74px] w-[74px] fill-white" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <path d="M18 2H6v2H3a1 1 0 0 0-1 1v2a4 4 0 0 0 4 4 6 6 0 0 0 5 3.91V18H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-3.09A6 6 0 0 0 18 11a4 4 0 0 0 4-4V5a1 1 0 0 0-1-1h-3V2ZM4 7V6h2v3a2 2 0 0 1-2-2Zm16 0a2 2 0 0 1-2 2V6h2v1ZM7 21a1 1 0 0 0 0 2h10a1 1 0 0 0 0-2H7Z" />
     </svg>
   )
@@ -249,10 +232,18 @@ function BowlIcon() {
   )
 }
 
+/* ---------------- helpers ---------------- */
+
+function initial(name: string): string {
+  return name.trim().charAt(0).toUpperCase() || 'P'
+}
+
+function lowerFirst(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1)
+}
+
 /**
- * Keyframes locais da celebração. Mantidos aqui pra não tocar arquivos compartilhados.
- * Reusa o vp-bob global; adiciona pop/rise/glow/queda do confete.
- * prefers-reduced-motion: para tudo (inclusive o confete some).
+ * Keyframes locais da celebração. prefers-reduced-motion para tudo (confete some).
  */
 function ScopedStyles() {
   return (
