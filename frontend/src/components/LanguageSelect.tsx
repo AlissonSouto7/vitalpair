@@ -46,8 +46,17 @@ export function LanguageSelect() {
                   <span className="text-base leading-none">{lang.flag}</span>
                   {lang.label}
                   {active && (
-                    <svg className="ml-auto h-4 w-4 text-brand-ink" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.1 3.1 6.8-6.8a1 1 0 011.4 0z" clipRule="evenodd" />
+                    <svg
+                      className="ml-auto h-4 w-4 text-brand-ink"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.1 3.1 6.8-6.8a1 1 0 011.4 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   )}
                 </button>

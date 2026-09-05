@@ -16,6 +16,9 @@ export function NotificationsBell() {
   const { t } = useTranslation()
   const [feed, setFeed] = useState<NotificationFeed>({ unreadCount: 0, items: [] })
   const [open, setOpen] = useState(false)
+  // Reading Date.now() while rendering makes the output differ between renders of the
+  // same state. Captured once per mount and refreshed on the interval below instead.
+  const [now, setNow] = useState(() => Date.now())
   const ref = useRef<HTMLDivElement>(null)
 
   async function load() {
@@ -28,7 +31,12 @@ export function NotificationsBell() {
 
   useEffect(() => {
     load()
-    const id = setInterval(load, 30000)
+    // The same tick refreshes the relative timestamps ("5 min ago"), so there is no
+    // second timer and the labels never sit frozen while the panel is open.
+    const id = setInterval(() => {
+      load()
+      setNow(Date.now())
+    }, 30000)
     return () => clearInterval(id)
   }, [])
 
@@ -50,16 +58,21 @@ export function NotificationsBell() {
   }
 
   function bodyOf(n: AppNotification): string {
-    if (n.type === 'PARTNER_MEAL') return t('notifications.mealBody', { name: n.actorName, food: n.refText })
-    if (n.type === 'PARTNER_ACTIVITY') return t('notifications.activityBody', { name: n.actorName, kcal: n.amount })
-    if (n.type === 'RIVAL_OVERTOOK') return t('notifications.overtookBody', { name: n.actorName ?? t('notifications.overtookFallback') })
+    if (n.type === 'PARTNER_MEAL')
+      return t('notifications.mealBody', { name: n.actorName, food: n.refText })
+    if (n.type === 'PARTNER_ACTIVITY')
+      return t('notifications.activityBody', { name: n.actorName, kcal: n.amount })
+    if (n.type === 'RIVAL_OVERTOOK')
+      return t('notifications.overtookBody', {
+        name: n.actorName ?? t('notifications.overtookFallback'),
+      })
     if (n.type === 'FLASH_MISSION') return t('notifications.flashBody')
     if (n.type === 'LOG_REMINDER') return t('notifications.reminderBody')
     return t('notifications.pairBody')
   }
 
   function timeAgo(iso: string): string {
-    const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+    const minutes = Math.floor((now - new Date(iso).getTime()) / 60000)
     if (minutes < 1) return t('notifications.now')
     if (minutes < 60) return t('notifications.min', { n: minutes })
     const hours = Math.floor(minutes / 60)
@@ -87,7 +100,13 @@ export function NotificationsBell() {
         title={t('header.notifications')}
         className="relative rounded-lg border border-line px-2 py-1.5 text-muted transition hover:text-ink"
       >
-        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <svg
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -103,7 +122,9 @@ export function NotificationsBell() {
 
       {open && (
         <div className="absolute right-0 z-30 mt-2 w-80 overflow-hidden rounded-xl border border-line bg-surface shadow-xl shadow-black/40">
-          <div className="border-b border-line px-4 py-2.5 text-sm font-semibold">{t('notifications.title')}</div>
+          <div className="border-b border-line px-4 py-2.5 text-sm font-semibold">
+            {t('notifications.title')}
+          </div>
           {feed.items.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted">{t('notifications.empty')}</p>
           ) : (

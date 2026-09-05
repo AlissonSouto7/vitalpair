@@ -6,7 +6,10 @@ import { useAuthStore } from '../store/authStore'
 interface GoogleAccounts {
   accounts: {
     id: {
-      initialize: (config: { client_id: string; callback: (res: { credential: string }) => void }) => void
+      initialize: (config: {
+        client_id: string
+        callback: (res: { credential: string }) => void
+      }) => void
       renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void
     }
   }

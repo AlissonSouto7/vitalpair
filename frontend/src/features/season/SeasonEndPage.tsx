@@ -23,7 +23,8 @@ export function SeasonEndPage() {
   }, [t])
 
   if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (error)
+    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
 
   const last: SeasonHistoryItem | undefined = season?.history[0]
   const partnerName = season?.rival?.name ?? t('season.defaultPartner')
@@ -37,7 +38,9 @@ export function SeasonEndPage() {
             <TrophyIcon className="h-8 w-8 fill-brand" />
           </span>
           <div>
-            <h1 className="font-display text-2xl font-semibold text-ink">{t('seasonEnd.emptyTitle')}</h1>
+            <h1 className="font-display text-2xl font-semibold text-ink">
+              {t('seasonEnd.emptyTitle')}
+            </h1>
             <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">
               {season
                 ? t('seasonEnd.emptyText', { days: season.daysLeft })
@@ -79,9 +82,16 @@ export function SeasonEndPage() {
           className="vp-rise mt-3 font-display text-[38px] font-semibold leading-none tracking-tight text-ink"
           style={{ animationDelay: '0.1s' }}
         >
-          {tie ? t('seasonEnd.tie') : youWon ? t('seasonEnd.youWon') : t('seasonEnd.rivalWon', { rival: partnerName })}
+          {tie
+            ? t('seasonEnd.tie')
+            : youWon
+              ? t('seasonEnd.youWon')
+              : t('seasonEnd.rivalWon', { rival: partnerName })}
         </h1>
-        <p className="vp-rise mb-6 mt-2 text-[15px] font-bold text-muted" style={{ animationDelay: '0.15s' }}>
+        <p
+          className="vp-rise mb-6 mt-2 text-[15px] font-bold text-muted"
+          style={{ animationDelay: '0.15s' }}
+        >
           {tie
             ? t('seasonEnd.tieText', { rival: partnerName })
             : youWon
@@ -95,7 +105,13 @@ export function SeasonEndPage() {
           style={{ animationDelay: '0.2s' }}
         >
           <div className="flex items-center justify-between">
-            <ScoreSide name={t('season.you')} initial="V" score={last.you} tone="you" winner={youWon || tie} />
+            <ScoreSide
+              name={t('season.you')}
+              initial="V"
+              score={last.you}
+              tone="you"
+              winner={youWon || tie}
+            />
 
             <div className="flex flex-col items-center gap-1 px-2">
               <StarIcon />
@@ -172,10 +188,14 @@ function ScoreSide({
       <div className={winner ? '' : 'opacity-80'}>
         <Avatar initial={initial} tone={tone} size={48} />
       </div>
-      <div className={`text-[11px] font-extrabold uppercase tracking-wide ${isYou ? 'text-brand-ink' : 'text-rival-ink'}`}>
+      <div
+        className={`text-[11px] font-extrabold uppercase tracking-wide ${isYou ? 'text-brand-ink' : 'text-rival-ink'}`}
+      >
         {name}
       </div>
-      <div className={`font-display text-[32px] font-semibold leading-none ${winner ? 'text-arena-text' : 'text-arena-muted'}`}>
+      <div
+        className={`font-display text-[32px] font-semibold leading-none ${winner ? 'text-arena-text' : 'text-arena-muted'}`}
+      >
         {score}
       </div>
     </div>
@@ -201,7 +221,12 @@ function Confetti() {
         <span
           key={i}
           className="vp-conf"
-          style={{ left: p.left, background: p.color, animationDuration: p.dur, animationDelay: p.delay }}
+          style={{
+            left: p.left,
+            background: p.color,
+            animationDuration: p.dur,
+            animationDelay: p.delay,
+          }}
         />
       ))}
     </div>

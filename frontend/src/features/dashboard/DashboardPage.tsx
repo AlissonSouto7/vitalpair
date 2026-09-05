@@ -51,7 +51,15 @@ export function DashboardPage() {
       .then(([dash, pair, competition, streaks, activities, feedPage, mission]) => {
         const streak = streaks.reduce((max, s) => Math.max(max, s.currentCount), 0)
         const workouts = activities.filter((a) => a.activityType !== 'STEPS').length
-        setData({ dash, pair, competition, streak, workouts, feed: feedPage?.content ?? [], mission })
+        setData({
+          dash,
+          pair,
+          competition,
+          streak,
+          workouts,
+          feed: feedPage?.content ?? [],
+          mission,
+        })
       })
       .catch(() => setError(t('dashboard.loadError')))
       .finally(() => setLoading(false))
@@ -76,7 +84,11 @@ export function DashboardPage() {
   const partner = dash.partner
   const iAmUser1 = pair.members[0]?.userId === userId
   const myScore = competition ? (iAmUser1 ? competition.user1Score : competition.user2Score) : 0
-  const partnerScore = competition ? (iAmUser1 ? competition.user2Score : competition.user1Score) : 0
+  const partnerScore = competition
+    ? iAmUser1
+      ? competition.user2Score
+      : competition.user1Score
+    : 0
   const { day, total } = seasonWeek(competition?.weekStart)
 
   return (
@@ -95,7 +107,9 @@ export function DashboardPage() {
           <div className="flex shrink-0 items-center gap-2 rounded-full bg-brand-soft px-4 py-2">
             <FlameIcon className="h-[18px] w-[18px] fill-brand" />
             <span className="text-sm font-extrabold text-brand-ink">{streak}</span>
-            <span className="hidden text-xs font-bold text-muted sm:inline">{t('dashboard.streakDays')}</span>
+            <span className="hidden text-xs font-bold text-muted sm:inline">
+              {t('dashboard.streakDays')}
+            </span>
           </div>
         )}
       </header>
@@ -139,11 +153,15 @@ export function DashboardPage() {
         <div className="space-y-5">
           <section className="card">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold text-ink">{t('dashboard.todayIntake')}</h2>
+              <h2 className="font-display text-lg font-semibold text-ink">
+                {t('dashboard.todayIntake')}
+              </h2>
               {me.remainingCalories != null && (
                 <span className="text-sm font-bold text-muted">
                   {me.remainingCalories >= 0 ? (
-                    <span className="text-success-ink">{t('dashboard.remainingKcal', { n: me.remainingCalories })}</span>
+                    <span className="text-success-ink">
+                      {t('dashboard.remainingKcal', { n: me.remainingCalories })}
+                    </span>
                   ) : (
                     t('dashboard.overKcal', { n: -me.remainingCalories })
                   )}
@@ -154,9 +172,24 @@ export function DashboardPage() {
             <div className="flex flex-col items-center gap-6 sm:flex-row">
               <CalorieRing current={me.consumedCalories} goal={me.calorieTarget ?? 2000} />
               <div className="w-full flex-1 space-y-4">
-                <Macro label={t('dashboard.protein')} value={me.consumedProteinG} target={me.proteinTargetG} tone="brand" />
-                <Macro label={t('dashboard.carb')} value={me.consumedCarbG} target={me.carbTargetG} tone="carb" />
-                <Macro label={t('dashboard.fat')} value={me.consumedFatG} target={me.fatTargetG} tone="success" />
+                <Macro
+                  label={t('dashboard.protein')}
+                  value={me.consumedProteinG}
+                  target={me.proteinTargetG}
+                  tone="brand"
+                />
+                <Macro
+                  label={t('dashboard.carb')}
+                  value={me.consumedCarbG}
+                  target={me.carbTargetG}
+                  tone="carb"
+                />
+                <Macro
+                  label={t('dashboard.fat')}
+                  value={me.consumedFatG}
+                  target={me.fatTargetG}
+                  tone="success"
+                />
               </div>
             </div>
 
@@ -171,8 +204,15 @@ export function DashboardPage() {
 
           <div className="grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-2xl border border-hair bg-surface">
             <StatCell value={me.steps.toLocaleString('pt-BR')} label={t('dashboard.steps')} />
-            <StatCell value={String(workouts)} label={workouts === 1 ? t('dashboard.workoutDone') : t('dashboard.workouts')} />
-            <StatCell value={Math.round(me.burnedCalories).toLocaleString('pt-BR')} label={t('dashboard.kcalBurned')} success />
+            <StatCell
+              value={String(workouts)}
+              label={workouts === 1 ? t('dashboard.workoutDone') : t('dashboard.workouts')}
+            />
+            <StatCell
+              value={Math.round(me.burnedCalories).toLocaleString('pt-BR')}
+              label={t('dashboard.kcalBurned')}
+              success
+            />
           </div>
         </div>
 
@@ -220,13 +260,25 @@ function Macro({
 function StatCell({ value, label, success }: { value: string; label: string; success?: boolean }) {
   return (
     <div className="px-2 py-4 text-center">
-      <div className={`font-display text-2xl font-semibold ${success ? 'text-success-ink' : 'text-ink'}`}>{value}</div>
+      <div
+        className={`font-display text-2xl font-semibold ${success ? 'text-success-ink' : 'text-ink'}`}
+      >
+        {value}
+      </div>
       <div className="mt-1 text-[11px] font-bold lowercase tracking-wide text-muted">{label}</div>
     </div>
   )
 }
 
-function MissionCard({ mission, onAccept, t }: { mission: FlashMission | null; onAccept: () => void; t: TFn }) {
+function MissionCard({
+  mission,
+  onAccept,
+  t,
+}: {
+  mission: FlashMission | null
+  onAccept: () => void
+  t: TFn
+}) {
   if (!mission) {
     return (
       <section className="rounded-2xl border border-dashed border-hair bg-surface px-5 py-6 text-center">
@@ -243,7 +295,10 @@ function MissionCard({ mission, onAccept, t }: { mission: FlashMission | null; o
       <p className="font-display text-lg font-semibold leading-tight text-ink">{mission.title}</p>
       <p className="mt-1 text-xs font-semibold text-muted">
         {mission.description
-          ? t('dashboard.missionRewardWithDesc', { reward: mission.reward, desc: mission.description })
+          ? t('dashboard.missionRewardWithDesc', {
+              reward: mission.reward,
+              desc: mission.description,
+            })
           : t('dashboard.missionReward', { reward: mission.reward })}
       </p>
       {mission.accepted ? (
@@ -266,7 +321,9 @@ function FeedPreview({ items, userId, t }: { items: FeedItem[]; userId: string |
   return (
     <section className="card">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display text-base font-semibold text-ink">{t('dashboard.whatsHappening')}</h2>
+        <h2 className="font-display text-base font-semibold text-ink">
+          {t('dashboard.whatsHappening')}
+        </h2>
         <Link to="/feed" className="text-xs font-extrabold text-brand-ink hover:underline">
           {t('dashboard.seeAll')}
         </Link>
@@ -277,7 +334,11 @@ function FeedPreview({ items, userId, t }: { items: FeedItem[]; userId: string |
         <div className="space-y-3">
           {items.map((it) => (
             <div key={it.id} className="flex items-center gap-3">
-              <Avatar initial={initial(it.actorName)} tone={it.userId === userId ? 'you' : 'rival'} size={34} />
+              <Avatar
+                initial={initial(it.actorName)}
+                tone={it.userId === userId ? 'you' : 'rival'}
+                size={34}
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-bold text-ink">{it.title}</p>
                 <p className="text-[11px] font-semibold text-muted">{timeAgo(it.createdAt, t)}</p>

@@ -8,7 +8,8 @@ export const progress = {
     tabMacros: 'Macros',
     // peso
     weightUnit: 'kg',
-    firstWeightText: 'Esse é seu peso de agora. Registra de novo daqui uns dias que a linha começa a desenhar.',
+    firstWeightText:
+      'Esse é seu peso de agora. Registra de novo daqui uns dias que a linha começa a desenhar.',
     noWeightTitle: 'Sem peso registrado ainda',
     noWeightText: 'Joga seu peso aí embaixo que o gráfico nasce.',
     logTodayLabel: 'Registrar peso de hoje',
@@ -27,7 +28,8 @@ export const progress = {
     // macros
     macrosAvg: 'média {{avg}}g / dia',
     macrosAvgTarget: 'média {{avg}}g / alvo {{target}}g / dia',
-    macrosFootnote: 'Média dos últimos 7 dias. Vai registrando que isso aqui fica cada vez mais com a sua cara.',
+    macrosFootnote:
+      'Média dos últimos 7 dias. Vai registrando que isso aqui fica cada vez mais com a sua cara.',
   },
   en: {
     title: 'Your progress',
@@ -37,7 +39,8 @@ export const progress = {
     tabCalories: 'Calories',
     tabMacros: 'Macros',
     weightUnit: 'kg',
-    firstWeightText: 'That’s your weight right now. Log it again in a few days and the line starts to draw itself.',
+    firstWeightText:
+      'That’s your weight right now. Log it again in a few days and the line starts to draw itself.',
     noWeightTitle: 'No weight logged yet',
     noWeightText: 'Drop your weight below and the chart comes to life.',
     logTodayLabel: 'Log today’s weight',
@@ -54,7 +57,8 @@ export const progress = {
     legendOver: 'a bit over',
     macrosAvg: 'avg {{avg}}g / day',
     macrosAvgTarget: 'avg {{avg}}g / target {{target}}g / day',
-    macrosFootnote: 'Average of the last 7 days. Keep logging and this gets more and more your own.',
+    macrosFootnote:
+      'Average of the last 7 days. Keep logging and this gets more and more your own.',
   },
   es: {
     title: 'Tu progreso',
@@ -64,7 +68,8 @@ export const progress = {
     tabCalories: 'Calorías',
     tabMacros: 'Macros',
     weightUnit: 'kg',
-    firstWeightText: 'Ese es tu peso de ahora. Regístralo otra vez en unos días y la línea empieza a dibujarse.',
+    firstWeightText:
+      'Ese es tu peso de ahora. Regístralo otra vez en unos días y la línea empieza a dibujarse.',
     noWeightTitle: 'Aún no hay peso registrado',
     noWeightText: 'Mete tu peso ahí abajo y el gráfico cobra vida.',
     logTodayLabel: 'Registrar peso de hoy',
@@ -81,7 +86,8 @@ export const progress = {
     legendOver: 'te pasaste un poco',
     macrosAvg: 'media {{avg}}g / día',
     macrosAvgTarget: 'media {{avg}}g / objetivo {{target}}g / día',
-    macrosFootnote: 'Media de los últimos 7 días. Sigue registrando y esto se va volviendo cada vez más tuyo.',
+    macrosFootnote:
+      'Media de los últimos 7 días. Sigue registrando y esto se va volviendo cada vez más tuyo.',
   },
   fr: {
     title: 'Ta progression',
@@ -91,7 +97,8 @@ export const progress = {
     tabCalories: 'Calories',
     tabMacros: 'Macros',
     weightUnit: 'kg',
-    firstWeightText: 'C’est ton poids du moment. Réenregistre-le dans quelques jours et la courbe commence à se dessiner.',
+    firstWeightText:
+      'C’est ton poids du moment. Réenregistre-le dans quelques jours et la courbe commence à se dessiner.',
     noWeightTitle: 'Aucun poids enregistré pour l’instant',
     noWeightText: 'Entre ton poids juste en dessous et le graphique prend vie.',
     logTodayLabel: 'Enregistrer le poids du jour',
@@ -108,6 +115,7 @@ export const progress = {
     legendOver: 'un peu au-dessus',
     macrosAvg: 'moy. {{avg}}g / jour',
     macrosAvgTarget: 'moy. {{avg}}g / cible {{target}}g / jour',
-    macrosFootnote: 'Moyenne des 7 derniers jours. Continue d’enregistrer et ça devient de plus en plus à ton image.',
+    macrosFootnote:
+      'Moyenne des 7 derniers jours. Continue d’enregistrer et ça devient de plus en plus à ton image.',
   },
 } as const

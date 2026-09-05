@@ -10,12 +10,20 @@ export function useAuth() {
 
   async function login(payload: LoginPayload) {
     const token = await authApi.login(payload)
-    setSession({ accessToken: token.accessToken, refreshToken: token.refreshToken, userId: token.userId })
+    setSession({
+      accessToken: token.accessToken,
+      refreshToken: token.refreshToken,
+      userId: token.userId,
+    })
   }
 
   async function register(payload: RegisterPayload) {
     const token = await authApi.register(payload)
-    setSession({ accessToken: token.accessToken, refreshToken: token.refreshToken, userId: token.userId })
+    setSession({
+      accessToken: token.accessToken,
+      refreshToken: token.refreshToken,
+      userId: token.userId,
+    })
   }
 
   async function logout() {

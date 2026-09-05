@@ -71,17 +71,21 @@ export function Section({ n, section }: { n: string; section: LegalSection }) {
       </h2>
       <div className="flex flex-col gap-3">
         {section.calloutFirst && section.callout && <Callout callout={section.callout} />}
-        {section.paragraphs?.map((p, i) => <P key={i}>{withMail(p)}</P>)}
+        {section.paragraphs?.map((p, i) => (
+          <P key={i}>{withMail(p)}</P>
+        ))}
         {section.bullets && <BulletList items={section.bullets} />}
         {!section.calloutFirst && section.callout && <Callout callout={section.callout} />}
-        {section.paragraphsAfter?.map((p, i) => <P key={`a-${i}`}>{withMail(p)}</P>)}
+        {section.paragraphsAfter?.map((p, i) => (
+          <P key={`a-${i}`}>{withMail(p)}</P>
+        ))}
       </div>
     </section>
   )
 }
 
 /** Substitui o placeholder {{mail}} por um link mailto clicável. */
-export function withMail(text: string): ReactNode {
+function withMail(text: string): ReactNode {
   if (!text.includes('{{mail}}')) return text
   const [before, after] = text.split('{{mail}}')
   return (
@@ -113,7 +117,10 @@ export function BulletList({ items }: { items: [string, string][] }) {
     <ul className="flex flex-col gap-2.5">
       {items.map(([term, desc]) => (
         <li key={term} className="flex gap-3">
-          <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand" aria-hidden="true" />
+          <span
+            className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand"
+            aria-hidden="true"
+          />
           <span className="text-[15px] font-semibold leading-relaxed text-muted">
             <span className="font-extrabold text-ink">{term}:</span> {desc}
           </span>
@@ -129,11 +136,20 @@ export function Callout({ callout }: { callout: LegalCallout }) {
     rival: 'border-rival/30 bg-rival-soft',
     danger: 'border-danger/40 bg-danger-soft',
   }[callout.tone]
-  const fill = callout.tone === 'brand' ? 'fill-brand' : callout.tone === 'rival' ? 'fill-rival' : 'fill-danger'
+  const fill =
+    callout.tone === 'brand'
+      ? 'fill-brand'
+      : callout.tone === 'rival'
+        ? 'fill-rival'
+        : 'fill-danger'
 
   return (
     <div className={`flex gap-3 rounded-2xl border p-4 ${toneClasses}`}>
-      <svg viewBox="0 0 24 24" className={`mt-0.5 h-5 w-5 flex-shrink-0 ${fill}`} aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        className={`mt-0.5 h-5 w-5 flex-shrink-0 ${fill}`}
+        aria-hidden="true"
+      >
         {callout.icon === 'info' ? (
           <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a1.4 1.4 0 110 2.8A1.4 1.4 0 0112 7zm1.3 10h-2.6v-6h2.6z" />
         ) : (
@@ -169,7 +185,11 @@ export function LegalHeader() {
   )
 }
 
-export function LegalFooter({ exclude = 'privacy' }: { exclude?: 'privacy' | 'terms' | 'contact' }) {
+export function LegalFooter({
+  exclude = 'privacy',
+}: {
+  exclude?: 'privacy' | 'terms' | 'contact'
+}) {
   const { t } = useTranslation()
   const links: { key: 'privacy' | 'terms' | 'contact'; to: string; label: string }[] = [
     { key: 'privacy', to: '/privacidade', label: t('legal.footerPrivacy') },

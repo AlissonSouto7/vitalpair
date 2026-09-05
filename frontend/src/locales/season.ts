@@ -8,7 +8,8 @@ export const season = {
     you: 'Você',
     defaultPartner: 'seu par',
     soloTitle: 'Temporada solo',
-    soloText: 'Já são <0>{{points}} pts</0> seus nesses {{days}} dias. Chama seu par e o placar vira um VS.',
+    soloText:
+      'Já são <0>{{points}} pts</0> seus nesses {{days}} dias. Chama seu par e o placar vira um VS.',
     statStakeTitle: 'A aposta',
     statDaysLeftTitle: 'Dias restantes',
     daysOne: '{{n}} dia',
@@ -27,7 +28,8 @@ export const season = {
     overallTitle: 'Placar geral entre vocês',
     overallTie: '{{you}} a {{rival}}, tá empatado no geral.',
     overallYouAhead: 'Você {{you}} · {{name}} {{rival}}, na frente no geral também.',
-    overallPartnerAhead: 'Você {{you}} · {{name}} {{rival}}, {{first}} domina o geral por enquanto.',
+    overallPartnerAhead:
+      'Você {{you}} · {{name}} {{rival}}, {{first}} domina o geral por enquanto.',
     seasonNumber: 'Temporada {{n}}',
     historyWinTie: 'Empate',
     historyWinYou: 'Você venceu',
@@ -44,7 +46,8 @@ export const season = {
     you: 'You',
     defaultPartner: 'your partner',
     soloTitle: 'Solo season',
-    soloText: 'That’s already <0>{{points}} pts</0> of yours in these {{days}} days. Invite your partner and the board turns into a showdown.',
+    soloText:
+      'That’s already <0>{{points}} pts</0> of yours in these {{days}} days. Invite your partner and the board turns into a showdown.',
     statStakeTitle: 'The stake',
     statDaysLeftTitle: 'Days left',
     daysOne: '{{n}} day',
@@ -80,7 +83,8 @@ export const season = {
     you: 'Tú',
     defaultPartner: 'tu pareja',
     soloTitle: 'Temporada en solitario',
-    soloText: 'Ya son <0>{{points}} pts</0> tuyos en estos {{days}} días. Llama a tu pareja y el marcador se vuelve un duelo.',
+    soloText:
+      'Ya son <0>{{points}} pts</0> tuyos en estos {{days}} días. Llama a tu pareja y el marcador se vuelve un duelo.',
     statStakeTitle: 'La apuesta',
     statDaysLeftTitle: 'Días restantes',
     daysOne: '{{n}} día',
@@ -99,7 +103,8 @@ export const season = {
     overallTitle: 'Marcador general entre ustedes',
     overallTie: '{{you}} a {{rival}}, empate en el general.',
     overallYouAhead: 'Tú {{you}} · {{name}} {{rival}}, también delante en el general.',
-    overallPartnerAhead: 'Tú {{you}} · {{name}} {{rival}}, {{first}} manda en el general por ahora.',
+    overallPartnerAhead:
+      'Tú {{you}} · {{name}} {{rival}}, {{first}} manda en el general por ahora.',
     seasonNumber: 'Temporada {{n}}',
     historyWinTie: 'Empate',
     historyWinYou: 'Ganaste',
@@ -116,7 +121,8 @@ export const season = {
     you: 'Toi',
     defaultPartner: 'ton binôme',
     soloTitle: 'Saison solo',
-    soloText: 'Ça fait déjà <0>{{points}} pts</0> à toi sur ces {{days}} jours. Invite ton binôme et le tableau devient un duel.',
+    soloText:
+      'Ça fait déjà <0>{{points}} pts</0> à toi sur ces {{days}} jours. Invite ton binôme et le tableau devient un duel.',
     statStakeTitle: 'L’enjeu',
     statDaysLeftTitle: 'Jours restants',
     daysOne: '{{n}} jour',
@@ -135,7 +141,8 @@ export const season = {
     overallTitle: 'Score général entre vous deux',
     overallTie: '{{you}} à {{rival}}, à égalité au général.',
     overallYouAhead: 'Toi {{you}} · {{name}} {{rival}}, devant au général aussi.',
-    overallPartnerAhead: 'Toi {{you}} · {{name}} {{rival}}, {{first}} domine le général pour l’instant.',
+    overallPartnerAhead:
+      'Toi {{you}} · {{name}} {{rival}}, {{first}} domine le général pour l’instant.',
     seasonNumber: 'Saison {{n}}',
     historyWinTie: 'Égalité',
     historyWinYou: 'Tu as gagné',

@@ -45,6 +45,9 @@ export async function getFavorites(): Promise<FavoriteFood[]> {
 }
 
 export async function analyzePhoto(imageBase64: string, mediaType: string): Promise<PhotoAnalysis> {
-  const res = await api.post<ApiResponse<PhotoAnalysis>>('/nutrition/photo', { imageBase64, mediaType })
+  const res = await api.post<ApiResponse<PhotoAnalysis>>('/nutrition/photo', {
+    imageBase64,
+    mediaType,
+  })
   return res.data.data
 }

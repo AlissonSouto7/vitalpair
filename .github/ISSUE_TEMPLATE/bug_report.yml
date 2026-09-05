@@ -1,7 +1,7 @@
 name: Bug report
 description: Something behaves differently from what it should
-title: "fix: "
-labels: ["type:bug"]
+title: 'fix: '
+labels: ['type:bug']
 body:
   - type: markdown
     attributes:

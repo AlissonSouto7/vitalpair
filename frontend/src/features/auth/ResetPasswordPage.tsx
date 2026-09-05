@@ -59,7 +59,11 @@ export function ResetPasswordPage() {
             />
             <p className="mt-1 text-xs text-faint">{t('auth.minChars')}</p>
           </div>
-          {error && <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">{error}</p>}
+          {error && (
+            <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+              {error}
+            </p>
+          )}
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? t('auth.resetting') : t('auth.resetCta')}
           </button>
