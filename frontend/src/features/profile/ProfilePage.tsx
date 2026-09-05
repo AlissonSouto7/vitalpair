@@ -24,7 +24,8 @@ const activityLabel = (t: TFn, l: ActivityLevel) => t(`profile.levelLabel.${l}`)
 function levelInfo(points: number) {
   const T = [0, 150, 400, 800, 1400, 2200, 3200, 4500]
   const STEP = 1500
-  const thresholdFor = (lvl: number) => (lvl <= T.length ? T[lvl - 1] : T[T.length - 1] + (lvl - T.length) * STEP)
+  const thresholdFor = (lvl: number) =>
+    lvl <= T.length ? T[lvl - 1] : T[T.length - 1] + (lvl - T.length) * STEP
   let level = 1
   while (level < 99 && points >= thresholdFor(level + 1)) level++
   const cur = thresholdFor(level)
@@ -83,13 +84,15 @@ export function ProfilePage() {
   }, [load, t])
 
   if (loading) return <p className="text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (error)
+    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
   if (!profile) return null
 
   const firstName = (profile.name?.trim().split(' ')[0] || t('profile.fallbackName')).trim()
   const lvl = levelInfo(lifetimePoints)
   const brotoLevel = Math.min(lvl.level, 8) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
-  const currentWeight = weights.length > 0 ? weights[weights.length - 1].weightKg : profile.weightKg ?? null
+  const currentWeight =
+    weights.length > 0 ? weights[weights.length - 1].weightKg : (profile.weightKg ?? null)
   const targetKcal = tdee?.dailyCalorieTarget ?? profile.dailyCalorieTarget ?? null
 
   async function changeGoal(g: Goal) {
@@ -114,7 +117,9 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('profile.title')}</h1>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+          {t('profile.title')}
+        </h1>
         <p className="mt-1 text-sm font-semibold text-muted">{t('profile.subtitle')}</p>
       </header>
 
@@ -122,12 +127,17 @@ export function ProfilePage() {
       <section className="card flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
         <Broto who="you" expr="happy" level={brotoLevel} size={120} />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">{t('profile.yourCreature')}</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
+            {t('profile.yourCreature')}
+          </p>
           <p className="font-display text-2xl font-semibold text-ink">
             {t('profile.levelName', { level: lvl.level, name: firstName })}
           </p>
           <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-track">
-            <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${lvl.pct}%` }} />
+            <div
+              className="h-full rounded-full bg-brand transition-[width]"
+              style={{ width: `${lvl.pct}%` }}
+            />
           </div>
           <p className="mt-1.5 text-[12.5px] font-semibold text-muted">
             {brotoLevel >= 8 && lvl.level >= 8
@@ -144,12 +154,16 @@ export function ProfilePage() {
       <section className="card">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">{t('profile.goal')}</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">
+              {t('profile.goal')}
+            </p>
             <p className="font-display text-lg font-semibold text-ink">
               {profile.goal ? goalLabel(t, profile.goal) : t('profile.noGoal')}
             </p>
             {targetKcal != null && (
-              <p className="text-[13px] font-semibold text-muted">{t('profile.dailyTarget', { kcal: targetKcal.toLocaleString('pt-BR') })}</p>
+              <p className="text-[13px] font-semibold text-muted">
+                {t('profile.dailyTarget', { kcal: targetKcal.toLocaleString('pt-BR') })}
+              </p>
             )}
           </div>
           <button
@@ -182,7 +196,9 @@ export function ProfilePage() {
         <section className="card">
           <div className="mb-4 flex items-center gap-2">
             <IconTarget className="h-5 w-5 text-success" />
-            <h2 className="font-display text-lg font-semibold text-ink">{t('profile.todayMacros')}</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">
+              {t('profile.todayMacros')}
+            </h2>
           </div>
           <div className="grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-xl border border-hair">
             <MacroCell label={t('profile.macroProtein')} grams={tdee.proteinTargetG} tone="brand" />
@@ -200,20 +216,40 @@ export function ProfilePage() {
           className="flex w-full items-center justify-between text-left"
         >
           <span>
-            <span className="block font-display text-base font-semibold text-ink">{t('profile.yourData')}</span>
+            <span className="block font-display text-base font-semibold text-ink">
+              {t('profile.yourData')}
+            </span>
             <span className="block text-[13px] font-semibold text-muted">
               {profile.heightCm ? `${profile.heightCm} cm` : t('profile.heightFallback')} ·{' '}
               {profile.sex ? sexLabel(t, profile.sex) : t('profile.sexFallback')} ·{' '}
-              {profile.activityLevel ? activityLabel(t, profile.activityLevel) : t('profile.activityFallback')}
+              {profile.activityLevel
+                ? activityLabel(t, profile.activityLevel)
+                : t('profile.activityFallback')}
             </span>
           </span>
-          <span className="text-[13px] font-extrabold text-brand-ink">{editing ? t('profile.close') : t('profile.edit')}</span>
+          <span className="text-[13px] font-extrabold text-brand-ink">
+            {editing ? t('profile.close') : t('profile.edit')}
+          </span>
         </button>
 
-        {editing && <EditForm profile={profile} onSaved={() => { setEditing(false); load() }} onError={setError} t={t} />}
+        {editing && (
+          <EditForm
+            profile={profile}
+            onSaved={() => {
+              setEditing(false)
+              load()
+            }}
+            onError={setError}
+            t={t}
+          />
+        )}
       </section>
 
-      {error && <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</p>}
+      {error && (
+        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
@@ -254,12 +290,16 @@ function WeightCard({
     <section className="card">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">{t('profile.todayWeight')}</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">
+            {t('profile.todayWeight')}
+          </p>
           <p className="font-display text-[32px] font-semibold leading-none text-ink">
             {currentWeight != null ? `${fmtKg(currentWeight)} kg` : '--'}
           </p>
           {Math.abs(delta) >= 0.05 && (
-            <p className={`mt-1 text-[13px] font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}>
+            <p
+              className={`mt-1 text-[13px] font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}
+            >
               {perdeu
                 ? t('profile.weightDown', { kg: fmtKg(Math.abs(delta)) })
                 : t('profile.weightUp', { kg: fmtKg(Math.abs(delta)) })}
@@ -283,7 +323,11 @@ function WeightCard({
             className="input"
           />
         </div>
-        <button type="submit" disabled={salvando || !valor} className="btn-primary disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={salvando || !valor}
+          className="btn-primary disabled:opacity-60"
+        >
           {salvando ? '...' : t('common.save')}
         </button>
       </form>
@@ -299,11 +343,21 @@ function Sparkline({ weights }: { weights: WeightPoint[] }) {
   const max = Math.max(...values)
   const span = max - min || 1
   const pts = values
-    .map((v, i) => `${((i / (values.length - 1)) * W).toFixed(1)},${(H - ((v - min) / span) * (H - 6) - 3).toFixed(1)}`)
+    .map(
+      (v, i) =>
+        `${((i / (values.length - 1)) * W).toFixed(1)},${(H - ((v - min) / span) * (H - 6) - 3).toFixed(1)}`,
+    )
     .join(' ')
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="h-11 w-[120px] shrink-0" aria-hidden="true">
-      <polyline points={pts} fill="none" className="stroke-brand" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      <polyline
+        points={pts}
+        fill="none"
+        className="stroke-brand"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -326,7 +380,9 @@ function EditForm({
   const [sex, setSex] = useState<Sex | ''>(profile.sex ?? '')
   const [heightCm, setHeightCm] = useState(profile.heightCm != null ? String(profile.heightCm) : '')
   const [weightKg, setWeightKg] = useState(profile.weightKg != null ? String(profile.weightKg) : '')
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel | ''>(profile.activityLevel ?? '')
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel | ''>(
+    profile.activityLevel ?? '',
+  )
   const [saving, setSaving] = useState(false)
 
   const sexOptions = SEX_VALUES.map((v) => ({ value: v, label: sexLabel(t, v) }))
@@ -362,7 +418,13 @@ function EditForm({
     <form onSubmit={submit} className="mt-4 space-y-4 border-t border-hair pt-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t('profile.name')}>
-          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="input" />
+          <input
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input"
+          />
         </Field>
         <Field label={t('profile.birthDate')}>
           <DateField value={birthDate} onChange={setBirthDate} />
@@ -371,20 +433,48 @@ function EditForm({
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label={t('profile.height')}>
           <Unit unit="cm">
-            <input type="number" required min={50} max={300} step="any" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} className="input pr-10" />
+            <input
+              type="number"
+              required
+              min={50}
+              max={300}
+              step="any"
+              value={heightCm}
+              onChange={(e) => setHeightCm(e.target.value)}
+              className="input pr-10"
+            />
           </Unit>
         </Field>
         <Field label={t('profile.weight')}>
           <Unit unit="kg">
-            <input type="number" required min={20} max={500} step="0.1" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} className="input pr-10" />
+            <input
+              type="number"
+              required
+              min={20}
+              max={500}
+              step="0.1"
+              value={weightKg}
+              onChange={(e) => setWeightKg(e.target.value)}
+              className="input pr-10"
+            />
           </Unit>
         </Field>
         <Field label={t('profile.sex')}>
-          <Select value={sex} onChange={setSex} options={sexOptions} placeholder={t('profile.chooseHint')} />
+          <Select
+            value={sex}
+            onChange={setSex}
+            options={sexOptions}
+            placeholder={t('profile.chooseHint')}
+          />
         </Field>
       </div>
       <Field label={t('profile.activityLevel')}>
-        <Select value={activityLevel} onChange={setActivityLevel} options={levelOptions} placeholder={t('profile.chooseHint')} />
+        <Select
+          value={activityLevel}
+          onChange={setActivityLevel}
+          options={levelOptions}
+          placeholder={t('profile.chooseHint')}
+        />
       </Field>
       <button type="submit" disabled={saving} className="btn-primary w-full">
         {saving ? t('profile.saving') : t('profile.saveData')}
@@ -424,7 +514,9 @@ function GoalCard({
         active ? 'border-brand bg-brand-soft' : 'border-hair bg-surface hover:border-brand/50'
       }`}
     >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-brand text-white' : 'bg-brand-soft text-brand'}`}>
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-brand text-white' : 'bg-brand-soft text-brand'}`}
+      >
         {icon}
       </span>
       <span className="min-w-0">
@@ -435,8 +527,17 @@ function GoalCard({
   )
 }
 
-function MacroCell({ label, grams, tone }: { label: string; grams: number; tone: 'brand' | 'carb' | 'success' }) {
-  const color = tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
+function MacroCell({
+  label,
+  grams,
+  tone,
+}: {
+  label: string
+  grams: number
+  tone: 'brand' | 'carb' | 'success'
+}) {
+  const color =
+    tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
   return (
     <div className="bg-surface px-3 py-4 text-center">
       <div className={`font-display text-2xl font-semibold ${color}`}>{Math.round(grams)}g</div>
@@ -458,7 +559,9 @@ function Unit({ unit, children }: { unit: string; children: ReactNode }) {
   return (
     <div className="relative">
       {children}
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-faint">{unit}</span>
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-faint">
+        {unit}
+      </span>
     </div>
   )
 }

@@ -82,7 +82,8 @@ export const missions = {
     loadError: 'Impossible de charger les missions pour l’instant. Réessaie dans un moment.',
     sectionThisWeek: 'En cours cette semaine',
     sectionPair: 'Toi et {{partner}}',
-    sectionPairHint: 'Celles-ci ne comptent que si vous y mettez du vôtre tous les deux. Relance-la.',
+    sectionPairHint:
+      'Celles-ci ne comptent que si vous y mettez du vôtre tous les deux. Relance-la.',
     sectionDone: 'Déjà bouclées',
     emptyTitle: 'Pas encore de mission de la semaine',
     emptyText: 'Commence à enregistrer repas et séances et la progression se remplira ici.',

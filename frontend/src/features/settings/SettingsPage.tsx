@@ -47,7 +47,9 @@ export function SettingsPage() {
     setPrefs(next) // otimista
     updateNotificationPrefs(next).catch(() => {
       // se falhar, recarrega o que tá salvo de verdade
-      getNotificationPrefs().then(setPrefs).catch(() => {})
+      getNotificationPrefs()
+        .then(setPrefs)
+        .catch(() => {})
     })
   }
 
@@ -62,7 +64,9 @@ export function SettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('settings.title')}</h1>
+          <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+            {t('settings.title')}
+          </h1>
           <p className="mt-1 text-sm font-semibold text-muted">{t('settings.subtitle')}</p>
         </div>
         <button
@@ -71,7 +75,11 @@ export function SettingsPage() {
           aria-label={isDark ? t('settings.toLightTheme') : t('settings.toDarkTheme')}
           className="flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-hair text-muted transition hover:text-ink"
         >
-          {isDark ? <IconSun className="h-[18px] w-[18px]" /> : <IconMoon className="h-[18px] w-[18px]" />}
+          {isDark ? (
+            <IconSun className="h-[18px] w-[18px]" />
+          ) : (
+            <IconMoon className="h-[18px] w-[18px]" />
+          )}
         </button>
       </header>
 
@@ -99,19 +107,37 @@ export function SettingsPage() {
           <RowItem
             title={t('settings.notifyRival')}
             hint={t('settings.notifyRivalHint')}
-            control={<Toggle on={prefs.notifyRival} onToggle={() => savePref({ notifyRival: !prefs.notifyRival })} label={t('settings.notifyRival')} />}
+            control={
+              <Toggle
+                on={prefs.notifyRival}
+                onToggle={() => savePref({ notifyRival: !prefs.notifyRival })}
+                label={t('settings.notifyRival')}
+              />
+            }
             divider
           />
           <RowItem
             title={t('settings.notifyFlash')}
             hint={t('settings.notifyFlashHint')}
-            control={<Toggle on={prefs.notifyFlash} onToggle={() => savePref({ notifyFlash: !prefs.notifyFlash })} label={t('settings.notifyFlash')} />}
+            control={
+              <Toggle
+                on={prefs.notifyFlash}
+                onToggle={() => savePref({ notifyFlash: !prefs.notifyFlash })}
+                label={t('settings.notifyFlash')}
+              />
+            }
             divider
           />
           <RowItem
             title={t('settings.notifyReminder')}
             hint={t('settings.notifyReminderHint')}
-            control={<Toggle on={prefs.notifyReminder} onToggle={() => savePref({ notifyReminder: !prefs.notifyReminder })} label={t('settings.notifyReminder')} />}
+            control={
+              <Toggle
+                on={prefs.notifyReminder}
+                onToggle={() => savePref({ notifyReminder: !prefs.notifyReminder })}
+                label={t('settings.notifyReminder')}
+              />
+            }
           />
         </div>
       </Section>
@@ -124,8 +150,12 @@ export function SettingsPage() {
               {initial}
             </span>
             <div className="min-w-0">
-              <div className="text-sm font-extrabold text-ink">{name || t('settings.youFallback')}</div>
-              <div className="truncate text-xs font-semibold text-muted">{email ?? t('settings.loadingEmail')}</div>
+              <div className="text-sm font-extrabold text-ink">
+                {name || t('settings.youFallback')}
+              </div>
+              <div className="truncate text-xs font-semibold text-muted">
+                {email ?? t('settings.loadingEmail')}
+              </div>
             </div>
           </div>
 
@@ -161,7 +191,9 @@ export function SettingsPage() {
           <BrandMark size={40} />
           <div>
             <div className="font-display text-base font-semibold text-ink">VitalPair</div>
-            <div className="text-xs font-bold uppercase tracking-wide text-muted">{t('settings.tagline')}</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-muted">
+              {t('settings.tagline')}
+            </div>
           </div>
         </div>
       </Section>
@@ -174,7 +206,9 @@ export function SettingsPage() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="mb-2.5 text-[11px] font-extrabold uppercase tracking-[0.07em] text-muted">{title}</h2>
+      <h2 className="mb-2.5 text-[11px] font-extrabold uppercase tracking-[0.07em] text-muted">
+        {title}
+      </h2>
       {children}
     </section>
   )
@@ -278,4 +312,3 @@ function IconLogout({ className }: { className?: string }) {
     </svg>
   )
 }
-

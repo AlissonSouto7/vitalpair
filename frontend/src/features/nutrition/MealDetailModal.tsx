@@ -56,7 +56,8 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
   ]
 
   const time = formatTime(meal.loggedAt, i18n.language)
-  const sourceLabel = meal.source === 'OPEN_FOOD_FACTS' ? t('nutrition.sourceOFF') : t('nutrition.sourceManual')
+  const sourceLabel =
+    meal.source === 'OPEN_FOOD_FACTS' ? t('nutrition.sourceOFF') : t('nutrition.sourceManual')
 
   // anel de calorias: arco proporcional aos macros que de fato bateram (sempre cheio aqui)
   const RADIUS = 50
@@ -94,7 +95,12 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
 
         {/* Faixa ilustrativa */}
         <div className="mb-5 flex h-32 w-full items-center justify-center rounded-[18px] bg-gradient-to-br from-brand-soft to-brand/20">
-          <svg viewBox="0 0 24 24" className="h-12 w-12 text-brand" fill="currentColor" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-12 w-12 text-brand"
+            fill="currentColor"
+            aria-hidden="true"
+          >
             <path d="M7 2v7a3 3 0 0 0 2 2.83V22h2V11.83A3 3 0 0 0 13 9V2h-2v6H9.5V2h-1.5v6H7zM17 2c-1.7 0-3 2.2-3 5 0 2.4 1 4.3 2 4.8V22h2V2z" />
           </svg>
         </div>
@@ -103,13 +109,22 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
         <h1 className="mb-1 font-display text-[22px] font-semibold tracking-tight text-ink">
           {meal.foodName}
         </h1>
-        <div className="mb-5 text-[13px] font-bold text-muted">{t('nutrition.onPlate', { grams: meal.quantityG })}</div>
+        <div className="mb-5 text-[13px] font-bold text-muted">
+          {t('nutrition.onPlate', { grams: meal.quantityG })}
+        </div>
 
         {/* Anel + breakdown */}
         <div className="mb-4 flex items-center gap-[18px] rounded-2xl border border-hair bg-surface p-[18px]">
           <div className="relative h-[88px] w-[88px] shrink-0">
             <svg width="88" height="88" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r={RADIUS} fill="none" className="stroke-track" strokeWidth="13" />
+              <circle
+                cx="60"
+                cy="60"
+                r={RADIUS}
+                fill="none"
+                className="stroke-track"
+                strokeWidth="13"
+              />
               <circle
                 cx="60"
                 cy="60"
@@ -141,7 +156,10 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
                   </span>
                 </div>
                 <div className="h-[7px] overflow-hidden rounded-[5px] bg-track">
-                  <div className={`h-full rounded-[5px] ${TONES[m.tone].bar}`} style={{ width: `${m.pct}%` }} />
+                  <div
+                    className={`h-full rounded-[5px] ${TONES[m.tone].bar}`}
+                    style={{ width: `${m.pct}%` }}
+                  />
                 </div>
               </div>
             ))}
@@ -156,9 +174,7 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
           <InfoRow
             label={t('nutrition.portion')}
             value={`${meal.quantityG}g`}
-            icon={
-              <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4 5 9H7z" />
-            }
+            icon={<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4 5 9H7z" />}
           />
           {time && (
             <InfoRow
@@ -198,7 +214,12 @@ function InfoRow({ label, value, icon }: { label: string; value: string; icon: R
   return (
     <div className="flex items-center gap-3 rounded-xl border border-hair bg-surface px-4 py-3">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-track text-muted">
-        <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="currentColor" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          className="h-[18px] w-[18px]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
           {icon}
         </svg>
       </span>

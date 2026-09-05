@@ -43,7 +43,9 @@ function Nav() {
       <Link to="/" onClick={close} className="flex shrink-0 items-center gap-2.5">
         <BrandMark size={34} />
         <div className="leading-none">
-          <div className="font-display text-[19px] font-semibold tracking-tight text-ink">VitalPair</div>
+          <div className="font-display text-[19px] font-semibold tracking-tight text-ink">
+            VitalPair
+          </div>
           <div className="mt-[3px] hidden text-[9px] font-extrabold uppercase tracking-[0.05em] text-muted sm:block">
             {t('landing.brandTagline')}
           </div>
@@ -52,15 +54,24 @@ function Nav() {
 
       {/* Desktop (md+): tudo aberto na barra */}
       <div className="hidden items-center gap-5 md:flex">
-        <a href="#como-funciona" className="text-[13.5px] font-bold text-muted transition hover:text-ink">
+        <a
+          href="#como-funciona"
+          className="text-[13.5px] font-bold text-muted transition hover:text-ink"
+        >
           {t('landing.navHow')}
         </a>
-        <a href="#temporada" className="text-[13.5px] font-bold text-muted transition hover:text-ink">
+        <a
+          href="#temporada"
+          className="text-[13.5px] font-bold text-muted transition hover:text-ink"
+        >
           {t('landing.navSeason')}
         </a>
         <LanguageSelect />
         <ThemeToggle />
-        <Link to="/login" className="text-[13.5px] font-extrabold text-ink transition hover:text-brand-ink">
+        <Link
+          to="/login"
+          className="text-[13.5px] font-extrabold text-ink transition hover:text-brand-ink"
+        >
           {t('landing.login')}
         </Link>
         <Link
@@ -104,13 +115,25 @@ function Nav() {
             className="fixed inset-0 z-20 cursor-default md:hidden"
           />
           <div className="absolute left-3 right-3 top-full z-30 mt-1 rounded-2xl border border-hair bg-surface p-3 shadow-[0_18px_40px_rgba(70,45,20,0.18)] md:hidden">
-            <a href="#como-funciona" onClick={close} className="block rounded-xl px-3 py-2.5 text-sm font-bold text-ink transition hover:bg-track">
+            <a
+              href="#como-funciona"
+              onClick={close}
+              className="block rounded-xl px-3 py-2.5 text-sm font-bold text-ink transition hover:bg-track"
+            >
               {t('landing.navHow')}
             </a>
-            <a href="#temporada" onClick={close} className="block rounded-xl px-3 py-2.5 text-sm font-bold text-ink transition hover:bg-track">
+            <a
+              href="#temporada"
+              onClick={close}
+              className="block rounded-xl px-3 py-2.5 text-sm font-bold text-ink transition hover:bg-track"
+            >
               {t('landing.navSeason')}
             </a>
-            <Link to="/login" onClick={close} className="block rounded-xl px-3 py-2.5 text-sm font-bold text-ink transition hover:bg-track">
+            <Link
+              to="/login"
+              onClick={close}
+              className="block rounded-xl px-3 py-2.5 text-sm font-bold text-ink transition hover:bg-track"
+            >
               {t('landing.login')}
             </Link>
             <div className="my-2 h-px bg-hair" />
@@ -306,12 +329,20 @@ function Temporada() {
           </div>
 
           <div className="flex items-center gap-3.5 rounded-2xl border border-arena-line bg-white/[0.06] px-5 py-4">
-            <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] flex-shrink-0 fill-brand" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-[22px] w-[22px] flex-shrink-0 fill-brand"
+              aria-hidden="true"
+            >
               <path d="M12 2c1 3-1.5 4-1.5 7A1.5 1.5 0 0012 10c.8-1.6 2.5-1.4 2.5.5 0 1-.7 1.5-.7 2.5 2-1 3-3 2.7-5.5C19 10 20 12.5 20 15a8 8 0 01-16 0c0-4 3-5.5 4-8 .8 1.6 2.5 2 4 1.5C15 7 13 4 12 2z" />
             </svg>
             <div>
-              <div className="text-sm font-extrabold text-arena-text">{t('landing.seasonStreakTitle')}</div>
-              <div className="mt-0.5 text-xs font-bold text-arena-muted">{t('landing.seasonStreakText')}</div>
+              <div className="text-sm font-extrabold text-arena-text">
+                {t('landing.seasonStreakTitle')}
+              </div>
+              <div className="mt-0.5 text-xs font-bold text-arena-muted">
+                {t('landing.seasonStreakText')}
+              </div>
             </div>
           </div>
         </div>
@@ -336,7 +367,9 @@ function CheckRow({ tone, children }: { tone: string; children: ReactNode }) {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="min-w-0 flex-1 text-center">
-      <div className="font-display text-[24px] font-semibold leading-none text-arena-text sm:text-[28px]">{value}</div>
+      <div className="font-display text-[24px] font-semibold leading-none text-arena-text sm:text-[28px]">
+        {value}
+      </div>
       <div className="mt-1 text-[11px] font-bold leading-tight text-arena-muted">{label}</div>
     </div>
   )
@@ -365,9 +398,15 @@ function CtaFinal() {
       <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-hair pt-6 sm:flex-row">
         <span className="text-[12.5px] font-bold text-muted">{t('landing.footerRights')}</span>
         <div className="flex gap-4 text-[12.5px] font-bold text-muted">
-          <Link to="/privacidade" className="transition hover:text-ink">{t('landing.footerPrivacy')}</Link>
-          <Link to="/termos" className="transition hover:text-ink">{t('landing.footerTerms')}</Link>
-          <Link to="/contato" className="transition hover:text-ink">{t('landing.footerContact')}</Link>
+          <Link to="/privacidade" className="transition hover:text-ink">
+            {t('landing.footerPrivacy')}
+          </Link>
+          <Link to="/termos" className="transition hover:text-ink">
+            {t('landing.footerTerms')}
+          </Link>
+          <Link to="/contato" className="transition hover:text-ink">
+            {t('landing.footerContact')}
+          </Link>
         </div>
       </div>
     </section>

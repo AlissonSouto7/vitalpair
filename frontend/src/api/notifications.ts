@@ -16,7 +16,9 @@ export async function getNotificationPrefs(): Promise<NotificationPrefs> {
   return res.data.data
 }
 
-export async function updateNotificationPrefs(prefs: NotificationPrefs): Promise<NotificationPrefs> {
+export async function updateNotificationPrefs(
+  prefs: NotificationPrefs,
+): Promise<NotificationPrefs> {
   const res = await api.put<ApiResponse<NotificationPrefs>>('/me/notification-prefs', prefs)
   return res.data.data
 }

@@ -24,7 +24,8 @@ export const auth = {
     // register
     registerTitle: 'Cria sua conta',
     registerSubtitle: 'Leva menos tempo que escolher série na Netflix.',
-    registerInviteHint: 'Você foi convidado pra uma dupla. Cria a conta que eu já te coloco lá dentro.',
+    registerInviteHint:
+      'Você foi convidado pra uma dupla. Cria a conta que eu já te coloco lá dentro.',
     nameLabel: 'Como te chamam?',
     createAccountCta: 'Criar conta e bora',
     creating: 'Criando...',
@@ -37,7 +38,8 @@ export const auth = {
     forgotTagline: 'Calma, a gente te ajuda a voltar pro jogo',
     forgotCta: 'Enviar link de redefinição',
     sending: 'Enviando...',
-    forgotSent: 'Se houver uma conta com esse email, mandamos um link pra redefinir sua senha. Dá uma olhada na caixa de entrada.',
+    forgotSent:
+      'Se houver uma conta com esse email, mandamos um link pra redefinir sua senha. Dá uma olhada na caixa de entrada.',
     backToLogin: 'Voltar ao login',
     errorForgot: 'Não rolou enviar o link. Tenta de novo.',
 
@@ -82,7 +84,8 @@ export const auth = {
 
     registerTitle: 'Create your account',
     registerSubtitle: 'Takes less time than picking a show on Netflix.',
-    registerInviteHint: 'You’ve been invited to a pair. Create your account and I’ll put you right in.',
+    registerInviteHint:
+      'You’ve been invited to a pair. Create your account and I’ll put you right in.',
     nameLabel: 'What should we call you?',
     createAccountCta: 'Create account, let’s go',
     creating: 'Creating...',
@@ -94,7 +97,8 @@ export const auth = {
     forgotTagline: 'No worries, we’ll get you back in the game',
     forgotCta: 'Send reset link',
     sending: 'Sending...',
-    forgotSent: 'If there’s an account with that email, we sent a link to reset your password. Take a look in your inbox.',
+    forgotSent:
+      'If there’s an account with that email, we sent a link to reset your password. Take a look in your inbox.',
     backToLogin: 'Back to login',
     errorForgot: 'Couldn’t send the link. Try again.',
 
@@ -149,7 +153,8 @@ export const auth = {
     forgotTagline: 'Tranqui, te ayudamos a volver al juego',
     forgotCta: 'Enviar enlace de restablecimiento',
     sending: 'Enviando...',
-    forgotSent: 'Si existe una cuenta con ese correo, enviamos un enlace para restablecer tu contraseña. Echa un ojo a tu bandeja de entrada.',
+    forgotSent:
+      'Si existe una cuenta con ese correo, enviamos un enlace para restablecer tu contraseña. Echa un ojo a tu bandeja de entrada.',
     backToLogin: 'Volver al inicio de sesión',
     errorForgot: 'No se pudo enviar el enlace. Inténtalo de nuevo.',
 
@@ -164,7 +169,8 @@ export const auth = {
 
     verifyVerifying: 'Confirmando tu correo...',
     verifySuccess: '¡Correo confirmado! Tu cuenta está lista. ¡Vamos!',
-    verifyError: 'No se pudo confirmar. El enlace puede haber expirado. Pide uno nuevo en el panel.',
+    verifyError:
+      'No se pudo confirmar. El enlace puede haber expirado. Pide uno nuevo en el panel.',
     goToApp: 'Ir a la app',
     bannerText: 'Confirma tu correo para asegurar tu cuenta.',
     bannerResend: 'Reenviar correo',
@@ -204,7 +210,8 @@ export const auth = {
     forgotTagline: 'Pas de panique, on te remet dans le jeu',
     forgotCta: 'Envoyer le lien de réinitialisation',
     sending: 'Envoi...',
-    forgotSent: 'S’il existe un compte avec cet email, on a envoyé un lien pour réinitialiser ton mot de passe. Jette un œil à ta boîte de réception.',
+    forgotSent:
+      'S’il existe un compte avec cet email, on a envoyé un lien pour réinitialiser ton mot de passe. Jette un œil à ta boîte de réception.',
     backToLogin: 'Retour à la connexion',
     errorForgot: 'Impossible d’envoyer le lien. Réessaie.',
 
@@ -219,7 +226,8 @@ export const auth = {
 
     verifyVerifying: 'Confirmation de ton email...',
     verifySuccess: 'Email confirmé ! Ton compte est prêt. C’est parti !',
-    verifyError: 'Confirmation impossible. Le lien a peut-être expiré. Demandes-en un nouveau dans le tableau de bord.',
+    verifyError:
+      'Confirmation impossible. Le lien a peut-être expiré. Demandes-en un nouveau dans le tableau de bord.',
     goToApp: 'Aller à l’app',
     bannerText: 'Confirme ton email pour sécuriser ton compte.',
     bannerResend: 'Renvoyer l’email',

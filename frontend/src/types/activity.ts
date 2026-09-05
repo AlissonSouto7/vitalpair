@@ -1,5 +1,6 @@
 export type ActivityType = 'STEPS' | 'RUN' | 'WALK' | 'CYCLE' | 'WORKOUT' | 'OTHER'
-export type ActivitySource = 'WEWARD' | 'GOOGLE_FIT' | 'APPLE_HEALTH' | 'STRAVA' | 'GARMIN' | 'MANUAL'
+export type ActivitySource =
+  'WEWARD' | 'GOOGLE_FIT' | 'APPLE_HEALTH' | 'STRAVA' | 'GARMIN' | 'MANUAL'
 
 export interface ActivityLog {
   id: string

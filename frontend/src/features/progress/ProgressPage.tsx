@@ -29,20 +29,25 @@ export function ProgressPage() {
   }, [load, t])
 
   if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (error)
+    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
   if (!data) return null
 
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('progress.title')}</h1>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+          {t('progress.title')}
+        </h1>
         <p className="mt-1 text-sm font-semibold text-muted">{t('progress.subtitle')}</p>
       </header>
 
       <Tabs tab={tab} onChange={setTab} />
 
       {tab === 'peso' && <PainelPeso weights={data.weights} onLogged={load} />}
-      {tab === 'calorias' && <PainelCalorias calories={data.calories} targetKcal={data.targetKcal} />}
+      {tab === 'calorias' && (
+        <PainelCalorias calories={data.calories} targetKcal={data.targetKcal} />
+      )}
       {tab === 'macros' && <PainelMacros macros={data.macros} />}
     </div>
   )
@@ -81,7 +86,13 @@ function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
 
 /* ---------- Peso ---------- */
 
-function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: () => Promise<void> }) {
+function PainelPeso({
+  weights,
+  onLogged,
+}: {
+  weights: WeightPoint[]
+  onLogged: () => Promise<void>
+}) {
   const { t } = useTranslation()
   const [valor, setValor] = useState('')
   const [salvando, setSalvando] = useState(false)
@@ -119,7 +130,9 @@ function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: (
             </>
           ) : (
             <>
-              <h2 className="font-display text-xl font-semibold text-ink">{t('progress.noWeightTitle')}</h2>
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {t('progress.noWeightTitle')}
+              </h2>
               <p className="text-sm font-semibold text-muted">{t('progress.noWeightText')}</p>
             </>
           )}
@@ -144,11 +157,19 @@ function PainelPeso({ weights, onLogged }: { weights: WeightPoint[]; onLogged: (
             <span className="text-sm font-extrabold text-muted">{t('progress.weightUnit')}</span>
           </div>
         </div>
-        <button type="submit" disabled={salvando || !valor} className="btn-primary disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={salvando || !valor}
+          className="btn-primary disabled:opacity-60"
+        >
           {salvando ? t('common.saving') : t('progress.logButton')}
         </button>
       </form>
-      {erro && <p className="rounded-xl bg-danger-soft px-4 py-2.5 text-sm font-semibold text-danger">{erro}</p>}
+      {erro && (
+        <p className="rounded-xl bg-danger-soft px-4 py-2.5 text-sm font-semibold text-danger">
+          {erro}
+        </p>
+      )}
     </div>
   )
 }
@@ -186,7 +207,9 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
           {fmtKg(atual)} {t('progress.weightUnit')}
         </span>
         {Math.abs(delta) >= 0.05 && (
-          <span className={`text-sm font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}>
+          <span
+            className={`text-sm font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}
+          >
             {t('progress.deltaSince', {
               delta: `${perdeu ? '−' : '+'}${fmtKg(Math.abs(delta))}`,
               date: fmtDate(weights[0].date),
@@ -195,7 +218,12 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
         )}
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-[200px] w-full overflow-visible" role="img" aria-label={t('progress.chartAria')}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="h-[200px] w-full overflow-visible"
+        role="img"
+        aria-label={t('progress.chartAria')}
+      >
         {[40, 100, 160].map((y) => (
           <line key={y} x1={0} y1={y} x2={W} y2={y} className="stroke-hair" strokeWidth={1} />
         ))}
@@ -208,7 +236,13 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <circle cx={ultimo.x} cy={ultimo.y} r={6} className="fill-brand stroke-surface" strokeWidth={3} />
+        <circle
+          cx={ultimo.x}
+          cy={ultimo.y}
+          r={6}
+          className="fill-brand stroke-surface"
+          strokeWidth={3}
+        />
       </svg>
 
       <div className="mt-2.5 flex justify-between text-[11px] font-bold text-muted">
@@ -221,7 +255,13 @@ function WeightChart({ weights }: { weights: WeightPoint[] }) {
 
 /* ---------- Calorias ---------- */
 
-function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targetKcal: number | null }) {
+function PainelCalorias({
+  calories,
+  targetKcal,
+}: {
+  calories: CalorieDay[]
+  targetKcal: number | null
+}) {
   const { t } = useTranslation()
   const maxKcal = Math.max(targetKcal ?? 0, ...calories.map((d) => d.kcal), 1)
   const teto = maxKcal * 1.05
@@ -240,8 +280,13 @@ function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targ
 
       <div className="relative h-[150px]">
         {targetKcal != null && (
-          <div className="absolute inset-x-0 z-10 border-t-2 border-dashed border-success/60" style={{ bottom: `${metaPct}%` }}>
-            <span className="absolute -top-4 right-0 text-[10px] font-extrabold text-success-ink">{t('progress.goalLine')}</span>
+          <div
+            className="absolute inset-x-0 z-10 border-t-2 border-dashed border-success/60"
+            style={{ bottom: `${metaPct}%` }}
+          >
+            <span className="absolute -top-4 right-0 text-[10px] font-extrabold text-success-ink">
+              {t('progress.goalLine')}
+            </span>
           </div>
         )}
 
@@ -254,7 +299,10 @@ function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targ
                 <span className="mb-1.5 text-[10px] font-extrabold text-muted">
                   {d.kcal > 0 ? `${(d.kcal / 1000).toFixed(1)}k` : '—'}
                 </span>
-                <div className={`w-3/5 rounded-t-md transition-all ${cor}`} style={{ height: `${Math.max(h, 1)}%` }} />
+                <div
+                  className={`w-3/5 rounded-t-md transition-all ${cor}`}
+                  style={{ height: `${Math.max(h, 1)}%` }}
+                />
               </div>
             )
           })}
@@ -270,7 +318,11 @@ function PainelCalorias({ calories, targetKcal }: { calories: CalorieDay[]; targ
       </div>
 
       <div className="mt-3 flex items-center gap-4 text-[11.5px] font-extrabold">
-        <Legenda cor="bg-success" texto={t('progress.legendWithinGoal')} classeTexto="text-success-ink" />
+        <Legenda
+          cor="bg-success"
+          texto={t('progress.legendWithinGoal')}
+          classeTexto="text-success-ink"
+        />
         <Legenda cor="bg-brand" texto={t('progress.legendOver')} classeTexto="text-brand-ink" />
       </div>
     </section>
@@ -298,7 +350,11 @@ function PainelMacros({ macros }: { macros: MacroAverage[] }) {
   return (
     <section className="card flex flex-col gap-[18px] !rounded-[18px] !p-6">
       {macros.map((m) => {
-        const pct = m.targetG ? Math.min(100, Math.round((m.avgG / m.targetG) * 100)) : m.avgG > 0 ? 100 : 0
+        const pct = m.targetG
+          ? Math.min(100, Math.round((m.avgG / m.targetG) * 100))
+          : m.avgG > 0
+            ? 100
+            : 0
         return (
           <div key={m.key}>
             <div className="mb-1.5 flex items-center justify-between text-[13px]">

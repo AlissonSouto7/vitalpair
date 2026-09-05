@@ -28,7 +28,9 @@ export function VerifyEmailPage() {
   return (
     <AuthShell>
       <div className="mb-6">
-        {status === 'verifying' && <p className="text-sm font-semibold text-muted">{t('auth.verifyVerifying')}</p>}
+        {status === 'verifying' && (
+          <p className="text-sm font-semibold text-muted">{t('auth.verifyVerifying')}</p>
+        )}
         {status === 'success' && (
           <p className="rounded-xl bg-success-soft px-4 py-3 text-sm font-semibold text-success-ink">
             {t('auth.verifySuccess')}
@@ -41,7 +43,10 @@ export function VerifyEmailPage() {
         )}
       </div>
 
-      <Link to={status === 'success' ? '/dashboard' : '/login'} className="btn-primary block w-full text-center">
+      <Link
+        to={status === 'success' ? '/dashboard' : '/login'}
+        className="btn-primary block w-full text-center"
+      >
         {status === 'success' ? t('auth.goToApp') : t('auth.backToLogin')}
       </Link>
     </AuthShell>

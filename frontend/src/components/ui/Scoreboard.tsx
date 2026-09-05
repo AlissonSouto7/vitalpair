@@ -4,7 +4,13 @@ import { Broto } from '../brand/Broto'
 /** Avatar do placar: Broto pro você/par, fantasma cinza no modo solo. */
 function SideAvatar({ tone, initial }: { tone: 'you' | 'rival' | 'ghost'; initial: string }) {
   if (tone === 'ghost') return <Avatar initial={initial} tone="ghost" size={56} />
-  return <Broto who={tone === 'you' ? 'you' : 'partner'} expr={tone === 'you' ? 'happy' : 'smug'} size={66} />
+  return (
+    <Broto
+      who={tone === 'you' ? 'you' : 'partner'}
+      expr={tone === 'you' ? 'happy' : 'smug'}
+      size={66}
+    />
+  )
 }
 
 /**
@@ -55,7 +61,9 @@ export function Scoreboard({
         </div>
         {stake && (
           <div className="flex items-center gap-2 rounded-lg border border-arena-line bg-white/[0.06] px-3 py-[5px]">
-            <span className="text-[10px] font-extrabold tracking-[0.1em] text-arena-muted">EM JOGO</span>
+            <span className="text-[10px] font-extrabold tracking-[0.1em] text-arena-muted">
+              EM JOGO
+            </span>
             <span className="text-xs font-extrabold text-arena-text">{stake}</span>
           </div>
         )}
@@ -66,16 +74,22 @@ export function Scoreboard({
           <SideAvatar tone="you" initial={you.initial ?? 'V'} />
           <div>
             <div className="text-xs font-extrabold tracking-wide text-brand-ink">{you.name}</div>
-            <div className="font-display text-[44px] font-semibold leading-[.95] text-arena-text">{you.score}</div>
+            <div className="font-display text-[44px] font-semibold leading-[.95] text-arena-text">
+              {you.score}
+            </div>
           </div>
         </div>
         <div className="font-display text-base font-semibold text-arena-muted">vs</div>
         <div className="flex flex-1 items-center justify-end gap-[14px] text-right">
           <div>
-            <div className={`text-xs font-extrabold tracking-wide ${ghost ? 'text-arena-muted' : 'text-rival-ink'}`}>
+            <div
+              className={`text-xs font-extrabold tracking-wide ${ghost ? 'text-arena-muted' : 'text-rival-ink'}`}
+            >
               {rival.name}
             </div>
-            <div className={`font-display text-[44px] font-semibold leading-[.95] ${ghost ? 'text-arena-muted' : 'text-arena-text'}`}>
+            <div
+              className={`font-display text-[44px] font-semibold leading-[.95] ${ghost ? 'text-arena-muted' : 'text-arena-text'}`}
+            >
               {rival.score}
             </div>
           </div>

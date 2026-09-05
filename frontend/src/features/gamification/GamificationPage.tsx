@@ -27,20 +27,25 @@ export function GamificationPage() {
   }, [t])
 
   if (loading) return <p className="text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (error)
+    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
 
   return (
     <div className="space-y-7">
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('gamification.title')}</h1>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+          {t('gamification.title')}
+        </h1>
         <p className="mt-1 text-sm font-bold text-muted">{t('gamification.subtitle')}</p>
       </header>
 
       {/* Sequências (streaks) */}
       <section>
-        <h2 className="mb-3 font-display text-base font-semibold text-ink">{t('gamification.streaks')}</h2>
+        <h2 className="mb-3 font-display text-base font-semibold text-ink">
+          {t('gamification.streaks')}
+        </h2>
         {streaks.length === 0 ? (
           <EmptyStreaks />
         ) : (
@@ -55,7 +60,9 @@ export function GamificationPage() {
       {/* Medalhas */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-base font-semibold text-ink">{t('gamification.badges')}</h2>
+          <h2 className="font-display text-base font-semibold text-ink">
+            {t('gamification.badges')}
+          </h2>
           <span className="text-xs font-extrabold text-muted">
             {t('gamification.badgeCount', { earned: earnedCodes.size, total: catalog.length })}
           </span>
@@ -100,9 +107,13 @@ function StreakCard({ streak }: { streak: Streak }) {
           {t(`gamification.streakLabel.${streak.type}`)}
         </p>
         <p className="font-display text-2xl font-semibold leading-tight text-ink">
-          {t(streak.currentCount === 1 ? 'gamification.dayOne' : 'gamification.dayOther', { n: streak.currentCount })}
+          {t(streak.currentCount === 1 ? 'gamification.dayOne' : 'gamification.dayOther', {
+            n: streak.currentCount,
+          })}
         </p>
-        <p className="text-[11px] font-bold text-faint">{t('gamification.record', { days: streak.longestCount })}</p>
+        <p className="text-[11px] font-bold text-faint">
+          {t('gamification.record', { days: streak.longestCount })}
+        </p>
       </div>
     </div>
   )
@@ -135,8 +146,12 @@ function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
       >
         <Icon className={`h-[22px] w-[22px] ${unlocked ? 'fill-white' : 'fill-muted'}`} />
       </span>
-      <p className={`text-sm font-extrabold ${unlocked ? 'text-success-ink' : 'text-muted'}`}>{badge.name}</p>
-      <p className={`mt-0.5 text-[11.5px] font-semibold ${unlocked ? 'text-ink/70' : 'text-faint'}`}>
+      <p className={`text-sm font-extrabold ${unlocked ? 'text-success-ink' : 'text-muted'}`}>
+        {badge.name}
+      </p>
+      <p
+        className={`mt-0.5 text-[11.5px] font-semibold ${unlocked ? 'text-ink/70' : 'text-faint'}`}
+      >
         {badge.description}
       </p>
     </div>

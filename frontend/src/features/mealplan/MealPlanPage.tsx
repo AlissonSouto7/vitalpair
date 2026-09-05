@@ -80,7 +80,9 @@ export function MealPlanPage() {
       {/* Cabeçalho */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('mealplan.title')}</h1>
+          <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+            {t('mealplan.title')}
+          </h1>
           <p className="mt-1 text-sm font-semibold text-muted">{t('mealplan.subtitle')}</p>
         </div>
 
@@ -98,7 +100,9 @@ export function MealPlanPage() {
       </header>
 
       {error && (
-        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</p>
+        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+          {error}
+        </p>
       )}
 
       {!plan ? (
@@ -108,8 +112,12 @@ export function MealPlanPage() {
             <SparkIcon className="h-8 w-8 text-brand" />
           </span>
           <div>
-            <h2 className="font-display text-xl font-semibold text-ink">{t('mealplan.emptyTitle')}</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">{t('mealplan.emptyText')}</p>
+            <h2 className="font-display text-xl font-semibold text-ink">
+              {t('mealplan.emptyTitle')}
+            </h2>
+            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold text-muted">
+              {t('mealplan.emptyText')}
+            </p>
           </div>
           <button
             type="button"
@@ -120,7 +128,9 @@ export function MealPlanPage() {
             <SparkIcon className="h-[18px] w-[18px]" />
             {generating ? t('mealplan.generating') : t('mealplan.generate')}
           </button>
-          {generating && <p className="text-xs font-bold text-muted">{t('mealplan.generatingHint')}</p>}
+          {generating && (
+            <p className="text-xs font-bold text-muted">{t('mealplan.generatingHint')}</p>
+          )}
         </section>
       ) : (
         <>
@@ -135,10 +145,14 @@ export function MealPlanPage() {
                   onClick={() => setSelected(i)}
                   aria-pressed={active}
                   className={`flex shrink-0 flex-col items-center rounded-xl border px-3.5 py-2 leading-tight transition ${
-                    active ? 'border-brand bg-brand text-white' : 'border-hair bg-surface text-muted hover:text-ink'
+                    active
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-hair bg-surface text-muted hover:text-ink'
                   }`}
                 >
-                  <span className={`text-[10px] font-extrabold tracking-wide ${active ? 'opacity-80' : ''}`}>
+                  <span
+                    className={`text-[10px] font-extrabold tracking-wide ${active ? 'opacity-80' : ''}`}
+                  >
                     {t(`mealplan.weekday.${WEEKDAY_KEYS[d.dayIndex] ?? 'SEG'}`)}
                   </span>
                   <span className="font-display text-base font-semibold">{dayOfMonth(d.date)}</span>
@@ -150,14 +164,21 @@ export function MealPlanPage() {
           {/* Refeições do dia */}
           <div className="space-y-3">
             {day?.meals.map((m) => (
-              <MealCard key={m.mealType} meal={m} swapping={swapping === m.mealType} onSwap={() => swap(m.mealType)} />
+              <MealCard
+                key={m.mealType}
+                meal={m}
+                swapping={swapping === m.mealType}
+                onSwap={() => swap(m.mealType)}
+              />
             ))}
           </div>
 
           {/* Total do dia vs meta */}
           <section className="card flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted">{t('mealplan.dayTotal')}</p>
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted">
+                {t('mealplan.dayTotal')}
+              </p>
               <p className="font-display text-2xl font-semibold text-ink">
                 {totals.kcal.toLocaleString('pt-BR')} kcal
               </p>
@@ -169,9 +190,7 @@ export function MealPlanPage() {
               <MacroPill label={t('mealplan.fat')} value={totals.fat} tone="success" />
             </div>
 
-            {plan.targetKcal != null && (
-              <TargetBadge diff={totals.kcal - plan.targetKcal} t={t} />
-            )}
+            {plan.targetKcal != null && <TargetBadge diff={totals.kcal - plan.targetKcal} t={t} />}
           </section>
         </>
       )}
@@ -179,7 +198,13 @@ export function MealPlanPage() {
   )
 }
 
-function TargetBadge({ diff, t }: { diff: number; t: (k: string, o?: Record<string, unknown>) => string }) {
+function TargetBadge({
+  diff,
+  t,
+}: {
+  diff: number
+  t: (k: string, o?: Record<string, unknown>) => string
+}) {
   return (
     <span
       className={`rounded-full px-3 py-1 text-xs font-extrabold ${
@@ -199,7 +224,15 @@ function TargetBadge({ diff, t }: { diff: number; t: (k: string, o?: Record<stri
   )
 }
 
-function MealCard({ meal, swapping, onSwap }: { meal: PlanMeal; swapping: boolean; onSwap: () => void }) {
+function MealCard({
+  meal,
+  swapping,
+  onSwap,
+}: {
+  meal: PlanMeal
+  swapping: boolean
+  onSwap: () => void
+}) {
   const { t } = useTranslation()
   return (
     <article className={`card p-4 transition sm:p-5 ${swapping ? 'opacity-60' : ''}`}>
@@ -231,9 +264,18 @@ function MealCard({ meal, swapping, onSwap }: { meal: PlanMeal; swapping: boolea
   )
 }
 
-function MacroPill({ label, value, tone }: { label: string; value: number; tone: 'brand' | 'carb' | 'success' }) {
+function MacroPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string
+  value: number
+  tone: 'brand' | 'carb' | 'success'
+}) {
   const dot = tone === 'brand' ? 'bg-brand' : tone === 'carb' ? 'bg-carb' : 'bg-success'
-  const text = tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
+  const text =
+    tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
   return (
     <span className="flex items-center gap-1.5">
       <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
@@ -259,7 +301,9 @@ function todayIndex(plan: MealPlan): number {
 }
 
 function apiMessage(err: unknown): string | null {
-  return err instanceof AxiosError ? ((err.response?.data?.message as string | undefined) ?? null) : null
+  return err instanceof AxiosError
+    ? ((err.response?.data?.message as string | undefined) ?? null)
+    : null
 }
 
 /* ---------- ícones ---------- */

@@ -26,11 +26,14 @@ export const landing = {
     howKicker: 'COMO FUNCIONA',
     howTitle: 'Na real, é bem de boa',
     howS1Title: 'Tira uma foto do prato',
-    howS1Text: 'A IA olha e estima as calorias. Você só confere e confirma. É mais rápido que postar no story.',
+    howS1Text:
+      'A IA olha e estima as calorias. Você só confere e confirma. É mais rápido que postar no story.',
     howS2Title: 'Chama a outra pessoa',
-    howS2Text: 'Vocês combinam o que tá em jogo e começam a temporada. O placar muda toda vez que alguém registra algo.',
+    howS2Text:
+      'Vocês combinam o que tá em jogo e começam a temporada. O placar muda toda vez que alguém registra algo.',
     howS3Title: 'Não quebra a sequência',
-    howS3Text: 'Dia seguido vale mais ponto que dia perfeito. Ninguém tá cobrando perfeição aqui, só pra você não sumir.',
+    howS3Text:
+      'Dia seguido vale mais ponto que dia perfeito. Ninguém tá cobrando perfeição aqui, só pra você não sumir.',
     seasonTitle: 'Dispute com quem você quiser',
     seasonText:
       'Põe seu par, um amigo ou o irmão na mesma temporada. Cada refeição que você registra, cada treino, cada dia sem furar vira ponto. Quem tá na frente aparece no placar na hora, e ninguém gosta de ficar pra trás.',
@@ -77,11 +80,14 @@ export const landing = {
     howKicker: 'HOW IT WORKS',
     howTitle: 'Honestly, it’s pretty chill',
     howS1Title: 'Snap a photo of your plate',
-    howS1Text: 'The AI reads it and estimates the calories. You just check and confirm. Faster than posting a story.',
+    howS1Text:
+      'The AI reads it and estimates the calories. You just check and confirm. Faster than posting a story.',
     howS2Title: 'Bring someone in',
-    howS2Text: 'You agree on what’s at stake and start the season. The scoreboard moves every time one of you logs something.',
+    howS2Text:
+      'You agree on what’s at stake and start the season. The scoreboard moves every time one of you logs something.',
     howS3Title: 'Keep the streak alive',
-    howS3Text: 'A day in a row beats a perfect day. Nobody’s after perfection here, just don’t disappear.',
+    howS3Text:
+      'A day in a row beats a perfect day. Nobody’s after perfection here, just don’t disappear.',
     seasonTitle: 'Compete with whoever you want',
     seasonText:
       'Put your partner, a friend or your brother in the same season. Every meal you log, every workout, every day you don’t skip turns into points. Whoever’s ahead shows up on the scoreboard right away, and nobody likes being left behind.',
@@ -128,11 +134,14 @@ export const landing = {
     howKicker: 'CÓMO FUNCIONA',
     howTitle: 'La verdad, es muy tranqui',
     howS1Title: 'Saca una foto del plato',
-    howS1Text: 'La IA lo mira y estima las calorías. Tú solo revisas y confirmas. Más rápido que subir una historia.',
+    howS1Text:
+      'La IA lo mira y estima las calorías. Tú solo revisas y confirmas. Más rápido que subir una historia.',
     howS2Title: 'Suma a la otra persona',
-    howS2Text: 'Acuerdan lo que está en juego y arrancan la temporada. El marcador cambia cada vez que alguien registra algo.',
+    howS2Text:
+      'Acuerdan lo que está en juego y arrancan la temporada. El marcador cambia cada vez que alguien registra algo.',
     howS3Title: 'No cortes la racha',
-    howS3Text: 'Un día seguido vale más que un día perfecto. Nadie pide perfección aquí, solo que no desaparezcas.',
+    howS3Text:
+      'Un día seguido vale más que un día perfecto. Nadie pide perfección aquí, solo que no desaparezcas.',
     seasonTitle: 'Compite con quien quieras',
     seasonText:
       'Pon a tu pareja, un amigo o tu hermano en la misma temporada. Cada comida que registras, cada entrenamiento, cada día que no fallas suma puntos. El que va adelante aparece en el marcador al instante, y a nadie le gusta quedarse atrás.',
@@ -179,11 +188,14 @@ export const landing = {
     howKicker: 'COMMENT ÇA MARCHE',
     howTitle: 'Franchement, c’est tranquille',
     howS1Title: 'Photographiez l’assiette',
-    howS1Text: 'L’IA regarde et estime les calories. Vous vérifiez et confirmez, c’est tout. Plus rapide qu’une story.',
+    howS1Text:
+      'L’IA regarde et estime les calories. Vous vérifiez et confirmez, c’est tout. Plus rapide qu’une story.',
     howS2Title: 'Invitez l’autre personne',
-    howS2Text: 'Vous fixez l’enjeu et lancez la saison. Le score bouge dès que l’un de vous enregistre quelque chose.',
+    howS2Text:
+      'Vous fixez l’enjeu et lancez la saison. Le score bouge dès que l’un de vous enregistre quelque chose.',
     howS3Title: 'Ne cassez pas la série',
-    howS3Text: 'Un jour d’affilée vaut plus qu’un jour parfait. Personne n’exige la perfection ici, juste ne disparaissez pas.',
+    howS3Text:
+      'Un jour d’affilée vaut plus qu’un jour parfait. Personne n’exige la perfection ici, juste ne disparaissez pas.',
     seasonTitle: 'Affrontez qui vous voulez',
     seasonText:
       'Mettez votre moitié, un ami ou votre frère dans la même saison. Chaque repas enregistré, chaque séance, chaque jour sans craquer rapporte des points. Celui qui mène apparaît tout de suite au tableau, et personne n’aime être à la traîne.',

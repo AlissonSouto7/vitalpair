@@ -9,18 +9,28 @@ import { NotificationsBell } from './NotificationsBell'
 /** Ícones SVG preenchidos (nada de emoji). 24x24, herdam currentColor. */
 const ICONS: Record<string, ReactNode> = {
   home: <path d="M12 3 3 10v10a1 1 0 0 0 1 1h5v-6h6v6h5a1 1 0 0 0 1-1V10z" />,
-  meal: <path d="M7 2v7a3 3 0 0 0 2 2.83V22h2V11.83A3 3 0 0 0 13 9V2h-2v6H9.5V2h-1.5v6H7zM17 2c-1.7 0-3 2.2-3 5 0 2.4 1 4.3 2 4.8V22h2V2z" />,
+  meal: (
+    <path d="M7 2v7a3 3 0 0 0 2 2.83V22h2V11.83A3 3 0 0 0 13 9V2h-2v6H9.5V2h-1.5v6H7zM17 2c-1.7 0-3 2.2-3 5 0 2.4 1 4.3 2 4.8V22h2V2z" />
+  ),
   activity: <path d="M13 2 4.5 13.5h5.5L9 22l8.5-12H12z" />,
   feed: <path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z" />,
-  book: <path d="M5 3h11a3 3 0 0 1 3 3v15l-5-2.5L9 21V3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h0v-2H5z" />,
+  book: (
+    <path d="M5 3h11a3 3 0 0 1 3 3v15l-5-2.5L9 21V3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h0v-2H5z" />
+  ),
   dumbbell: <path d="M2 9h2v6H2zm3-1h2v8H5zm12 0h2v8h-2zm3 1h2v6h-2zM8 11h8v2H8z" />,
   flag: <path d="M5 2v20H3V2zm2 1h12l-3 4 3 4H7z" />,
-  target: <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />,
-  medal: <path d="M8 2h8l-2 7H10zm4 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3 1.2 2.5 2.8.4-2 2 .5 2.8-2.5-1.3-2.5 1.3.5-2.8-2-2 2.8-.4z" />,
+  target: (
+    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
+  ),
+  medal: (
+    <path d="M8 2h8l-2 7H10zm4 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3 1.2 2.5 2.8.4-2 2 .5 2.8-2.5-1.3-2.5 1.3.5-2.8-2-2 2.8-.4z" />
+  ),
   chart: <path d="M3 3h2v18H3zm4 10h3v8H7zm5-6h3v14h-3zm5 3h3v11h-3z" />,
   heart: <path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z" />,
   user: <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z" />,
-  gear: <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4-2.1-.6a7 7 0 0 0-.6-1.5l1.1-1.9-1.4-1.4-1.9 1.1a7 7 0 0 0-1.5-.6L14 3h-2l-.6 2.1a7 7 0 0 0-1.5.6L8 4.6 6.6 6l1.1 1.9a7 7 0 0 0-.6 1.5L5 10v4l2.1.6a7 7 0 0 0 .6 1.5L6.6 18 8 19.4l1.9-1.1a7 7 0 0 0 1.5.6L12 21h2l.6-2.1a7 7 0 0 0 1.5-.6l1.9 1.1 1.4-1.4-1.1-1.9a7 7 0 0 0 .6-1.5L21 14z" />,
+  gear: (
+    <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4-2.1-.6a7 7 0 0 0-.6-1.5l1.1-1.9-1.4-1.4-1.9 1.1a7 7 0 0 0-1.5-.6L14 3h-2l-.6 2.1a7 7 0 0 0-1.5.6L8 4.6 6.6 6l1.1 1.9a7 7 0 0 0-.6 1.5L5 10v4l2.1.6a7 7 0 0 0 .6 1.5L6.6 18 8 19.4l1.9-1.1a7 7 0 0 0 1.5.6L12 21h2l.6-2.1a7 7 0 0 0 1.5-.6l1.9 1.1 1.4-1.4-1.1-1.9a7 7 0 0 0 .6-1.5L21 14z" />
+  ),
 }
 
 const NAV = [
@@ -86,7 +96,9 @@ export function Layout() {
             to="/settings"
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition ${
-                isActive ? 'bg-brand-soft text-brand-ink' : 'text-muted hover:bg-surface hover:text-ink'
+                isActive
+                  ? 'bg-brand-soft text-brand-ink'
+                  : 'text-muted hover:bg-surface hover:text-ink'
               }`
             }
           >
@@ -99,7 +111,9 @@ export function Layout() {
           >
             <Avatar initial="A" tone="you" size={36} />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-extrabold text-ink">{t('nav.logout')}</span>
+              <span className="block truncate text-sm font-extrabold text-ink">
+                {t('nav.logout')}
+              </span>
               <span className="block truncate text-xs text-muted">VitalPair</span>
             </span>
           </button>

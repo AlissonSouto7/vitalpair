@@ -26,7 +26,8 @@ export const onboarding = {
     errorStep1: 'Preenche tudo aí em cima pra gente calcular sua meta certinho.',
     errorStep2: 'Escolhe como é seu dia a dia.',
     errorStep4: 'Escolhe se vai jogar com alguém ou começar solo.',
-    errorCalc: 'Algum dado ficou estranho. Confere a data de nascimento, o peso e a altura, e tenta de novo.',
+    errorCalc:
+      'Algum dado ficou estranho. Confere a data de nascimento, o peso e a altura, e tenta de novo.',
     errorJoin: 'Esse código não colou. Confere com a pessoa e tenta de novo.',
 
     // passo 1
@@ -76,7 +77,8 @@ export const onboarding = {
     macroProtein: 'Proteína',
     macroCarb: 'Carbo',
     macroFat: 'Gordura',
-    step3Footnote: 'Relaxa, não precisa decorar nada disso. O app cuida da conta, você só registra o que come.',
+    step3Footnote:
+      'Relaxa, não precisa decorar nada disso. O app cuida da conta, você só registra o que come.',
 
     // passo 4 (parceria)
     step4Title: 'Vai jogar com quem?',
@@ -87,7 +89,8 @@ export const onboarding = {
     modeSoloHint: 'Compete contra você mesmo da semana passada',
     inviteLabel: 'Já tem um código de convite?',
     invitePlaceholder: 'VITA-XXXX',
-    inviteHint: 'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra mandar pra ela.',
+    inviteHint:
+      'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra mandar pra ela.',
     soloConfirm: 'Fechou. Você começa sozinho e pode chamar alguém quando bater vontade.',
 
     // passo 5 (aposta)
@@ -172,7 +175,8 @@ export const onboarding = {
     macroProtein: 'Protein',
     macroCarb: 'Carbs',
     macroFat: 'Fat',
-    step3Footnote: 'Relax, no need to memorize any of this. The app does the math, you just log what you eat.',
+    step3Footnote:
+      'Relax, no need to memorize any of this. The app does the math, you just log what you eat.',
 
     step4Title: 'Who are you playing with?',
     step4Subtitle: 'Both ways work. You can switch later, no stress.',
@@ -182,13 +186,15 @@ export const onboarding = {
     modeSoloHint: 'Compete against your own last week',
     inviteLabel: 'Got an invite code already?',
     invitePlaceholder: 'VITA-XXXX',
-    inviteHint: 'Got the code someone sent you? Paste it here. If not, just go on and we’ll give you one to send them.',
+    inviteHint:
+      'Got the code someone sent you? Paste it here. If not, just go on and we’ll give you one to send them.',
     soloConfirm: 'Done. You start solo and can bring someone in whenever you feel like it.',
 
     step5TitleSolo: 'What do you win if you crush it?',
     step5TitlePair: 'Want to bet?',
     step5SubtitleSolo: 'Make a deal with yourself: hit the weekly goal, win what?',
-    step5SubtitlePair: 'Agree with the other person on what’s at stake. Nothing heavy, the fun is the trash talk.',
+    step5SubtitlePair:
+      'Agree with the other person on what’s at stake. Nothing heavy, the fun is the trash talk.',
     betLabel: 'What’s on the line',
     betDefault: 'Loser buys dinner',
     betPrefix: 'Loser {{bet}}',
@@ -221,7 +227,8 @@ export const onboarding = {
     errorStep1: 'Completa todo lo de arriba para calcular bien tu meta.',
     errorStep2: 'Elige cómo es tu día a día.',
     errorStep4: 'Elige si vas a jugar con alguien o empezar solo.',
-    errorCalc: 'Algún dato quedó raro. Revisa la fecha de nacimiento, el peso y la altura, e inténtalo de nuevo.',
+    errorCalc:
+      'Algún dato quedó raro. Revisa la fecha de nacimiento, el peso y la altura, e inténtalo de nuevo.',
     errorJoin: 'Ese código no funcionó. Revísalo con la persona e inténtalo de nuevo.',
 
     step1Title: 'Vamos a conocerte',
@@ -266,7 +273,8 @@ export const onboarding = {
     macroProtein: 'Proteína',
     macroCarb: 'Carbo',
     macroFat: 'Grasa',
-    step3Footnote: 'Tranqui, no tienes que memorizar nada. La app hace la cuenta, tú solo registras lo que comes.',
+    step3Footnote:
+      'Tranqui, no tienes que memorizar nada. La app hace la cuenta, tú solo registras lo que comes.',
 
     step4Title: '¿Con quién vas a jugar?',
     step4Subtitle: 'Las dos formas funcionan. Puedes cambiar después, sin estrés.',
@@ -276,13 +284,15 @@ export const onboarding = {
     modeSoloHint: 'Compite contra tu propia semana pasada',
     inviteLabel: '¿Ya tienes un código de invitación?',
     invitePlaceholder: 'VITA-XXXX',
-    inviteHint: '¿Tienes el código que te mandaron? Pégalo aquí. Si aún no, sigue sin él y te damos uno para enviarle.',
+    inviteHint:
+      '¿Tienes el código que te mandaron? Pégalo aquí. Si aún no, sigue sin él y te damos uno para enviarle.',
     soloConfirm: 'Hecho. Empiezas solo y puedes sumar a alguien cuando te den ganas.',
 
     step5TitleSolo: '¿Qué ganas si vences?',
     step5TitlePair: '¿Apostamos?',
     step5SubtitleSolo: 'Haz un trato contigo: si cumples la meta de la semana, ¿qué ganas?',
-    step5SubtitlePair: 'Acuerda con la persona lo que está en juego. Nada pesado, la gracia es picar.',
+    step5SubtitlePair:
+      'Acuerda con la persona lo que está en juego. Nada pesado, la gracia es picar.',
     betLabel: 'Lo que está en juego',
     betDefault: 'El que pierde paga la cena',
     betPrefix: 'El que pierde {{bet}}',
@@ -315,7 +325,8 @@ export const onboarding = {
     errorStep1: 'Remplis tout là-haut pour qu’on calcule bien ton objectif.',
     errorStep2: 'Choisis à quoi ressemble ton quotidien.',
     errorStep4: 'Choisis si tu joues avec quelqu’un ou en solo.',
-    errorCalc: 'Une donnée semble bizarre. Vérifie ta date de naissance, ton poids et ta taille, puis réessaie.',
+    errorCalc:
+      'Une donnée semble bizarre. Vérifie ta date de naissance, ton poids et ta taille, puis réessaie.',
     errorJoin: 'Ce code n’a pas marché. Vérifie avec la personne et réessaie.',
 
     step1Title: 'On fait connaissance',
@@ -360,7 +371,8 @@ export const onboarding = {
     macroProtein: 'Protéines',
     macroCarb: 'Glucides',
     macroFat: 'Lipides',
-    step3Footnote: 'Détends-toi, pas besoin de retenir tout ça. L’app fait le calcul, toi tu enregistres juste ce que tu manges.',
+    step3Footnote:
+      'Détends-toi, pas besoin de retenir tout ça. L’app fait le calcul, toi tu enregistres juste ce que tu manges.',
 
     step4Title: 'Tu joues avec qui ?',
     step4Subtitle: 'Les deux marchent. Tu peux changer plus tard, tranquille.',
@@ -370,13 +382,17 @@ export const onboarding = {
     modeSoloHint: 'Affronte ta propre semaine précédente',
     inviteLabel: 'Tu as déjà un code d’invitation ?',
     invitePlaceholder: 'VITA-XXXX',
-    inviteHint: 'Tu as le code qu’on t’a envoyé ? Colle-le ici. Sinon continue sans, on t’en donne un à envoyer.',
-    soloConfirm: 'C’est bon. Tu commences seul et tu peux inviter quelqu’un quand l’envie te prend.',
+    inviteHint:
+      'Tu as le code qu’on t’a envoyé ? Colle-le ici. Sinon continue sans, on t’en donne un à envoyer.',
+    soloConfirm:
+      'C’est bon. Tu commences seul et tu peux inviter quelqu’un quand l’envie te prend.',
 
     step5TitleSolo: 'Tu gagnes quoi si tu cartonnes ?',
     step5TitlePair: 'On parie ?',
-    step5SubtitleSolo: 'Fais un pacte avec toi-même : si tu atteins l’objectif de la semaine, tu gagnes quoi ?',
-    step5SubtitlePair: 'Mets-toi d’accord sur l’enjeu avec la personne. Rien de lourd, le fun c’est de chambrer.',
+    step5SubtitleSolo:
+      'Fais un pacte avec toi-même : si tu atteins l’objectif de la semaine, tu gagnes quoi ?',
+    step5SubtitlePair:
+      'Mets-toi d’accord sur l’enjeu avec la personne. Rien de lourd, le fun c’est de chambrer.',
     betLabel: 'Ce qui est en jeu',
     betDefault: 'Le perdant paie le dîner',
     betPrefix: 'Le perdant {{bet}}',

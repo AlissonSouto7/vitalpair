@@ -292,17 +292,19 @@ export function NutritionPage() {
     <div className="space-y-6 pb-28">
       {/* Cabeçalho */}
       <header>
-        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">{t('nutrition.pageTitle')}</h1>
-        <p className="mt-1 text-sm font-semibold text-muted">
-          {t('nutrition.pageSubtitle')}
-        </p>
+        <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+          {t('nutrition.pageTitle')}
+        </h1>
+        <p className="mt-1 text-sm font-semibold text-muted">{t('nutrition.pageSubtitle')}</p>
       </header>
 
       {/* Resumo do dia */}
       {summary && (
         <section className="card">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink">{t('nutrition.todayTitle')}</h2>
+            <h2 className="font-display text-lg font-semibold text-ink">
+              {t('nutrition.todayTitle')}
+            </h2>
             <span className="text-sm font-bold text-muted">
               {summary.remainingCalories != null
                 ? summary.remainingCalories >= 0
@@ -315,22 +317,37 @@ export function NutritionPage() {
           <div className="flex flex-col items-center gap-6 sm:flex-row">
             <CalorieRing current={summary.consumedCalories} goal={summary.targetCalories ?? 2000} />
             <div className="w-full flex-1 space-y-4">
-              <Macro label={t('nutrition.proteinLabel')} value={summary.consumedProteinG} target={summary.targetProteinG} tone="brand" />
-              <Macro label={t('nutrition.carbLabel')} value={summary.consumedCarbG} target={summary.targetCarbG} tone="carb" />
-              <Macro label={t('nutrition.fatLabel')} value={summary.consumedFatG} target={summary.targetFatG} tone="success" />
+              <Macro
+                label={t('nutrition.proteinLabel')}
+                value={summary.consumedProteinG}
+                target={summary.targetProteinG}
+                tone="brand"
+              />
+              <Macro
+                label={t('nutrition.carbLabel')}
+                value={summary.consumedCarbG}
+                target={summary.targetCarbG}
+                tone="carb"
+              />
+              <Macro
+                label={t('nutrition.fatLabel')}
+                value={summary.consumedFatG}
+                target={summary.targetFatG}
+                tone="success"
+              />
             </div>
           </div>
 
           {summary.targetCalories == null && (
-            <p className="mt-5 text-xs font-bold text-muted">
-              {t('nutrition.noTargetHint')}
-            </p>
+            <p className="mt-5 text-xs font-bold text-muted">{t('nutrition.noTargetHint')}</p>
           )}
         </section>
       )}
 
       {error && (
-        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</p>
+        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+          {error}
+        </p>
       )}
 
       {/* Tipo de refeição */}
@@ -362,9 +379,24 @@ export function NutritionPage() {
       {/* Abas: Foto / Buscar / Favoritos */}
       <section className="card space-y-4">
         <div className="flex gap-1 rounded-xl bg-track p-1">
-          <TabButton active={tab === 'foto'} onClick={() => setTab('foto')} icon={<CameraIcon />} label={t('nutrition.tabPhoto')} />
-          <TabButton active={tab === 'buscar'} onClick={() => setTab('buscar')} icon={<SearchIcon />} label={t('nutrition.tabSearch')} />
-          <TabButton active={tab === 'favoritos'} onClick={() => setTab('favoritos')} icon={<StarIcon />} label={t('nutrition.tabFavorites')} />
+          <TabButton
+            active={tab === 'foto'}
+            onClick={() => setTab('foto')}
+            icon={<CameraIcon />}
+            label={t('nutrition.tabPhoto')}
+          />
+          <TabButton
+            active={tab === 'buscar'}
+            onClick={() => setTab('buscar')}
+            icon={<SearchIcon />}
+            label={t('nutrition.tabSearch')}
+          />
+          <TabButton
+            active={tab === 'favoritos'}
+            onClick={() => setTab('favoritos')}
+            icon={<StarIcon />}
+            label={t('nutrition.tabFavorites')}
+          />
         </div>
 
         {/* --- Aba Foto --- */}
@@ -388,13 +420,21 @@ export function NutritionPage() {
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft text-brand">
                   <CameraIcon big />
                 </span>
-                <span className="font-display text-base font-semibold text-ink">{t('nutrition.photoDropTitle')}</span>
-                <span className="text-sm font-semibold text-muted">{t('nutrition.photoDropSubtitle')}</span>
+                <span className="font-display text-base font-semibold text-ink">
+                  {t('nutrition.photoDropTitle')}
+                </span>
+                <span className="text-sm font-semibold text-muted">
+                  {t('nutrition.photoDropSubtitle')}
+                </span>
               </button>
             ) : (
               <div className="space-y-3">
                 <div className="overflow-hidden rounded-2xl border border-hair">
-                  <img src={photoPreview} alt={t('nutrition.photoAlt')} className="max-h-64 w-full object-cover" />
+                  <img
+                    src={photoPreview}
+                    alt={t('nutrition.photoAlt')}
+                    className="max-h-64 w-full object-cover"
+                  />
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -403,7 +443,11 @@ export function NutritionPage() {
                     disabled={analyzing}
                     className="btn-primary flex-1 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {analyzing ? t('nutrition.analyzing') : detected ? t('nutrition.analyzeAgain') : t('nutrition.analyze')}
+                    {analyzing
+                      ? t('nutrition.analyzing')
+                      : detected
+                        ? t('nutrition.analyzeAgain')
+                        : t('nutrition.analyze')}
                   </button>
                   <button type="button" onClick={resetPhoto} className="btn-ghost">
                     {t('nutrition.changePhoto')}
@@ -413,7 +457,9 @@ export function NutritionPage() {
             )}
 
             {photoError && (
-              <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{photoError}</p>
+              <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+                {photoError}
+              </p>
             )}
 
             {detected && detected.length > 0 && (
@@ -464,7 +510,9 @@ export function NutritionPage() {
               />
             </div>
 
-            {searching && <p className="text-sm font-semibold text-muted">{t('nutrition.searchingShort')}</p>}
+            {searching && (
+              <p className="text-sm font-semibold text-muted">{t('nutrition.searchingShort')}</p>
+            )}
 
             {!searching && query.trim().length >= 2 && results.length === 0 && (
               <p className="text-sm font-semibold text-muted">{t('nutrition.searchEmpty')}</p>
@@ -480,7 +528,9 @@ export function NutritionPage() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-extrabold text-ink">{p.name}</p>
                       <p className="text-[11.5px] font-semibold text-muted">
-                        {p.caloriesPer100g != null ? t('nutrition.per100Source') : t('nutrition.noInfoSource')}
+                        {p.caloriesPer100g != null
+                          ? t('nutrition.per100Source')
+                          : t('nutrition.noInfoSource')}
                       </p>
                     </div>
                     {p.caloriesPer100g != null && (
@@ -516,7 +566,9 @@ export function NutritionPage() {
           <div className="space-y-3">
             <p className="text-sm font-semibold text-muted">{t('nutrition.favoritesHint')}</p>
 
-            {favLoading && <p className="text-sm font-semibold text-muted">{t('nutrition.favoritesLoading')}</p>}
+            {favLoading && (
+              <p className="text-sm font-semibold text-muted">{t('nutrition.favoritesLoading')}</p>
+            )}
 
             {!favLoading && favorites && favorites.length === 0 && (
               <div className="rounded-xl border border-dashed border-hair bg-surface px-5 py-8 text-center">
@@ -547,7 +599,11 @@ export function NutritionPage() {
                       aria-label={t('nutrition.addAria', { name: f.foodName })}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105 disabled:opacity-60"
                     >
-                      {addingFav === f.foodName ? <span className="text-[11px] font-extrabold">...</span> : <PlusIcon />}
+                      {addingFav === f.foodName ? (
+                        <span className="text-[11px] font-extrabold">...</span>
+                      ) : (
+                        <PlusIcon />
+                      )}
                     </button>
                   </li>
                 ))}
@@ -563,7 +619,9 @@ export function NutritionPage() {
           <div className="mb-4 flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-brand" />
             <h2 className="text-sm font-extrabold text-brand-ink">
-              {draft.source === 'MANUAL' ? t('nutrition.editorTitleManual') : t('nutrition.editorTitlePortion')}
+              {draft.source === 'MANUAL'
+                ? t('nutrition.editorTitleManual')
+                : t('nutrition.editorTitlePortion')}
             </h2>
           </div>
 
@@ -580,11 +638,31 @@ export function NutritionPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <NumField label={t('nutrition.kcalField')} value={draft.kcalPer100} onChange={(v) => setDraft({ ...draft, kcalPer100: v })} />
-              <NumField label={t('nutrition.protField')} value={draft.proteinPer100} onChange={(v) => setDraft({ ...draft, proteinPer100: v })} />
-              <NumField label={t('nutrition.carbField')} value={draft.carbPer100} onChange={(v) => setDraft({ ...draft, carbPer100: v })} />
-              <NumField label={t('nutrition.fatField')} value={draft.fatPer100} onChange={(v) => setDraft({ ...draft, fatPer100: v })} />
-              <NumField label={t('nutrition.gramsField')} value={draft.grams} onChange={(v) => setDraft({ ...draft, grams: v })} />
+              <NumField
+                label={t('nutrition.kcalField')}
+                value={draft.kcalPer100}
+                onChange={(v) => setDraft({ ...draft, kcalPer100: v })}
+              />
+              <NumField
+                label={t('nutrition.protField')}
+                value={draft.proteinPer100}
+                onChange={(v) => setDraft({ ...draft, proteinPer100: v })}
+              />
+              <NumField
+                label={t('nutrition.carbField')}
+                value={draft.carbPer100}
+                onChange={(v) => setDraft({ ...draft, carbPer100: v })}
+              />
+              <NumField
+                label={t('nutrition.fatField')}
+                value={draft.fatPer100}
+                onChange={(v) => setDraft({ ...draft, fatPer100: v })}
+              />
+              <NumField
+                label={t('nutrition.gramsField')}
+                value={draft.grams}
+                onChange={(v) => setDraft({ ...draft, grams: v })}
+              />
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -616,7 +694,9 @@ export function NutritionPage() {
 
             {/* Resumo macros do item */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-xl bg-canvas px-4 py-3 text-sm font-bold">
-              <span className="font-display text-lg font-semibold text-ink">{computed.calories} kcal</span>
+              <span className="font-display text-lg font-semibold text-ink">
+                {computed.calories} kcal
+              </span>
               <Dot tone="brand" />
               <span className="text-muted">P {computed.protein}g</span>
               <Dot tone="carb" />
@@ -644,16 +724,18 @@ export function NutritionPage() {
 
       {/* Refeições de hoje */}
       <section>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ink">{t('nutrition.todayMeals')}</h2>
+        <h2 className="mb-3 font-display text-lg font-semibold text-ink">
+          {t('nutrition.todayMeals')}
+        </h2>
         {logs.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-hair bg-surface px-6 py-10 text-center">
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft">
               <ForkIcon />
             </div>
-            <p className="font-display text-base font-semibold text-ink">{t('nutrition.emptyPlateTitle')}</p>
-            <p className="mt-1 text-sm font-semibold text-muted">
-              {t('nutrition.emptyPlateText')}
+            <p className="font-display text-base font-semibold text-ink">
+              {t('nutrition.emptyPlateTitle')}
             </p>
+            <p className="mt-1 text-sm font-semibold text-muted">{t('nutrition.emptyPlateText')}</p>
           </div>
         ) : (
           <ul className="space-y-2">
@@ -672,7 +754,9 @@ export function NutritionPage() {
                     <ForkIcon small />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-extrabold text-ink">{log.foodName}</span>
+                    <span className="block truncate text-sm font-extrabold text-ink">
+                      {log.foodName}
+                    </span>
                     <span className="block text-[11.5px] font-semibold text-muted">
                       {mealLabel(log.mealType)} · {log.quantityG}g · {log.caloriesKcal} kcal
                     </span>
@@ -697,10 +781,14 @@ export function NutritionPage() {
         <div className="fixed inset-x-0 bottom-0 z-10 border-t border-arena-border bg-canvas/95 px-4 py-3 backdrop-blur md:left-64">
           <div className="mx-auto flex max-w-4xl items-center gap-3 rounded-2xl bg-arena px-4 py-3 shadow-[0_10px_30px_rgba(70,45,20,0.12)] md:px-8">
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-arena-muted">{t('nutrition.willEnter')}</p>
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-arena-muted">
+                {t('nutrition.willEnter')}
+              </p>
               <p className="font-display text-xl font-semibold leading-tight text-arena-text">
                 {computed.calories} kcal{' '}
-                <span className="text-sm font-bold text-arena-muted">{t('nutrition.inMeal', { meal: mealLabel(draft.mealType).toLowerCase() })}</span>
+                <span className="text-sm font-bold text-arena-muted">
+                  {t('nutrition.inMeal', { meal: mealLabel(draft.mealType).toLowerCase() })}
+                </span>
               </p>
             </div>
             <button
@@ -739,7 +827,9 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-extrabold transition ${
-        active ? 'bg-surface text-ink shadow-[0_1px_4px_rgba(0,0,0,0.08)]' : 'text-muted hover:text-ink'
+        active
+          ? 'bg-surface text-ink shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
+          : 'text-muted hover:text-ink'
       }`}
     >
       {icon}
@@ -777,7 +867,15 @@ function Macro({
   )
 }
 
-function NumField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function NumField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+}) {
   return (
     <div>
       <label className="label">{label}</label>
@@ -800,7 +898,12 @@ function Dot({ tone }: { tone: 'brand' | 'carb' | 'success' }) {
 
 function CameraIcon({ big }: { big?: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className={big ? 'h-7 w-7' : 'h-4 w-4'} fill="currentColor" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      className={big ? 'h-7 w-7' : 'h-4 w-4'}
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M9 3l-1.5 2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.5L15 3H9zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
     </svg>
   )
@@ -808,7 +911,12 @@ function CameraIcon({ big }: { big?: boolean }) {
 
 function SearchIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-muted" fill="currentColor" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 shrink-0 text-muted"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M10 3a7 7 0 105.3 11.6l4 4 1.7-1.7-4-4A7 7 0 0010 3zm0 2.4a4.6 4.6 0 110 9.2 4.6 4.6 0 010-9.2z" />
     </svg>
   )
@@ -832,7 +940,12 @@ function PlusIcon() {
 
 function ForkIcon({ small }: { small?: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className={small ? 'h-5 w-5 text-brand' : 'h-7 w-7 text-brand'} fill="currentColor" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      className={small ? 'h-5 w-5 text-brand' : 'h-7 w-7 text-brand'}
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M7 2v7a3 3 0 0 0 2 2.83V22h2V11.83A3 3 0 0 0 13 9V2h-2v6H9.5V2h-1.5v6H7zM17 2c-1.7 0-3 2.2-3 5 0 2.4 1 4.3 2 4.8V22h2V2z" />
     </svg>
   )

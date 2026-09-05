@@ -18,7 +18,9 @@ export function BrandLockup({ size = 40 }: { size?: number }) {
         </div>
       </div>
       <div className="leading-none">
-        <div className="font-display text-[20px] font-semibold tracking-tight text-ink">VitalPair</div>
+        <div className="font-display text-[20px] font-semibold tracking-tight text-ink">
+          VitalPair
+        </div>
         <div className="mt-[3px] text-[9px] font-extrabold uppercase tracking-[0.05em] text-muted">
           Saúde é melhor em dupla
         </div>
