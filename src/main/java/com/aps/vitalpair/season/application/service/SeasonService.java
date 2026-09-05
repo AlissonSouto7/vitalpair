@@ -240,7 +240,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
             int rival = hasPartner && rivalId != null ? points(totals, rivalId) : 0;
             String winner = you > rival ? "YOU" : (rival > you ? "RIVAL" : "TIE");
             String sub = SEASON_DAYS + " dias · fechou em " + s.getEndDate().format(DAY_MONTH);
-            history.add(new SeasonView.HistoryRow(s.getNumber(), sub, you, rival, winner));
+            history.add(new SeasonView.HistoryRow(s.getNumber(), sub, you, rival, winner, s.getStake()));
         }
         return history;
     }
