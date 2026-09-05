@@ -1,12 +1,12 @@
 spring:
   application:
-    name: vitapair
+    name: vitalpair
   profiles:
     default: dev
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/vitapair}
-    username: ${DATABASE_USER:vitapair}
-    password: ${DATABASE_PASSWORD:vitapair}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/vitalpair}
+    username: ${DATABASE_USER:vitalpair}
+    password: ${DATABASE_PASSWORD:vitalpair}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -52,7 +52,7 @@ vitalpair:
     # Em dev fica desabilitado: o link de redefinição é apenas logado no console.
     # Em produção, defina MAIL_ENABLED=true e as variáveis spring.mail.* (SMTP).
     enabled: ${MAIL_ENABLED:false}
-    from: ${MAIL_FROM:VitalPair <no-reply@vitapair.app>}
+    from: ${MAIL_FROM:VitalPair <no-reply@vitalpair.app>}
   cors:
     allowed-origins: ${FRONTEND_URL:http://localhost:5173}
   oauth2:
@@ -61,14 +61,14 @@ vitalpair:
   openfoodfacts:
     base-url: https://world.openfoodfacts.org
     search-url: https://search.openfoodfacts.org
-    user-agent: ${OPEN_FOOD_FACTS_USER_AGENT:VitalPair/1.0 (contact@vitapair.app)}
+    user-agent: ${OPEN_FOOD_FACTS_USER_AGENT:VitalPair/1.0 (contact@vitalpair.app)}
   ai:
     anthropic:
       # Análise de refeição por foto (visão). Com a chave em branco, a integração fica desligada
       # e o endpoint POST /api/v1/nutrition/photo responde 503 com mensagem amigável.
       api-key: ${ANTHROPIC_API_KEY:}
       base-url: https://api.anthropic.com
-      model: claude-opus-4-8
+      model: ${ANTHROPIC_MODEL:claude-opus-4-8}
 
 management:
   health:

@@ -2,7 +2,7 @@
  * Namespace `legal`: Privacidade, Termos e Contato.
  * As páginas legais têm conteúdo estruturado (seções numeradas, listas, callouts, FAQ).
  * Modelamos esse conteúdo como arrays/objetos e a tela mapeia em cima.
- * `mail` fica de fora (é literal: contato@vitapair.app).
+ * `mail` fica de fora (é literal: contato@vitalpair.app).
  */
 export const legal = {
   pt: {

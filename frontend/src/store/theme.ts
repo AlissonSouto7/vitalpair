@@ -1,6 +1,6 @@
 export type Theme = 'dark' | 'light'
 
-const KEY = 'vitapair-theme'
+const KEY = 'vitalpair-theme'
 
 export function getTheme(): Theme {
   const saved = localStorage.getItem(KEY)
