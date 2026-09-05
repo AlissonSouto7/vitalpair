@@ -29,7 +29,7 @@ public record SeasonResponse(
     public record BreakdownRow(String source, String label, int you, int rival) {
     }
 
-    public record HistoryRow(int number, String sub, int you, int rival, String winner) {
+    public record HistoryRow(int number, String sub, int you, int rival, String winner, String stake) {
     }
 
     public static SeasonResponse from(SeasonView v) {
@@ -42,7 +42,7 @@ public record SeasonResponse(
                 .map(b -> new BreakdownRow(b.source(), b.label(), b.you(), b.rival()))
                 .toList();
         List<HistoryRow> history = v.history().stream()
-                .map(h -> new HistoryRow(h.number(), h.sub(), h.you(), h.rival(), h.winner()))
+                .map(h -> new HistoryRow(h.number(), h.sub(), h.you(), h.rival(), h.winner(), h.stake()))
                 .toList();
         return new SeasonResponse(
                 v.number(), v.day(), v.total(), v.daysLeft(), v.stake(),
