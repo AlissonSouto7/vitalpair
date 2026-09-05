@@ -55,7 +55,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<ApiError>> handleGeneric(Exception ex, HttpServletRequest request) {
-        log.error("Erro não tratado em {}", request.getRequestURI(), ex);
+        log.error("Erro não tratado em {}", LogSafe.value(request.getRequestURI()), ex);
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno inesperado", request, List.of());
     }
 

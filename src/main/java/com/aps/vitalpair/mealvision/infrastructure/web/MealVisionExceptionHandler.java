@@ -16,6 +16,7 @@ import com.aps.vitalpair.mealvision.domain.exception.AiNotConfiguredException;
 import com.aps.vitalpair.mealvision.domain.exception.MealPhotoAnalysisException;
 import com.aps.vitalpair.shared.web.ApiError;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.LogSafe;
 
 /**
  * Tradução para HTTP das exceções específicas da análise de foto, no mesmo formato
@@ -36,7 +37,7 @@ public class MealVisionExceptionHandler {
     @ExceptionHandler(MealPhotoAnalysisException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleAnalysisFailure(
             MealPhotoAnalysisException ex, HttpServletRequest request) {
-        log.warn("Falha na análise de foto em {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        log.warn("Falha na análise de foto em {}: {}", LogSafe.value(request.getRequestURI()), ex.getMessage(), ex);
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
     }
 

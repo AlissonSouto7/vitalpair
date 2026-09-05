@@ -28,7 +28,10 @@ spring:
     properties:
       mail:
         smtp:
-          auth: true
+          # Both are on by default, as any real provider requires. They are configurable
+          # so a local fake SMTP server (Mailpit, in compose.yaml) can be used without
+          # credentials or TLS.
+          auth: ${SPRING_MAIL_AUTH:true}
           starttls:
             enable: ${SPRING_MAIL_STARTTLS:true}
           connectiontimeout: 8000
