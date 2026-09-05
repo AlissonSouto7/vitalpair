@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { BrandLockup } from '../../components/brand/BrandMark'
 
-const MAIL = 'contato@vitapair.app'
+const MAIL = 'contato@vitalpair.app'
 
 interface LegalCallout {
   tone: 'brand' | 'rival' | 'danger'
