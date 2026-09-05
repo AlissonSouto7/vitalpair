@@ -5,13 +5,13 @@ services:
   postgres:
     image: 'postgres:15-alpine'
     environment:
-      - 'POSTGRES_DB=${DATABASE_NAME:-vitapair}'
-      - 'POSTGRES_USER=${DATABASE_USER:-vitapair}'
+      - 'POSTGRES_DB=${DATABASE_NAME:-vitalpair}'
+      - 'POSTGRES_USER=${DATABASE_USER:-vitalpair}'
       - 'POSTGRES_PASSWORD=${DATABASE_PASSWORD:?defina DATABASE_PASSWORD}'
     volumes:
-      - 'vitapair_pgdata:/var/lib/postgresql/data'
+      - 'vitalpair_pgdata:/var/lib/postgresql/data'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-vitapair} -d ${DATABASE_NAME:-vitapair}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-vitalpair} -d ${DATABASE_NAME:-vitalpair}']
       interval: 10s
       timeout: 5s
       retries: 10
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: '${BACKEND_IMAGE:-vitapair-backend:local}'
+    image: '${BACKEND_IMAGE:-vitalpair-backend:local}'
     build:
       context: .
     depends_on:
@@ -38,8 +38,8 @@ services:
         condition: service_healthy
     environment:
       - 'SPRING_PROFILES_ACTIVE=prod'
-      - 'DATABASE_URL=jdbc:postgresql://postgres:5432/${DATABASE_NAME:-vitapair}'
-      - 'DATABASE_USER=${DATABASE_USER:-vitapair}'
+      - 'DATABASE_URL=jdbc:postgresql://postgres:5432/${DATABASE_NAME:-vitalpair}'
+      - 'DATABASE_USER=${DATABASE_USER:-vitalpair}'
       - 'DATABASE_PASSWORD=${DATABASE_PASSWORD}'
       - 'REDIS_HOST=redis'
       - 'REDIS_PORT=6379'
@@ -47,9 +47,9 @@ services:
       - 'JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET (min 32 caracteres)}'
       - 'JWT_ACCESS_EXPIRATION_MS=${JWT_ACCESS_EXPIRATION_MS:-900000}'
       - 'JWT_REFRESH_EXPIRATION_MS=${JWT_REFRESH_EXPIRATION_MS:-2592000000}'
-      - 'FRONTEND_URL=${FRONTEND_URL:-https://vitapair.duckdns.org}'
+      - 'FRONTEND_URL=${FRONTEND_URL:-https://vitalpair.duckdns.org}'
       - 'GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}'
-      - 'OPEN_FOOD_FACTS_USER_AGENT=${OPEN_FOOD_FACTS_USER_AGENT:-VitaPair/1.0 (contact@vitapair.app)}'
+      - 'OPEN_FOOD_FACTS_USER_AGENT=${OPEN_FOOD_FACTS_USER_AGENT:-VitalPair/1.0 (contact@vitalpair.app)}'
     expose:
       - '8080'
     restart: unless-stopped
@@ -67,5 +67,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  vitapair_pgdata:
+  vitalpair_pgdata:
   certbot_certs:

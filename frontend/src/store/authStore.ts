@@ -25,6 +25,6 @@ export const useAuthStore = create<AuthState>()(
         set({ accessToken, refreshToken, userId }),
       clear: () => set({ accessToken: null, refreshToken: null, userId: null }),
     }),
-    { name: 'vitapair-auth' },
+    { name: 'vitalpair-auth' },
   ),
 )

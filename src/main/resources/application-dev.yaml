@@ -12,7 +12,7 @@ spring:
 vitalpair:
   jwt:
     # Segredo padrão APENAS para desenvolvimento local. Em produção use a env var JWT_SECRET.
-    secret: ${JWT_SECRET:vitapair-dev-secret-change-me-please-0123456789abcdef}
+    secret: ${JWT_SECRET:vitalpair-dev-secret-change-me-please-0123456789abcdef}
 
 logging:
   level:

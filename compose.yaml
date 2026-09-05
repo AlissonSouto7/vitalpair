@@ -2,16 +2,16 @@ services:
   postgres:
     image: 'postgres:15-alpine'
     environment:
-      - 'POSTGRES_DB=${DATABASE_NAME:-vitapair}'
-      - 'POSTGRES_USER=${DATABASE_USER:-vitapair}'
-      - 'POSTGRES_PASSWORD=${DATABASE_PASSWORD:-vitapair}'
+      - 'POSTGRES_DB=${DATABASE_NAME:-vitalpair}'
+      - 'POSTGRES_USER=${DATABASE_USER:-vitalpair}'
+      - 'POSTGRES_PASSWORD=${DATABASE_PASSWORD:-vitalpair}'
     ports:
       # Porta do host parametrizável para evitar conflito com outros Postgres locais.
-      - '${VITAPAIR_DB_PORT:-5432}:5432'
+      - '${VITALPAIR_DB_PORT:-5432}:5432'
     volumes:
-      - 'vitapair_postgres_data:/var/lib/postgresql/data'
+      - 'vitalpair_postgres_data:/var/lib/postgresql/data'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-vitapair} -d ${DATABASE_NAME:-vitapair}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-vitalpair} -d ${DATABASE_NAME:-vitalpair}']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -19,7 +19,7 @@ services:
   redis:
     image: 'redis:7-alpine'
     ports:
-      - '${VITAPAIR_REDIS_PORT:-6379}:6379'
+      - '${VITALPAIR_REDIS_PORT:-6379}:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
@@ -27,4 +27,4 @@ services:
       retries: 10
 
 volumes:
-  vitapair_postgres_data:
+  vitalpair_postgres_data:
