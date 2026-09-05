@@ -150,9 +150,11 @@ curl -X POST http://localhost:8081/api/v1/auth/login \
 java -jar target/vitalpair-*.jar
 ```
 
-## Fluxo de trabalho (Git Flow)
+## Fluxo de trabalho (GitHub Flow)
 
-O projeto segue **Git Flow**: `main` (produção), `develop` (integração) e branches `feature/*`, `release/*`, `hotfix/*`. Não se commita direto em `main`/`develop`. Detalhes, comandos e convenções de commit/tag em [docs/GITFLOW.md](docs/GITFLOW.md).
+O projeto segue **GitHub Flow**: `main` é a única branch de longa duração e está sempre pronta para deploy. Todo trabalho sai de uma branch curta (`feat/`, `fix/`, `chore/`, `docs/`, `refactor/`, `test/`, `build/`, `ci/`, `infra/`) e volta por pull request com CI verde. Não se commita direto na `main`.
+
+Convenções de commit, checklist de PR, regras de migration e processo de release em [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Frontend
 
@@ -177,8 +179,8 @@ docker compose -f compose.prod.yaml up -d --build
 ```
 
 - A aplicação roda com o profile `prod` (`SPRING_PROFILES_ACTIVE=prod`), atrás do Nginx ([nginx/nginx.conf](nginx/nginx.conf)) que faz reverse proxy e SSL (Let's Encrypt/certbot).
-- **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): build + testes em cada push/PR para `main` e `develop`.
-- **Deploy** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)): no push para `main`, builda a imagem, publica no GHCR e atualiza o backend no servidor via SSH. Secrets necessários: `ORACLE_HOST`, `ORACLE_USER`, `ORACLE_SSH_KEY`.
+- **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): build + testes em cada push e PR para `main`.
+- **Deploy automatizado**: ainda não existe. Nenhum ambiente está no ar. O pipeline (staging por push na `main`, produção por tag com aprovação, backup antes de migration, smoke test e rollback) será construído junto com a infra de staging e produção.
 
 ## Roadmap
 
