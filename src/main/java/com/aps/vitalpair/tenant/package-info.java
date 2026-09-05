@@ -1,8 +1,21 @@
 /**
- * Suporte a multi-tenancy (shared database / shared schema).
+ * Multi-tenancy support (shared database, shared schema). Each pair is one tenant, and
+ * {@code pairs.id} is the tenant id.
  *
- * <p>{@link com.aps.vitalpair.tenant.TenantContext} expõe o {@code tenant_id} atual via ThreadLocal;
- * o {@code TenantFilter} (adicionado junto com a camada de auth) extrai o tenant do JWT e popula o
- * contexto. A camada de persistência usa o contexto para isolar dados entre tenants.
+ * <p>{@link com.aps.vitalpair.tenant.TenantContext} holds the current tenant id in a
+ * ThreadLocal. It is populated by
+ * {@link com.aps.vitalpair.auth.infrastructure.security.JwtAuthenticationFilter} from the
+ * {@code tenantId} claim and cleared when the request ends.
+ *
+ * <p><strong>Isolation is not automatic.</strong> No Hibernate filter and no row-level
+ * security read this context; the persistence layer does not consult it. Every query that
+ * touches tenant-owned data must scope itself explicitly, the way
+ * {@code FeedItemJpaRepository} does. Writing a repository method without that filter
+ * leaks data across tenants, and nothing will stop you.
+ *
+ * <p>The reason for keeping it explicit rather than magic: scheduled jobs and event
+ * listeners run outside a request, so there is no tenant in the ThreadLocal. An implicit
+ * filter would silently return nothing there, which is the kind of bug that surfaces in
+ * production. A visible {@code where} clause is auditable.
  */
 package com.aps.vitalpair.tenant;
