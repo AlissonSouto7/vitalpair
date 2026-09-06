@@ -26,6 +26,12 @@ springdoc:
     enabled: false
 
 logging:
+  # One JSON object per line, in the Elastic Common Schema. A log aggregator can then filter
+  # by requestId or userId instead of matching text, and a stack trace stays one event rather
+  # than forty unrelated lines. Native to Boot since 3.4, so no logging dependency is needed.
+  structured:
+    format:
+      console: ecs
   level:
     com.aps.vitalpair: INFO
     org.hibernate.SQL: WARN

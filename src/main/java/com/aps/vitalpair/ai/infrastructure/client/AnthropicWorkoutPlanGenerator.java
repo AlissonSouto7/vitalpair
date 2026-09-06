@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
+import com.aps.vitalpair.ai.domain.exception.PlanContentException;
 import com.aps.vitalpair.ai.domain.model.WorkoutDay;
 import com.aps.vitalpair.ai.domain.model.WorkoutExercise;
 import com.aps.vitalpair.ai.domain.port.out.WorkoutPlanGeneratorPort;
@@ -47,8 +47,8 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
 
     @Override
     public List<WorkoutDay> generateWeek(Goal goal, ActivityLevel activityLevel) {
-        String json =
-                gateway.generateJson(SYSTEM_PROMPT, weekPrompt(goal, activityLevel), weekSchema(), WEEK_MAX_TOKENS);
+        String json = gateway.generateJson(
+                "workout-plan", SYSTEM_PROMPT, weekPrompt(goal, activityLevel), weekSchema(), WEEK_MAX_TOKENS);
         return parseWeek(json);
     }
 
@@ -140,12 +140,12 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
             root = objectMapper.readTree(json);
         } catch (JsonProcessingException ex) {
             log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
-            throw new PlanGenerationException("A IA retornou um resultado em formato inesperado.", ex);
+            throw new PlanContentException("A IA retornou um resultado em formato inesperado.", ex);
         }
 
         JsonNode days = root.path("days");
         if (!days.isArray() || days.isEmpty()) {
-            throw new PlanGenerationException("A IA retornou um plano de treino vazio. Tente gerar de novo.");
+            throw new PlanContentException("A IA retornou um plano de treino vazio. Tente gerar de novo.");
         }
 
         Map<Integer, WorkoutDay> byIndex = new HashMap<>();
@@ -157,7 +157,7 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
             byIndex.put(dayIndex, toDay(day, dayIndex));
         }
         if (byIndex.values().stream().allMatch(WorkoutDay::rest)) {
-            throw new PlanGenerationException("A IA retornou uma semana sem nenhum treino. Tente gerar de novo.");
+            throw new PlanContentException("A IA retornou uma semana sem nenhum treino. Tente gerar de novo.");
         }
 
         // Garante os 7 dias: qualquer dia que a IA não devolveu vira descanso.

@@ -69,6 +69,13 @@ vitalpair:
     base-url: https://world.openfoodfacts.org
     search-url: https://search.openfoodfacts.org
     user-agent: ${OPEN_FOOD_FACTS_USER_AGENT:VitalPair/1.0 (contact@vitalpair.app)}
+  scheduling:
+    # The server's own zone is not the users' zone. In production the JVM usually runs in UTC,
+    # which would fire the 09:00 flash mission at 06:00 in Brazil and shift the reminder's
+    # notion of "today" into the middle of the night.
+    zone: ${SCHEDULING_ZONE:America/Sao_Paulo}
+    flash-mission-cron: ${FLASH_MISSION_CRON:0 0 9 * * *}
+    log-reminder-cron: ${LOG_REMINDER_CRON:0 0 20 * * *}
   ai:
     anthropic:
       # Análise de refeição por foto (visão). Com a chave em branco, a integração fica desligada
@@ -78,10 +85,81 @@ vitalpair:
       model: ${ANTHROPIC_MODEL:claude-opus-4-8}
 
 management:
+  # Operational endpoints on a port of their own, so publishing the API to the internet does
+  # not publish metrics with it. The port is bound but never mapped by the reverse proxy.
+  #
+  # Health moves with them. The container healthcheck and the load balancer are both inside
+  # the network and can reach 9090; nothing outside needs it, and an unauthenticated health
+  # endpoint on the public port is one more thing to probe.
+  server:
+    port: ${MANAGEMENT_PORT:9090}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      # Never expose the details publicly: they name the database, the Redis host and which
+      # component is failing, which is a map of the system for anyone probing it.
+      show-details: never
+      probes:
+        enabled: true
   health:
     # Não amarrar a saúde do app à disponibilidade do SMTP (e em dev o host fica vazio).
     mail:
       enabled: false
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# Circuit breakers and retries for the two external APIs. The numbers are deliberately
+# different, because the failure modes are: Anthropic is paid and slow, Open Food Facts is
+# free, fast and flaky.
+resilience4j:
+  circuitbreaker:
+    instances:
+      anthropic:
+        # Ten calls at roughly 20 seconds each is a slow window on purpose: half of them
+        # failing is a real outage, not a couple of unlucky requests.
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 60s
+        permitted-number-of-calls-in-half-open-state: 2
+        automatic-transition-from-open-to-half-open-enabled: true
+        # A refusal or an unparseable answer means the partner replied and the reply is not
+        # usable: it says nothing about the partner's health. Counting those would let a few
+        # unusual prompts disable the feature for everyone.
+        ignore-exceptions:
+          - com.aps.vitalpair.ai.domain.exception.PlanContentException
+          - com.aps.vitalpair.ai.domain.exception.AiPlanNotConfiguredException
+          - com.aps.vitalpair.mealvision.domain.exception.MealPhotoContentException
+          - com.aps.vitalpair.mealvision.domain.exception.AiNotConfiguredException
+      openfoodfacts:
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  retry:
+    instances:
+      openfoodfacts:
+        # Two attempts, and only for a connection that never opened.
+        #
+        # A read timeout is 5s, so three attempts on a stalled server meant a user waiting
+        # over fifteen seconds for a search box: measured at 15.6s before this was narrowed.
+        # Retrying a request that reached the server and then hung just multiplies the wait,
+        # while retrying one whose connection was refused is nearly free and often works.
+        max-attempts: 2
+        wait-duration: 200ms
+        # Only a connection that never opened is retried. A read timeout arrives wrapped in
+        # ResourceAccessException just like a refused connection, so listing that class as
+        # retryable brought the stalled case back: measured 10.2s for a search box. The
+        # narrower type is the one that distinguishes "nobody answered the door" from
+        # "someone answered and then went quiet".
+        retry-exceptions:
+          - java.net.ConnectException
 
 springdoc:
   swagger-ui:
