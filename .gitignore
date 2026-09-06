@@ -57,3 +57,9 @@ logs/
 node_modules/
 # Husky's own generated helper; the hooks themselves are committed.
 .husky/_/
+
+# Filled-in environment files live only on the machine: they hold the database password,
+# the JWT secret and the AI key. Only the .example versions are committed.
+deploy/env/*.env
+!deploy/env/*.env.example
+deploy/env/.deployed-*
