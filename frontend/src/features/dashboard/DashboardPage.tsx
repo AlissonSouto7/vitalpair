@@ -1,84 +1,70 @@
-import { useEffect, useState } from 'react'
+import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { getDashboard } from '../../api/dashboard'
-import { getCompetition, getStreaks } from '../../api/gamification'
-import { getPair } from '../../api/pair'
-import { getActivities } from '../../api/activity'
-import { getFeed } from '../../api/feed'
-import { getFlashMission, acceptFlashMission } from '../../api/missions'
-import { useAuthStore } from '../../store/authStore'
-import type { Dashboard } from '../../types/dashboard'
-import type { Competition } from '../../types/gamification'
-import type { Pair } from '../../types/pair'
-import type { FeedItem } from '../../types/feed'
-import type { FlashMission } from '../../types/missions'
-import { CalorieRing } from '../../components/ui/CalorieRing'
-import { Scoreboard } from '../../components/ui/Scoreboard'
-import { Avatar } from '../../components/ui/Avatar'
-import { EmailVerificationBanner } from '../../components/EmailVerificationBanner'
+
+import { acceptFlashMission } from '@/api/missions'
+import { EmailVerificationBanner } from '@/components/EmailVerificationBanner'
+import { Avatar } from '@/components/ui/Avatar'
+import { CalorieRing } from '@/components/ui/CalorieRing'
+import { Scoreboard } from '@/components/ui/Scoreboard'
+import { dashboardQueries } from '@/features/dashboard/queries'
+import { useAuthStore } from '@/store/authStore'
+import type { FeedItem } from '@/types/feed'
+import type { FlashMission } from '@/types/missions'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
-
-interface DashData {
-  dash: Dashboard
-  pair: Pair
-  competition: Competition | null
-  streak: number
-  workouts: number
-  feed: FeedItem[]
-  mission: FlashMission | null
-}
 
 export function DashboardPage() {
   const { t } = useTranslation()
   const userId = useAuthStore((s) => s.userId)
-  const [data, setData] = useState<DashData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10)
-    Promise.all([
-      getDashboard(),
-      getPair(),
-      getCompetition().catch(() => null),
-      getStreaks().catch(() => []),
-      getActivities(today).catch(() => []),
-      getFeed(0, 4).catch(() => null),
-      getFlashMission().catch(() => null),
-    ])
-      .then(([dash, pair, competition, streaks, activities, feedPage, mission]) => {
-        const streak = streaks.reduce((max, s) => Math.max(max, s.currentCount), 0)
-        const workouts = activities.filter((a) => a.activityType !== 'STEPS').length
-        setData({
-          dash,
-          pair,
-          competition,
-          streak,
-          workouts,
-          feed: feedPage?.content ?? [],
-          mission,
-        })
-      })
-      .catch(() => setError(t('dashboard.loadError')))
-      .finally(() => setLoading(false))
-  }, [])
+  // The two required queries decide whether the page can render at all; the other five are
+  // enrichment, so their failure leaves the screen usable instead of blanking it.
+  const [
+    summaryQuery,
+    pairQuery,
+    competitionQuery,
+    streaksQuery,
+    activitiesQuery,
+    feedQuery,
+    missionQuery,
+  ] = useQueries({
+    queries: [
+      dashboardQueries.summary(),
+      dashboardQueries.pair(),
+      dashboardQueries.competition(),
+      dashboardQueries.streaks(),
+      dashboardQueries.todaysActivities(),
+      dashboardQueries.recentFeed(),
+      dashboardQueries.flashMission(),
+    ],
+  })
 
-  async function onAcceptMission() {
-    try {
-      const updated = await acceptFlashMission()
-      setData((d) => (d ? { ...d, mission: updated } : d))
-    } catch {
-      /* silencioso: missão é extra */
-    }
+  const acceptMission = useMutation({
+    mutationFn: acceptFlashMission,
+    // The server owns the mission's state after accepting it, so the cache is refreshed
+    // from the response rather than guessed at.
+    onSuccess: (updated) =>
+      queryClient.setQueryData(dashboardQueries.flashMission().queryKey, updated),
+  })
+
+  if (summaryQuery.isPending || pairQuery.isPending) {
+    return <p className="text-muted">{t('common.loading')}</p>
+  }
+  if (summaryQuery.isError || pairQuery.isError || !summaryQuery.data || !pairQuery.data) {
+    return (
+      <p className="rounded-xl bg-danger-soft px-4 py-3 text-danger">{t('dashboard.loadError')}</p>
+    )
   }
 
-  if (loading) return <p className="text-muted">{t('common.loading')}</p>
-  if (error) return <p className="rounded-xl bg-danger-soft px-4 py-3 text-danger">{error}</p>
-  if (!data) return null
-
-  const { dash, pair, competition, streak, workouts, feed, mission } = data
+  const dash = summaryQuery.data
+  const pair = pairQuery.data
+  const competition = competitionQuery.data ?? null
+  const mission = missionQuery.data ?? null
+  const feed = feedQuery.data?.content ?? []
+  const streak = (streaksQuery.data ?? []).reduce((max, s) => Math.max(max, s.currentCount), 0)
+  const workouts = (activitiesQuery.data ?? []).filter((a) => a.activityType !== 'STEPS').length
   const me = dash.me
   const meName = pair.members.find((m) => m.userId === userId)?.name ?? ''
   const partner = dash.partner
@@ -218,7 +204,7 @@ export function DashboardPage() {
 
         {/* coluna direita */}
         <div className="space-y-5">
-          <MissionCard mission={mission} onAccept={onAcceptMission} t={t} />
+          <MissionCard mission={mission} onAccept={acceptMission.mutate} t={t} />
           <FeedPreview items={feed} userId={userId} t={t} />
         </div>
       </div>

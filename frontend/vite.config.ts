@@ -1,9 +1,18 @@
+import { fileURLToPath, URL } from 'node:url'
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    // Mirrors the paths entry in tsconfig.app.json. Both are needed: TypeScript resolves
+    // the alias for type checking, Vite for the actual build.
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   server: {
     port: 5173,
     // The browser talks to /api on this same origin and Vite forwards it to the backend.

@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { getProgress, recordWeight } from '../../api/progress'
-import type { CalorieDay, MacroAverage, ProgressView, WeightPoint } from '../../types/progress'
+
+import { getProgress, recordWeight } from '@/api/progress'
+import type { CalorieDay, MacroAverage, WeightPoint } from '@/types/progress'
 
 /**
  * Progresso — peso, calorias e macros ao longo do tempo (dados reais).
@@ -13,25 +15,19 @@ type Tab = 'peso' | 'calorias' | 'macros'
 export function ProgressPage() {
   const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('peso')
-  const [data, setData] = useState<ProgressView | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ['progress'],
+    queryFn: getProgress,
+  })
 
-  const load = useCallback(async () => {
-    const view = await getProgress()
-    setData(view)
-  }, [])
-
-  useEffect(() => {
-    load()
-      .catch(() => setError(t('progress.loadError')))
-      .finally(() => setLoading(false))
-  }, [load, t])
-
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error)
-    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
-  if (!data) return null
+  if (isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (isError || !data) {
+    return (
+      <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('progress.loadError')}
+      </p>
+    )
+  }
 
   return (
     <div className="space-y-5">
@@ -44,7 +40,9 @@ export function ProgressPage() {
 
       <Tabs tab={tab} onChange={setTab} />
 
-      {tab === 'peso' && <PainelPeso weights={data.weights} onLogged={load} />}
+      {tab === 'peso' && (
+        <PainelPeso weights={data.weights} onLogged={() => refetch().then(() => undefined)} />
+      )}
       {tab === 'calorias' && (
         <PainelCalorias calories={data.calories} targetKcal={data.targetKcal} />
       )}

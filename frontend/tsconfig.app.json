@@ -9,6 +9,11 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* An import path that does not change when a file moves, and does not turn into
+       ../../../ as the tree deepens. Vite resolves the same alias at build time.
+       No baseUrl: it is deprecated from TypeScript 7, and paths resolves relative to
+       this file without it. */
+    "paths": { "@/*": ["./src/*"] },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
