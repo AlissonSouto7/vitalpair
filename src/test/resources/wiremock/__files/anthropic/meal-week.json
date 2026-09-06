@@ -1,0 +1,25 @@
+{
+  "model": "claude-opus-4-8",
+  "id": "msg_011Cen8zbUtnS9HgstioZnT3",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"days\":[{\"dayIndex\":0,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Tapioca com ovo e queijo\",\"kcal\":450,\"proteinG\":28,\"carbG\":45,\"fatG\":16},{\"mealType\":\"LUNCH\",\"name\":\"Arroz, feijão e frango grelhado\",\"kcal\":720,\"proteinG\":52,\"carbG\":80,\"fatG\":18},{\"mealType\":\"SNACK\",\"name\":\"Iogurte com banana e aveia\",\"kcal\":380,\"proteinG\":25,\"carbG\":50,\"fatG\":8},{\"mealType\":\"DINNER\",\"name\":\"Omelete com salada e batata\",\"kcal\":620,\"proteinG\":42,\"carbG\":60,\"fatG\":24}]},{\"dayIndex\":1,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Pão integral com ovos mexidos\",\"kcal\":440,\"proteinG\":26,\"carbG\":42,\"fatG\":18},{\"mealType\":\"LUNCH\",\"name\":\"Arroz, feijão e carne moída\",\"kcal\":730,\"proteinG\":50,\"carbG\":78,\"fatG\":22},{\"mealType\":\"SNACK\",\"name\":\"Vitamina de banana com whey\",\"kcal\":360,\"proteinG\":30,\"carbG\":45,\"fatG\":6},{\"mealType\":\"DINNER\",\"name\":\"Frango com purê de mandioca\",\"kcal\":640,\"proteinG\":45,\"carbG\":62,\"fatG\":22}]},{\"dayIndex\":2,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Cuscuz com ovo\",\"kcal\":430,\"proteinG\":24,\"carbG\":50,\"fatG\":14},{\"mealType\":\"LUNCH\",\"name\":\"Arroz, feijão e tilápia grelhada\",\"kcal\":700,\"proteinG\":50,\"carbG\":78,\"fatG\":18},{\"mealType\":\"SNACK\",\"name\":\"Sanduíche de peito de peru\",\"kcal\":400,\"proteinG\":28,\"carbG\":48,\"fatG\":10},{\"mealType\":\"DINNER\",\"name\":\"Estrogonofe de frango com arroz\",\"kcal\":660,\"proteinG\":46,\"carbG\":64,\"fatG\":22}]},{\"dayIndex\":3,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Panqueca de aveia com banana\",\"kcal\":450,\"proteinG\":28,\"carbG\":52,\"fatG\":14},{\"mealType\":\"LUNCH\",\"name\":\"Arroz, feijão e bife acebolado\",\"kcal\":720,\"proteinG\":50,\"carbG\":76,\"fatG\":22},{\"mealType\":\"SNACK\",\"name\":\"Iogurte com granola e mel\",\"kcal\":370,\"proteinG\":22,\"carbG\":52,\"fatG\":8},{\"mealType\":\"DINNER\",\"name\":\"Frango grelhado com legumes\",\"kcal\":620,\"proteinG\":48,\"carbG\":56,\"fatG\":20}]},{\"dayIndex\":4,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Ovos mexidos com tapioca\",\"kcal\":440,\"proteinG\":28,\"carbG\":44,\"fatG\":16},{\"mealType\":\"LUNCH\",\"name\":\"Arroz, feijão e frango xadrez\",\"kcal\":710,\"proteinG\":50,\"carbG\":78,\"fatG\":18},{\"mealType\":\"SNACK\",\"name\":\"Vitamina de morango com whey\",\"kcal\":370,\"proteinG\":30,\"carbG\":46,\"fatG\":6},{\"mealType\":\"DINNER\",\"name\":\"Macarrão com carne moída\",\"kcal\":660,\"proteinG\":42,\"carbG\":68,\"fatG\":22}]},{\"dayIndex\":5,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Pão com ovo e queijo\",\"kcal\":450,\"proteinG\":26,\"carbG\":44,\"fatG\":18},{\"mealType\":\"LUNCH\",\"name\":\"Arroz, feijão e costela assada\",\"kcal\":740,\"proteinG\":48,\"carbG\":76,\"fatG\":26},{\"mealType\":\"SNACK\",\"name\":\"Banana com pasta de amendoim\",\"kcal\":360,\"proteinG\":16,\"carbG\":44,\"fatG\":14},{\"mealType\":\"DINNER\",\"name\":\"Frango desfiado com arroz\",\"kcal\":620,\"proteinG\":48,\"carbG\":60,\"fatG\":18}]},{\"dayIndex\":6,\"meals\":[{\"mealType\":\"BREAKFAST\",\"name\":\"Crepioca com frango\",\"kcal\":460,\"proteinG\":32,\"carbG\":42,\"fatG\":16},{\"mealType\":\"LUNCH\",\"name\":\"Feijoada leve com arroz\",\"kcal\":730,\"proteinG\":48,\"carbG\":78,\"fatG\":24},{\"mealType\":\"SNACK\",\"name\":\"Iogurte com frutas e aveia\",\"kcal\":370,\"proteinG\":24,\"carbG\":50,\"fatG\":8},{\"mealType\":\"DINNER\",\"name\":\"Peixe assado com purê\",\"kcal\":620,\"proteinG\":46,\"carbG\":58,\"fatG\":20}]}]}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "stop_details": null,
+  "usage": {
+    "input_tokens": 925,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": { "ephemeral_5m_input_tokens": 0, "ephemeral_1h_input_tokens": 0 },
+    "output_tokens": 1724,
+    "output_tokens_details": { "thinking_tokens": 0 },
+    "service_tier": "standard",
+    "inference_geo": "global"
+  }
+}

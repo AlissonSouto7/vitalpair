@@ -33,20 +33,25 @@ public class MealPlanPersistenceAdapter implements MealPlanRepositoryPort {
     }
 
     @Override
-    public Optional<MealPlan> findByUserAndWeek(UUID userId, LocalDate weekStart) {
-        return planRepository.findByUserIdAndWeekStart(userId, weekStart).map(this::toDomain);
+    public Optional<MealPlan> findByUserAndWeek(UUID userId, UUID tenantId, LocalDate weekStart) {
+        return planRepository
+                .findByUserIdAndTenantIdAndWeekStart(userId, tenantId, weekStart)
+                .map(this::toDomain);
     }
 
     @Override
     public MealPlan replace(MealPlan plan) {
-        planRepository.findByUserIdAndWeekStart(plan.userId(), plan.weekStart()).ifPresent(existing -> {
-            itemRepository.deleteByPlanId(existing.getId());
-            planRepository.delete(existing);
-            planRepository.flush();
-        });
+        planRepository
+                .findByUserIdAndTenantIdAndWeekStart(plan.userId(), plan.tenantId(), plan.weekStart())
+                .ifPresent(existing -> {
+                    itemRepository.deleteByPlanId(existing.getId());
+                    planRepository.delete(existing);
+                    planRepository.flush();
+                });
 
         MealPlanJpaEntity savedPlan = planRepository.save(MealPlanJpaEntity.builder()
                 .userId(plan.userId())
+                .tenantId(plan.tenantId())
                 .weekStart(plan.weekStart())
                 .createdAt(Instant.now())
                 .build());
@@ -66,8 +71,10 @@ public class MealPlanPersistenceAdapter implements MealPlanRepositoryPort {
     }
 
     @Override
-    public void updateItem(UUID itemId, String name, int kcal, int proteinG, int carbG, int fatG) {
-        itemRepository.findById(itemId).ifPresent(item -> {
+    public void updateItem(UUID planId, UUID itemId, String name, int kcal, int proteinG, int carbG, int fatG) {
+        // Scoped by plan: an item id belonging to someone else's plan matches nothing, so a
+        // guessed id cannot rewrite another user's meal.
+        itemRepository.findByIdAndPlanId(itemId, planId).ifPresent(item -> {
             item.setName(name);
             item.setKcal(kcal);
             item.setProteinG(proteinG);
@@ -90,6 +97,12 @@ public class MealPlanPersistenceAdapter implements MealPlanRepositoryPort {
                         item.getFatG()))
                 .sorted(ITEM_ORDER)
                 .toList();
-        return new MealPlan(entity.getId(), entity.getUserId(), entity.getWeekStart(), entity.getCreatedAt(), items);
+        return new MealPlan(
+                entity.getId(),
+                entity.getUserId(),
+                entity.getTenantId(),
+                entity.getWeekStart(),
+                entity.getCreatedAt(),
+                items);
     }
 }

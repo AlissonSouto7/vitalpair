@@ -1,6 +1,9 @@
 services:
   postgres:
-    image: 'postgres:15-alpine'
+    # Same major version as the Testcontainers image in the test suite and the one production
+    # will run. Upgrading an existing local volume needs a dump and restore: Postgres does not
+    # read a data directory written by an older major version.
+    image: 'postgres:16-alpine'
     environment:
       - 'POSTGRES_DB=${DATABASE_NAME:-vitalpair}'
       - 'POSTGRES_USER=${DATABASE_USER:-vitalpair}'
@@ -11,7 +14,8 @@ services:
     volumes:
       - 'vitalpair_postgres_data:/var/lib/postgresql/data'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-vitalpair} -d ${DATABASE_NAME:-vitalpair}']
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-vitalpair} -d ${DATABASE_NAME:-vitalpair}']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -33,7 +37,8 @@ services:
   # single-use token, so anyone able to read the log could take over any account.
   # Set MAIL_ENABLED=true with SPRING_MAIL_HOST=localhost and SPRING_MAIL_PORT=1025.
   mailpit:
-    image: 'axllent/mailpit:latest'
+    # Pinned to the tag the integration tests use (MailpitSupport), so both see one server.
+    image: 'axllent/mailpit:v1.31.1'
     ports:
       - '${VITALPAIR_SMTP_PORT:-1025}:1025'
       - '${VITALPAIR_MAILPIT_UI_PORT:-8025}:8025'

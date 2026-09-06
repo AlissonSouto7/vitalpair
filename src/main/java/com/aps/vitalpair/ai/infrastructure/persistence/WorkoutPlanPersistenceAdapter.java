@@ -39,26 +39,31 @@ public class WorkoutPlanPersistenceAdapter implements WorkoutPlanRepositoryPort 
     }
 
     @Override
-    public Optional<WorkoutPlan> findByUserAndWeek(UUID userId, LocalDate weekStart) {
-        return planRepository.findByUserIdAndWeekStart(userId, weekStart).map(this::toDomain);
+    public Optional<WorkoutPlan> findByUserAndWeek(UUID userId, UUID tenantId, LocalDate weekStart) {
+        return planRepository
+                .findByUserIdAndTenantIdAndWeekStart(userId, tenantId, weekStart)
+                .map(this::toDomain);
     }
 
     @Override
     public WorkoutPlan replace(WorkoutPlan plan) {
-        planRepository.findByUserIdAndWeekStart(plan.userId(), plan.weekStart()).ifPresent(existing -> {
-            List<UUID> dayIds = dayRepository.findByPlanId(existing.getId()).stream()
-                    .map(WorkoutDayJpaEntity::getId)
-                    .toList();
-            if (!dayIds.isEmpty()) {
-                exerciseRepository.deleteByDayIdIn(dayIds);
-            }
-            dayRepository.deleteByPlanId(existing.getId());
-            planRepository.delete(existing);
-            planRepository.flush();
-        });
+        planRepository
+                .findByUserIdAndTenantIdAndWeekStart(plan.userId(), plan.tenantId(), plan.weekStart())
+                .ifPresent(existing -> {
+                    List<UUID> dayIds = dayRepository.findByPlanId(existing.getId()).stream()
+                            .map(WorkoutDayJpaEntity::getId)
+                            .toList();
+                    if (!dayIds.isEmpty()) {
+                        exerciseRepository.deleteByDayIdIn(dayIds);
+                    }
+                    dayRepository.deleteByPlanId(existing.getId());
+                    planRepository.delete(existing);
+                    planRepository.flush();
+                });
 
         WorkoutPlanJpaEntity savedPlan = planRepository.save(WorkoutPlanJpaEntity.builder()
                 .userId(plan.userId())
+                .tenantId(plan.tenantId())
                 .weekStart(plan.weekStart())
                 .goal(plan.goal())
                 .createdAt(Instant.now())
@@ -146,6 +151,12 @@ public class WorkoutPlanPersistenceAdapter implements WorkoutPlanRepositoryPort 
                     exercises));
         }
         days.sort(Comparator.comparingInt(WorkoutDay::dayIndex));
-        return new WorkoutPlan(entity.getId(), entity.getUserId(), entity.getWeekStart(), entity.getGoal(), days);
+        return new WorkoutPlan(
+                entity.getId(),
+                entity.getUserId(),
+                entity.getTenantId(),
+                entity.getWeekStart(),
+                entity.getGoal(),
+                days);
     }
 }

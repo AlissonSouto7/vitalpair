@@ -6,10 +6,15 @@ import java.util.UUID;
 
 import com.aps.vitalpair.ai.domain.model.WorkoutPlan;
 
-/** Porta de saída de persistência do plano de treino semanal. */
+/**
+ * Porta de saída de persistência do plano de treino semanal.
+ *
+ * <p>Como no plano alimentar, o tenant entra em toda leitura: é o que garante que um id de
+ * exercício vazado não sirva para nada fora do par dono.
+ */
 public interface WorkoutPlanRepositoryPort {
 
-    Optional<WorkoutPlan> findByUserAndWeek(UUID userId, LocalDate weekStart);
+    Optional<WorkoutPlan> findByUserAndWeek(UUID userId, UUID tenantId, LocalDate weekStart);
 
     /** Salva o plano substituindo o plano existente do mesmo usuário/semana (dias e exercícios). */
     WorkoutPlan replace(WorkoutPlan plan);

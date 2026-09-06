@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WorkoutPlanJpaRepository extends JpaRepository<WorkoutPlanJpaEntity, UUID> {
 
-    Optional<WorkoutPlanJpaEntity> findByUserIdAndWeekStart(UUID userId, LocalDate weekStart);
+    Optional<WorkoutPlanJpaEntity> findByUserIdAndTenantIdAndWeekStart(UUID userId, UUID tenantId, LocalDate weekStart);
 }
