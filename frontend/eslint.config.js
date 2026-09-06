@@ -55,6 +55,16 @@ export default defineConfig([
   },
 
   {
+    // Browser tests are Playwright, not React. The React rules would flag helper names and
+    // find no components to check.
+    files: ['e2e/**/*.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
+
+  {
     // Test files assert on behaviour; the strict rules that protect production code get
     // in the way here without catching anything.
     files: ['src/**/*.{test,spec}.{ts,tsx}', 'src/test/**'],
