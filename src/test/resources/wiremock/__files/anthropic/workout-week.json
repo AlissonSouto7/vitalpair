@@ -1,0 +1,25 @@
+{
+  "model": "claude-opus-4-8",
+  "id": "msg_011Cen92G2Ah6g2iYjdwTrfe",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"days\":[{\"dayIndex\":0,\"rest\":false,\"focus\":\"Peito e tríceps\",\"durationMin\":55,\"exercises\":[{\"name\":\"Supino reto\",\"sets\":4,\"reps\":\"10 reps\",\"restSeconds\":90},{\"name\":\"Supino inclinado\",\"sets\":4,\"reps\":\"10 reps\",\"restSeconds\":90},{\"name\":\"Crucifixo\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Tríceps testa\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Tríceps corda\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Mergulho no banco\",\"sets\":3,\"reps\":\"15 reps\",\"restSeconds\":60}]},{\"dayIndex\":1,\"rest\":false,\"focus\":\"Costas e bíceps\",\"durationMin\":55,\"exercises\":[{\"name\":\"Barra fixa\",\"sets\":4,\"reps\":\"8 reps\",\"restSeconds\":90},{\"name\":\"Remada curvada\",\"sets\":4,\"reps\":\"10 reps\",\"restSeconds\":90},{\"name\":\"Puxada frente\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":75},{\"name\":\"Remada baixa\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":75},{\"name\":\"Rosca direta\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Rosca martelo\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60}]},{\"dayIndex\":2,\"rest\":true,\"focus\":\"\",\"durationMin\":0,\"exercises\":[]},{\"dayIndex\":3,\"rest\":false,\"focus\":\"Pernas\",\"durationMin\":60,\"exercises\":[{\"name\":\"Agachamento livre\",\"sets\":4,\"reps\":\"10 reps\",\"restSeconds\":120},{\"name\":\"Leg press\",\"sets\":4,\"reps\":\"12 reps\",\"restSeconds\":90},{\"name\":\"Cadeira extensora\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Mesa flexora\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Panturrilha em pé\",\"sets\":4,\"reps\":\"15 reps\",\"restSeconds\":45},{\"name\":\"Afundo\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":75}]},{\"dayIndex\":4,\"rest\":false,\"focus\":\"Ombros e abdômen\",\"durationMin\":50,\"exercises\":[{\"name\":\"Desenvolvimento halteres\",\"sets\":4,\"reps\":\"10 reps\",\"restSeconds\":90},{\"name\":\"Elevação lateral\",\"sets\":4,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Elevação frontal\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Remada alta\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Prancha\",\"sets\":3,\"reps\":\"40s\",\"restSeconds\":45},{\"name\":\"Abdominal supra\",\"sets\":3,\"reps\":\"20 reps\",\"restSeconds\":45}]},{\"dayIndex\":5,\"rest\":false,\"focus\":\"Corpo inteiro\",\"durationMin\":50,\"exercises\":[{\"name\":\"Levantamento terra\",\"sets\":4,\"reps\":\"8 reps\",\"restSeconds\":120},{\"name\":\"Supino reto\",\"sets\":3,\"reps\":\"10 reps\",\"restSeconds\":90},{\"name\":\"Remada curvada\",\"sets\":3,\"reps\":\"10 reps\",\"restSeconds\":90},{\"name\":\"Agachamento\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":90},{\"name\":\"Rosca direta\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60},{\"name\":\"Tríceps corda\",\"sets\":3,\"reps\":\"12 reps\",\"restSeconds\":60}]},{\"dayIndex\":6,\"rest\":true,\"focus\":\"\",\"durationMin\":0,\"exercises\":[]}]}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "stop_details": null,
+  "usage": {
+    "input_tokens": 807,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": { "ephemeral_5m_input_tokens": 0, "ephemeral_1h_input_tokens": 0 },
+    "output_tokens": 1365,
+    "output_tokens_details": { "thinking_tokens": 0 },
+    "service_tier": "standard",
+    "inference_geo": "global"
+  }
+}

@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MealPlanJpaRepository extends JpaRepository<MealPlanJpaEntity, UUID> {
 
-    Optional<MealPlanJpaEntity> findByUserIdAndWeekStart(UUID userId, LocalDate weekStart);
+    Optional<MealPlanJpaEntity> findByUserIdAndTenantIdAndWeekStart(UUID userId, UUID tenantId, LocalDate weekStart);
 }

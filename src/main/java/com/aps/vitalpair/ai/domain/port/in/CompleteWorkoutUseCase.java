@@ -10,5 +10,5 @@ public interface CompleteWorkoutUseCase {
      * Marca o treino de hoje como concluído e registra uma atividade WORKOUT pelo use case
      * da feature activity (que já dispara pontos/feed/streak).
      */
-    WorkoutToday complete(UUID userId);
+    WorkoutToday complete(UUID userId, UUID tenantId);
 }

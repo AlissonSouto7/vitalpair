@@ -1,0 +1,61 @@
+{
+  "hits": [
+    { "code": "2000000151418", "product_name": "Fresh Banana" },
+    { "code": "5010251953760", "product_name": "Bananas" },
+    {
+      "code": "01129441",
+      "nutriments": {
+        "carbohydrates_100g": 23,
+        "energy-kcal_100g": 89,
+        "fat_100g": 0.3,
+        "fiber_100g": 2.6,
+        "proteins_100g": 1.1,
+        "salt_100g": 0.001,
+        "saturated-fat_100g": 0.1,
+        "sodium_100g": 0.0004,
+        "sugars_100g": 12
+      },
+      "product_name": "Banana"
+    }
+  ],
+  "aggregations": null,
+  "facets": {},
+  "charts": {},
+  "page": 1,
+  "page_size": 3,
+  "page_count": 2870,
+  "debug": {
+    "query": {
+      "query": {
+        "bool": {
+          "should": [
+            { "match_phrase": { "product_name.en": { "query": "banana", "boost": 2.0 } } },
+            { "match_phrase": { "generic_name.en": { "query": "banana", "boost": 2.0 } } },
+            { "match_phrase": { "categories.en": { "query": "banana", "boost": 2.0 } } },
+            { "match_phrase": { "labels.en": { "query": "banana", "boost": 2.0 } } },
+            { "match_phrase": { "brands": { "query": "banana", "boost": 2.0 } } },
+            {
+              "multi_match": {
+                "query": "banana",
+                "fields": [
+                  "product_name.en",
+                  "generic_name.en",
+                  "categories.en",
+                  "labels.en",
+                  "brands"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "size": 3,
+      "from": 0
+    }
+  },
+  "took": 5,
+  "timed_out": false,
+  "count": 8609,
+  "is_count_exact": true,
+  "warnings": null
+}

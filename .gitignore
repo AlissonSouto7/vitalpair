@@ -47,6 +47,8 @@ Thumbs.db
 !.env.example
 # Local AI session context (notes, worklog, local settings). Never versioned.
 .claude/
+# Phase plans rendered for the owner; the editable source lives in .claude/notes.
+docs/planos/
 # Logs
 *.log
 logs/

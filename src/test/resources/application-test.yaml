@@ -1,0 +1,40 @@
+# Overrides for automated tests, activated with @ActiveProfiles("test").
+#
+# This file sits on top of the main application.yaml rather than replacing it, so every
+# test context parses the real configuration. It used to shadow the main file completely,
+# which meant a broken property there could pass the whole suite and fail on the first
+# start of the packaged application.
+#
+# Anything that must never reach an external system is pinned here or supplied at runtime:
+# Postgres, Redis and Mailpit come from Testcontainers, Anthropic and Open Food Facts from
+# WireMock (see com.aps.vitalpair.support). A .env in the working directory is still read
+# by spring-dotenv, so every value it could leak into a test is overridden below.
+spring:
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    show-sql: false
+
+vitalpair:
+  jwt:
+    secret: test-secret-0123456789-0123456789-0123456789
+  cors:
+    allowed-origins: http://localhost:5173
+  ai:
+    anthropic:
+      # A placeholder, not a real key. It switches the AI features on so requests reach
+      # the stubbed API; a real key from .env must never be picked up by a test.
+      api-key: test-api-key
+      # Short enough that the timeout path is tested in seconds rather than a minute.
+      connect-timeout: 2s
+      plan-read-timeout: 3s
+      photo-read-timeout: 3s
+  mail:
+    # Delivered to the Mailpit container, where tests read the message back.
+    enabled: true
+
+logging:
+  level:
+    com.aps.vitalpair: INFO
+    org.hibernate.SQL: WARN

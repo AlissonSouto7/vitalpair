@@ -8,5 +8,5 @@ import com.aps.vitalpair.ai.application.dto.MealPlanView;
 public interface GetMealPlanUseCase {
 
     /** Plano alimentar da semana atual (segunda a domingo); vazio se ainda não foi gerado. */
-    Optional<MealPlanView> getCurrentWeekPlan(UUID userId);
+    Optional<MealPlanView> getCurrentWeekPlan(UUID userId, UUID tenantId);
 }

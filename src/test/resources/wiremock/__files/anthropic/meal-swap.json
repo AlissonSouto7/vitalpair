@@ -1,0 +1,25 @@
+{
+  "model": "claude-opus-4-8",
+  "id": "msg_011Cen926F3msEs5rdrjRyRX",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"mealType\":\"LUNCH\",\"name\":\"Arroz integral com feijão e file de frango\",\"kcal\":760,\"proteinG\":54,\"carbG\":90,\"fatG\":15}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "stop_details": null,
+  "usage": {
+    "input_tokens": 631,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": { "ephemeral_5m_input_tokens": 0, "ephemeral_1h_input_tokens": 0 },
+    "output_tokens": 61,
+    "output_tokens_details": { "thinking_tokens": 0 },
+    "service_tier": "standard",
+    "inference_geo": "global"
+  }
+}

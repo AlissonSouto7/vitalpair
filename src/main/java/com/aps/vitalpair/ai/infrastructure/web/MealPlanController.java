@@ -41,7 +41,7 @@ public class MealPlanController {
     @GetMapping
     public ResponseEntity<ApiResponse<MealPlanResponse>> current(@AuthenticationPrincipal AuthenticatedUser principal) {
         MealPlanResponse plan = getMealPlanUseCase
-                .getCurrentWeekPlan(principal.userId())
+                .getCurrentWeekPlan(principal.userId(), principal.tenantId())
                 .map(MealPlanResponse::from)
                 .orElse(null);
         return ResponseEntity.ok(ApiResponse.ok(plan));
@@ -50,15 +50,16 @@ public class MealPlanController {
     @PostMapping("/generate")
     public ResponseEntity<ApiResponse<MealPlanResponse>> generate(
             @AuthenticationPrincipal AuthenticatedUser principal) {
-        MealPlanResponse plan = MealPlanResponse.from(generateMealPlanUseCase.generate(principal.userId()));
+        MealPlanResponse plan =
+                MealPlanResponse.from(generateMealPlanUseCase.generate(principal.userId(), principal.tenantId()));
         return ResponseEntity.ok(ApiResponse.ok(plan, "Cardápio da semana gerado"));
     }
 
     @PostMapping("/swap")
     public ResponseEntity<ApiResponse<MealPlanResponse>> swap(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody SwapMealRequest request) {
-        MealPlanResponse plan = MealPlanResponse.from(
-                swapMealUseCase.swap(principal.userId(), new SwapMealCommand(request.dayIndex(), request.mealType())));
+        MealPlanResponse plan = MealPlanResponse.from(swapMealUseCase.swap(
+                principal.userId(), principal.tenantId(), new SwapMealCommand(request.dayIndex(), request.mealType())));
         return ResponseEntity.ok(ApiResponse.ok(plan, "Refeição trocada"));
     }
 }
