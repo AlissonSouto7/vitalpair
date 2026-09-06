@@ -1,6 +1,5 @@
 package com.aps.vitalpair.shared.web;
 
-import java.time.Instant;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,13 +30,13 @@ public class RestExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleNotFound(
             ResourceNotFoundException ex, HttpServletRequest request) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request, List.of());
+        return ApiErrors.response(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleBusinessRule(
             BusinessRuleException ex, HttpServletRequest request) {
-        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request, List.of());
+        return ApiErrors.response(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,13 +45,13 @@ public class RestExceptionHandler {
         List<ApiError.FieldViolation> violations = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> new ApiError.FieldViolation(fe.getField(), fe.getDefaultMessage()))
                 .toList();
-        return build(HttpStatus.BAD_REQUEST, "Erro de validação", request, violations);
+        return ApiErrors.response(HttpStatus.BAD_REQUEST, "Erro de validação", request, violations);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleNoResource(
             NoResourceFoundException ex, HttpServletRequest request) {
-        return build(HttpStatus.NOT_FOUND, "Recurso não encontrado", request, List.of());
+        return ApiErrors.response(HttpStatus.NOT_FOUND, "Recurso não encontrado", request);
     }
 
     /**
@@ -66,7 +65,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
-        return build(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso", request, List.of());
+        return ApiErrors.response(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso", request);
     }
 
     /**
@@ -80,19 +79,14 @@ public class RestExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleUnreadable(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
-        return build(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou mal formatado", request, List.of());
+        return ApiErrors.response(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou mal formatado", request);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<ApiError>> handleGeneric(Exception ex, HttpServletRequest request) {
+        // The request id is in the MDC, so it lands in this line and in the body below: the
+        // string the user reports is the one that finds this stack trace.
         log.error("Erro não tratado em {}", LogSafe.value(request.getRequestURI()), ex);
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno inesperado", request, List.of());
-    }
-
-    private ResponseEntity<ApiResponse<ApiError>> build(
-            HttpStatus status, String message, HttpServletRequest request, List<ApiError.FieldViolation> violations) {
-        ApiError detail = new ApiError(
-                Instant.now(), status.value(), status.getReasonPhrase(), request.getRequestURI(), violations);
-        return ResponseEntity.status(status).body(ApiResponse.fail(message, detail));
+        return ApiErrors.response(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno inesperado", request);
     }
 }

@@ -32,6 +32,9 @@ class SwaggerDisabledInProdIT {
     @Autowired
     private TestRestTemplate http;
 
+    @org.springframework.boot.test.web.server.LocalManagementPort
+    private int managementPort;
+
     @DynamicPropertySource
     static void externalSystems(DynamicPropertyRegistry registry) {
         WireMockSupport.register(registry);
@@ -50,11 +53,23 @@ class SwaggerDisabledInProdIT {
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Health answers on the management port, not the public one.
+     *
+     * <p>That split is the point: a container healthcheck and a load balancer sit inside the
+     * network and can reach 9090, while nothing on the internet gets an unauthenticated
+     * readout of whether the database is up.
+     */
     @Test
-    void healthStillAnswers() {
-        var health = http.getForEntity("/actuator/health", String.class);
+    void healthAnswersOnTheManagementPortOnly() {
+        var onManagementPort = org.springframework.web.client.RestClient.create("http://localhost:" + managementPort)
+                .get()
+                .uri("/actuator/health")
+                .retrieve()
+                .body(String.class);
+        assertThat(onManagementPort).contains("\"status\":\"UP\"");
 
-        assertThat(health.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(health.getBody()).contains("\"status\":\"UP\"");
+        var onPublicPort = http.getForEntity("/actuator/health", String.class);
+        assertThat(onPublicPort.getStatusCode()).isIn(HttpStatus.NOT_FOUND, HttpStatus.UNAUTHORIZED);
     }
 }

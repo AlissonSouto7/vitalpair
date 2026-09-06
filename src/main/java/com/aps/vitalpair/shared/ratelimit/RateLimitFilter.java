@@ -2,8 +2,6 @@ package com.aps.vitalpair.shared.ratelimit;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.FilterChain;
@@ -21,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiError;
+import com.aps.vitalpair.shared.web.ApiErrors;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -118,12 +117,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
         response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfter.toSeconds()));
 
-        ApiError error = new ApiError(
-                Instant.now(),
-                HttpStatus.TOO_MANY_REQUESTS.value(),
-                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
-                request.getRequestURI(),
-                List.of());
+        ApiError error = ApiErrors.of(HttpStatus.TOO_MANY_REQUESTS, request);
         ApiResponse<ApiError> body = ApiResponse.fail(
                 "Muitas tentativas. Tente de novo em %d segundos.".formatted(retryAfter.toSeconds()), error);
 
