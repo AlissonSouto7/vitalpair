@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,6 +67,20 @@ public class RestExceptionHandler {
     public ResponseEntity<ApiResponse<ApiError>> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso", request, List.of());
+    }
+
+    /**
+     * A body the server cannot parse: malformed JSON, invalid UTF-8, a wrong type in a field.
+     *
+     * <p>That is the caller's mistake, so the answer is 400. Without this handler it fell
+     * through to the generic one and came back as 500, which tells the client the server
+     * broke and logs a stack trace for what is really bad input. Found when a shell sent a
+     * name with an accent as invalid bytes.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleUnreadable(
+            HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou mal formatado", request, List.of());
     }
 
     @ExceptionHandler(Exception.class)
