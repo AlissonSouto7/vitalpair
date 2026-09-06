@@ -57,7 +57,11 @@ vitalpair:
     enabled: ${MAIL_ENABLED:false}
     from: ${MAIL_FROM:VitalPair <no-reply@vitalpair.app>}
   cors:
-    allowed-origins: ${FRONTEND_URL:http://localhost:5173}
+    # Separate from FRONTEND_URL on purpose. FRONTEND_URL builds links in e-mails and must
+    # be exactly one URL; CORS may need several (a local dev server plus a tunnel used to
+    # show the app to someone). Comma-separated. Falls back to FRONTEND_URL so the common
+    # case needs no extra configuration.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:${FRONTEND_URL:http://localhost:5173}}
   oauth2:
     google:
       client-id: ${GOOGLE_CLIENT_ID:}
