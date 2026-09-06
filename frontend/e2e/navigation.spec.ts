@@ -52,17 +52,26 @@ test.describe('navigation', () => {
     const failures: string[] = []
     page.on('pageerror', (error) => failures.push(error.message))
     const refused: string[] = []
+    const refreshes: number[] = []
     page.on('response', (response) => {
       if (response.url().includes('/api/') && response.status() >= 400) {
         refused.push(`${response.status()} ${new URL(response.url()).pathname}`)
       }
+      if (response.url().includes('/auth/refresh')) {
+        refreshes.push(response.status())
+      }
     })
 
     for (const route of routes) {
-      await page.goto(route)
+      // Navigating inside the app rather than reloading: page.goto restarts the
+      // application on every route, and each restart exchanges the refresh cookie again.
+      // Thirty of those a minute is the documented limit, and the walk plus the other
+      // tests exceeded it, which logged the session out halfway through.
+      await page.evaluate((path) => window.history.pushState({}, '', path), route)
+      await page.evaluate(() => window.dispatchEvent(new PopStateEvent('popstate')))
       await expect(
         page,
-        `${route} should not redirect away (API: ${refused.join(', ')})`,
+        `${route} should not redirect away (API errors: ${refused.join(', ') || 'none'}; refreshes: ${refreshes.join(',')})`,
       ).toHaveURL(new RegExp(route))
       // A chunk that fails to load leaves the placeholder on screen forever, so the
       // assertion is that the placeholder is gone: "not empty" would also pass for a page

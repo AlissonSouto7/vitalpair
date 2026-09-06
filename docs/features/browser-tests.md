@@ -65,13 +65,28 @@ npm --prefix frontend run e2e:report   # open the last report
 
 ### Corrigidos nesta fase
 
-**A-1 (médio, corrigido): campos de formulário sem rótulo acessível.** Login e
-cadastro escreviam `<label>` ao lado de `<input>` sem nada ligando os dois. Para
-quem usa leitor de tela, o campo era uma caixa de edição sem nome; clicar no
-texto não focava o campo. Descoberto porque o teste de navegador não conseguia
-encontrar os campos pelo rótulo, que é exatamente o mesmo caminho que a
-tecnologia assistiva usa. Corrigido em `TextField`, que gera o `id` e liga
-`htmlFor`, `aria-invalid` e `aria-describedby`.
+**A-1 (médio, corrigido em todas as telas): campos de formulário sem rótulo
+acessível.** Os formulários escreviam `<label>` ao lado de `<input>` sem nada
+ligando os dois. Para quem usa leitor de tela, o campo era uma caixa de edição
+sem nome; clicar no texto não focava o campo. Descoberto porque o teste de
+navegador não conseguia encontrar os campos pelo rótulo, que é exatamente o mesmo
+caminho que a tecnologia assistiva usa.
+
+Medido: 20 rótulos soltos em 8 arquivos no início, zero no fim. A correção não
+foi só marcar um por um: `TextField`, `NumberField` e `Field` geram o `id` e
+ligam `htmlFor`, `aria-invalid` e `aria-describedby`, e `NumberField` substituiu
+duas cópias idênticas do mesmo componente que existiam em telas diferentes, cada
+uma com o mesmo defeito.
+
+**A-2 (médio, corrigido): dropdown sem semântica.** `Select` é construído com
+botões para poder ser estilizado, o que custa acessibilidade se não for pago:
+sem `role="combobox"`, `aria-expanded` e `role="listbox"`, a tecnologia
+assistiva não sabe que aquilo é um seletor, o que está selecionado, nem se a
+lista está aberta.
+
+**A-3 (baixo, corrigido): campo de convite identificado só por placeholder.** O
+placeholder some no primeiro caractere digitado e pode nunca ser anunciado. O
+campo passou a carregar o título da seção como nome.
 
 ### Verificados e OK
 
@@ -94,12 +109,13 @@ tecnologia assistiva usa. Corrigido em `TextField`, que gera o `id` e liga
 
 ## Testes: o que cada um protege
 
-| Teste                    | Risco que protege                                                                                                                                                 |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auth.spec.ts` (7)       | cadastro que não leva pra dentro; login quebrado; sessão perdida ao recarregar; erro sem mensagem; formulário inválido chamando o servidor; rota protegida aberta |
-| `navigation.spec.ts` (5) | 404 redirecionando em silêncio; página legal mostrando chave de tradução; tela cujo pedaço de código não carrega; troca de idioma quebrada                        |
-| `errors.test.ts` (9)     | leitura de erro da API (fase 9)                                                                                                                                   |
-| `locales.test.ts` (89)   | chave de tradução faltando                                                                                                                                        |
+| Teste                       | Risco que protege                                                                                                                                                 |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth.spec.ts` (7)          | cadastro que não leva pra dentro; login quebrado; sessão perdida ao recarregar; erro sem mensagem; formulário inválido chamando o servidor; rota protegida aberta |
+| `navigation.spec.ts` (4)    | 404 redirecionando em silêncio; página legal mostrando chave de tradução; tela cujo pedaço de código não carrega; troca de idioma quebrada                        |
+| `accessibility.spec.ts` (2) | regressão do achado A-1: qualquer controle sem rótulo em 8 telas volta a quebrar o build                                                                          |
+| `errors.test.ts` (9)        | leitura de erro da API (fase 9)                                                                                                                                   |
+| `locales.test.ts` (89)      | chave de tradução faltando                                                                                                                                        |
 
 ### O que NÃO está coberto
 
@@ -116,9 +132,9 @@ tecnologia assistiva usa. Corrigido em `TextField`, que gera o `id` e liga
 
 ## Dívida conhecida
 
-- **Só 2 dos 9 formulários** usam react-hook-form + zod (login e cadastro). Os
-  outros sete continuam com estado manual e labels não associados, ou seja, o
-  achado A-1 continua aberto neles.
+- **4 dos 9 formulários** usam react-hook-form + zod (login, cadastro, esqueci a
+  senha, redefinir senha). Os outros cinco continuam com estado manual, embora os
+  rótulos já estejam corrigidos em todos.
 - **As páginas grandes não foram decompostas.** `NutritionPage` tem 960 linhas,
   `OnboardingPage` 781. O plano previa quebrar em componentes e ligar
   `max-lines: 300` como erro; não foi feito.
@@ -127,7 +143,14 @@ tecnologia assistiva usa. Corrigido em `TextField`, que gera o `id` e liga
 
 ## Histórico
 
-- **2026-09-06**: fase 10 parcial. Playwright com 12 testes, job de CI, primitivos
-  de formulário acessíveis, login e cadastro migrados para react-hook-form + zod.
-  Achado A-1 corrigido nesses dois. Testes de frontend: 98 unitários + 12 de
-  navegador.
+- **2026-09-06**: fase 10. Playwright com 14 testes, job de CI, primitivos de
+  formulário acessíveis, quatro formulários migrados para react-hook-form + zod.
+  Achados A-1, A-2 e A-3 corrigidos em todas as telas, com teste de regressão.
+  Testes de frontend: 98 unitários + 14 de navegador.
+
+  Duas lições registradas porque custaram tempo: o primeiro teste de
+  acessibilidade passava com um campo sem rótulo inserido de propósito, porque
+  checava a página antes de o código da rota chegar e não encontrava controle
+  nenhum; e a caminhada pelas telas recarregava o app a cada rota, o que estourava
+  o limite de 30 renovações de sessão por minuto e derrubava o login no meio.
+  Navegar dentro do app corrigiu e deixou o teste 6x mais rápido.

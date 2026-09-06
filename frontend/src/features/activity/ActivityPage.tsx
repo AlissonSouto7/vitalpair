@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Field } from '@/shared/ui/form/Field'
+
+import { NumberField } from '@/shared/ui/form/NumberField'
+
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { getActivities, getActivitySummary, logActivity } from '../../api/activity'
 import type {
@@ -155,25 +159,40 @@ export function ActivityPage() {
         <div className="space-y-4">
           <form onSubmit={submitWorkout} className="card space-y-4">
             <div>
-              <label className="label">{t('activity.type')}</label>
-              <Select value={activityType} onChange={setActivityType} options={typeOptions} />
+              <Field label={t('activity.type')}>
+                {(field) => (
+                  <Select
+                    {...field}
+                    value={activityType}
+                    onChange={setActivityType}
+                    options={typeOptions}
+                  />
+                )}
+              </Field>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Num label={t('activity.distance')} value={distanceKm} onChange={setDistanceKm} />
-              <Num
+              <NumberField
+                label={t('activity.distance')}
+                value={distanceKm}
+                onChange={setDistanceKm}
+              />
+              <NumberField
                 label={t('activity.duration')}
                 value={durationMinutes}
                 onChange={setDurationMinutes}
               />
-              <Num
+              <NumberField
                 label={t('activity.calories')}
                 value={caloriesBurned}
                 onChange={setCaloriesBurned}
               />
             </div>
             <div>
-              <label className="label">{t('activity.source')}</label>
-              <Select value={source} onChange={setSource} options={sourceOptions} />
+              <Field label={t('activity.source')}>
+                {(field) => (
+                  <Select {...field} value={source} onChange={setSource} options={sourceOptions} />
+                )}
+              </Field>
             </div>
             <p className="flex items-start gap-2 text-xs font-semibold text-faint">
               <IconSpark className="mt-0.5 shrink-0 text-brand" />
@@ -388,31 +407,6 @@ function SourceRow({
           {t('activity.connect')}
         </button>
       )}
-    </div>
-  )
-}
-
-function Num({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-}) {
-  return (
-    <div>
-      <label className="label">{label}</label>
-      <input
-        type="number"
-        min={0}
-        step="0.1"
-        placeholder="0"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="input px-3 py-2 text-sm"
-      />
     </div>
   )
 }

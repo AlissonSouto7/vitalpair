@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
+
+import { NumberField } from '@/shared/ui/form/NumberField'
 import {
   analyzePhoto,
   deleteLog,
@@ -69,6 +71,7 @@ function fileToImage(file: File): Promise<{ base64: string; mediaType: string; d
 
 export function NutritionPage() {
   const { t } = useTranslation()
+  const foodNameId = useId()
   const mealLabel = (m: MealType) => t(`nutrition.mealShort.${m}`)
   const [tab, setTab] = useState<Tab>('foto')
   const [meal, setMeal] = useState<MealType>('LUNCH')
@@ -627,8 +630,11 @@ export function NutritionPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="label">{t('nutrition.whatLabel')}</label>
+              <label htmlFor={foodNameId} className="label">
+                {t('nutrition.whatLabel')}
+              </label>
               <input
+                id={foodNameId}
                 type="text"
                 placeholder={t('nutrition.foodNamePlaceholder')}
                 value={draft.name}
@@ -638,27 +644,27 @@ export function NutritionPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <NumField
+              <NumberField
                 label={t('nutrition.kcalField')}
                 value={draft.kcalPer100}
                 onChange={(v) => setDraft({ ...draft, kcalPer100: v })}
               />
-              <NumField
+              <NumberField
                 label={t('nutrition.protField')}
                 value={draft.proteinPer100}
                 onChange={(v) => setDraft({ ...draft, proteinPer100: v })}
               />
-              <NumField
+              <NumberField
                 label={t('nutrition.carbField')}
                 value={draft.carbPer100}
                 onChange={(v) => setDraft({ ...draft, carbPer100: v })}
               />
-              <NumField
+              <NumberField
                 label={t('nutrition.fatField')}
                 value={draft.fatPer100}
                 onChange={(v) => setDraft({ ...draft, fatPer100: v })}
               />
-              <NumField
+              <NumberField
                 label={t('nutrition.gramsField')}
                 value={draft.grams}
                 onChange={(v) => setDraft({ ...draft, grams: v })}
@@ -863,30 +869,6 @@ function Macro({
       <div className="h-2.5 overflow-hidden rounded-full bg-track">
         <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
       </div>
-    </div>
-  )
-}
-
-function NumField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-}) {
-  return (
-    <div>
-      <label className="label">{label}</label>
-      <input
-        type="number"
-        min={0}
-        step="0.1"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="input px-2.5 py-2 text-sm font-bold"
-      />
     </div>
   )
 }
