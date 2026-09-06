@@ -1,11 +1,32 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { AxiosError } from 'axios'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from '../../hooks/useAuth'
-import { joinPair } from '../../api/pair'
-import { GoogleLoginButton } from '../../components/GoogleLoginButton'
-import { AuthShell } from '../../components/auth/AuthShell'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { z } from 'zod'
+
+import { joinPair } from '@/api/pair'
+import { AuthShell } from '@/components/auth/AuthShell'
+import { GoogleLoginButton } from '@/components/GoogleLoginButton'
+import { useAuth } from '@/hooks/useAuth'
+import { getApiErrorMessage } from '@/shared/api/errors'
+import { FormError } from '@/shared/ui/form/FormError'
+import { TextField } from '@/shared/ui/form/TextField'
+
+/**
+ * The shape the form guarantees before anything is sent.
+ *
+ * The browser's own `required` and `type="email"` are a convenience, not a guard: they are
+ * bypassed trivially and their messages are the browser's, in the browser's language,
+ * which on a Portuguese page in an English browser reads as a bug. The backend validates
+ * regardless; this is about telling the person what is wrong before a round trip.
+ */
+const schema = z.object({
+  email: z.string().min(1).email(),
+  password: z.string().min(1),
+})
+
+type LoginForm = z.infer<typeof schema>
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -13,26 +34,29 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const invite = params.get('convite')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(schema),
+    // Validate when the field loses focus rather than on every keystroke: telling someone
+    // their e-mail is invalid while they are still typing the first letter is noise.
+    mode: 'onTouched',
+  })
+
+  async function onSubmit(values: LoginForm) {
     setError(null)
-    setLoading(true)
     try {
-      await login({ email, password })
+      await login(values)
       if (invite) {
         await joinPair(invite.trim().toUpperCase()).catch(() => undefined)
       }
       navigate('/dashboard')
     } catch (err) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? t('auth.errorLogin'))
-    } finally {
-      setLoading(false)
+      setError(getApiErrorMessage(err, t('auth.errorLogin')))
     }
   }
 
@@ -59,44 +83,38 @@ export function LoginPage() {
         <span className="h-px flex-1 bg-hair" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="label">{t('auth.email')}</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input"
-          />
-        </div>
-        <div>
-          <div className="mb-1 flex items-center justify-between">
-            <label className="label mb-0">{t('auth.password')}</label>
+      <form
+        onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+        className="space-y-4"
+        noValidate
+      >
+        <TextField
+          label={t('auth.email')}
+          type="email"
+          autoComplete="email"
+          error={errors.email && t('auth.invalidEmail')}
+          {...register('email')}
+        />
+        <TextField
+          label={t('auth.password')}
+          type="password"
+          autoComplete="current-password"
+          error={errors.password && t('auth.passwordRequired')}
+          action={
             <Link
               to="/forgot-password"
               className="text-xs font-extrabold text-brand-ink hover:underline"
             >
               {t('auth.forgotShort')}
             </Link>
-          </div>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="input"
-          />
-        </div>
+          }
+          {...register('password')}
+        />
 
-        {error && (
-          <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
-            {error}
-          </p>
-        )}
+        <FormError message={error} />
 
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? t('auth.signingIn') : t('auth.signIn')}
+        <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+          {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
         </button>
       </form>
 

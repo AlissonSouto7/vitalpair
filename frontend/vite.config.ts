@@ -31,4 +31,16 @@ export default defineConfig({
     // the app can be shown to someone outside this machine.
     allowedHosts: ['.ngrok-free.dev', '.ngrok-free.app', '.ngrok.dev', '.ngrok.app', '.ngrok.io'],
   },
+  // The preview server has its own configuration; the `server` block above does not apply
+  // to it. Without this proxy the browser tests, which run against the production build,
+  // would send every API call to a port that serves static files and get HTML back.
+  preview: {
+    port: 4173,
+    proxy: {
+      '/api': {
+        target: process.env.VITE_PROXY_TARGET ?? 'http://localhost:8081',
+        changeOrigin: true,
+      },
+    },
+  },
 })
