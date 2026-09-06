@@ -1,27 +1,37 @@
-import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { forgotPassword } from '../../api/auth'
-import { AuthShell } from '../../components/auth/AuthShell'
+import { Link } from 'react-router-dom'
+import { z } from 'zod'
+
+import { forgotPassword } from '@/api/auth'
+import { AuthShell } from '@/components/auth/AuthShell'
+import { FormError } from '@/shared/ui/form/FormError'
+import { TextField } from '@/shared/ui/form/TextField'
+
+const schema = z.object({ email: z.string().min(1).email() })
+
+type ForgotForm = z.infer<typeof schema>
 
 export function ForgotPasswordPage() {
   const { t } = useTranslation()
-  const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ForgotForm>({ resolver: zodResolver(schema), mode: 'onTouched' })
+
+  async function onSubmit(values: ForgotForm) {
     setError(null)
-    setLoading(true)
     try {
-      await forgotPassword(email)
+      await forgotPassword(values.email)
       setSent(true)
     } catch {
       setError(t('auth.errorForgot'))
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -37,24 +47,21 @@ export function ForgotPasswordPage() {
           {t('auth.forgotSent')}
         </p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="label">{t('auth.email')}</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input"
-            />
-          </div>
-          {error && (
-            <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
-              {error}
-            </p>
-          )}
-          <button type="submit" disabled={loading} className="btn-primary w-full">
-            {loading ? t('auth.sending') : t('auth.forgotCta')}
+        <form
+          onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+          className="space-y-4"
+          noValidate
+        >
+          <TextField
+            label={t('auth.email')}
+            type="email"
+            autoComplete="email"
+            error={errors.email && t('auth.invalidEmail')}
+            {...register('email')}
+          />
+          <FormError message={error} />
+          <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+            {isSubmitting ? t('auth.sending') : t('auth.forgotCta')}
           </button>
         </form>
       )}

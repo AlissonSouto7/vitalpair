@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { Field } from '@/shared/ui/form/Field'
 import { AxiosError } from 'axios'
 import { getPair, joinPair, updateRelationshipType } from '../../api/pair'
 import { refreshSession } from '../../api/auth'
@@ -282,6 +284,9 @@ function InvitePanel({
             <input
               type="text"
               required
+              // The heading above the form is this field's name. A placeholder is not a label:
+              // it disappears the moment someone types, and may never be announced at all.
+              aria-label={t('pair.haveCodeTitle')}
               placeholder={t('pair.codePlaceholder')}
               value={code}
               onChange={(e) => onCodeChange(e.target.value)}
@@ -347,13 +352,16 @@ function RelationCard({
   }))
   return (
     <div className="card">
-      <label className="label">{t('pair.relType')}</label>
-      <p className="mb-3 text-xs text-muted">{t('pair.relTypeHint')}</p>
-      <Select
-        value={pair?.relationshipType ?? 'PAIR'}
-        onChange={onChange}
-        options={relationshipOptions}
-      />
+      <Field label={t('pair.relType')} hint={t('pair.relTypeHint')}>
+        {(field) => (
+          <Select
+            {...field}
+            value={pair?.relationshipType ?? 'PAIR'}
+            onChange={onChange}
+            options={relationshipOptions}
+          />
+        )}
+      </Field>
     </div>
   )
 }

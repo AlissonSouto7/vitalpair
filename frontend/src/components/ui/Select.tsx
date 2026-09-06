@@ -5,16 +5,28 @@ interface Option<T extends string> {
   label: string
 }
 
+/**
+ * A dropdown built from buttons rather than a native select, so it can be styled.
+ *
+ * That choice costs accessibility unless it is paid back explicitly: a plain button tells
+ * assistive technology nothing about being a chooser, what is chosen, or whether the list
+ * is open. The combobox role and the aria-* attributes below say all three. The id lets a
+ * label point at it, which a native select would have got for free.
+ */
 export function Select<T extends string>({
+  id,
   value,
   onChange,
   options,
   placeholder = 'Selecione',
+  'aria-describedby': describedBy,
 }: {
+  id?: string
   value: T | ''
   onChange: (value: T) => void
   options: Option<T>[]
   placeholder?: string
+  'aria-describedby'?: string
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -39,9 +51,14 @@ export function Select<T extends string>({
   return (
     <div ref={ref} className="relative">
       <button
+        id={id}
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="input flex items-center justify-between gap-2 text-left"
+        role="combobox"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-describedby={describedBy}
       >
         <span className={selected ? 'text-ink' : 'text-faint'}>
           {selected ? selected.label : placeholder}
@@ -60,11 +77,14 @@ export function Select<T extends string>({
       </button>
 
       {open && (
-        <ul className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-hair bg-surface p-1 shadow-xl shadow-[0_14px_36px_rgba(70,45,20,0.18)]">
+        <ul
+          role="listbox"
+          className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-hair bg-surface p-1 shadow-xl shadow-[0_14px_36px_rgba(70,45,20,0.18)]"
+        >
           {options.map((o) => {
             const active = o.value === value
             return (
-              <li key={o.value}>
+              <li key={o.value} role="option" aria-selected={active}>
                 <button
                   type="button"
                   onClick={() => {
