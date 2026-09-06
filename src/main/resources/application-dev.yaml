@@ -1,6 +1,11 @@
 server:
   # Dev roda em 8081 por padrão para coexistir com outros serviços locais na 8080.
   port: ${SERVER_PORT:8081}
+  # Same setting as prod. In development every request reaches Tomcat from the Vite proxy
+  # on 127.0.0.1, so without this the rate limiter keys every visitor to the same address
+  # and one abusive caller through a tunnel locks everyone out. Tomcat only honours
+  # X-Forwarded-* from private ranges, so a caller on the open internet cannot spoof it.
+  forward-headers-strategy: native
 
 spring:
   jpa:
