@@ -1,0 +1,15 @@
+# The build needs package.json, the lockfile, the sources and the nginx config. Nothing else
+# belongs in the context: what is not sent cannot end up in a layer.
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Test artefacts, including the saved browser session.
+e2e/.auth/
+test-results/
+playwright-report/
+
+.git/
+*.md

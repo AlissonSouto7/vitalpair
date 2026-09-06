@@ -1,0 +1,89 @@
+# The edge: one per machine, in front of every environment.
+#
+#   docker compose -f deploy/compose.edge.yaml --env-file deploy/env/edge.env up -d
+#
+# It owns ports 80 and 443 and the certificates. The application stacks stay unpublished
+# and are reached over the shared network by their alias, which is what allows staging and
+# production to coexist here without either being reachable except through this proxy.
+
+name: 'vitalpair-edge'
+
+services:
+  nginx:
+    image: 'nginx:1.29-alpine'
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      # The image renders every file in templates/ through envsubst at startup, replacing
+      # only the names listed here. DOLLAR is how an nginx variable survives that pass.
+      SERVER_NAME: '${SERVER_NAME:?set SERVER_NAME (the domain)}'
+      ENVIRONMENT: '${ENVIRONMENT:?set ENVIRONMENT (staging or production)}'
+      NGINX_ENVSUBST_TEMPLATE_SUFFIX: '.template'
+      DOLLAR: '$$'
+    volumes:
+      - './nginx/templates:/etc/nginx/templates:ro'
+      - './nginx/proxy_params.conf:/etc/nginx/proxy_params.conf:ro'
+      - 'certs:/etc/letsencrypt:ro'
+      - 'acme:/var/www/certbot:ro'
+    healthcheck:
+      # -k because the certificate is for the public name, not for localhost. What is being
+      # checked is that nginx answers at all, not that TLS validates from inside.
+      test:
+        ['CMD-SHELL', 'wget -qO- --no-check-certificate https://localhost/ > /dev/null || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    mem_limit: '${NGINX_MEM_LIMIT:-128m}'
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    networks: [edge]
+
+  # Renews the certificate long before it expires. Let's Encrypt issues for ninety days and
+  # renews at thirty left, so twice a day is generous and costs nothing: certbot exits
+  # immediately when there is nothing to do.
+  # nginx reads a certificate once, at startup, so a renewal would sit on disk unused until
+  # something restarted the container and the site would serve an expired certificate.
+  # This asks nginx to re-read its files once a day. It is a separate container on purpose:
+  # replacing nginx's own command would bypass the entrypoint that renders the templates,
+  # which is exactly the mistake that left the stock configuration in place here.
+  nginx-reloader:
+    image: 'docker:cli'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    entrypoint: >
+      sh -c 'trap exit TERM;
+      while :; do
+        sleep 24h & wait $${!};
+        docker exec vitalpair-edge-nginx-1 nginx -s reload || true;
+      done'
+    restart: unless-stopped
+    depends_on: [nginx]
+    logging: *logging
+
+  certbot:
+    image: 'certbot/certbot:latest'
+    volumes:
+      - 'certs:/etc/letsencrypt'
+      - 'acme:/var/www/certbot'
+    entrypoint: >
+      sh -c 'trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done'
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  certs:
+  acme:
+
+networks:
+  edge:
+    name: vitalpair_edge
