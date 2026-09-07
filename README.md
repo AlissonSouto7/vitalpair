@@ -172,14 +172,16 @@ Estrutura: `src/api` (axios + interceptors com refresh de JWT), `src/store` (Zus
 
 ## Deploy (produção)
 
-Imagem Docker multi-stage ([Dockerfile](Dockerfile)) e stack em [compose.prod.yaml](compose.prod.yaml) (Postgres + Redis + backend + Nginx).
+Imagens multi-stage para backend ([Dockerfile](Dockerfile)) e frontend ([frontend/Dockerfile](frontend/Dockerfile)), e a infraestrutura em [deploy/](deploy/README.md): um proxy por máquina, uma pilha por ambiente (staging e produção lado a lado), backup com restauração verificada e deploy com rollback automático.
 
 ```bash
-# no servidor, com um .env de produção (DATABASE_PASSWORD, REDIS_PASSWORD, JWT_SECRET, ...)
-docker compose -f compose.prod.yaml up -d --build
+# ver deploy/README.md para o passo a passo completo
+docker compose -f deploy/compose.edge.yaml --env-file deploy/env/edge.env up -d
+docker compose -f deploy/compose.app.yaml --env-file deploy/env/staging.env up -d --wait
+deploy/scripts/smoke.sh https://seu.dominio
 ```
 
-- A aplicação roda com o profile `prod` (`SPRING_PROFILES_ACTIVE=prod`), atrás do Nginx ([nginx/nginx.conf](nginx/nginx.conf)) que faz reverse proxy e SSL (Let's Encrypt/certbot).
+- A aplicação roda com o profile `prod`, atrás de um Nginx com TLS (Let's Encrypt/certbot), HSTS e limite de requisições nas rotas de autenticação. Banco e cache ficam numa rede interna sem rota a partir do proxy.
 - **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): build + testes em cada push e PR para `main`.
 - **Deploy automatizado**: ainda não existe. Nenhum ambiente está no ar. O pipeline (staging por push na `main`, produção por tag com aprovação, backup antes de migration, smoke test e rollback) será construído junto com a infra de staging e produção.
 

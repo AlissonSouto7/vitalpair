@@ -1,6 +1,9 @@
+# Everything the backend image does not need. What is not sent is not built into a layer
+# and cannot leak into the image: .env is the one that matters.
 target/
 .git/
 .gitignore
+.gitattributes
 .idea/
 *.iml
 .vscode/
@@ -8,6 +11,14 @@ target/
 .env.*
 !.env.example
 docs/
-README.md
-HELP.md
 *.md
+.claude/
+.github/
+
+# The frontend has its own image and build context.
+frontend/
+
+# Local infrastructure and test artefacts.
+deploy/
+compose*.yaml
+nginx/
