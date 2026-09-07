@@ -7,8 +7,8 @@ import com.aps.vitalpair.ai.application.dto.WorkoutToday;
 public interface CompleteWorkoutUseCase {
 
     /**
-     * Marca o treino de hoje como concluído e registra uma atividade WORKOUT pelo use case
-     * da feature activity (que já dispara pontos/feed/streak).
+     * Marks today's workout done and logs a WORKOUT activity through the activity feature's use
+     * case, which already awards points, feeds the timeline and advances the streak.
      */
     WorkoutToday complete(UUID userId, UUID tenantId);
 }

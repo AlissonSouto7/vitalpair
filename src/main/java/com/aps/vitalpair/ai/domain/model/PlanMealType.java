@@ -1,8 +1,8 @@
 package com.aps.vitalpair.ai.domain.model;
 
 /**
- * Refeição do plano alimentar. A ordem de declaração é a ordem de exibição do dia
- * (café da manhã → almoço → lanche → janta) e é usada para ordenar as respostas da API.
+ * A meal of the meal plan. Declaration order is the day's display order (breakfast, lunch,
+ * snack, dinner) and is what orders the API responses.
  */
 public enum PlanMealType {
     BREAKFAST,

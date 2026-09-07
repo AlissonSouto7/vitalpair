@@ -15,11 +15,12 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * Análise de refeição por foto com IA. Controller separado do {@code NutritionController}.
- * Stateless: devolve os alimentos detectados; quem registra é o {@code POST /api/v1/nutrition/logs}.
+ * Meal analysis from a photo. A controller separate from {@code NutritionController}. Stateless:
+ * it returns the foods detected; logging is {@code POST /api/v1/nutrition/logs}.
  */
 @Tag(name = "Meal photo", description = "Estimating what is on a plate from a photograph, with AI.")
 @RestController
@@ -33,6 +34,10 @@ public class NutritionPhotoController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Identify the foods on a plate",
+            description =
+                    "Sends the photo to the model and returns each food found with an estimated portion in grams and its macros. Nothing is stored: the caller edits the result and logs it through the meal endpoint. The image is capped at 5 MB decoded and must be JPEG, PNG or WebP. Limited to twenty analyses an hour per user.")
     @PostMapping("/photo")
     public ResponseEntity<ApiResponse<PhotoAnalysisResponse>> analyzePhoto(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody PhotoAnalysisRequest request) {

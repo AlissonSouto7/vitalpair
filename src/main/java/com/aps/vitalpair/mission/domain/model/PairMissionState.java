@@ -7,7 +7,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Estado da missão de um par em um dia. Imutável. */
+/** A pair's mission state on one day. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class PairMissionState {

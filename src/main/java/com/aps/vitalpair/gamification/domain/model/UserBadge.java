@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Conquista obtida por um usuário. Imutável. */
+/** A badge earned by a user. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class UserBadge {

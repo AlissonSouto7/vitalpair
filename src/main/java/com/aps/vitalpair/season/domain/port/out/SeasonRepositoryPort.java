@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.aps.vitalpair.season.domain.model.Season;
 import com.aps.vitalpair.season.domain.model.SeasonStatus;
 
-/** Porta de saída para persistência de temporadas. */
+/** Outbound port for persisting seasons. */
 public interface SeasonRepositoryPort {
 
     Season save(Season season);

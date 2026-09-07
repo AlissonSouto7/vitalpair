@@ -15,8 +15,8 @@ public interface FoodLogJpaRepository extends JpaRepository<FoodLogJpaEntity, UU
             UUID userId, Instant start, Instant end);
 
     /**
-     * Nomes dos alimentos que o usuário mais registrou, ordenados por
-     * frequência (desc). Isolado por usuário, igual às demais queries.
+     * The food names the user logged most, ordered by frequency descending. Scoped by user, like
+     * every other query here.
      */
     @Query(
             """
@@ -29,12 +29,12 @@ public interface FoodLogJpaRepository extends JpaRepository<FoodLogJpaEntity, UU
     List<FavoriteFoodCountView> findFavoriteCountsByUser(@Param("userId") UUID userId, Pageable pageable);
 
     /**
-     * Registro mais recente de um determinado alimento para o usuário,
-     * usado como valor nutricional representativo do favorito.
+     * The user's most recent entry of a given food, used as the favourite's representative
+     * nutrition values.
      */
     FoodLogJpaEntity findFirstByUserIdAndFoodNameOrderByLoggedAtDesc(UUID userId, String foodName);
 
-    /** Projeção da contagem por nome de alimento. */
+    /** The projection of the count per food name. */
     interface FavoriteFoodCountView {
         String getFoodName();
 

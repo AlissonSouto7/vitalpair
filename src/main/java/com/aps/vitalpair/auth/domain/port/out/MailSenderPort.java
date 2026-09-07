@@ -1,11 +1,11 @@
 package com.aps.vitalpair.auth.domain.port.out;
 
-/** Envio de e-mails transacionais do fluxo de autenticação. */
+/** Sends the transactional e-mails of the authentication flows. */
 public interface MailSenderPort {
 
-    /** Envia o e-mail com o link de redefinição de senha. */
+    /** Sends the e-mail carrying the password reset link. */
     void sendPasswordReset(String toEmail, String name, String resetLink);
 
-    /** Envia o e-mail com o link de confirmação de conta. */
+    /** Sends the e-mail carrying the account confirmation link. */
     void sendEmailVerification(String toEmail, String name, String verifyLink);
 }

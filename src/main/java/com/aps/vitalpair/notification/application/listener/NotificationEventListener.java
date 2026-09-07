@@ -18,8 +18,9 @@ import com.aps.vitalpair.shared.event.PairFormedEvent;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Gera notificações in-app a partir dos eventos de domínio. Roda APÓS o commit e em transação
- * própria, para que uma falha aqui não desfaça o registro original. Refeições privadas não notificam.
+ * Creates in-app notifications from domain events. Runs AFTER the commit and in its own
+ * transaction, so a failure here never rolls back the original record. A private meal notifies
+ * nobody.
  */
 @Component
 public class NotificationEventListener {

@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Um dia do plano de treino ({@code dayIndex} 0 = segunda ... 6 = domingo).
- * Dia de descanso: {@code rest=true}, {@code focus}/{@code durationMin} nulos e sem exercícios.
- * {@code completedOn} guarda a data em que o usuário concluiu o treino (nulo = não concluído).
+ * One day of the workout plan ({@code dayIndex} 0 = Monday ... 6 = Sunday). A rest day has
+ * {@code rest=true}, null {@code focus} and {@code durationMin}, and no exercises.
+ * {@code completedOn} holds the date the user completed the workout (null = not completed).
  */
 public record WorkoutDay(
         UUID id,

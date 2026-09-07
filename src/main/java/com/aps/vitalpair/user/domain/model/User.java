@@ -11,8 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * Modelo de domínio do usuário. Imutável: alterações geram uma nova instância via {@link #toBuilder()}.
- * Não é entidade JPA (ver {@code infrastructure.persistence.UserJpaEntity}).
+ * Domain model of the user. Immutable: changes produce a new instance through
+ * {@link #toBuilder()}. Not a JPA entity (see {@code infrastructure.persistence.UserJpaEntity}).
  */
 @Getter
 @Builder(toBuilder = true)

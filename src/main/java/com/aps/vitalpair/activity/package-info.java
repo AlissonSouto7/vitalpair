@@ -1,9 +1,10 @@
 /**
- * Feature <b>activity</b> — passos, corridas e treinos: registro manual e cálculo de calorias gastas,
- * além da integração com wearables (WeWard, Google Fit, Strava) via OAuth2.
+ * Feature <b>activity</b>: steps, runs and workouts, logged by hand with calories computed or
+ * estimated. The source enum already names the wearables (WeWard, Google Fit, Strava) so their
+ * data can be imported later; no integration exists yet.
  *
- * <p>Organização hexagonal (ver {@code docs/adr/0001-arquitetura-hexagonal.md}):
- * {@code domain} (modelo + portas), {@code application} (casos de uso), {@code infrastructure}
- * (web, persistence, client). Regra de dependência: infrastructure → application → domain.
+ * <p>Hexagonal layout (see {@code docs/adr/0001-arquitetura-hexagonal.md}): {@code domain}
+ * (model and ports), {@code application} (use cases), {@code infrastructure} (web, persistence).
+ * Dependency rule: infrastructure -> application -> domain.
  */
 package com.aps.vitalpair.activity;

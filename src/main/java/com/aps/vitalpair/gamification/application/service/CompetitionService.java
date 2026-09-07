@@ -73,7 +73,7 @@ public class CompetitionService implements GetCompetitionUseCase {
                 .build());
     }
 
-    /** Pontuação atual do usuário na semana da data informada (0 se ainda não pontuou). */
+    /** The user's current score in the week of the given date (0 when nothing scored yet). */
     @Transactional(readOnly = true)
     public int currentScoreOf(UUID tenantId, UUID userId, LocalDate date) {
         Pair pair = pairRepository.findById(tenantId).orElse(null);
@@ -95,7 +95,7 @@ public class CompetitionService implements GetCompetitionUseCase {
         return 0;
     }
 
-    /** Parceiro do usuário no par (null se não houver par ou parceiro). */
+    /** The user's partner in the pair (null when there is no pair or no partner). */
     @Transactional(readOnly = true)
     public UUID partnerOf(UUID tenantId, UUID userId) {
         Pair pair = pairRepository.findById(tenantId).orElse(null);

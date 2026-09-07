@@ -22,8 +22,9 @@ import com.aps.vitalpair.shared.web.RequestContext;
 import com.aps.vitalpair.tenant.TenantContext;
 
 /**
- * Valida o access token (Bearer) em cada requisição, popula o SecurityContext e o
- * {@link TenantContext} com o tenant do token. Limpa o TenantContext ao final da requisição.
+ * Validates the Bearer access token on every request, fills the SecurityContext and the
+ * {@link TenantContext} with the token's tenant, and clears the TenantContext when the request
+ * ends.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

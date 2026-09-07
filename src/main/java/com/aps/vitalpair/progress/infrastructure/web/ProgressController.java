@@ -16,6 +16,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Progress", description = "Weight, calories and macros over time.")
@@ -32,6 +33,10 @@ public class ProgressController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Weight history, calorie chart, macro averages",
+            description =
+                    "The last 26 recorded weights oldest first, seven days of calories against the target, and the week's average macros. Targets come back null when the profile is incomplete; the screen still renders.")
     @GetMapping
     public ResponseEntity<ApiResponse<ProgressResponse>> progress(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -40,6 +45,9 @@ public class ProgressController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Record today's weight",
+            description = "One weight per day; recording again replaces today's entry. Only today can be recorded.")
     @PostMapping("/weight")
     public ResponseEntity<ApiResponse<Void>> recordWeight(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody RecordWeightRequest request) {

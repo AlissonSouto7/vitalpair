@@ -13,6 +13,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Notifications", description = "In-app notifications and marking them read.")
@@ -31,6 +32,10 @@ public class NotificationController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Recent notifications",
+            description =
+                    "The 30 most recent, newest first, plus the total number unread. The count is global, so it can exceed the items returned.")
     @GetMapping
     public ResponseEntity<ApiResponse<NotificationResponse>> list(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -39,6 +44,7 @@ public class NotificationController {
     }
 
     @StandardApiResponses
+    @Operation(summary = "Mark everything read", description = "Marks every unread notification of the caller as read.")
     @PutMapping("/read")
     public ResponseEntity<ApiResponse<Void>> markAllRead(@AuthenticationPrincipal AuthenticatedUser principal) {
         markNotificationsReadUseCase.markAllRead(principal.userId());

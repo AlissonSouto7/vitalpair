@@ -24,6 +24,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Activity", description = "Logging workouts, steps and distance, and the day's summary.")
@@ -45,6 +46,10 @@ public class ActivityController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Log an activity",
+            description =
+                    "Records steps, a run, a ride or a workout. Calories come from the request when given, are estimated from steps (0.04 kcal per step) otherwise, and default to zero. Publishes an event that scores points, appears in the pair's feed and notifies the partner.")
     @PostMapping("/logs")
     public ResponseEntity<ApiResponse<ActivityLogResponse>> log(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody LogActivityRequest request) {
@@ -63,6 +68,10 @@ public class ActivityController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The day's activities",
+            description =
+                    "Every activity the caller logged on the given date, defaulting to today. Days run midnight to midnight in UTC.")
     @GetMapping("/logs")
     public ResponseEntity<ApiResponse<List<ActivityLogResponse>>> logs(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -76,6 +85,10 @@ public class ActivityController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Calories burned and steps for a day",
+            description =
+                    "Totals for the caller on the given date: calories burned (rounded), steps and the number of activities.")
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<ActivitySummaryResponse>> summary(
             @AuthenticationPrincipal AuthenticatedUser principal,

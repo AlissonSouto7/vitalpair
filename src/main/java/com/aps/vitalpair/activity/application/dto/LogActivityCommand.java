@@ -7,8 +7,8 @@ import com.aps.vitalpair.activity.domain.model.ActivitySource;
 import com.aps.vitalpair.activity.domain.model.ActivityType;
 
 /**
- * Dados para registrar uma atividade. Se {@code caloriesBurned} for nulo e houver {@code steps},
- * as calorias são estimadas (passos x 0.04). {@code loggedAt} nulo usa o instante atual.
+ * What it takes to log an activity. When {@code caloriesBurned} is null and {@code steps} is
+ * present, calories are estimated as steps x 0.04. A null {@code loggedAt} means now.
  */
 public record LogActivityCommand(
         ActivityType activityType,

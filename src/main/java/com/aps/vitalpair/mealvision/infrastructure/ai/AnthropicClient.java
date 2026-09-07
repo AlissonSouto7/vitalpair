@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
- * Cliente Feign da API de Mensagens da Anthropic (Claude). Os headers obrigatórios
- * ({@code x-api-key}, {@code anthropic-version}, {@code content-type}) são injetados pelo
- * {@link AnthropicClientConfig#anthropicHeaders}; os timeouts também vêm de lá.
+ * Feign client of the Anthropic Messages API (Claude). The required headers ({@code x-api-key},
+ * {@code anthropic-version}, {@code content-type}) are injected by
+ * {@link AnthropicClientConfig#anthropicHeaders}; the timeouts come from there too.
  */
 @FeignClient(
         name = "anthropic",

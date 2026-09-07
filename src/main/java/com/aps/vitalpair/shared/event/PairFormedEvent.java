@@ -2,5 +2,5 @@ package com.aps.vitalpair.shared.event;
 
 import java.util.UUID;
 
-/** Publicado quando um par é formado (convite aceito). Consumido pela gamificação. */
+/** Published when a pair is formed (an invite accepted). Consumed by gamification and notifications. */
 public record PairFormedEvent(UUID tenantId, UUID user1Id, UUID user2Id) {}

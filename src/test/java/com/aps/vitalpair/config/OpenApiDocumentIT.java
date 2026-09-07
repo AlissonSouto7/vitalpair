@@ -92,26 +92,34 @@ class OpenApiDocumentIT {
     }
 
     @Test
-    void everyAuthenticationEndpointStatesWhatItDoes() {
+    void everyEndpointStatesWhatItDoes() {
         JsonNode paths = document().path("paths");
 
         List<String> undocumented = new ArrayList<>();
-        paths.properties().forEach(entry -> {
-            if (!entry.getKey().startsWith("/api/v1/auth/")) {
-                return;
+        List<String> terse = new ArrayList<>();
+        paths.properties().forEach(entry -> entry.getValue().properties().forEach(operation -> {
+            String route = operation.getKey().toUpperCase() + " " + entry.getKey();
+            String summary = operation.getValue().path("summary").asText("");
+            String description = operation.getValue().path("description").asText("");
+            if (summary.isBlank()) {
+                undocumented.add(route);
+            } else if (description.isBlank()) {
+                terse.add(route);
             }
-            entry.getValue().properties().forEach(operation -> {
-                String summary = operation.getValue().path("summary").asText("");
-                if (summary.isBlank()) {
-                    undocumented.add(operation.getKey().toUpperCase() + " " + entry.getKey());
-                }
-            });
-        });
+        }));
 
-        // Authentication is where a newcomer starts and where the non-obvious rules live:
-        // single-use refresh tokens, replay revoking a family, answers that deliberately
-        // do not reveal whether an account exists.
+        // A summary names the operation; the description carries the rule a caller cannot
+        // guess from the path: what is refused, what is limited, what a null means. An
+        // endpoint with neither is one the reader has to open the code for, which is what
+        // the document exists to spare them. Started with the auth endpoints in phase 13
+        // and widened to all of them once every controller carried both.
         assertThat(undocumented).as("these endpoints have no summary").isEmpty();
+        assertThat(terse)
+                .as("these endpoints have a summary but no description")
+                .isEmpty();
+        assertThat(paths.size())
+                .as("sanity: the document should list the real routes")
+                .isGreaterThan(40);
     }
 
     @Test

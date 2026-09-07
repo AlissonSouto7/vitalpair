@@ -12,10 +12,10 @@ import feign.Request;
 import feign.RequestInterceptor;
 
 /**
- * Configuração do {@link AnthropicClient}. Injeta os headers obrigatórios da Anthropic em toda
- * requisição e define os timeouts (a visão é lenta; o valor vem de
- * {@link AnthropicProperties#photoReadTimeout()}). Não é {@code @Configuration} para não virar
- * config global do Feign: ela vale só para o cliente {@code anthropic}.
+ * Configuration of {@link AnthropicClient}. Injects the headers Anthropic requires on every
+ * request and sets the timeouts (vision is slow; the value comes from
+ * {@link AnthropicProperties#photoReadTimeout()}). Not a {@code @Configuration} so it does not
+ * become global Feign configuration: it applies to the {@code anthropic} client only.
  */
 public class AnthropicClientConfig {
 

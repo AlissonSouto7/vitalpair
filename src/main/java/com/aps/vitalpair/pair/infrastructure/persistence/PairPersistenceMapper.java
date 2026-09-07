@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 
 import com.aps.vitalpair.pair.domain.model.Pair;
 
-/** Converte entre o modelo de domínio {@link Pair} e a entidade JPA {@link PairJpaEntity}. */
+/** Converts between the domain model {@link Pair} and the JPA entity {@link PairJpaEntity}. */
 @Mapper
 public interface PairPersistenceMapper {
 

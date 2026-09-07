@@ -4,20 +4,20 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * Progresso calculado de uma missão semanal para o usuário logado (e seu parceiro,
- * quando a missão é de dupla). Combina o item do catálogo com as contagens reais.
+ * The computed progress of a weekly mission for the caller (and their partner, when the
+ * mission is a pair one). Combines the catalogue item with the real counts.
  */
 @Getter
 @Builder
 public class WeeklyMissionProgress {
 
     private final WeeklyMission mission;
-    /** Progresso do usuário logado na métrica da missão. */
+    /** The caller's progress on the mission's metric. */
     private final int current;
-    /** Primeiro nome do parceiro, ou {@code null} se a missão é SELF ou não há parceiro. */
+    /** The partner's first name, or {@code null} when the mission is SELF or there is no partner. */
     private final String partnerName;
-    /** Progresso do parceiro, ou {@code null} se a missão é SELF ou não há parceiro. */
+    /** The partner's progress, or {@code null} when the mission is SELF or there is no partner. */
     private final Integer partnerCurrent;
-    /** Se a missão foi concluída segundo as regras do seu escopo. */
+    /** Whether the mission is complete under the rules of its scope. */
     private final boolean completed;
 }

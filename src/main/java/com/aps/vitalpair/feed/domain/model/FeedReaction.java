@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Reação de um usuário a um item do feed. Imutável. */
+/** A user's reaction to a feed item. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class FeedReaction {

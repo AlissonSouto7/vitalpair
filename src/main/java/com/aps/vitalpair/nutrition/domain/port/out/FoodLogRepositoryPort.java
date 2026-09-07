@@ -17,9 +17,9 @@ public interface FoodLogRepositoryPort {
     List<FoodLog> findByUserAndDate(UUID userId, LocalDate date);
 
     /**
-     * Alimentos que o usuário mais registrou, ordenados por frequência (desc),
-     * limitados a {@code limit}. Os valores nutricionais vêm do registro mais
-     * recente de cada {@code foodName}.
+     * The foods the user logged most, ordered by frequency descending and limited to
+     * {@code limit}. The nutrition values come from the most recent entry of each
+     * {@code foodName}.
      */
     List<FavoriteFood> findTopByUser(UUID userId, int limit);
 

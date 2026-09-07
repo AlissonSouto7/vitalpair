@@ -21,8 +21,8 @@ import com.aps.vitalpair.user.domain.port.in.UpdateProfileUseCase;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Casos de uso do perfil do usuário. Ao atualizar o perfil, recalcula automaticamente a meta
- * calórica e os macros via {@link CalculateTargetsUseCase} (feature tdee).
+ * Use cases of the user profile. Updating the profile recomputes the calorie target and the
+ * macros through {@link CalculateTargetsUseCase} (the tdee feature).
  */
 @Service
 public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCase, GetTdeeUseCase {
@@ -76,7 +76,7 @@ public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCa
 
         User saved = userRepository.save(updated);
 
-        // Mudar o peso no perfil vira um ponto no histórico (weight_logs de hoje, upsert).
+        // Changing the weight in the profile becomes a history point (today's weight_logs row, upserted).
         if (saved.getWeightKg() != null) {
             recordWeight.recordTodayWeight(saved.getId(), saved.getWeightKg());
         }

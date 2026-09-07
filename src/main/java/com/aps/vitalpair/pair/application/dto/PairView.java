@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.model.RelationshipType;
 
-/** Visão agregada do par (membros resolvidos), usada pelos casos de uso. */
+/** The aggregate view of the pair, members resolved, used by the use cases. */
 public record PairView(
         UUID id,
         String pairName,

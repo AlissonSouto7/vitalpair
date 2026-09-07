@@ -46,7 +46,7 @@ public class BadgeService implements GetBadgeCatalogUseCase, GetUserBadgesUseCas
                 .toList();
     }
 
-    /** Concede a conquista ao usuário se ainda não a tiver (idempotente). */
+    /** Awards the badge to the user unless they already hold it (idempotent). */
     @Transactional
     public void awardByCode(UUID userId, UUID tenantId, String code) {
         badgeRepository.findByCode(code).ifPresent(badge -> {

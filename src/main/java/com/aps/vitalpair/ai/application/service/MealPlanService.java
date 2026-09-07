@@ -26,11 +26,11 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Casos de uso do plano alimentar semanal por IA. A semana é sempre a que contém a data atual
- * (week start = segunda-feira, {@code previousOrSame(MONDAY)}). Gerar substitui o plano da semana.
+ * Use cases of the AI weekly meal plan. The week is always the one containing today (week
+ * start is Monday, {@code previousOrSame(MONDAY)}). Generating replaces the week's plan.
  *
- * <p>O tenant vem do token em toda operação e é gravado junto com o plano, como em qualquer
- * tabela de dado de usuário.
+ * <p>The tenant comes from the token on every operation and is stored with the plan, as in
+ * every other table of user-owned data.
  */
 @Service
 public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseCase, SwapMealUseCase {

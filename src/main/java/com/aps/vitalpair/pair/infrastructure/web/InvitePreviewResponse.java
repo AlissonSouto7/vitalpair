@@ -4,11 +4,11 @@ import com.aps.vitalpair.pair.domain.model.InvitePreview;
 import com.aps.vitalpair.pair.domain.model.RelationshipType;
 
 /**
- * Resposta pública da prévia de um convite.
+ * The public response of an invite preview.
  *
- * @param inviterName      primeiro nome de quem convidou
- * @param relationshipType tipo de vínculo proposto
- * @param full             {@code true} se o convite já foi usado (par cheio)
+ * @param inviterName      the inviter's first name
+ * @param relationshipType the relationship type proposed
+ * @param full             {@code true} when the invite is already used (the pair is full)
  */
 public record InvitePreviewResponse(String inviterName, RelationshipType relationshipType, boolean full) {
 

@@ -1,2 +1,2 @@
-/** Camada de aplicação da análise de foto de refeição. */
+/** Application layer of meal photo analysis. */
 package com.aps.vitalpair.mealvision.application;

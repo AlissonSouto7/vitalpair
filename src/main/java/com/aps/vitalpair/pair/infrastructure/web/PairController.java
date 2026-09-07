@@ -21,6 +21,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Pair", description = "Forming a pair: generating an invite, previewing one, and joining.")
@@ -48,6 +49,7 @@ public class PairController {
     }
 
     @StandardApiResponses
+    @Operation(summary = "The caller's pair", description = "Its members, status, relationship label and invite code.")
     @GetMapping
     public ResponseEntity<ApiResponse<PairResponse>> current(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = getCurrentPairUseCase.getCurrentPair(principal.userId());
@@ -55,6 +57,10 @@ public class PairController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Preview an invite",
+            description =
+                    "Public, because the link is opened before signing up. Returns only the inviter's first name, the relationship type and whether the pair is already full.")
     @GetMapping("/invite/{code}")
     public ResponseEntity<ApiResponse<InvitePreviewResponse>> invitePreview(@PathVariable String code) {
         var preview = getInvitePreviewUseCase.getInvitePreview(code);
@@ -62,6 +68,9 @@ public class PairController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The invite code",
+            description = "The code to share with the partner. Answers 422 when the caller is already paired.")
     @PostMapping("/invite")
     public ResponseEntity<ApiResponse<PairResponse>> invite(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = generateInviteUseCase.generateInvite(principal.userId());
@@ -70,6 +79,9 @@ public class PairController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Set the relationship label",
+            description = "Couple, duo, friends and so on. Cosmetic; it changes nothing about how the pair works.")
     @PutMapping("/type")
     public ResponseEntity<ApiResponse<PairResponse>> updateType(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -79,6 +91,10 @@ public class PairController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Accept an invite",
+            description =
+                    "Moves the caller into the inviter's pair, along with everything they had already logged, and activates it. Refused when the code is unknown (404), already used, the caller's own, or the caller is already paired (422).")
     @PostMapping("/join/{code}")
     public ResponseEntity<ApiResponse<PairResponse>> join(
             @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable String code) {

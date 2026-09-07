@@ -31,6 +31,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Nutrition", description = "Searching foods, logging meals and reading the day's totals.")
@@ -64,6 +65,10 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Search foods by name",
+            description =
+                    "Queries Open Food Facts. An upstream failure returns an empty list rather than an error, so a partner outage degrades the search box instead of breaking the screen.")
     @GetMapping("/foods/search")
     public ResponseEntity<ApiResponse<List<FoodProductResponse>>> search(@RequestParam("q") String query) {
         List<FoodProductResponse> products = searchFoodUseCase.search(query).stream()
@@ -73,6 +78,9 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Look up a product by barcode",
+            description = "One product from Open Food Facts, or 404 when the barcode is unknown.")
     @GetMapping("/foods/barcode/{code}")
     public ResponseEntity<ApiResponse<FoodProductResponse>> byBarcode(@PathVariable String code) {
         return ResponseEntity.ok(
@@ -80,6 +88,10 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Log a meal",
+            description =
+                    "Records what was eaten with its macros. The tenant is taken from the session, never from the body. Publishes an event that scores points, appears in the pair's feed unless the meal is private, and notifies the partner.")
     @PostMapping("/logs")
     public ResponseEntity<ApiResponse<FoodLogResponse>> log(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody LogMealRequest request) {
@@ -101,6 +113,9 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The day's meals",
+            description = "Every meal the caller logged on the given date, defaulting to today, oldest first.")
     @GetMapping("/logs")
     public ResponseEntity<ApiResponse<List<FoodLogResponse>>> logs(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -113,6 +128,9 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Delete a meal",
+            description = "Deletes one of the caller's own meals. Someone else's answers 404, not 403.")
     @DeleteMapping("/logs/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable UUID id) {
@@ -121,6 +139,10 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Calories and macros for a day",
+            description =
+                    "Totals against the caller's targets. `remaining` is null when no target is set, and does not subtract exercise; the dashboard's remaining does.")
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<DailySummaryResponse>> summary(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -131,6 +153,10 @@ public class NutritionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The caller's most repeated foods",
+            description =
+                    "The eight food names logged most often, each with the quantity and macros of its most recent entry, for one-tap re-logging.")
     @GetMapping("/favorites")
     public ResponseEntity<ApiResponse<List<FavoriteFoodResponse>>> favorites(
             @AuthenticationPrincipal AuthenticatedUser principal) {

@@ -1,16 +1,16 @@
 package com.aps.vitalpair.ai.domain.exception;
 
 /**
- * A IA respondeu, mas a resposta não serve: recusa do modelo, resposta vazia ou fora do
- * formato esperado.
+ * The model answered, and the answer is unusable: a refusal, an empty response, or one outside
+ * the expected shape.
  *
- * <p>Distinta de {@link PlanGenerationException} por causa do disjuntor. Erro de rede, timeout
- * e 5xx indicam parceiro fora do ar e devem contar para abrir o circuito; recusa e resposta
- * malformada são respostas normais a um pedido específico. Sem essa separação, alguns prompts
- * incomuns derrubariam a geração de planos para todo mundo por um minuto.
+ * <p>Distinct from {@link PlanGenerationException} because of the circuit breaker. A network
+ * error, a timeout or a 5xx mean the partner is down and must count towards opening the
+ * circuit; a refusal or a malformed answer is a normal reply to one particular request. Without
+ * the split, a handful of unusual prompts would take plan generation down for everyone for a
+ * minute.
  *
- * <p>Continua mapeada para HTTP 502, porque do ponto de vista de quem chamou o resultado é o
- * mesmo: o plano não veio.
+ * <p>Still mapped to HTTP 502, because from the caller's side the outcome is the same: no plan.
  */
 public class PlanContentException extends PlanGenerationException {
 

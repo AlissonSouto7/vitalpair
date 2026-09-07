@@ -1,6 +1,6 @@
 package com.aps.vitalpair.pair.domain.model;
 
-/** Tipo do vínculo entre os dois membros do par/tenant. */
+/** The kind of relationship between the two members of the pair. */
 public enum RelationshipType {
     PAIR,
     DUO,

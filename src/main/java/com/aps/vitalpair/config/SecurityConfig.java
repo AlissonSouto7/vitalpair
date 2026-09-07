@@ -21,7 +21,7 @@ import com.aps.vitalpair.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.aps.vitalpair.shared.ratelimit.RateLimitFilter;
 import com.aps.vitalpair.shared.web.JsonAuthenticationEntryPoint;
 
-/** Configuração de segurança: stateless, JWT, CORS e rotas públicas vs protegidas. */
+/** Security configuration: stateless, JWT, CORS, and which routes are public. */
 @Configuration
 // Enables @PreAuthorize. Without it the annotation is silently ignored, which is the
 // dangerous failure mode: the endpoint looks guarded and is not.
@@ -73,7 +73,7 @@ public class SecurityConfig {
                         // match the same paths on the management port.
                         .requestMatchers("/actuator/**")
                         .permitAll()
-                        // Prévia pública do convite: só leitura, exibida antes de o convidado ter conta.
+                        // Public invite preview: read only, shown before the guest has an account.
                         .requestMatchers(HttpMethod.GET, "/api/v1/pair/invite/**")
                         .permitAll()
                         .anyRequest()

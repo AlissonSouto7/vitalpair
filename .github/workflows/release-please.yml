@@ -1,0 +1,39 @@
+# Cuts releases from the commit history.
+#
+# release-please reads the Conventional Commits merged into main since the last release,
+# keeps a "release" pull request open with the next version and the changelog entry, and
+# when that pull request is merged it creates the tag and the GitHub release. Nothing is
+# built or deployed here: the tag is the signal the deploy pipeline (phase 12) will react
+# to, and the deploy still needs a manual approval.
+#
+# Versions: bump-minor-pre-major is on, so a feat: bumps the minor and a fix: the patch
+# while the major is 0. The version lives in pom.xml (the maven release type updates it)
+# and is mirrored into frontend/package.json through extra-files.
+#
+# The repository setting "Allow GitHub Actions to create and approve pull requests" must be
+# on (Settings > Actions > General), or the action cannot open the release pull request.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

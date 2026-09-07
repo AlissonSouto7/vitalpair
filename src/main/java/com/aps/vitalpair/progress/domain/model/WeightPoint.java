@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Um ponto do histórico de peso: o peso registrado numa data.
+ * One point of the weight history: the weight recorded on a date.
  *
- * @param date     dia do registro
- * @param weightKg peso em quilos
+ * @param date     the day
+ * @param weightKg the weight in kilograms
  */
 public record WeightPoint(LocalDate date, BigDecimal weightKg) {}

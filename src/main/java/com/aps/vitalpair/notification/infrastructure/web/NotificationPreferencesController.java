@@ -16,6 +16,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Notification preferences", description = "Which notifications a person wants to receive.")
@@ -34,6 +35,10 @@ public class NotificationPreferencesController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Notification preferences",
+            description =
+                    "The three switches: rival overtook you, daily flash mission, evening reminder. Defaults are on, on and off when nothing has been saved.")
     @GetMapping
     public ResponseEntity<ApiResponse<NotificationPreferencesResponse>> get(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -42,6 +47,9 @@ public class NotificationPreferencesController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Replace the preferences",
+            description = "All three switches at once; a missing one is a 400 rather than a silent false.")
     @PutMapping
     public ResponseEntity<ApiResponse<NotificationPreferencesResponse>> update(
             @AuthenticationPrincipal AuthenticatedUser principal,

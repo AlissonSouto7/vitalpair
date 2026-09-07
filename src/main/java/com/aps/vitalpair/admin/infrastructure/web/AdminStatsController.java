@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
@@ -36,6 +37,10 @@ public class AdminStatsController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Installation-wide counts",
+            description =
+                    "Six counts spanning every tenant: accounts, verified accounts, pairs, active pairs, meals logged and activities logged. Counts only, never rows. Requires the ADMIN role, which is granted by a database update and never through the API.")
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<AdminStats>> stats() {
         return ResponseEntity.ok(ApiResponse.ok(new AdminStats(

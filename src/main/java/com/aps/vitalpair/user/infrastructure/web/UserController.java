@@ -18,6 +18,7 @@ import com.aps.vitalpair.user.domain.port.in.GetProfileUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetTdeeUseCase;
 import com.aps.vitalpair.user.domain.port.in.UpdateProfileUseCase;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
@@ -41,6 +42,10 @@ public class UserController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The caller's profile",
+            description =
+                    "Name, body measurements, goal, activity level and the computed targets. Never the password hash.")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserProfileResponse>> me(@AuthenticationPrincipal AuthenticatedUser principal) {
         var user = getProfileUseCase.getProfile(principal.userId());
@@ -48,6 +53,10 @@ public class UserController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Replace the profile",
+            description =
+                    "All fields at once. The calorie target and the macro targets are recomputed by the server from height, weight, age, sex, activity and goal; a client cannot set them. `avatarUrl` must be https, because it is rendered in the partner's browser.")
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateMe(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody UpdateProfileRequest request) {
@@ -65,6 +74,10 @@ public class UserController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Basal and total daily energy",
+            description =
+                    "BMR (Mifflin-St Jeor), TDEE by activity multiplier, the calorie target after the goal adjustment and the macro split. Answers 422 naming the missing fields when the profile is incomplete.")
     @GetMapping("/me/tdee")
     public ResponseEntity<ApiResponse<TdeeResponse>> myTdee(@AuthenticationPrincipal AuthenticatedUser principal) {
         var result = getTdeeUseCase.getTdee(principal.userId());

@@ -15,9 +15,9 @@ import com.aps.vitalpair.shared.metrics.AiMetrics;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
- * Passo comum das gerações por IA: valida a configuração, chama a Anthropic com saída
- * estruturada (json_schema) e devolve o bloco de texto (JSON) da resposta, traduzindo
- * erro/timeout/recusa em {@link PlanGenerationException} (HTTP 502).
+ * The step every AI generation shares: checks the configuration, calls Anthropic with
+ * structured output (json_schema) and returns the response's text block (JSON), turning an
+ * error, a timeout or a refusal into {@link PlanGenerationException} (HTTP 502).
  */
 @Component
 class PlanAiGateway {
@@ -35,14 +35,15 @@ class PlanAiGateway {
     }
 
     /**
-     * Chama a IA e devolve o JSON (texto) já validado contra recusa/resposta vazia.
+     * Calls the model and returns the JSON text, already checked against a refusal or an empty
+     * answer.
      *
-     * <p>O disjuntor abre depois de metade das chamadas recentes falharem e passa a recusar na
-     * hora, em vez de cada requisição esperar o timeout de sessenta segundos. Sem retentativa,
-     * de propósito: repetir uma chamada paga e lenta multiplica custo e espera justamente quando
-     * o parceiro está mal.
+     * <p>The circuit breaker opens once half of the recent calls have failed and then refuses on
+     * the spot, instead of every request waiting out the sixty-second timeout. No retry, on
+     * purpose: repeating a slow paid call multiplies cost and waiting exactly when the partner is
+     * struggling.
      *
-     * @param kind identifica a chamada nas métricas
+     * @param kind identifies the call in the metrics
      */
     @CircuitBreaker(name = "anthropic", fallbackMethod = "unavailable")
     String generateJson(String kind, String systemPrompt, String userPrompt, Object schema, int maxTokens) {

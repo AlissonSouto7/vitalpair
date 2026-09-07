@@ -1,2 +1,2 @@
-/** Serviços de aplicação da análise de foto de refeição. */
+/** Application services of meal photo analysis. */
 package com.aps.vitalpair.mealvision.application.service;

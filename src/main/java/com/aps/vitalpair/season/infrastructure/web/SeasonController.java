@@ -16,6 +16,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Season", description = "The current season and the stake the pair agreed on.")
@@ -32,6 +33,10 @@ public class SeasonController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The current season",
+            description =
+                    "The thirty-day competition: day number, days left, the stake, both totals, a per-day chart, a breakdown by source and the history of closed seasons. Reading it also creates or rolls over seasons as needed; there is no scheduler.")
     @GetMapping
     public ResponseEntity<ApiResponse<SeasonResponse>> current(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = getSeasonUseCase.getCurrentSeason(principal.userId());
@@ -39,6 +44,9 @@ public class SeasonController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Set the stake",
+            description = "What the loser owes, up to 255 characters. Carries over to the next season.")
     @PutMapping("/stake")
     public ResponseEntity<ApiResponse<SeasonResponse>> updateStake(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody UpdateStakeRequest request) {

@@ -1,9 +1,9 @@
 package com.aps.vitalpair.mission.domain.model;
 
-/** Métrica que define como o progresso de uma missão semanal é contado. */
+/** How the progress of a weekly mission is counted. */
 public enum WeeklyMissionMetric {
-    /** Dias distintos em que o usuário registrou ao menos 1 refeição. */
+    /** Distinct days on which the user logged at least one meal. */
     MEAL_DAYS,
-    /** Atividades do usuário cujo tipo não seja STEPS. */
+    /** The user's activities whose type is not STEPS. */
     WORKOUTS
 }
