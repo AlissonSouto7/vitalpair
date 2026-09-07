@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests clean package
 RUN java -Djarmode=tools -jar target/vitalpair-*.jar extract --destination extracted  && mv extracted/vitalpair-*.jar extracted/app.jar
 
 # ---- runtime ----
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # curl for the healthcheck below. Alpine ships none, and a healthcheck that cannot run is
