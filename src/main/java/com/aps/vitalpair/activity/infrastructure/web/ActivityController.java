@@ -22,7 +22,11 @@ import com.aps.vitalpair.activity.domain.port.in.GetDailyActivitiesUseCase;
 import com.aps.vitalpair.activity.domain.port.in.LogActivityUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Activity", description = "Logging workouts, steps and distance, and the day's summary.")
 @RestController
 @RequestMapping("/api/v1/activity")
 public class ActivityController {
@@ -40,6 +44,7 @@ public class ActivityController {
         this.getActivitySummaryUseCase = getActivitySummaryUseCase;
     }
 
+    @StandardApiResponses
     @PostMapping("/logs")
     public ResponseEntity<ApiResponse<ActivityLogResponse>> log(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody LogActivityRequest request) {
@@ -57,6 +62,7 @@ public class ActivityController {
                 .body(ApiResponse.ok(ActivityLogResponse.from(saved), "Atividade registrada"));
     }
 
+    @StandardApiResponses
     @GetMapping("/logs")
     public ResponseEntity<ApiResponse<List<ActivityLogResponse>>> logs(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -69,6 +75,7 @@ public class ActivityController {
         return ResponseEntity.ok(ApiResponse.ok(logs));
     }
 
+    @StandardApiResponses
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<ActivitySummaryResponse>> summary(
             @AuthenticationPrincipal AuthenticatedUser principal,

@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.aps.vitalpair.dashboard.domain.port.in.GetDashboardUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Dashboard", description = "One call with everything the home screen shows for a day.")
 @RestController
 @RequestMapping("/api/v1/dashboard")
 public class DashboardController {
@@ -24,6 +28,7 @@ public class DashboardController {
         this.getDashboardUseCase = getDashboardUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping
     public ResponseEntity<ApiResponse<DashboardResponse>> dashboard(
             @AuthenticationPrincipal AuthenticatedUser principal,

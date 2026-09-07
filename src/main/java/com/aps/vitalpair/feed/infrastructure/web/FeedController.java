@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,8 +25,13 @@ import com.aps.vitalpair.feed.domain.port.in.ReactToFeedItemUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.PageResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Feed", description = "What the pair has been doing, and reacting to it.")
 @RestController
+@Validated
 @RequestMapping("/api/v1/pair/feed")
 public class FeedController {
 
@@ -38,11 +45,16 @@ public class FeedController {
         this.reactToFeedItemUseCase = reactToFeedItemUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<FeedItemResponse>>> feed(
             @AuthenticationPrincipal AuthenticatedUser principal,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size) {
+            // Bounded below as well as above: a negative page or size reached PageRequest.of
+            // and threw, so bad input from a client came back as 500. A 500 says the server
+            // is broken, which sends the reader hunting through logs for a fault that is not
+            // there, and buries the ones that are.
+            @RequestParam(value = "page", defaultValue = "0") @Min(0) int page,
+            @RequestParam(value = "size", defaultValue = "20") @Min(1) int size) {
         PageResponse<FeedItemView> result = getFeedUseCase.getFeed(principal.userId(), page, Math.min(size, MAX_SIZE));
         List<FeedItemResponse> content =
                 result.content().stream().map(FeedItemResponse::from).toList();
@@ -51,6 +63,7 @@ public class FeedController {
         return ResponseEntity.ok(ApiResponse.ok(body));
     }
 
+    @StandardApiResponses
     @PostMapping("/{itemId}/reactions")
     public ResponseEntity<ApiResponse<Void>> react(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -60,6 +73,7 @@ public class FeedController {
         return ResponseEntity.ok(ApiResponse.ok(null, "Reação registrada"));
     }
 
+    @StandardApiResponses
     @DeleteMapping("/{itemId}/reactions/{type}")
     public ResponseEntity<ApiResponse<Void>> removeReaction(
             @AuthenticationPrincipal AuthenticatedUser principal,

@@ -11,7 +11,11 @@ import com.aps.vitalpair.notification.domain.port.in.ListNotificationsUseCase;
 import com.aps.vitalpair.notification.domain.port.in.MarkNotificationsReadUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Notifications", description = "In-app notifications and marking them read.")
 @RestController
 @RequestMapping("/api/v1/notifications")
 public class NotificationController {
@@ -26,6 +30,7 @@ public class NotificationController {
         this.markNotificationsReadUseCase = markNotificationsReadUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping
     public ResponseEntity<ApiResponse<NotificationResponse>> list(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -33,6 +38,7 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.ok(NotificationResponse.from(feed)));
     }
 
+    @StandardApiResponses
     @PutMapping("/read")
     public ResponseEntity<ApiResponse<Void>> markAllRead(@AuthenticationPrincipal AuthenticatedUser principal) {
         markNotificationsReadUseCase.markAllRead(principal.userId());
