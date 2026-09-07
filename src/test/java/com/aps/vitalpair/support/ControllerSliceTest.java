@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
 import com.aps.vitalpair.config.SecurityConfig;
 import com.aps.vitalpair.shared.ratelimit.RateLimiter;
+import com.aps.vitalpair.shared.web.JsonAuthenticationEntryPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -24,7 +25,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * <p>That chain needs a token provider and a Redis-backed limiter, which no slice has;
  * both are mocked here so every controller test starts from the same working setup.
  */
-@Import(SecurityConfig.class)
+// JsonAuthenticationEntryPoint comes along because SecurityConfig requires it and a
+// slice scans no @Component of its own.
+@Import({SecurityConfig.class, JsonAuthenticationEntryPoint.class})
 @ActiveProfiles("test")
 public abstract class ControllerSliceTest {
 

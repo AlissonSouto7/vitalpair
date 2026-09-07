@@ -1,8 +1,5 @@
 package com.aps.vitalpair.mealvision.infrastructure.web;
 
-import java.time.Instant;
-import java.util.List;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -15,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.aps.vitalpair.mealvision.domain.exception.AiNotConfiguredException;
 import com.aps.vitalpair.mealvision.domain.exception.MealPhotoAnalysisException;
 import com.aps.vitalpair.shared.web.ApiError;
+import com.aps.vitalpair.shared.web.ApiErrors;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.LogSafe;
 
@@ -31,19 +29,13 @@ public class MealVisionExceptionHandler {
     @ExceptionHandler(AiNotConfiguredException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleNotConfigured(
             AiNotConfiguredException ex, HttpServletRequest request) {
-        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+        return ApiErrors.response(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
     }
 
     @ExceptionHandler(MealPhotoAnalysisException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleAnalysisFailure(
             MealPhotoAnalysisException ex, HttpServletRequest request) {
         log.warn("Falha na análise de foto em {}: {}", LogSafe.value(request.getRequestURI()), ex.getMessage(), ex);
-        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
-    }
-
-    private ResponseEntity<ApiResponse<ApiError>> build(HttpStatus status, String message, HttpServletRequest request) {
-        ApiError detail = new ApiError(
-                Instant.now(), status.value(), status.getReasonPhrase(), request.getRequestURI(), List.of());
-        return ResponseEntity.status(status).body(ApiResponse.fail(message, detail));
+        return ApiErrors.response(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
     }
 }

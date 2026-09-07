@@ -35,6 +35,10 @@ vitalpair:
     enabled: true
 
 logging:
+  # Same shape as development: the request id in front of the message. CorrelationIdIT asserts
+  # on it, so the id reaching the log is proved rather than assumed.
+  pattern:
+    console: '%d{HH:mm:ss.SSS} %5p [%X{requestId:-no-request}] %-40.40logger{39} : %m%n%wEx'
   level:
     com.aps.vitalpair: INFO
     org.hibernate.SQL: WARN

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
+import com.aps.vitalpair.ai.domain.exception.PlanContentException;
 import com.aps.vitalpair.ai.domain.model.MealPlanItem;
 import com.aps.vitalpair.ai.domain.model.NutritionTargets;
 import com.aps.vitalpair.ai.domain.model.PlanMealType;
@@ -49,13 +49,15 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
 
     @Override
     public List<MealPlanItem> generateWeek(NutritionTargets targets) {
-        String json = gateway.generateJson(SYSTEM_PROMPT, weekPrompt(targets), weekSchema(), WEEK_MAX_TOKENS);
+        String json =
+                gateway.generateJson("meal-plan", SYSTEM_PROMPT, weekPrompt(targets), weekSchema(), WEEK_MAX_TOKENS);
         return parseWeek(json);
     }
 
     @Override
     public MealPlanItem generateAlternative(MealPlanItem current) {
-        String json = gateway.generateJson(SYSTEM_PROMPT, swapPrompt(current), mealSchema(), SWAP_MAX_TOKENS);
+        String json =
+                gateway.generateJson("meal-swap", SYSTEM_PROMPT, swapPrompt(current), mealSchema(), SWAP_MAX_TOKENS);
         return parseAlternative(json, current);
     }
 
@@ -156,7 +158,7 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
         JsonNode root = readTree(json);
         JsonNode days = root.path("days");
         if (!days.isArray() || days.isEmpty()) {
-            throw new PlanGenerationException("A IA retornou um cardápio vazio. Tente gerar de novo.");
+            throw new PlanContentException("A IA retornou um cardápio vazio. Tente gerar de novo.");
         }
         List<MealPlanItem> items = new ArrayList<>();
         Set<String> slots = new HashSet<>();
@@ -182,7 +184,7 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
             }
         }
         if (items.isEmpty()) {
-            throw new PlanGenerationException("A IA retornou um cardápio vazio. Tente gerar de novo.");
+            throw new PlanContentException("A IA retornou um cardápio vazio. Tente gerar de novo.");
         }
         return items;
     }
@@ -191,7 +193,7 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
         JsonNode meal = readTree(json);
         String name = meal.path("name").asText("");
         if (name.isBlank()) {
-            throw new PlanGenerationException("A IA não retornou a refeição alternativa. Tente de novo.");
+            throw new PlanContentException("A IA não retornou a refeição alternativa. Tente de novo.");
         }
         return new MealPlanItem(
                 current.id(),
@@ -209,7 +211,7 @@ public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {
             return objectMapper.readTree(json);
         } catch (JsonProcessingException ex) {
             log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
-            throw new PlanGenerationException("A IA retornou um resultado em formato inesperado.", ex);
+            throw new PlanContentException("A IA retornou um resultado em formato inesperado.", ex);
         }
     }
 

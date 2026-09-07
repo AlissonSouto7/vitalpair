@@ -6,13 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -21,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.aps.vitalpair.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.aps.vitalpair.shared.ratelimit.RateLimitFilter;
+import com.aps.vitalpair.shared.web.JsonAuthenticationEntryPoint;
 
 /** Configuração de segurança: stateless, JWT, CORS e rotas públicas vs protegidas. */
 @Configuration
@@ -30,7 +29,7 @@ import com.aps.vitalpair.shared.ratelimit.RateLimitFilter;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_PATHS = {
-        "/api/v1/auth/**", "/actuator/health", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
+        "/api/v1/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -45,7 +44,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, JsonAuthenticationEntryPoint entryPoint) throws Exception {
         // CSRF protection defends session cookies, which the browser attaches to a
         // cross-site request automatically. This API keeps no session
         // (SessionCreationPolicy.STATELESS) and authenticates from the Authorization
@@ -64,12 +63,22 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(PUBLIC_PATHS)
                         .permitAll()
+                        // Actuator is served on the management port (9090), which the reverse
+                        // proxy never maps, so reaching it at all means being inside the
+                        // network. This chain applies to every port the application listens
+                        // on, so without this the metrics endpoint answers 401 to a scraper
+                        // running beside it: protection nobody asked for, and an outage
+                        // nobody sees. Matched by path rather than by EndpointRequest, which
+                        // resolves against the servlet context of the main port and does not
+                        // match the same paths on the management port.
+                        .requestMatchers("/actuator/**")
+                        .permitAll()
                         // Prévia pública do convite: só leitura, exibida antes de o convidado ter conta.
                         .requestMatchers(HttpMethod.GET, "/api/v1/pair/invite/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedEntryPoint()))
+                .exceptionHandling(e -> e.authenticationEntryPoint(entryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 // After authentication on purpose: the per-user policies need to know who is
                 // calling. Registered here rather than left as a servlet filter, because a
@@ -90,9 +99,5 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    private AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return (request, response, ex) -> response.sendError(HttpStatus.UNAUTHORIZED.value(), "Não autenticado");
     }
 }
