@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { Avatar } from './Avatar'
 import { Broto } from '../brand/Broto'
 
@@ -31,19 +33,27 @@ export function Scoreboard({
   you,
   rival,
   stake,
+  seasonNumber = 1,
   day = 1,
   total = 30,
+  daysLeft,
 }: {
   you: Side
   rival: Side
   stake?: string
+  seasonNumber?: number
   day?: number
   total?: number
+  daysLeft?: number
 }) {
+  const { t } = useTranslation()
   const sum = you.score + rival.score
   const youPct = sum > 0 ? Math.round((you.score / sum) * 100) : 50
   const leading = you.score - rival.score
   const ghost = rival.tone === 'ghost'
+  // The server sends daysLeft; the subtraction is only the fallback for a caller that has
+  // not loaded the season yet.
+  const remaining = daysLeft ?? Math.max(0, total - day)
 
   return (
     <div className="relative overflow-hidden rounded-[22px] border border-arena-border bg-arena px-7 py-6 shadow-[0_14px_36px_var(--arena-shadow)]">
@@ -57,12 +67,16 @@ export function Scoreboard({
       />
       <div className="mb-[18px] flex items-center justify-between">
         <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-arena-muted">
-          Temporada 01 · dia {day} / {total}
+          {t('dashboard.seasonLabel', {
+            n: String(seasonNumber).padStart(2, '0'),
+            day,
+            total,
+          })}
         </div>
         {stake && (
           <div className="flex items-center gap-2 rounded-lg border border-arena-line bg-white/[0.06] px-3 py-[5px]">
             <span className="text-[10px] font-extrabold tracking-[0.1em] text-arena-muted">
-              EM JOGO
+              {t('dashboard.atStake')}
             </span>
             <span className="text-xs font-extrabold text-arena-text">{stake}</span>
           </div>
@@ -104,9 +118,13 @@ export function Scoreboard({
 
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-extrabold text-success-ink">
-          {leading >= 0 ? `Você lidera por ${leading} pts` : `Você tá ${-leading} atrás, corre`}
+          {leading >= 0
+            ? t('dashboard.leadingBy', { n: leading })
+            : t('dashboard.behindBy', { n: -leading })}
         </span>
-        <span className="text-xs font-bold text-arena-muted">faltam {total - day} dias</span>
+        <span className="text-xs font-bold text-arena-muted">
+          {remaining === 0 ? t('dashboard.lastDay') : t('dashboard.daysLeft', { n: remaining })}
+        </span>
       </div>
     </div>
   )

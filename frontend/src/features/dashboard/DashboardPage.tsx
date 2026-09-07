@@ -15,7 +15,7 @@ import type { FlashMission } from '@/types/missions'
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
 export function DashboardPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const userId = useAuthStore((s) => s.userId)
   const queryClient = useQueryClient()
 
@@ -29,6 +29,7 @@ export function DashboardPage() {
     activitiesQuery,
     feedQuery,
     missionQuery,
+    seasonQuery,
   ] = useQueries({
     queries: [
       dashboardQueries.summary(),
@@ -38,6 +39,7 @@ export function DashboardPage() {
       dashboardQueries.todaysActivities(),
       dashboardQueries.recentFeed(),
       dashboardQueries.flashMission(),
+      dashboardQueries.season(),
     ],
   })
 
@@ -75,7 +77,13 @@ export function DashboardPage() {
       ? competition.user2Score
       : competition.user1Score
     : 0
-  const { day, total } = seasonWeek(competition?.weekStart)
+  // The season is enrichment: if it fails to load, the scoreboard still renders with the
+  // component's own defaults rather than taking the page down.
+  const season = seasonQuery.data ?? null
+  const seasonNumber = season?.number ?? 1
+  const day = season?.day ?? 1
+  const total = season?.total ?? 30
+  const daysLeft = season?.daysLeft ?? total - day
 
   return (
     <div className="space-y-6">
@@ -87,14 +95,14 @@ export function DashboardPage() {
             {greeting(t)}
             {meName ? `, ${meName.split(' ')[0]}` : ''}
           </h1>
-          <p className="text-sm font-bold text-muted">{dateLabel(dash.date)}</p>
+          <p className="text-sm font-bold text-muted">{dateLabel(dash.date, i18n.language)}</p>
         </div>
         {streak > 0 && (
           <div className="flex shrink-0 items-center gap-2 rounded-full bg-brand-soft px-4 py-2">
             <FlameIcon className="h-[18px] w-[18px] fill-brand" />
             <span className="text-sm font-extrabold text-brand-ink">{streak}</span>
             <span className="hidden text-xs font-bold text-muted sm:inline">
-              {t('dashboard.streakDays')}
+              {t('dashboard.streakDays', { count: streak })}
             </span>
           </div>
         )}
@@ -113,17 +121,21 @@ export function DashboardPage() {
         <Scoreboard
           you={{ name: t('dashboard.youLabel'), score: myScore }}
           rival={{ name: partner.name, score: partnerScore, tone: 'rival' }}
-          stake={pair.pairName ? undefined : t('dashboard.stakeDefault')}
+          stake={season?.stake ?? (pair.pairName ? undefined : t('dashboard.stakeDefault'))}
+          seasonNumber={seasonNumber}
           day={day}
           total={total}
+          daysLeft={daysLeft}
         />
       ) : (
         <div className="space-y-3">
           <Scoreboard
             you={{ name: t('dashboard.youLabel'), score: myScore }}
             rival={{ name: t('dashboard.lastWeek'), score: 0, tone: 'ghost' }}
+            seasonNumber={seasonNumber}
             day={day}
             total={total}
+            daysLeft={daysLeft}
           />
           <Link
             to="/pair"
@@ -350,21 +362,19 @@ function initial(name: string): string {
   return name.trim().charAt(0).toUpperCase() || 'A'
 }
 
-function dateLabel(iso: string): string {
+/**
+ * The day, written the way the reader's language writes it.
+ *
+ * <p>This was hardcoded to pt-BR, which put "Domingo · 6 de setembro" at the top of an
+ * otherwise English screen. Intl already knows every locale's order and separators, so the
+ * only thing worth keeping by hand is the leading capital, which pt and fr do not apply to
+ * weekday names and the design does.
+ */
+function dateLabel(iso: string, locale: string): string {
   const [y, m, d] = iso.split('-').map(Number)
   const date = new Date(y, m - 1, d)
-  const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' })
-  const month = date.toLocaleDateString('pt-BR', { month: 'long' })
-  const cap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
-  return `${cap} · ${d} de ${month}`
-}
-
-/** Sem temporada de 30 dias ainda; usa a semana da competição (real) como base. */
-function seasonWeek(weekStart?: string): { day: number; total: number } {
-  if (!weekStart) return { day: 1, total: 7 }
-  const start = new Date(weekStart).getTime()
-  const diff = Math.floor((Date.now() - start) / 86400000) + 1
-  return { day: Math.min(Math.max(diff, 1), 7), total: 7 }
+  const label = date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
+  return label.charAt(0).toUpperCase() + label.slice(1)
 }
 
 function timeAgo(iso: string, t: TFn): string {

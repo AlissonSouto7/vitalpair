@@ -19,7 +19,11 @@ import com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase;
 import com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Pair", description = "Forming a pair: generating an invite, previewing one, and joining.")
 @RestController
 @RequestMapping("/api/v1/pair")
 public class PairController {
@@ -43,18 +47,21 @@ public class PairController {
         this.getInvitePreviewUseCase = getInvitePreviewUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping
     public ResponseEntity<ApiResponse<PairResponse>> current(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = getCurrentPairUseCase.getCurrentPair(principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view)));
     }
 
+    @StandardApiResponses
     @GetMapping("/invite/{code}")
     public ResponseEntity<ApiResponse<InvitePreviewResponse>> invitePreview(@PathVariable String code) {
         var preview = getInvitePreviewUseCase.getInvitePreview(code);
         return ResponseEntity.ok(ApiResponse.ok(InvitePreviewResponse.from(preview)));
     }
 
+    @StandardApiResponses
     @PostMapping("/invite")
     public ResponseEntity<ApiResponse<PairResponse>> invite(@AuthenticationPrincipal AuthenticatedUser principal) {
         var view = generateInviteUseCase.generateInvite(principal.userId());
@@ -62,6 +69,7 @@ public class PairController {
                 ApiResponse.ok(PairResponse.from(view), "Compartilhe o código de convite com seu parceiro"));
     }
 
+    @StandardApiResponses
     @PutMapping("/type")
     public ResponseEntity<ApiResponse<PairResponse>> updateType(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -70,6 +78,7 @@ public class PairController {
         return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view), "Tipo de relação atualizado"));
     }
 
+    @StandardApiResponses
     @PostMapping("/join/{code}")
     public ResponseEntity<ApiResponse<PairResponse>> join(
             @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable String code) {

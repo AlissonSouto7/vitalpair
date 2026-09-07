@@ -3,6 +3,7 @@ package com.aps.vitalpair.pair.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +21,7 @@ import com.aps.vitalpair.pair.application.dto.PairView;
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
+import com.aps.vitalpair.pair.domain.port.out.TenantDataMigrationPort;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
@@ -38,6 +41,9 @@ class PairServiceTest {
 
     @Mock
     private UserRepositoryPort userRepository;
+
+    @Mock
+    private TenantDataMigrationPort tenantDataMigration;
 
     @Mock
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
@@ -60,6 +66,27 @@ class PairServiceTest {
         assertThat(view.pairName()).isEqualTo("Ana & Bob");
         assertThat(view.members()).hasSize(2);
         verify(pairRepository).deleteById(TENANT_B); // par pendente vazio do convidado removido
+    }
+
+    /**
+     * The rows the guest wrote before joining have to follow them, and they have to move
+     * before the abandoned pair is deleted. Doing it the other way round fails on the
+     * foreign key, which is exactly how this bug reached production behaviour.
+     */
+    @Test
+    void joinMovesTheGuestsExistingDataBeforeDeletingTheOldTenant() {
+        when(pairRepository.findByInviteCode(CODE)).thenReturn(Optional.of(pendingPair(TENANT_A, USER_A)));
+        when(userRepository.findById(USER_B)).thenReturn(Optional.of(user(USER_B, TENANT_B, "Bob")));
+        when(userRepository.findById(USER_A)).thenReturn(Optional.of(user(USER_A, TENANT_A, "Ana")));
+        when(pairRepository.findById(TENANT_B)).thenReturn(Optional.of(pendingPair(TENANT_B, USER_B)));
+        when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(pairRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        service.joinPair(USER_B, CODE);
+
+        InOrder inOrder = inOrder(tenantDataMigration, pairRepository);
+        inOrder.verify(tenantDataMigration).moveUserData(USER_B, TENANT_B, TENANT_A);
+        inOrder.verify(pairRepository).deleteById(TENANT_B);
     }
 
     @Test

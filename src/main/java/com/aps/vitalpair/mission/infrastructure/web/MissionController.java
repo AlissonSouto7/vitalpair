@@ -14,7 +14,11 @@ import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetWeeklyMissionsUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Missions", description = "The daily flash mission and the weekly set.")
 @RestController
 @RequestMapping("/api/v1/missions")
 public class MissionController {
@@ -32,6 +36,7 @@ public class MissionController {
         this.getWeeklyMissionsUseCase = getWeeklyMissionsUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping("/flash")
     public ResponseEntity<ApiResponse<FlashMissionResponse>> flash(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -39,6 +44,7 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.ok(FlashMissionResponse.from(view)));
     }
 
+    @StandardApiResponses
     @PostMapping("/flash/accept")
     public ResponseEntity<ApiResponse<FlashMissionResponse>> acceptFlash(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -46,6 +52,7 @@ public class MissionController {
         return ResponseEntity.ok(ApiResponse.ok(FlashMissionResponse.from(view)));
     }
 
+    @StandardApiResponses
     @GetMapping("/weekly")
     public ResponseEntity<ApiResponse<List<WeeklyMissionResponse>>> weekly(
             @AuthenticationPrincipal AuthenticatedUser principal) {

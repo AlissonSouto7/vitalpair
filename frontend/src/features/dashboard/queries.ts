@@ -6,6 +6,7 @@ import { getFeed } from '@/api/feed'
 import { getCompetition, getStreaks } from '@/api/gamification'
 import { getFlashMission } from '@/api/missions'
 import { getPair } from '@/api/pair'
+import { getSeason } from '@/api/season'
 
 /** Today, as the API expects it. */
 function today(): string {
@@ -68,5 +69,14 @@ export const dashboardQueries = {
     queryOptions({
       queryKey: ['missions', 'flash'],
       queryFn: getFlashMission,
+    }),
+
+  // The card at the top of the dashboard says "season", so it has to read the season. It
+  // used to derive the day number from the competition's week instead, which made a 30-day
+  // season render as "day 7 of 7" with nothing left, on day one.
+  season: () =>
+    queryOptions({
+      queryKey: ['season'],
+      queryFn: getSeason,
     }),
 }

@@ -28,10 +28,22 @@ class RestExceptionHandlerTest extends ControllerSliceTest {
     @RestController
     static class ProbeController {
 
+        enum Colour {
+            RED,
+            GREEN
+        }
+
         record Body(String name) {}
+
+        record TypedBody(String name, Colour colour, Integer size) {}
 
         @PostMapping("/probe")
         Body echo(@RequestBody Body body) {
+            return body;
+        }
+
+        @PostMapping("/probe-typed")
+        TypedBody echoTyped(@RequestBody TypedBody body) {
             return body;
         }
     }
@@ -59,5 +71,42 @@ class RestExceptionHandlerTest extends ControllerSliceTest {
         byte[] broken = {'{', '"', 'n', 'a', 'm', 'e', '"', ':', '"', 'C', (byte) 0xC3, 0x6C, '"', '}'};
         mockMvc.perform(post("/probe").contentType(MediaType.APPLICATION_JSON).content(broken))
                 .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * A wrong enum value used to answer "corpo inválido" with an empty violations list, so
+     * the caller learnt only that something somewhere was wrong. The exception already knows
+     * which field it was and what the field accepts.
+     */
+    @Test
+    @WithVitalPairUser
+    void aWrongEnumValueNamesTheFieldAndItsAcceptedValues() throws Exception {
+        mockMvc.perform(post("/probe-typed")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"x\",\"colour\":\"PURPLE\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data.violations[0].field").value("colour"))
+                .andExpect(jsonPath("$.data.violations[0].message").value(org.hamcrest.Matchers.containsString("RED")))
+                .andExpect(
+                        jsonPath("$.data.violations[0].message").value(org.hamcrest.Matchers.containsString("GREEN")));
+    }
+
+    @Test
+    @WithVitalPairUser
+    void aWrongTypeAlsoNamesTheField() throws Exception {
+        mockMvc.perform(post("/probe-typed")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"x\",\"size\":\"not a number\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data.violations[0].field").value("size"));
+    }
+
+    /** A body that is not JSON at all has no field to blame, and must not invent one. */
+    @Test
+    @WithVitalPairUser
+    void anUnparseableBodyStillHasNoViolations() throws Exception {
+        mockMvc.perform(post("/probe").contentType(MediaType.APPLICATION_JSON).content("{\"name\": \"unterminated"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data.violations").isEmpty());
     }
 }

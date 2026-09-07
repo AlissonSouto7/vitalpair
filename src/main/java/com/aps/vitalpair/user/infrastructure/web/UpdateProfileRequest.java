@@ -7,6 +7,7 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
@@ -21,4 +22,12 @@ public record UpdateProfileRequest(
         @NotNull @DecimalMin("20.0") @DecimalMax("500.0") BigDecimal weightKg,
         @NotNull Goal goal,
         @NotNull ActivityLevel activityLevel,
-        @Size(max = 500) String avatarUrl) {}
+        /*
+         * O avatar de uma pessoa é renderizado no navegador da outra, então esta string
+         * decide para onde o navegador do parceiro faz uma requisição. Sem restrição de
+         * esquema, qualquer endereço servia como rastreador: quem escolhe o avatar recebe o
+         * IP e o user-agent do parceiro toda vez que ele abre a tela do par. Só https, e o
+         * regex recusa "javascript:" e "data:" por construção.
+         */
+        @Size(max = 500) @Pattern(regexp = "^$|^https://[^\\s\"'<>]+$", message = "avatarUrl deve ser uma URL https")
+                String avatarUrl) {}

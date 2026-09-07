@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import com.aps.vitalpair.activity.domain.port.in.GetActivitySummaryUseCase;
-import com.aps.vitalpair.dashboard.application.dto.DashboardView;
+import com.aps.vitalpair.dashboard.domain.model.DashboardView;
 import com.aps.vitalpair.nutrition.application.dto.DailySummary;
 import com.aps.vitalpair.nutrition.domain.port.in.GetDailySummaryUseCase;
 import com.aps.vitalpair.pair.application.dto.MemberView;

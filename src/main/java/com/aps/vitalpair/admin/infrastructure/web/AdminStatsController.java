@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Operational counts, for checking whether anyone is actually using the product.
@@ -20,6 +23,7 @@ import com.aps.vitalpair.shared.web.ApiResponse;
  * <p>Counts only. No endpoint here returns another user's data, so an admin cannot read
  * private information through it.
  */
+@Tag(name = "Admin", description = "Operational counts. Requires the ADMIN role.")
 @RestController
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -31,6 +35,7 @@ public class AdminStatsController {
         this.jdbc = jdbc;
     }
 
+    @StandardApiResponses
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<AdminStats>> stats() {
         return ResponseEntity.ok(ApiResponse.ok(new AdminStats(

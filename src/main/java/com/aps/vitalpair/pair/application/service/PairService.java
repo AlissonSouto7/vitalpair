@@ -20,6 +20,7 @@ import com.aps.vitalpair.pair.domain.port.in.GetInvitePreviewUseCase;
 import com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase;
 import com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
+import com.aps.vitalpair.pair.domain.port.out.TenantDataMigrationPort;
 import com.aps.vitalpair.shared.event.PairFormedEvent;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
@@ -40,14 +41,17 @@ public class PairService
 
     private final PairRepositoryPort pairRepository;
     private final UserRepositoryPort userRepository;
+    private final TenantDataMigrationPort tenantDataMigration;
     private final ApplicationEventPublisher eventPublisher;
 
     public PairService(
             PairRepositoryPort pairRepository,
             UserRepositoryPort userRepository,
+            TenantDataMigrationPort tenantDataMigration,
             ApplicationEventPublisher eventPublisher) {
         this.pairRepository = pairRepository;
         this.userRepository = userRepository;
+        this.tenantDataMigration = tenantDataMigration;
         this.eventPublisher = eventPublisher;
     }
 
@@ -89,8 +93,12 @@ public class PairService
             throw new BusinessRuleException("Você já tem um parceiro");
         }
 
-        // Move o convidado para o tenant do par convidante antes de remover o par antigo (FK).
+        // The guest moves to the inviter's tenant, and so does everything they recorded
+        // before joining. Without the second half, a guest who had already logged a meal
+        // could not join at all: the pending pair they are leaving cannot be deleted while
+        // any row still references it, and the join failed with a 500.
         userRepository.save(joiner.toBuilder().tenantId(target.getId()).build());
+        tenantDataMigration.moveUserData(userId, oldPairId, target.getId());
 
         User inviter = userRepository
                 .findById(target.getUser1Id())
@@ -103,6 +111,10 @@ public class PairService
                 .build());
 
         if (oldPair != null && !oldPairId.equals(target.getId()) && oldPair.getStatus() == PairStatus.PENDING) {
+            // Weekly scores and missions stay behind rather than following the person: they
+            // describe a competition that had one participant, and crediting that total to a
+            // slot in the new pair would be a score nobody earned there.
+            tenantDataMigration.discardTenantOwnedData(oldPairId);
             pairRepository.deleteById(oldPairId);
         }
 
