@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/AlissonSouto7/vitalpair/compare/v0.4.0...v0.4.1) (2026-09-07)
+
+
+### Documentation
+
+* remove the merge-commit duplicates from the 0.4.0 changelog ([#37](https://github.com/AlissonSouto7/vitalpair/issues/37)) ([10c419d](https://github.com/AlissonSouto7/vitalpair/commit/10c419d6827e28e683af229953635e131852dc2f))
+
 ## [0.4.0](https://github.com/AlissonSouto7/vitalpair/compare/v0.3.0...v0.4.0) (2026-09-07)
 
 ### Features
