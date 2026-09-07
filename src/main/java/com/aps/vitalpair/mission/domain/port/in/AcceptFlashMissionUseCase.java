@@ -6,6 +6,6 @@ import com.aps.vitalpair.mission.domain.model.FlashMissionView;
 
 public interface AcceptFlashMissionUseCase {
 
-    /** Aceita a missão relâmpago de hoje para o par do usuário. */
+    /** Accepts today's flash mission for the user's pair. */
     FlashMissionView acceptToday(UUID userId);
 }

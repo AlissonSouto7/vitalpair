@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
- * Adaptador da porta de análise de foto sobre a API de Mensagens da Anthropic (Claude visão).
- * Monta o corpo com saída estruturada (json_schema), chama o {@link AnthropicClient} e converte
- * o bloco de texto (JSON) da resposta no modelo de domínio. Stateless: nada é persistido.
+ * Adapter of the photo analysis port over the Anthropic Messages API (Claude vision). Builds
+ * the body with structured output (json_schema), calls the {@link AnthropicClient} and turns
+ * the response's text block (JSON) into the domain model. Stateless: nothing is persisted.
  */
 @Component
 public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
@@ -55,9 +55,9 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
     }
 
     /**
-     * Analisa a foto. Compartilha o disjuntor {@code anthropic} com a geração de planos, porque
-     * é o mesmo parceiro: se ele está fora, não faz sentido cada funcionalidade descobrir isso
-     * separadamente esperando o próprio timeout.
+     * Analyses the photo. Shares the {@code anthropic} circuit breaker with plan generation because
+     * it is the same partner: if it is down, there is no point in each feature finding that out
+     * separately by waiting out its own timeout.
      */
     @Override
     @CircuitBreaker(name = "anthropic", fallbackMethod = "unavailable")
@@ -89,7 +89,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
         return parse(json);
     }
 
-    /** Ver {@code PlanAiGateway.unavailable}: exceções de domínio passam intactas. */
+    /** See {@code PlanAiGateway.unavailable}: domain exceptions pass through untouched. */
     @SuppressWarnings("unused")
     private MealPhotoAnalysis unavailable(String imageBase64, String mediaType, Throwable cause) {
         if (cause instanceof AiNotConfiguredException notConfigured) {
@@ -117,7 +117,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
                 properties.model(), MAX_TOKENS, SYSTEM_PROMPT, List.of(userMessage), outputConfig);
     }
 
-    /** Schema json_schema que força a saída no formato esperado pelo frontend. */
+    /** The json_schema that forces the output into the shape the frontend expects. */
     private static Map<String, Object> responseSchema() {
         Map<String, Object> numberType = Map.of("type", "number");
         Map<String, Object> itemProperties = new java.util.LinkedHashMap<>();

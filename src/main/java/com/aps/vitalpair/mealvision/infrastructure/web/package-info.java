@@ -1,2 +1,2 @@
-/** Camada web (controller, DTOs e tratamento de erro) da análise de foto de refeição. */
+/** Web layer (controller, DTOs and error handling) of meal photo analysis. */
 package com.aps.vitalpair.mealvision.infrastructure.web;

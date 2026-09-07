@@ -1,6 +1,6 @@
 package com.aps.vitalpair.auth.domain.port.in;
 
-/** Reenvia o e-mail de confirmação para uma conta ainda não verificada. */
+/** Sends the confirmation e-mail again to an account not yet verified. */
 public interface ResendEmailVerificationUseCase {
 
     void resend(String email);

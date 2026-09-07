@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Visão da missão relâmpago do dia para o par, com o estado de aceitação. Imutável. */
+/** Today's flash mission for the pair, with its acceptance state. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class FlashMissionView {

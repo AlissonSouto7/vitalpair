@@ -16,6 +16,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Missions", description = "The daily flash mission and the weekly set.")
@@ -37,6 +38,10 @@ public class MissionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Today's flash mission",
+            description =
+                    "The same small challenge for everybody today, chosen from the day of the year, and whether the caller's pair has accepted it.")
     @GetMapping("/flash")
     public ResponseEntity<ApiResponse<FlashMissionResponse>> flash(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -45,6 +50,10 @@ public class MissionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Accept today's mission",
+            description =
+                    "Marks the mission accepted for the whole pair: either member accepting turns it on for both. Accepting twice does nothing.")
     @PostMapping("/flash/accept")
     public ResponseEntity<ApiResponse<FlashMissionResponse>> acceptFlash(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -53,6 +62,10 @@ public class MissionController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "This week's targets",
+            description =
+                    "Each weekly mission with the caller's progress so far, counted live from the real meal and activity logs. A pair mission also shows the partner's progress and can only be completed by both.")
     @GetMapping("/weekly")
     public ResponseEntity<ApiResponse<List<WeeklyMissionResponse>>> weekly(
             @AuthenticationPrincipal AuthenticatedUser principal) {

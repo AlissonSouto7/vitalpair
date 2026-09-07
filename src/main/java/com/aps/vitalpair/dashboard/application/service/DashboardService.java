@@ -19,8 +19,8 @@ import com.aps.vitalpair.pair.application.dto.PairView;
 import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
 
 /**
- * Monta o dashboard diário agregando nutrição (consumido), atividade (gasto) e a meta do usuário,
- * mais o mini-resumo do parceiro. Balanço = consumido - gasto; restante = meta - balanço.
+ * Builds the daily dashboard from nutrition (consumed), activity (burned) and the user's target,
+ * plus the partner's short summary. Net = consumed - burned; remaining = target - net.
  */
 @Service
 public class DashboardService implements GetDashboardUseCase {

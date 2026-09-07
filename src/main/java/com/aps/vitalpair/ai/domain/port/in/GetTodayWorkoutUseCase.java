@@ -7,6 +7,6 @@ import com.aps.vitalpair.ai.application.dto.WorkoutToday;
 
 public interface GetTodayWorkoutUseCase {
 
-    /** Treino de hoje dentro do plano da semana atual; vazio se o plano ainda não foi gerado. */
+    /** Today's workout within the current week's plan; empty when the plan is not generated yet. */
     Optional<WorkoutToday> getToday(UUID userId, UUID tenantId);
 }

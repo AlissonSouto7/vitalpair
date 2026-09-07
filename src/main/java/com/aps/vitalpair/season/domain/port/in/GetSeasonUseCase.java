@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.aps.vitalpair.season.application.dto.SeasonView;
 
-/** Garante a temporada atual do usuário e devolve a visão completa para o frontend. */
+/** Guarantees the user's current season and returns the whole view for the frontend. */
 public interface GetSeasonUseCase {
 
     SeasonView getCurrentSeason(UUID userId);

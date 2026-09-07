@@ -1,8 +1,8 @@
 package com.aps.vitalpair.mission.domain.model;
 
-/** Define se a missão semanal é individual ou de dupla. */
+/** Whether the weekly mission is individual or for the pair. */
 public enum WeeklyMissionScope {
-    /** Conta apenas o progresso do próprio usuário. */
+    /** Counts only the user's own progress. */
     SELF,
     /** Exige que os dois membros do par cumpram a meta. */
     PAIR

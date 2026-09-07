@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 
 /**
- * Adapter de e-mail. Quando {@code vitalpair.mail.enabled=true} e há um {@link JavaMailSender}
- * configurado (spring.mail.*), envia um e-mail HTML com a marca. Caso contrário (dev), apenas
- * registra o link no log para permitir testar o fluxo sem servidor SMTP.
+ * The e-mail adapter. When {@code vitalpair.mail.enabled=true} and a {@link JavaMailSender} is
+ * configured (spring.mail.*), it sends a branded HTML e-mail. Otherwise it logs that an e-mail
+ * was skipped, never the link itself: the link carries the token.
  */
 @Component
 public class MailSenderAdapter implements MailSenderPort {
@@ -82,7 +82,7 @@ public class MailSenderAdapter implements MailSenderPort {
         }
     }
 
-    /** Primeiro nome, ou "por aí" se não tiver nome. */
+    /** The first name, or "por aí" (the product's casual fallback) when there is none. */
     private static String greet(String name) {
         if (name == null || name.isBlank()) {
             return "por aí";

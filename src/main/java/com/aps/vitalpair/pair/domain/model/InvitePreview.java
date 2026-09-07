@@ -1,12 +1,12 @@
 package com.aps.vitalpair.pair.domain.model;
 
 /**
- * Prévia pública de um convite, exibida na tela de aceitação antes de o convidado ter conta.
- * Não expõe e-mail nem dados sensíveis: só o primeiro nome de quem convidou, o tipo de vínculo
- * e se o convite já foi usado (par cheio).
+ * The public preview of an invite, shown on the acceptance screen before the guest has an
+ * account. Exposes no e-mail and nothing sensitive: only the inviter's first name, the
+ * relationship type and whether the invite is already used (the pair is full).
  *
- * @param inviterName      primeiro nome de quem criou o convite
- * @param relationshipType tipo de vínculo proposto pelo par
- * @param full             {@code true} se o par já está ativo / já tem dois membros
+ * @param inviterName      the first name of whoever created the invite
+ * @param relationshipType the relationship type the pair proposes
+ * @param full             {@code true} when the pair is already active or already has two members
  */
 public record InvitePreview(String inviterName, RelationshipType relationshipType, boolean full) {}

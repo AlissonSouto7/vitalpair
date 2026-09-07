@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * Modelo de domínio do par, que é o <i>tenant</i> do sistema ({@code id} = {@code tenant_id}).
- * Imutável: alterações geram nova instância via {@link #toBuilder()}.
+ * Domain model of the pair, which is the system's <i>tenant</i> ({@code id} is the
+ * {@code tenant_id}). Immutable: changes produce a new instance through {@link #toBuilder()}.
  */
 @Getter
 @Builder(toBuilder = true)

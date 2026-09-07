@@ -157,6 +157,28 @@ Before opening the pull request:
 cd frontend && npm run lint && npm run build
 ```
 
+## Releases
+
+Releases are cut by [release-please](https://github.com/googleapis/release-please)
+from the commit history, which is why the commit format above is enforced
+rather than suggested.
+
+1. Every push to `main` runs the `Release` workflow. It reads the Conventional
+   Commits merged since the last release and keeps one pull request open,
+   titled `chore(main): release X.Y.Z`, that bumps the version in `pom.xml`
+   and `frontend/package.json` and adds the entry to `CHANGELOG.md`.
+2. The version comes from the commits: while the major is 0, a `feat:` bumps
+   the minor and a `fix:` the patch. A `feat!:` or a `BREAKING CHANGE:` footer
+   bumps the minor as well, until 1.0.0.
+3. Merging that pull request creates the tag `vX.Y.Z` and the GitHub release.
+   Nothing is deployed by that alone; the deploy pipeline reacts to the tag and
+   still asks for approval.
+
+Do not edit the version in `pom.xml` by hand, and do not create tags by hand.
+The current version is in `.release-please-manifest.json`. The repository
+setting "Allow GitHub Actions to create and approve pull requests" has to be on
+for the workflow to open its pull request.
+
 ## Database migrations
 
 Migrations are Flyway SQL files in `src/main/resources/db/migration/`, named

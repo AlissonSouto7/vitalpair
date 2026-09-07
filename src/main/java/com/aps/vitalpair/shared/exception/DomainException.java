@@ -1,9 +1,8 @@
 package com.aps.vitalpair.shared.exception;
 
 /**
- * Base de todas as exceções de regra de negócio do domínio.
- * É lançada pelo {@code domain}/{@code application} e traduzida para HTTP no
- * {@link com.aps.vitalpair.shared.web.RestExceptionHandler}.
+ * The base of every business rule exception of the domain. Thrown by {@code domain} and
+ * {@code application}, translated to HTTP in {@link com.aps.vitalpair.shared.web.RestExceptionHandler}.
  */
 public abstract class DomainException extends RuntimeException {
 

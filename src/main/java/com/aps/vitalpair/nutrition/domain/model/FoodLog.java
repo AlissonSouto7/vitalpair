@@ -7,7 +7,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Registro de uma refeição. Imutável. */
+/** One logged meal. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class FoodLog {

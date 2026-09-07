@@ -14,9 +14,9 @@ import com.aps.vitalpair.ai.domain.model.MealPlanItem;
 import com.aps.vitalpair.ai.domain.port.out.MealPlanRepositoryPort;
 
 /**
- * Adaptador JPA do plano alimentar. {@code replace} apaga o plano existente do usuário/semana
- * (itens em cascata via delete explícito) antes de inserir o novo, respeitando o UNIQUE
- * (user_id, week_start). As leituras devolvem os itens já ordenados por dia e refeição.
+ * JPA adapter of the meal plan. {@code replace} deletes the existing plan for the user and week
+ * (items through an explicit delete) before inserting the new one, honouring the UNIQUE on
+ * (user_id, week_start). Reads return the items already ordered by day and meal.
  */
 @Component
 public class MealPlanPersistenceAdapter implements MealPlanRepositoryPort {

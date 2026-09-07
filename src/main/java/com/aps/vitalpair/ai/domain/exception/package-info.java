@@ -1,2 +1,2 @@
-/** Exceções de domínio dos planos por IA. */
+/** Domain exceptions of the AI plans. */
 package com.aps.vitalpair.ai.domain.exception;

@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Conquista do catálogo. Imutável. */
+/** A badge of the catalogue. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class Badge {

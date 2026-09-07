@@ -1,11 +1,11 @@
 package com.aps.vitalpair.shared.web;
 
 /**
- * Envelope padrão de toda resposta da API.
+ * The standard envelope of every API response.
  *
- * @param success indica se a operação foi bem-sucedida
- * @param message mensagem opcional para o cliente (erro ou informação)
- * @param data    payload da resposta (nulo em erros)
+ * @param success whether the operation succeeded
+ * @param message an optional message for the client (error or information)
+ * @param data    the response payload (the error detail on failures)
  */
 public record ApiResponse<T>(boolean success, String message, T data) {
 

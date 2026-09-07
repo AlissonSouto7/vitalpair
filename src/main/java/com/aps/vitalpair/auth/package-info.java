@@ -1,9 +1,10 @@
 /**
- * Feature <b>auth</b> — autenticação e autorização: registro, login, emissão/renovação de JWT,
- * logout (revogação no Redis) e OAuth2 (Google/Apple).
+ * Feature <b>auth</b>: authentication and authorisation. Registration, login, issuing and
+ * renewing the JWT, logout (revocation in Redis), Google sign-in, e-mail verification and
+ * password reset.
  *
- * <p>Organização hexagonal (ver {@code docs/adr/0001-arquitetura-hexagonal.md}):
- * {@code domain} (modelo + portas), {@code application} (casos de uso), {@code infrastructure}
- * (web, persistence, client). Regra de dependência: infrastructure → application → domain.
+ * <p>Hexagonal layout (see {@code docs/adr/0001-arquitetura-hexagonal.md}): {@code domain}
+ * (model and ports), {@code application} (use cases), {@code infrastructure} (web, persistence,
+ * mail, security). Dependency rule: infrastructure -> application -> domain.
  */
 package com.aps.vitalpair.auth;

@@ -3,8 +3,8 @@ package com.aps.vitalpair.mealvision.domain.model;
 import java.math.BigDecimal;
 
 /**
- * Um alimento detectado numa foto de refeição. Todos os valores referem-se à PORÇÃO detectada
- * (totais daquele item, não por 100g).
+ * One food detected in a meal photo. Every value refers to the detected PORTION (that item's
+ * totals, not per 100 g).
  */
 public record DetectedFood(
         String foodName,

@@ -1,2 +1,2 @@
-/** DTOs de aplicação dos planos por IA (comandos e visões prontas para o controller). */
+/** Application DTOs of the AI plans: commands, and views ready for the controller. */
 package com.aps.vitalpair.ai.application.dto;

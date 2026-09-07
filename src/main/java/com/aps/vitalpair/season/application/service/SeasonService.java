@@ -33,11 +33,12 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Sistema de temporada (30 dias) + leitura do ledger de pontos.
+ * The thirty-day season, plus reading the points ledger.
  *
- * <p>Lifecycle LAZY: {@link #ensureCurrentSeason(Pair)} cria/fecha/abre temporadas sob demanda,
- * sem scheduler. Pontos NUNCA são lidos do snapshot do placar: são sempre somados do ledger
- * ({@code point_events}) na janela da temporada, garantindo consistência com a competição.
+ * <p>LAZY lifecycle: {@link #ensureCurrentSeason(Pair)} creates, closes and opens seasons on
+ * demand, with no scheduler. Points are NEVER read from the scoreboard snapshot: they are always
+ * summed from the ledger ({@code point_events}) over the season's window, which is what keeps
+ * them consistent with the competition.
  */
 @Service
 public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, UpdateStakeUseCase {
@@ -95,7 +96,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         Instant winStart = season.getStartDate().atStartOfDay(ZONE).toInstant();
         Instant winEnd = today.plusDays(1).atStartOfDay(ZONE).toInstant();
 
-        // Totais por usuário no ledger da janela da temporada ativa.
+        // Totals per user from the ledger over the active season's window.
         Map<UUID, Long> totals = pointEventRepository.sumByUser(pair.getId(), winStart, winEnd).stream()
                 .collect(Collectors.toMap(UserPoints::userId, UserPoints::points));
         int youScore = points(totals, userId);
@@ -142,8 +143,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     // ------------------------------------------------------------- lifecycle
 
     /**
-     * Garante uma temporada ACTIVE cobrindo hoje. Cria a primeira se não houver, e fecha/abre em
-     * cadeia enquanto a ACTIVE estiver vencida (end_date no passado).
+     * Guarantees an ACTIVE season covering today. Creates the first when there is none, and
+     * closes and opens in a chain while the ACTIVE one has expired (end_date in the past).
      */
     @Transactional
     public Season ensureCurrentSeason(Pair pair) {
@@ -163,14 +164,14 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         }
 
         LocalDate today = LocalDate.now(ZONE);
-        // end_date é exclusivo: a temporada cobre [start, end). Vencida quando hoje >= end.
+        // end_date is exclusive: a season covers [start, end). Expired when today >= end.
         while (!today.isBefore(active.getEndDate())) {
             active = rollOver(active);
         }
         return active;
     }
 
-    /** Fecha a temporada vencida (define vencedor pelo ledger) e abre a próxima. */
+    /** Closes the expired season (the winner comes from the ledger) and opens the next. */
     private Season rollOver(Season ended) {
         Instant winStart = ended.getStartDate().atStartOfDay(ZONE).toInstant();
         Instant winEnd = ended.getEndDate().atStartOfDay(ZONE).toInstant();
@@ -230,7 +231,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
                         Collectors.toMap(SourceUserPoints::userId, SourceUserPoints::points)));
 
         List<SeasonView.BreakdownRow> breakdown = new ArrayList<>();
-        // Ordem fixa: refeições, treinos, sequências, missões.
+        // Fixed order: meals, workouts, streaks, missions.
         for (PointSource source :
                 List.of(PointSource.MEAL, PointSource.ACTIVITY, PointSource.STREAK, PointSource.MISSION)) {
             Map<UUID, Long> totals = bySource.getOrDefault(source, Map.of());
@@ -278,7 +279,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     }
 
     private String initialStake(Pair pair) {
-        // O onboarding ainda não persiste uma aposta no par; usa o padrão.
+        // Onboarding does not store a stake on the pair yet; the default applies.
         return DEFAULT_STAKE;
     }
 

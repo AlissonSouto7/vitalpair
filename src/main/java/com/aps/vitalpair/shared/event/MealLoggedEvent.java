@@ -3,7 +3,7 @@ package com.aps.vitalpair.shared.event;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** Publicado quando uma refeição é registrada. Consumido por gamificação e feed. */
+/** Published when a meal is logged. Consumed by gamification, the feed and notifications. */
 public record MealLoggedEvent(
         UUID userId,
         UUID tenantId,

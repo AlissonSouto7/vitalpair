@@ -7,8 +7,8 @@ import java.util.UUID;
 import com.aps.vitalpair.user.domain.model.User;
 
 /**
- * Porta de saída para persistência de usuários. Implementada por um adapter em
- * {@code infrastructure.persistence}. É a única forma de outras features acessarem usuários.
+ * Outbound port for persisting users. Implemented by an adapter in
+ * {@code infrastructure.persistence}. It is the only way other features reach users.
  */
 public interface UserRepositoryPort {
 
@@ -16,7 +16,7 @@ public interface UserRepositoryPort {
 
     Optional<User> findById(UUID id);
 
-    /** Todos os usuários. Usado pelos agendadores de notificação (poucos usuários na v1). */
+    /** Every user. Used by the notification schedulers; unpaged, which is fine only while there are few users. */
     List<User> findAll();
 
     Optional<User> findByEmail(String email);

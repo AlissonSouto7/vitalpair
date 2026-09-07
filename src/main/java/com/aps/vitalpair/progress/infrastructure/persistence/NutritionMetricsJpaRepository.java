@@ -12,18 +12,17 @@ import org.springframework.data.repository.query.Param;
 import com.aps.vitalpair.nutrition.infrastructure.persistence.FoodLogJpaEntity;
 
 /**
- * Agregados read-only de {@code food_logs} para a tela de Progresso: calorias e
- * macros somados por dia. Bate direto na entidade de log da feature nutrition,
- * sem acoplar na service dela (mesmo padrão de
- * {@code WeeklyMissionMetricsJpaRepository}).
+ * Read-only aggregates of {@code food_logs} for the Progress screen: calories and macros summed
+ * per day. Reads the nutrition feature's log entity directly, without depending on its service
+ * (the same pattern as {@code WeeklyMissionMetricsJpaRepository}).
  *
- * <p>Ancorado em {@link FoodLogJpaEntity} apenas para registrar o repositório.
+ * <p>Anchored on {@link FoodLogJpaEntity} only so the repository can be registered.
  */
 public interface NutritionMetricsJpaRepository extends JpaRepository<FoodLogJpaEntity, UUID> {
 
     /**
-     * Totais diários de calorias e macros do usuário no intervalo
-     * {@code [start, end)}. Um registro por dia que tem refeição.
+     * The user's daily calorie and macro totals within {@code [start, end)}. One row per day that
+     * has a meal.
      */
     @Query(
             """
@@ -42,7 +41,7 @@ public interface NutritionMetricsJpaRepository extends JpaRepository<FoodLogJpaE
     List<DailyTotalsView> findDailyTotals(
             @Param("userId") UUID userId, @Param("start") Instant start, @Param("end") Instant end);
 
-    /** Projeção dos totais somados por dia. */
+    /** The projection of the totals summed per day. */
     interface DailyTotalsView {
         LocalDate getDay();
 

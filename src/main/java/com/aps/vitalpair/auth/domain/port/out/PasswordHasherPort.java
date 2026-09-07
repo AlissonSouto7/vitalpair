@@ -1,6 +1,6 @@
 package com.aps.vitalpair.auth.domain.port.out;
 
-/** Abstração de hashing de senha (implementada com BCrypt). */
+/** Password hashing abstraction (implemented with BCrypt). */
 public interface PasswordHasherPort {
 
     String hash(String rawPassword);

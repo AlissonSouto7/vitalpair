@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTOs de resposta da Open Food Facts (apenas os campos usados).
+ * Response DTOs of Open Food Facts, only the fields used.
  *
- * <p>Público porque aparecem na assinatura de {@link OpenFoodFactsHttpClient}, que precisa ser
- * um bean próprio para o proxy de resiliência funcionar.
+ * <p>Public because they appear in the signature of {@link OpenFoodFactsHttpClient}, which has
+ * to be a bean of its own for the resilience proxy to work.
  */
 public final class OffResponses {
 

@@ -23,11 +23,11 @@ public record UpdateProfileRequest(
         @NotNull Goal goal,
         @NotNull ActivityLevel activityLevel,
         /*
-         * O avatar de uma pessoa é renderizado no navegador da outra, então esta string
-         * decide para onde o navegador do parceiro faz uma requisição. Sem restrição de
-         * esquema, qualquer endereço servia como rastreador: quem escolhe o avatar recebe o
-         * IP e o user-agent do parceiro toda vez que ele abre a tela do par. Só https, e o
-         * regex recusa "javascript:" e "data:" por construção.
+         * One person's avatar is rendered in the other's browser, so this string decides where
+         * the partner's browser makes a request. With no scheme restriction any address worked as
+         * a tracker: whoever picks the avatar receives the partner's IP and user agent every time
+         * they open the pair screen. https only, and the regex refuses "javascript:" and "data:"
+         * by construction.
          */
         @Size(max = 500) @Pattern(regexp = "^$|^https://[^\\s\"'<>]+$", message = "avatarUrl deve ser uma URL https")
                 String avatarUrl) {}

@@ -6,7 +6,7 @@ import java.time.Instant;
 import com.aps.vitalpair.nutrition.domain.model.FoodSource;
 import com.aps.vitalpair.nutrition.domain.model.MealType;
 
-/** Dados para registrar uma refeição. {@code loggedAt} nulo usa o instante atual. */
+/** What it takes to log a meal. A null {@code loggedAt} means now. */
 public record LogMealCommand(
         String foodName,
         String barcode,

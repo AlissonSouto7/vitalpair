@@ -23,17 +23,18 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 /**
- * Agendadores das notificações geradas no tempo (missão relâmpago e lembrete de fim de dia).
- * Cada usuário é processado isoladamente (try/catch), para que uma falha pontual não derrube o job.
- * O filtro por preferência fica no {@code NotificationService.create}, então aqui só decidimos o
- * "quando/para quem candidato".
+ * The time-driven notifications: the flash mission and the end-of-day reminder. Each user is
+ * processed on their own (try/catch), so one failure does not take the job down. Preference
+ * filtering lives in {@code NotificationService.create}; this class only decides "when, and
+ * who is a candidate".
  *
- * <p>Os horários são do fuso configurado em {@code vitalpair.scheduling.zone}, não o do servidor.
- * Um servidor em UTC dispararia a missão das 09:00 às 06:00 de Brasília, o que é cedo demais para
- * uma notificação, e o "hoje" do lembrete das 20:00 mudaria de dia no meio da noite.
+ * <p>Times are in the zone configured by {@code vitalpair.scheduling.zone}, not the server's. A
+ * server in UTC would fire the 09:00 mission at 06:00 in Brasilia, too early for a
+ * notification, and the "today" of the 20:00 reminder would change day in the middle of the
+ * night.
  *
- * <p>{@link SchedulerLock} garante que, com mais de uma instância no ar, apenas uma execute o job:
- * sem ele, cada usuário receberia a notificação uma vez por instância.
+ * <p>{@link SchedulerLock} guarantees that with more than one instance running only one
+ * executes the job: without it every user would receive the notification once per instance.
  */
 @Component
 public class NotificationScheduler {
@@ -59,7 +60,7 @@ public class NotificationScheduler {
         this.zone = ZoneId.of(zone);
     }
 
-    /** 09:00 todo dia: avisa a missão relâmpago para quem está num par ATIVO. */
+    /** 09:00 every day: announces the flash mission to everyone in an ACTIVE pair. */
     @Scheduled(cron = "${vitalpair.scheduling.flash-mission-cron}", zone = "${vitalpair.scheduling.zone}")
     @SchedulerLock(name = "flashMissionNotifications", lockAtLeastFor = "PT1M")
     public void sendFlashMissionNotifications() {
@@ -80,7 +81,7 @@ public class NotificationScheduler {
         log.info("Flash mission notifications sent to {} of {} users", sent, users.size());
     }
 
-    /** 20:00 todo dia: lembra quem ainda não registrou nada (refeição nem atividade) hoje. */
+    /** 20:00 every day: reminds whoever has logged nothing today, neither a meal nor an activity. */
     @Scheduled(cron = "${vitalpair.scheduling.log-reminder-cron}", zone = "${vitalpair.scheduling.zone}")
     @SchedulerLock(name = "logReminderNotifications", lockAtLeastFor = "PT1M")
     public void sendLogReminderNotifications() {

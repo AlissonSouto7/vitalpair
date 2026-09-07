@@ -6,6 +6,6 @@ import com.aps.vitalpair.notification.domain.model.NotificationPreferences;
 
 public interface GetNotificationPreferencesUseCase {
 
-    /** Devolve as prefs do usuário, ou os defaults se ele nunca salvou. */
+    /** The user's preferences, or the defaults when they never saved any. */
     NotificationPreferences getPreferences(UUID userId);
 }

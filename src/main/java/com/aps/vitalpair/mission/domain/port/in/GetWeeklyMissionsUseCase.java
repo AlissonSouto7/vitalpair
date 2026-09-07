@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.aps.vitalpair.mission.domain.model.WeeklyMissionProgress;
 
-/** Caso de uso: listar as missões da semana atual com progresso real do usuário. */
+/** Use case: the current week's missions with the user's real progress. */
 public interface GetWeeklyMissionsUseCase {
 
     List<WeeklyMissionProgress> getCurrentWeek(UUID userId);

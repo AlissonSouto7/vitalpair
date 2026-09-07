@@ -26,8 +26,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 /**
- * Tratamento global de erros. Traduz exceções em respostas {@link ApiResponse} padronizadas,
- * sempre com {@code success=false} e um {@link ApiError} no campo {@code data}.
+ * Global error handling. Translates exceptions into standard {@link ApiResponse} responses,
+ * always with {@code success=false} and an {@link ApiError} in the {@code data} field.
  */
 @RestControllerAdvice
 public class RestExceptionHandler {

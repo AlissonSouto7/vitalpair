@@ -4,5 +4,5 @@ import java.time.Instant;
 
 import com.aps.vitalpair.gamification.domain.model.Badge;
 
-/** Uma conquista do usuário com a data em que foi obtida. */
+/** A badge the user earned, with the moment it was earned. */
 public record EarnedBadge(Badge badge, Instant earnedAt) {}

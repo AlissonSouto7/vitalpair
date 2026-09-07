@@ -7,7 +7,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Registro de uma atividade física. Imutável. */
+/** One logged physical activity. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class ActivityLog {

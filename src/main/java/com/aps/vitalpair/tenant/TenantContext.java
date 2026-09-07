@@ -4,9 +4,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Mantém o {@code tenant_id} da requisição atual em um {@link ThreadLocal}.
- * Populado pelo {@code TenantFilter} (a partir do JWT) e consumido pela camada de persistência
- * para isolar dados entre tenants. O domínio nunca acessa esta classe.
+ * Holds the current request's {@code tenant_id} in a {@link ThreadLocal}. Filled by
+ * {@code JwtAuthenticationFilter} from the JWT and available to adapters that need the tenant
+ * outside a use case argument. The domain never touches this class. Isolation is not
+ * automatic: every query still has to scope itself explicitly.
  */
 public final class TenantContext {
 

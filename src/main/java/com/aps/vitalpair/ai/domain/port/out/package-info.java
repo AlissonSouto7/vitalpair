@@ -1,2 +1,2 @@
-/** Portas de saída dos planos por IA: persistência e geração via LLM. */
+/** Outbound ports of the AI plans: persistence and generation through the model. */
 package com.aps.vitalpair.ai.domain.port.out;
