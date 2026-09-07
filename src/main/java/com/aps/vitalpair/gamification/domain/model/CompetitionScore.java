@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Placar semanal da competição do par. Imutável. */
+/** The pair's weekly scoreboard. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class CompetitionScore {

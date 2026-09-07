@@ -7,6 +7,6 @@ import com.aps.vitalpair.ai.application.dto.SwapMealCommand;
 
 public interface SwapMealUseCase {
 
-    /** Pede à IA uma refeição alternativa (mesma faixa de kcal/macros) e substitui o item do plano. */
+    /** Asks the model for an alternative meal (same kcal and macro range) and replaces the plan item. */
     MealPlanView swap(UUID userId, UUID tenantId, SwapMealCommand command);
 }

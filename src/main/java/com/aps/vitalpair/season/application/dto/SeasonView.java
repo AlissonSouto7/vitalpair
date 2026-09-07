@@ -3,9 +3,9 @@ package com.aps.vitalpair.season.application.dto;
 import java.util.List;
 
 /**
- * Visão completa da temporada atual montada para o frontend. Mapeia 1:1 o contrato
- * de {@code GET /api/v1/season}. Pontos sempre somados do ledger ({@code point_events})
- * na janela da temporada ativa.
+ * The whole current season, built for the frontend. Maps one to one onto the contract of
+ * {@code GET /api/v1/season}. Points are always summed from the ledger ({@code point_events})
+ * over the active season's window.
  */
 public record SeasonView(
         int number,
@@ -20,15 +20,15 @@ public record SeasonView(
         List<BreakdownRow> breakdown,
         List<HistoryRow> history) {
 
-    /** Placar de um lado da disputa (você ou rival). */
+    /** One side of the contest (you or the rival). */
     public record Side(String name, int score) {}
 
     /** Pontos de um dia decorrido da temporada. */
     public record DayScore(String label, int you, int rival) {}
 
-    /** Pontos por fonte (Refeições, Treinos, Sequências, Missões). */
+    /** Points per source (meals, workouts, streaks, missions). */
     public record BreakdownRow(String source, String label, int you, int rival) {}
 
-    /** Resumo de uma temporada já fechada. */
+    /** The summary of a season already closed. */
     public record HistoryRow(int number, String sub, int you, int rival, String winner, String stake) {}
 }

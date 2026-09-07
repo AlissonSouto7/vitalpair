@@ -7,16 +7,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTOs da API {@code POST /v1/messages} da Anthropic (apenas os campos usados pela análise de foto).
+ * DTOs of Anthropic's {@code POST /v1/messages}, only the fields photo analysis uses.
  *
- * <p>O corpo usa {@code output_config.format} (json_schema) para forçar a saída estruturada. Não
- * enviamos {@code temperature}/{@code top_p}/{@code top_k}/{@code thinking}: o modelo
- * {@code claude-opus-4-8} rejeita esses parâmetros com HTTP 400.
+ * <p>The body uses {@code output_config.format} (json_schema) to force structured output.
+ * {@code temperature}, {@code top_p}, {@code top_k} and {@code thinking} are not sent: the
+ * {@code claude-opus-4-8} model rejects them with HTTP 400.
  *
- * <p>Esta classe e seus records são públicos porque aparecem na assinatura de
- * {@link AnthropicClient}, que é uma interface pública. O proxy dinâmico que o Feign gera vive em
- * outro módulo e não consegue acessar tipos package-private: deixá-los sem {@code public} faz a
- * chamada estourar {@code IllegalAccessError} em runtime.
+ * <p>This class and its records are public because they appear in the signature of
+ * {@link AnthropicClient}, a public interface. The dynamic proxy Feign generates lives in
+ * another module and cannot reach package-private types: without {@code public} the call fails
+ * at runtime with {@code IllegalAccessError}.
  */
 public final class AnthropicMessages {
 
@@ -34,7 +34,7 @@ public final class AnthropicMessages {
 
     public record Message(String role, List<Content> content) {}
 
-    /** Bloco de conteúdo polimórfico: {@code type=image} usa {@code source}; {@code type=text} usa {@code text}. */
+    /** Polymorphic content block: {@code type=image} uses {@code source}; {@code type=text} uses {@code text}. */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record Content(String type, ImageSource source, String text) {
 

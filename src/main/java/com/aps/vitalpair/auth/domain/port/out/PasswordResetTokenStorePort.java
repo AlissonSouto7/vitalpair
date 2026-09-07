@@ -4,8 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Armazena tokens opacos de redefinição de senha (token → userId, com TTL curto).
- * Implementado no Redis, à semelhança de {@link RefreshTokenStorePort}.
+ * Stores opaque password reset tokens (token to userId, with a short TTL). Implemented in
+ * Redis, like {@link RefreshTokenStorePort}.
  */
 public interface PasswordResetTokenStorePort {
 

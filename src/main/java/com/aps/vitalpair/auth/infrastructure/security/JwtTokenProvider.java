@@ -20,7 +20,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-/** Implementação de {@link TokenProviderPort} com JWT assinado em HS256 (jjwt). */
+/** {@link TokenProviderPort} implemented with an HS256-signed JWT (jjwt). */
 @Component
 public class JwtTokenProvider implements TokenProviderPort {
 

@@ -1,2 +1,2 @@
-/** Camada de domínio da análise de foto de refeição. */
+/** Domain layer of meal photo analysis. */
 package com.aps.vitalpair.mealvision.domain;

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
-/** Implementa a porta de saída de persistência de usuários sobre Spring Data JPA. */
+/** Implements the user persistence port over Spring Data JPA. */
 @Component
 public class UserPersistenceAdapter implements UserRepositoryPort {
 

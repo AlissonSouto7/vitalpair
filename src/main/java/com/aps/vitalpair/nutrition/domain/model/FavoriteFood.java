@@ -3,9 +3,8 @@ package com.aps.vitalpair.nutrition.domain.model;
 import java.math.BigDecimal;
 
 /**
- * Alimento favorito de um usuário: um {@code foodName} que ele mais registra,
- * com valores nutricionais representativos (do registro mais recente) e a
- * quantidade de vezes que foi registrado.
+ * One of a user's favourite foods: a {@code foodName} they log most, with representative
+ * nutrition values (from the most recent entry) and how many times it was logged.
  */
 public record FavoriteFood(
         String foodName,

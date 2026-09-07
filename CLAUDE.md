@@ -54,8 +54,9 @@ compose.yaml                       local Postgres and Redis
 - Backend exception messages that reach the end user are still in Portuguese.
   Replacing them with error codes translated on the frontend is planned; until
   then, do not translate them to English piecemeal.
-- Existing Portuguese comments and Javadoc are being migrated package by
-  package. Do not add new ones.
+- Comments and Javadoc are English throughout the backend (translated in phase
+  13). ADR 0001 stays in Portuguese, because an accepted ADR is not rewritten;
+  its content is restated in `docs/ARCHITECTURE.md`.
 
 ## 3. Non-negotiables
 
@@ -230,13 +231,14 @@ A change is done when all of these are true:
 
 ## 10. Documentation map
 
-| Document                                 | What it holds                                                                               |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [README.md](README.md)                   | What the project is, how to run it                                                          |
-| [CONTRIBUTING.md](CONTRIBUTING.md)       | Branching, commits, pull requests, migrations, i18n                                         |
-| [SECURITY.md](SECURITY.md)               | How to report a vulnerability, known open issues                                            |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards                                                                         |
-| [docs/adr/](docs/adr/)                   | Architecture decision records, one per decision                                             |
-| [docs/features/](docs/features/)         | One living document per feature                                                             |
-| [docs/design/](docs/design/)             | Mockups, the colour law, themes, voice and tone. Read before building or changing a screen. |
-| `docs/ARQUITETURA.md`                    | Current architecture overview, being rewritten in English                                   |
+| Document                                     | What it holds                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [README.md](README.md)                       | What the project is, how to run it                                                          |
+| [CONTRIBUTING.md](CONTRIBUTING.md)           | Branching, commits, pull requests, migrations, i18n                                         |
+| [SECURITY.md](SECURITY.md)                   | How to report a vulnerability, known open issues                                            |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)     | Community standards                                                                         |
+| [docs/adr/](docs/adr/)                       | Architecture decision records, one per decision                                             |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organised and why, in English                                               |
+| [docs/features/](docs/features/)             | One living document per feature                                                             |
+| [docs/design/](docs/design/)                 | Mockups, the colour law, themes, voice and tone. Read before building or changing a screen. |
+| `docs/ARQUITETURA.md`                        | Product vision in Portuguese; the technical overview is `docs/ARCHITECTURE.md`              |

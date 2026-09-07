@@ -28,8 +28,9 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Casos de uso do par (tenant). Ao aceitar um convite, o usuário que entra é movido para o tenant
- * do par convidante, o par é ativado e o par pendente vazio do convidado é removido.
+ * Use cases of the pair (the tenant). On accepting an invite, the joining user is moved into the
+ * inviter's tenant along with everything they had recorded, the pair is activated, and the
+ * guest's now-empty pending pair is removed.
  */
 @Service
 public class PairService

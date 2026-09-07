@@ -11,7 +11,8 @@
 
 	<groupId>com.aps</groupId>
 	<artifactId>vitalpair</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<!-- Managed by release-please: the release pull request bumps it. Do not edit by hand. -->
+	<version>0.3.0</version><!-- {x-release-please-version} -->
 	<name>vitalpair</name>
 	<description>VitalPair - Health and fitness app for couples</description>
 

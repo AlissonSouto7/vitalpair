@@ -16,6 +16,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Gamification", description = "Streaks, the score against the partner, and badges.")
@@ -40,6 +41,10 @@ public class GamificationController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The caller's streaks",
+            description =
+                    "Current and record streak per type (meals, activities). Only the first record of a type per day advances a streak.")
     @GetMapping("/streaks")
     public ResponseEntity<ApiResponse<List<StreakResponse>>> streaks(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -50,6 +55,10 @@ public class GamificationController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "This week's scoreboard",
+            description =
+                    "Both members' points for the current week, Monday to Sunday, and the leader. A tie has no winner. Meals are worth 10 points, activities 15, every seventh consecutive day 50 more.")
     @GetMapping("/competition")
     public ResponseEntity<ApiResponse<CompetitionResponse>> competition(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -58,6 +67,9 @@ public class GamificationController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Badges the caller has earned",
+            description = "Each with the moment it was earned. Badges are awarded once and never revoked.")
     @GetMapping("/badges")
     public ResponseEntity<ApiResponse<List<EarnedBadgeResponse>>> badges(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -68,6 +80,7 @@ public class GamificationController {
     }
 
     @StandardApiResponses
+    @Operation(summary = "Every badge that exists", description = "The global catalogue, independent of the caller.")
     @GetMapping("/badges/catalog")
     public ResponseEntity<ApiResponse<List<BadgeResponse>>> badgeCatalog() {
         List<BadgeResponse> catalog = getBadgeCatalogUseCase.getCatalog().stream()

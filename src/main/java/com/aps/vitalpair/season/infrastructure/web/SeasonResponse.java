@@ -5,8 +5,8 @@ import java.util.List;
 import com.aps.vitalpair.season.application.dto.SeasonView;
 
 /**
- * Resposta de {@code GET /api/v1/season}. Os nomes dos campos são o contrato exato
- * consumido pelo frontend; não renomear sem alinhar com o front.
+ * The response of {@code GET /api/v1/season}. The field names are the exact contract the
+ * frontend consumes; do not rename them without changing the frontend too.
  */
 public record SeasonResponse(
         int number,

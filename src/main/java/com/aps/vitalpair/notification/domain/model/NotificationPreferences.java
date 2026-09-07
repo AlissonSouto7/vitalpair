@@ -6,8 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * Preferências de notificação de um usuário. Imutável. Quando não há linha
- * persistida usa-se {@link #defaultsFor(UUID)} (rival e flash ligados, lembrete desligado).
+ * A user's notification preferences. Immutable. When no row is stored,
+ * {@link #defaultsFor(UUID)} applies: rival and flash on, reminder off.
  */
 @Getter
 @Builder(toBuilder = true)

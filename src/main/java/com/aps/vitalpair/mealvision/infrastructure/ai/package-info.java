@@ -1,2 +1,2 @@
-/** Integração com a IA da Anthropic (cliente Feign + adaptador) da análise de foto de refeição. */
+/** The Anthropic integration (Feign client plus adapter) of meal photo analysis. */
 package com.aps.vitalpair.mealvision.infrastructure.ai;

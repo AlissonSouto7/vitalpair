@@ -12,10 +12,11 @@ import feign.Request;
 import feign.RequestInterceptor;
 
 /**
- * Configuração do {@link AnthropicPlanClient}. Injeta os headers obrigatórios da Anthropic e
- * define os timeouts (gerar uma semana de plano é a chamada mais lenta do app; o valor vem de
- * {@link AnthropicProperties#planReadTimeout()}). Não é {@code @Configuration} para não virar
- * config global do Feign: vale só para o cliente {@code anthropic-plans}.
+ * Configuration of {@link AnthropicPlanClient}. Injects the headers Anthropic requires and sets
+ * the timeouts (generating a week of plan is the slowest call in the application; the value
+ * comes from {@link AnthropicProperties#planReadTimeout()}). Not a {@code @Configuration} so it
+ * does not become global Feign configuration: it applies to the {@code anthropic-plans} client
+ * only.
  */
 public class AnthropicPlanClientConfig {
 

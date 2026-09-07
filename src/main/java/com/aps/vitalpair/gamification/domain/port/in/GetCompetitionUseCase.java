@@ -6,6 +6,6 @@ import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
 
 public interface GetCompetitionUseCase {
 
-    /** Placar da semana atual do par ao qual o usuário pertence. */
+    /** The current week's scoreboard of the pair the user belongs to. */
     CompetitionScore getCurrentCompetition(UUID userId);
 }

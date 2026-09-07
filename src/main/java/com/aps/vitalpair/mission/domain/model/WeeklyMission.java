@@ -3,7 +3,7 @@ package com.aps.vitalpair.mission.domain.model;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Item do catálogo de missões semanais. Imutável. */
+/** An item of the weekly mission catalogue. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class WeeklyMission {

@@ -21,10 +21,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Adaptador da porta de geração de plano de treino sobre a Anthropic. O json_schema exige todos
- * os campos em todo objeto (limitação do structured output), então dias de descanso chegam com
- * {@code focus:""}, {@code durationMin:0} e {@code exercises:[]}; a normalização acontece aqui:
- * descanso vira focus/durationMin nulos e lista vazia, e dias ausentes viram descanso.
+ * Adapter of the workout plan generation port over Anthropic. The json_schema requires every
+ * field on every object (a structured output limitation), so rest days arrive as
+ * {@code focus:""}, {@code durationMin:0} and {@code exercises:[]}; normalisation happens here:
+ * rest becomes null focus and durationMin with an empty list, and missing days become rest.
  */
 @Component
 public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
@@ -132,7 +132,7 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
                 List.of("days"));
     }
 
-    // ===== Parse + normalização =====
+    // ===== Parsing and normalisation =====
 
     private List<WorkoutDay> parseWeek(String json) {
         JsonNode root;
@@ -160,7 +160,7 @@ public class AnthropicWorkoutPlanGenerator implements WorkoutPlanGeneratorPort {
             throw new PlanContentException("A IA retornou uma semana sem nenhum treino. Tente gerar de novo.");
         }
 
-        // Garante os 7 dias: qualquer dia que a IA não devolveu vira descanso.
+        // Guarantees all 7 days: any day the model did not return becomes rest.
         List<WorkoutDay> week = new ArrayList<>(7);
         for (int dayIndex = 0; dayIndex <= 6; dayIndex++) {
             week.add(byIndex.getOrDefault(dayIndex, restDay(dayIndex)));

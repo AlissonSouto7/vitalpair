@@ -27,6 +27,7 @@ import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.PageResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Feed", description = "What the pair has been doing, and reacting to it.")
@@ -46,6 +47,10 @@ public class FeedController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The pair's timeline",
+            description =
+                    "Items logged by either member of the pair, newest first. A meal marked private is visible only to its author. `size` is capped at 50.")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<FeedItemResponse>>> feed(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -64,6 +69,10 @@ public class FeedController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "React to an item",
+            description =
+                    "Adds a FIRE, EYE or STRENGTH reaction. Reacting twice with the same type does nothing. An item from another pair answers 404, not 403, so the endpoint cannot be used to probe ids.")
     @PostMapping("/{itemId}/reactions")
     public ResponseEntity<ApiResponse<Void>> react(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -74,6 +83,9 @@ public class FeedController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "Remove your reaction",
+            description = "Removes one of the caller's own reactions from an item.")
     @DeleteMapping("/{itemId}/reactions/{type}")
     public ResponseEntity<ApiResponse<Void>> removeReaction(
             @AuthenticationPrincipal AuthenticatedUser principal,

@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.aps.vitalpair.notification.domain.model.NotificationPreferences;
 
-/** Porta de saída para persistência das preferências de notificação. */
+/** Outbound port for persisting notification preferences. */
 public interface NotificationPreferencesRepositoryPort {
 
     Optional<NotificationPreferences> findByUserId(UUID userId);

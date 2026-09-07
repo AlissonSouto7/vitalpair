@@ -29,8 +29,9 @@ public class StreakService implements GetStreaksUseCase {
     }
 
     /**
-     * Registra atividade do dia para o tipo. Retorna a streak atualizada apenas quando é o primeiro
-     * registro do dia (avançou/criou/reiniciou); vazio quando já contou hoje ou a data é anterior.
+     * Records the day's activity for the type. Returns the updated streak only when this is the
+     * day's first record (advanced, created or restarted); empty when today already counted or the
+     * date is earlier.
      */
     @Transactional
     public Optional<UserStreak> registerActivity(UUID userId, UUID tenantId, StreakType type, LocalDate date) {

@@ -7,23 +7,24 @@ import java.util.UUID;
 import com.aps.vitalpair.ai.domain.model.MealPlan;
 
 /**
- * Porta de saída de persistência do plano alimentar semanal.
+ * Outbound persistence port of the weekly meal plan.
  *
- * <p>Toda operação recebe o tenant além do usuário. Filtrar só por {@code userId} funcionaria,
- * já que um usuário pertence a um par, mas deixaria a linha acessível a qualquer consulta que
- * esquecesse o filtro; com o tenant explícito, um id de outro par simplesmente não encontra nada.
+ * <p>Every operation takes the tenant as well as the user. Filtering by {@code userId} alone
+ * would work, since a user belongs to one pair, but it would leave the row reachable by any
+ * query that forgot the filter; with the tenant explicit, an id from another pair simply finds
+ * nothing.
  */
 public interface MealPlanRepositoryPort {
 
     Optional<MealPlan> findByUserAndWeek(UUID userId, UUID tenantId, LocalDate weekStart);
 
-    /** Salva o plano substituindo o plano existente do mesmo usuário/semana (e todos os itens). */
+    /** Saves the plan, replacing the existing one for the same user and week, items included. */
     MealPlan replace(MealPlan plan);
 
     /**
-     * Atualiza o prato de um item existente (troca de refeição), mantendo dia e tipo.
+     * Updates the dish of an existing item (a meal swap), keeping its day and type.
      *
-     * @param planId plano ao qual o item precisa pertencer; um item de outro plano não é alterado
+     * @param planId the plan the item must belong to; an item of another plan is left untouched
      */
     void updateItem(UUID planId, UUID itemId, String name, int kcal, int proteinG, int carbG, int fatG);
 }

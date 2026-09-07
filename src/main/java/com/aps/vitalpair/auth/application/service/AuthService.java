@@ -35,8 +35,8 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Casos de uso de autenticação. No registro, cria-se também o par (tenant) ao qual o usuário pertence,
- * já que cada usuário forma um tenant até convidar o parceiro.
+ * Authentication use cases. Registration also creates the pair (tenant) the user belongs to,
+ * since every user is a tenant of one until they invite a partner.
  */
 @Service
 public class AuthService

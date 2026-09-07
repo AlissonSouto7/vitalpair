@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Notificação in-app de um usuário. Imutável. */
+/** A user's in-app notification. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class Notification {

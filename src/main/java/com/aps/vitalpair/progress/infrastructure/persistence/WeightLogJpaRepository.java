@@ -13,8 +13,8 @@ public interface WeightLogJpaRepository extends JpaRepository<WeightLogJpaEntity
     Optional<WeightLogJpaEntity> findByUserIdAndRecordedOn(UUID userId, LocalDate recordedOn);
 
     /**
-     * Histórico de peso do usuário, do mais recente para o mais antigo, limitado
-     * via {@link Pageable}. A camada de aplicação inverte para ordem cronológica.
+     * The user's weight history, newest first, limited through {@link Pageable}. The application
+     * layer reverses it into chronological order.
      */
     List<WeightLogJpaEntity> findByUserIdOrderByRecordedOnDesc(UUID userId, Pageable pageable);
 }

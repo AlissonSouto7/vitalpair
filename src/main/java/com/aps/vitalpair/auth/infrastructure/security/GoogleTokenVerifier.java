@@ -17,11 +17,11 @@ import com.aps.vitalpair.auth.domain.port.out.GoogleTokenVerifierPort;
 import com.aps.vitalpair.config.GoogleOAuthProperties;
 
 /**
- * Verifica o id_token do Google contra as chaves públicas do Google (JWK Set).
- * Valida assinatura e expiração (via Nimbus) e, manualmente, o issuer e a audience (nosso client id).
+ * Verifies a Google id_token against Google's public keys (the JWK Set). Signature and expiry
+ * are checked by Nimbus; issuer and audience (our client id) are checked by hand.
  *
- * As chaves do Google são buscadas uma vez e cacheadas. Para o primeiro login não pagar o custo
- * dessa busca de rede, ela é pré-carregada no boot ({@link #warmUp()}). Há timeout no fetch.
+ * <p>Google's keys are fetched once and cached. So the first login does not pay for that
+ * network fetch, it is preloaded at boot ({@link #warmUp()}). The fetch has a timeout.
  */
 @Component
 public class GoogleTokenVerifier implements GoogleTokenVerifierPort {
@@ -55,9 +55,9 @@ public class GoogleTokenVerifier implements GoogleTokenVerifierPort {
     }
 
     /**
-     * Pré-carrega as chaves públicas do Google logo após o boot (em background), para que o
-     * primeiro login com Google não pague o custo de buscar o JWK Set. O token é falso de
-     * propósito: serve só para disparar (e cachear) a busca das chaves.
+     * Preloads Google's public keys right after boot, in the background, so the first Google
+     * login does not pay for fetching the JWK Set. The token is deliberately fake: it exists only
+     * to trigger, and cache, the key fetch.
      */
     @EventListener(ApplicationReadyEvent.class)
     void warmUp() {
@@ -67,7 +67,7 @@ public class GoogleTokenVerifier implements GoogleTokenVerifierPort {
         try {
             decoder().decode("eyJhbGciOiJSUzI1NiIsImtpZCI6Indhcm11cCJ9.e30.AA");
         } catch (Exception ignored) {
-            // esperado: o token é falso. O que importa é que o JWK Set foi buscado e cacheado.
+            // expected: the token is fake. What matters is that the JWK Set was fetched and cached.
         }
     }
 

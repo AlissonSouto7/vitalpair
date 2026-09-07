@@ -6,6 +6,6 @@ import com.aps.vitalpair.ai.application.dto.WorkoutToday;
 
 public interface ToggleWorkoutExerciseUseCase {
 
-    /** Inverte o check {@code done} de um exercício do usuário e devolve o treino de hoje atualizado. */
+    /** Flips the {@code done} tick of one of the user's exercises and returns today's updated workout. */
     WorkoutToday toggle(UUID userId, UUID tenantId, UUID exerciseId);
 }

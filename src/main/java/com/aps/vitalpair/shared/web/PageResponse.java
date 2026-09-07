@@ -5,7 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 /**
- * Representação enxuta de uma página, evitando expor a estrutura completa de {@link Page} na API.
+ * A lean representation of a page, so the full structure of {@link Page} is not exposed in the
+ * API.
  */
 public record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages, boolean last) {
 

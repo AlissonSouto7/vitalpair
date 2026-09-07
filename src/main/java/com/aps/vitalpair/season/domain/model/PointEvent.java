@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Uma linha do ledger de pontos. Espelha cada incremento do placar da competição. */
+/** One line of the points ledger. Mirrors every increment of the competition scoreboard. */
 @Getter
 @Builder(toBuilder = true)
 public class PointEvent {

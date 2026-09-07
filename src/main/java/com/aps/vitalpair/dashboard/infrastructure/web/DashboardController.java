@@ -15,6 +15,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Dashboard", description = "One call with everything the home screen shows for a day.")
@@ -29,6 +30,10 @@ public class DashboardController {
     }
 
     @StandardApiResponses
+    @Operation(
+            summary = "The day's balance",
+            description =
+                    "Consumed, burned, net and remaining calories against the caller's target, plus the partner's summary when the pair is active. Remaining is target minus net, so exercise counts here; the nutrition summary's remaining does not include it.")
     @GetMapping
     public ResponseEntity<ApiResponse<DashboardResponse>> dashboard(
             @AuthenticationPrincipal AuthenticatedUser principal,

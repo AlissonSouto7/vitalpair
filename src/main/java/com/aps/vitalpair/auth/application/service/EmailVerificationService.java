@@ -22,9 +22,9 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Confirmação de e-mail. O cadastro segue funcionando (login liberado), mas a conta fica marcada
- * como não verificada até o usuário clicar no link enviado por e-mail. Contas via Google já
- * entram verificadas (o Google confirma o e-mail).
+ * E-mail confirmation. Registration keeps working (login is allowed), but the account stays
+ * marked unverified until the user opens the link sent by e-mail. Google accounts arrive
+ * verified, because Google has confirmed the address.
  */
 @Service
 public class EmailVerificationService

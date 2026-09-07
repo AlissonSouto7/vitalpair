@@ -1,11 +1,11 @@
 package com.aps.vitalpair.auth.domain.port.in;
 
-/** Inicia a redefinição de senha: gera um token e envia o link por e-mail. */
+/** Starts a password reset: generates a token and sends the link by e-mail. */
 public interface RequestPasswordResetUseCase {
 
     /**
-     * Sempre conclui sem erro mesmo se o e-mail não existir (não revela se há conta com aquele
-     * e-mail, evitando enumeração de usuários).
+     * Always completes without error, even when the address is unknown: revealing whether an
+     * account exists would let anyone enumerate users.
      */
     void requestReset(String email);
 }

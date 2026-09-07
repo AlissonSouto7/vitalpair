@@ -12,6 +12,6 @@ public interface FeedItemRepositoryPort {
 
     Optional<FeedItem> findById(UUID id);
 
-    /** Itens do tenant visíveis para o usuário: públicos ou de autoria do próprio. */
+    /** The tenant's items visible to the user: public ones, plus the user's own private ones. */
     PageResponse<FeedItem> findVisibleByTenant(UUID tenantId, UUID viewerId, int page, int size);
 }

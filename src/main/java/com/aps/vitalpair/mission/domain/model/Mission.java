@@ -3,7 +3,7 @@ package com.aps.vitalpair.mission.domain.model;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Missão do catálogo. Imutável. */
+/** A mission of the catalogue. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class Mission {

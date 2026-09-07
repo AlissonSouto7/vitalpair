@@ -1,6 +1,6 @@
 package com.aps.vitalpair.mission.domain.model;
 
-/** Ícone associado a uma missão semanal na tela de Missões. */
+/** The icon shown for a weekly mission on the Missions screen. */
 public enum WeeklyMissionIcon {
     MEAL,
     WORKOUT,

@@ -6,6 +6,6 @@ import com.aps.vitalpair.mission.domain.model.FlashMissionView;
 
 public interface GetFlashMissionUseCase {
 
-    /** Missão relâmpago do dia para o par ao qual o usuário pertence. */
+    /** Today's flash mission for the pair the user belongs to. */
     FlashMissionView getToday(UUID userId);
 }

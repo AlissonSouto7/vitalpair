@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Sequência diária de um usuário para um tipo de atividade. Imutável. */
+/** A user's daily streak for one activity type. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class UserStreak {

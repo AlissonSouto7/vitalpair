@@ -23,9 +23,9 @@ import com.aps.vitalpair.shared.event.PairFormedEvent;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Atualiza streaks, placar e conquistas a partir dos eventos de outras features. Roda APÓS o commit
- * do registro original e em transação própria, para que falhas de gamificação não desfaçam o log.
- * Pontos (§5.6): refeição +10, atividade +15, +50 ao completar múltiplos de 7 dias de streak.
+ * Updates streaks, the scoreboard and badges from other features' events. Runs AFTER the
+ * originating commit and in its own transaction, so a gamification failure never rolls back
+ * the log. Points: a meal is 10, an activity 15, and every multiple of 7 streak days 50 more.
  */
 @Component
 public class GamificationEventListener {
@@ -104,10 +104,10 @@ public class GamificationEventListener {
             String firstBadgeCode,
             String streakBadgeCode) {
         badgeService.awardByCode(userId, tenantId, firstBadgeCode);
-        // Só pontua/avança a streak no primeiro registro do dia para o tipo.
+        // Only the first record of the day for this type scores and advances the streak.
         streakService.registerActivity(userId, tenantId, type, date).ifPresent(streak -> {
             UUID partner = competitionService.partnerOf(tenantId, userId);
-            // Placar antes de pontuar, para detectar a transição de ultrapassagem.
+            // The score before awarding, to detect the overtake transition.
             int actorBefore = competitionService.currentScoreOf(tenantId, userId, date);
             Integer partnerScore = partner == null ? null : competitionService.currentScoreOf(tenantId, partner, date);
 
@@ -125,8 +125,8 @@ public class GamificationEventListener {
     }
 
     /**
-     * Se, com os pontos somados nesta chamada, o ator passou de "atrás ou empatado" para "à frente"
-     * do parceiro, notifica o PARCEIRO (quem foi ultrapassado). Só dispara na transição.
+     * If the points awarded in this call moved the actor from "behind or tied" to "ahead" of the
+     * partner, notifies the PARTNER (the one overtaken). Fires on the transition only.
      */
     private void notifyRivalOvertakeIfNeeded(
             UUID tenantId, UUID actorId, UUID partnerId, Integer partnerScore, int actorBefore, LocalDate date) {

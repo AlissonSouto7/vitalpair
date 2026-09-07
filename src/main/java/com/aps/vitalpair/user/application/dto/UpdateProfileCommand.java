@@ -7,7 +7,7 @@ import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Sex;
 
-/** Dados de atualização do perfil. Os campos de TDEE são obrigatórios para o cálculo das metas. */
+/** The profile update. The TDEE fields are required, because the targets are computed from them. */
 public record UpdateProfileCommand(
         String name,
         LocalDate birthDate,

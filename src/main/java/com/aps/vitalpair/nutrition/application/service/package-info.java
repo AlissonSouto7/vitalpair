@@ -1,5 +1,5 @@
 /**
- * Serviços de aplicação de nutrition: implementam as portas de entrada (domain.port.in) recebendo
- * as portas de saída por construtor. Ex: {@code NutritionService}.
+ * Application services of nutrition: they implement the inbound ports (domain.port.in) and
+ * receive the outbound ports through the constructor. For example {@code NutritionService}.
  */
 package com.aps.vitalpair.nutrition.application.service;

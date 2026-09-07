@@ -6,9 +6,9 @@ import com.aps.vitalpair.ai.domain.model.WorkoutDay;
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
 
-/** Porta de saída para a IA que monta o plano de treino (implementada sobre a Anthropic). */
+/** Outbound port to the model that builds the workout plan (implemented over Anthropic). */
 public interface WorkoutPlanGeneratorPort {
 
-    /** Gera os 7 dias da semana (4-5 dias de treino, o resto descanso) para o objetivo do usuário. */
+    /** Generates the 7 days of the week (4 or 5 training days, the rest rest days) for the user's goal. */
     List<WorkoutDay> generateWeek(Goal goal, ActivityLevel activityLevel);
 }

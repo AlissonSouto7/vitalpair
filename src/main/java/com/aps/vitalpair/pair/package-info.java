@@ -1,9 +1,9 @@
 /**
- * Feature <b>pair</b> — o par é o <i>tenant</i> do sistema: convite por código, aceitação,
- * relacionamento entre os dois usuários, feed compartilhado e placar da competição.
+ * Feature <b>pair</b>: the pair is the system's <i>tenant</i>. Invite by code, acceptance, the
+ * relationship between the two users, and the tenant move that joining implies.
  *
- * <p>Organização hexagonal (ver {@code docs/adr/0001-arquitetura-hexagonal.md}):
- * {@code domain} (modelo + portas), {@code application} (casos de uso), {@code infrastructure}
- * (web, persistence, client). Regra de dependência: infrastructure → application → domain.
+ * <p>Hexagonal layout (see {@code docs/adr/0001-arquitetura-hexagonal.md}): {@code domain}
+ * (model and ports), {@code application} (use cases), {@code infrastructure} (web,
+ * persistence). Dependency rule: infrastructure -> application -> domain.
  */
 package com.aps.vitalpair.pair;

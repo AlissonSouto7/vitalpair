@@ -6,11 +6,12 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- * Detalhe de erro retornado no campo {@code data} de um {@link ApiResponse} com {@code success=false}.
+ * The error detail returned in the {@code data} field of an {@link ApiResponse} with
+ * {@code success=false}.
  *
- * @param requestId identificador da requisição, o mesmo que aparece no log do servidor. É o que
- *     permite a alguém relatar uma falha e a investigação achar a linha exata. Ausente quando o
- *     erro acontece fora de uma requisição.
+ * @param requestId the request identifier, the same one that appears in the server log. It is
+ *     what lets someone report a failure and the investigation find the exact line. Absent when
+ *     the error happens outside a request.
  */
 public record ApiError(
         Instant timestamp,
@@ -20,6 +21,6 @@ public record ApiError(
         @JsonInclude(JsonInclude.Include.NON_NULL) String requestId,
         List<FieldViolation> violations) {
 
-    /** Violação de um campo específico em erros de validação de DTO. */
+    /** A violation on one field, in DTO validation errors. */
     public record FieldViolation(String field, String message) {}
 }

@@ -3,13 +3,13 @@ package com.aps.vitalpair.progress.domain.model;
 import java.util.List;
 
 /**
- * Visão completa da tela de Progresso: histórico de peso, calorias dos últimos
- * 7 dias e médias de macros dos últimos 7 dias.
+ * The whole Progress screen: weight history, the last 7 days of calories and the last 7 days'
+ * macro averages.
  *
- * @param weights    pontos de peso em ordem cronológica (mais antigo → hoje)
- * @param targetKcal meta de calorias do usuário, ou {@code null} se sem meta
- * @param calories   um item por dia nos últimos 7 dias (6 dias atrás → hoje)
- * @param macros     médias diárias de proteína, carboidrato e gordura
+ * @param weights    weight points in chronological order (oldest to today)
+ * @param targetKcal the user's calorie target, or {@code null} without a target
+ * @param calories   one item per day over the last 7 days (6 days ago to today)
+ * @param macros     daily averages of protein, carbohydrate and fat
  */
 public record ProgressView(
         List<WeightPoint> weights, Integer targetKcal, List<CalorieDay> calories, List<MacroAverage> macros) {}

@@ -5,15 +5,15 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * Corpo da requisição de análise de foto.
+ * Body of the photo analysis request.
  *
- * <p>O tamanho é limitado aqui porque este endpoint gasta dinheiro: a imagem vira tokens de
- * entrada cobrados pela Anthropic, e sem limite o custo de uma chamada é decidido por quem
- * chama. O teto de 5 MB decodificados é o da própria Anthropic, que recusa imagens maiores;
- * o valor em base64 é 4/3 disso.
+ * <p>The size is bounded here because this endpoint spends money: the image becomes input
+ * tokens billed by Anthropic, and without a bound the cost of one call is decided by whoever
+ * sends it. The 5 MB decoded ceiling is Anthropic's own, which refuses larger images; the base64
+ * value is 4/3 of that.
  *
- * @param imageBase64 imagem em base64 puro, sem o prefixo {@code data:}
- * @param mediaType   tipo da imagem: {@code image/jpeg}, {@code image/png} ou {@code image/webp}
+ * @param imageBase64 the image as plain base64, without the {@code data:} prefix
+ * @param mediaType   the image type: {@code image/jpeg}, {@code image/png} or {@code image/webp}
  */
 public record PhotoAnalysisRequest(
         @NotBlank @Size(max = MAX_BASE64_LENGTH, message = "A foto é grande demais. Envie uma imagem de até 5 MB.")
@@ -24,6 +24,6 @@ public record PhotoAnalysisRequest(
                         message = "mediaType deve ser image/jpeg, image/png ou image/webp")
                 String mediaType) {
 
-    /** 5 MB decodificados, que é o limite da Anthropic, expressos em caracteres base64. */
+    /** 5 MB decoded, which is Anthropic's limit, expressed in base64 characters. */
     public static final int MAX_BASE64_LENGTH = 5 * 1024 * 1024 / 3 * 4;
 }

@@ -1,2 +1,2 @@
-/** Domínio da feature ai: modelos, exceções e portas dos planos por IA. */
+/** Domain of the ai feature: models, exceptions and ports of the AI plans. */
 package com.aps.vitalpair.ai.domain;

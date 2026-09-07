@@ -1,2 +1,2 @@
-/** Portas de saída da análise de foto de refeição. */
+/** Outbound ports of meal photo analysis. */
 package com.aps.vitalpair.mealvision.domain.port.out;

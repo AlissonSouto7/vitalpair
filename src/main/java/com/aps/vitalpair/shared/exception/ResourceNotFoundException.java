@@ -1,6 +1,6 @@
 package com.aps.vitalpair.shared.exception;
 
-/** Recurso solicitado não existe (mapeada para HTTP 404). */
+/** The requested resource does not exist (mapped to HTTP 404). */
 public class ResourceNotFoundException extends DomainException {
 
     public ResourceNotFoundException(String message) {

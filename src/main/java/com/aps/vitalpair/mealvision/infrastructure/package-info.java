@@ -1,2 +1,2 @@
-/** Camada de infraestrutura da análise de foto de refeição. */
+/** Infrastructure layer of meal photo analysis. */
 package com.aps.vitalpair.mealvision.infrastructure;
