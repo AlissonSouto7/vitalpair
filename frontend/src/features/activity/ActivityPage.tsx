@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
-import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { getActivities, getActivitySummary, logActivity } from '../../api/activity'
 import type {
   ActivityLog,
@@ -87,7 +88,7 @@ export function ActivityPage() {
       setDurationMinutes('')
       await refresh()
     } catch (err) {
-      setError(apiMessage(err) ?? t('activity.saveError'))
+      setError(getApiErrorMessage(err, t('activity.saveError')))
     } finally {
       setSaving(false)
     }
@@ -104,7 +105,7 @@ export function ActivityPage() {
       setSteps('')
       await refresh()
     } catch (err) {
-      setError(apiMessage(err) ?? t('activity.saveError'))
+      setError(getApiErrorMessage(err, t('activity.saveError')))
     } finally {
       setSaving(false)
     }
@@ -523,10 +524,4 @@ function IconEmpty({ className = '' }: { className?: string }) {
       <path d="M13.5 5.5a2 2 0 11-4 0 2 2 0 014 0zM6.8 14l1.7-3 2 1.3-.7 2.5 2.7 2.4.9 4.3-2 .4-.8-3.6-2.8-2.5L6.5 19l-1.8-.9 2-3.6zm6.1-4.7 1.7 1.2 2.1-.2.2 2-3 .3-2.5-1.8z" />
     </svg>
   )
-}
-
-function apiMessage(err: unknown): string | null {
-  return err instanceof AxiosError
-    ? ((err.response?.data?.message as string | undefined) ?? null)
-    : null
 }

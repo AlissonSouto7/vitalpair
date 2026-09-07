@@ -1,11 +1,15 @@
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { bootstrapSession } from './api/client'
-import { AppRouter } from './router/AppRouter'
-import { useAuthStore } from './store/authStore'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
+
+import { bootstrapSession } from '@/api/client'
+import { AppRouter } from '@/router/AppRouter'
+import { queryClient } from '@/shared/api/queryClient'
+import { AppErrorBoundary } from '@/shared/ui/AppErrorBoundary'
+import { RouteFallback } from '@/shared/ui/RouteFallback'
+import { useAuthStore } from '@/store/authStore'
 
 export default function App() {
-  const { t } = useTranslation()
   const bootstrapped = useAuthStore((s) => s.bootstrapped)
 
   // The access token is kept in memory, so every reload starts without one. The refresh
@@ -15,15 +19,16 @@ export default function App() {
     void bootstrapSession()
   }, [])
 
-  // Routing before the answer arrives would send a logged-in user to /login for a moment,
-  // so the app waits. This is one request against localhost or the same origin.
-  if (!bootstrapped) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted">{t('common.loading')}</p>
-      </div>
-    )
-  }
-
-  return <AppRouter />
+  return (
+    <AppErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        {/* Routing before the refresh call answers would send a logged-in user to /login
+            for a moment, so the app waits. This is one request against the same origin. */}
+        {bootstrapped ? <AppRouter /> : <RouteFallback />}
+        {/* Toasts live outside the router so a message survives a navigation: confirming
+            a saved meal should still be readable on the screen it takes you to. */}
+        <Toaster position="top-center" richColors closeButton />
+      </QueryClientProvider>
+    </AppErrorBoundary>
+  )
 }

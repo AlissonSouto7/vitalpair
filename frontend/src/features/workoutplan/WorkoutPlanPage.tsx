@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AxiosError } from 'axios'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 import {
   completeWorkout,
   generateWorkoutPlan,
@@ -34,7 +35,7 @@ export function WorkoutPlanPage() {
     try {
       setToday(await generateWorkoutPlan())
     } catch (err) {
-      setError(apiMessage(err) ?? t('workoutplan.generateError'))
+      setError(getApiErrorMessage(err, t('workoutplan.generateError')))
     } finally {
       setGenerating(false)
     }
@@ -63,7 +64,7 @@ export function WorkoutPlanPage() {
     try {
       setToday(await completeWorkout())
     } catch (err) {
-      setError(apiMessage(err) ?? t('workoutplan.completeError'))
+      setError(getApiErrorMessage(err, t('workoutplan.completeError')))
     } finally {
       setFinishing(false)
     }
@@ -259,12 +260,6 @@ export function WorkoutPlanPage() {
 function goalLabel(t: (k: string) => string, goal: string): string {
   const known = ['LOSE_WEIGHT', 'GAIN_MUSCLE', 'MAINTAIN', 'IMPROVE_FITNESS']
   return known.includes(goal) ? t(`profile.goalLabel.${goal}`).toLowerCase() : goal.toLowerCase()
-}
-
-function apiMessage(err: unknown): string | null {
-  return err instanceof AxiosError
-    ? ((err.response?.data?.message as string | undefined) ?? null)
-    : null
 }
 
 /* ---------- ícones (SVG preenchidos) ---------- */

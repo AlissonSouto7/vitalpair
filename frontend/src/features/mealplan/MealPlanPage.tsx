@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AxiosError } from 'axios'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { generateMealPlan, getMealPlan, swapMeal } from '../../api/aiplan'
 import type { MealPlan, PlanMeal, PlanMealType } from '../../types/aiplan'
 
@@ -38,7 +39,7 @@ export function MealPlanPage() {
       setPlan(p)
       setSelected(todayIndex(p))
     } catch (err) {
-      setError(apiMessage(err) ?? t('mealplan.generateError'))
+      setError(getApiErrorMessage(err, t('mealplan.generateError')))
     } finally {
       setGenerating(false)
     }
@@ -52,7 +53,7 @@ export function MealPlanPage() {
       const p = await swapMeal(selected, mealType)
       setPlan(p)
     } catch (err) {
-      setError(apiMessage(err) ?? t('mealplan.swapError'))
+      setError(getApiErrorMessage(err, t('mealplan.swapError')))
     } finally {
       setSwapping(null)
     }
@@ -298,12 +299,6 @@ function todayIndex(plan: MealPlan): number {
   const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   const idx = plan.days.findIndex((d) => d.date === iso)
   return idx >= 0 ? idx : 0
-}
-
-function apiMessage(err: unknown): string | null {
-  return err instanceof AxiosError
-    ? ((err.response?.data?.message as string | undefined) ?? null)
-    : null
 }
 
 /* ---------- ícones ---------- */

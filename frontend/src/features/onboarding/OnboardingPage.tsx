@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 import type { TFunction } from 'i18next'
 import { getTdee, updateProfile } from '../../api/profile'
 import { joinPair } from '../../api/pair'
@@ -202,7 +203,7 @@ export function OnboardingPage() {
       setTdee(result)
       setStep(3)
     } catch (err) {
-      setError(apiMessage(err, t('onboarding.errorCalc')))
+      setError(getApiErrorMessage(err, t('onboarding.errorCalc')))
     } finally {
       setCalculating(false)
     }
@@ -215,7 +216,7 @@ export function OnboardingPage() {
       await joinPair(inviteCode.trim())
       return true
     } catch (err) {
-      setError(apiMessage(err, t('onboarding.errorJoin')))
+      setError(getApiErrorMessage(err, t('onboarding.errorJoin')))
       return false
     } finally {
       setJoining(false)
@@ -727,13 +728,6 @@ function Unit({ unit, children }: { unit: string; children: ReactNode }) {
       </span>
     </div>
   )
-}
-
-function apiMessage(err: unknown, fallback: string) {
-  const message = err instanceof AxiosError ? err.response?.data?.message : null
-  // "Erro de validação" é genérico do backend; mostramos o fallback amigável no lugar.
-  if (message && message !== 'Erro de validação') return message
-  return fallback
 }
 
 /* ---------- ícones SVG preenchidos ---------- */
