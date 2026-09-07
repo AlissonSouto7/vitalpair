@@ -170,9 +170,14 @@ rather than suggested.
 2. The version comes from the commits: while the major is 0, a `feat:` bumps
    the minor and a `fix:` the patch. A `feat!:` or a `BREAKING CHANGE:` footer
    bumps the minor as well, until 1.0.0.
-3. Merging that pull request creates the tag `vX.Y.Z` and the GitHub release.
-   Nothing is deployed by that alone; the deploy pipeline reacts to the tag and
-   still asks for approval.
+3. That pull request is opened by the Actions bot, so its workflow runs wait
+   for approval: open the run and press "Approve and run" before the required
+   checks can report. Merging it creates the tag `vX.Y.Z` and the GitHub
+   release. Nothing is deployed by that alone; the deploy pipeline reacts to
+   the tag and still asks for approval.
+4. Close a release pull request whose only content is housekeeping since the
+   last tag. It reappears with the right version as soon as a real change
+   lands.
 
 Do not edit the version in `pom.xml` by hand, and do not create tags by hand.
 The current version is in `.release-please-manifest.json`. The repository
