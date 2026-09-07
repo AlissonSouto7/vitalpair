@@ -1,4 +1,7 @@
 import { useTranslation } from 'react-i18next'
+
+import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
+import { RouteFallback } from '@/shared/ui/RouteFallback'
 import { LegalHeader, LegalFooter, Section } from './PrivacyPage'
 
 interface LegalSection {
@@ -15,9 +18,13 @@ interface LegalSection {
  * Conteúdo via i18n (namespace legal.terms). Tom honesto, claro, brasileiro.
  */
 export function TermsPage() {
+  // The legal texts are not in the main bundle; rendering before they arrive
+  // would show raw translation keys.
+  const legalReady = useLegalNamespace()
   const { t } = useTranslation()
   const sections = t('legal.terms.sections', { returnObjects: true }) as LegalSection[]
 
+  if (!legalReady) return <RouteFallback />
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <LegalHeader />

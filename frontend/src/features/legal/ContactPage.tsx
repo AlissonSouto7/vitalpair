@@ -2,6 +2,9 @@ import { useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+
+import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
+import { RouteFallback } from '@/shared/ui/RouteFallback'
 import { LegalHeader, LegalFooter } from './PrivacyPage'
 
 const MAIL = 'contato@vitalpair.app'
@@ -13,7 +16,12 @@ const MAIL = 'contato@vitalpair.app'
  * O formulário ainda não envia: faz preventDefault e mostra estado de "recebido".
  */
 export function ContactPage() {
+  // The legal texts are not in the main bundle; rendering before they arrive
+  // would show raw translation keys.
+  const legalReady = useLegalNamespace()
   const { t } = useTranslation()
+
+  if (!legalReady) return <RouteFallback />
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <LegalHeader />
