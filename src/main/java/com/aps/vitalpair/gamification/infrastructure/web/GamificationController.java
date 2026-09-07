@@ -14,7 +14,11 @@ import com.aps.vitalpair.gamification.domain.port.in.GetStreaksUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetUserBadgesUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Gamification", description = "Streaks, the score against the partner, and badges.")
 @RestController
 @RequestMapping("/api/v1/gamification")
 public class GamificationController {
@@ -35,6 +39,7 @@ public class GamificationController {
         this.getBadgeCatalogUseCase = getBadgeCatalogUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping("/streaks")
     public ResponseEntity<ApiResponse<List<StreakResponse>>> streaks(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -44,6 +49,7 @@ public class GamificationController {
         return ResponseEntity.ok(ApiResponse.ok(streaks));
     }
 
+    @StandardApiResponses
     @GetMapping("/competition")
     public ResponseEntity<ApiResponse<CompetitionResponse>> competition(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -51,6 +57,7 @@ public class GamificationController {
         return ResponseEntity.ok(ApiResponse.ok(CompetitionResponse.from(score)));
     }
 
+    @StandardApiResponses
     @GetMapping("/badges")
     public ResponseEntity<ApiResponse<List<EarnedBadgeResponse>>> badges(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -60,6 +67,7 @@ public class GamificationController {
         return ResponseEntity.ok(ApiResponse.ok(badges));
     }
 
+    @StandardApiResponses
     @GetMapping("/badges/catalog")
     public ResponseEntity<ApiResponse<List<BadgeResponse>>> badgeCatalog() {
         List<BadgeResponse> catalog = getBadgeCatalogUseCase.getCatalog().stream()

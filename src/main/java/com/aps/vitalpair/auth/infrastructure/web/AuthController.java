@@ -25,7 +25,15 @@ import com.aps.vitalpair.auth.domain.port.in.ResendEmailVerificationUseCase;
 import com.aps.vitalpair.auth.domain.port.in.ResetPasswordUseCase;
 import com.aps.vitalpair.auth.domain.port.in.VerifyEmailUseCase;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(
+        name = "Authentication",
+        description =
+                "Registering, signing in, renewing a session, and the e-mail flows for verification and password reset.")
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -64,6 +72,11 @@ public class AuthController {
         this.refreshTokenCookie = refreshTokenCookie;
     }
 
+    @Operation(
+            summary = "Create an account",
+            description =
+                    "Registers a person and signs them in immediately: the response carries an access token and sets the refresh cookie. A failure to send the verification e-mail does not fail the request, because the account exists and the person is already in; the e-mail can be resent.")
+    @StandardApiResponses
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<TokenResponse>> register(@Valid @RequestBody RegisterRequest request) {
         AuthResult result =
@@ -75,6 +88,11 @@ public class AuthController {
                 .body(ApiResponse.ok(TokenResponse.from(result), "Conta criada com sucesso"));
     }
 
+    @Operation(
+            summary = "Sign in",
+            description =
+                    "Exchanges e-mail and password for an access token, and sets the refresh cookie. Limited to ten attempts a minute per address.")
+    @StandardApiResponses
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResult result = loginUseCase.login(new LoginCommand(request.email(), request.password()));
@@ -85,6 +103,11 @@ public class AuthController {
                 .body(ApiResponse.ok(TokenResponse.from(result)));
     }
 
+    @Operation(
+            summary = "Sign in with Google",
+            description =
+                    "Exchanges a Google ID token for a session. An account is created on first use, already verified, because Google has confirmed the address.")
+    @StandardApiResponses
     @PostMapping("/oauth2/google")
     public ResponseEntity<ApiResponse<TokenResponse>> google(@Valid @RequestBody GoogleLoginRequest request) {
         AuthResult result = googleLoginUseCase.loginWithGoogle(request.idToken());
@@ -99,6 +122,11 @@ public class AuthController {
      * Renews the session from the cookie. There is no request body: the refresh token is
      * never handled by client script, which is the point of moving it out of localStorage.
      */
+    @Operation(
+            summary = "Renew the session",
+            description =
+                    "Reads the refresh cookie and returns a fresh pair. There is no request body on purpose: the refresh token is never handled by page script. A refresh token is single-use, and replaying a spent one revokes every token descended from that login, since a replay cannot be told apart from theft.")
+    @StandardApiResponses
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<TokenResponse>> refresh(
             @CookieValue(name = RefreshTokenCookie.NAME, required = false) String refreshToken) {
@@ -119,6 +147,11 @@ public class AuthController {
      * <p>Succeeds even without a cookie: a user clicking "log out" with an already-expired
      * session should see it work, not an error.
      */
+    @Operation(
+            summary = "Sign out",
+            description =
+                    "Revokes the whole token family and clears the cookie. Succeeds even without a cookie: someone clicking log out on an already-expired session should see it work.")
+    @StandardApiResponses
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
             @CookieValue(name = RefreshTokenCookie.NAME, required = false) String refreshToken) {
@@ -130,6 +163,11 @@ public class AuthController {
                 .body(ApiResponse.ok(null, "Logout efetuado"));
     }
 
+    @Operation(
+            summary = "Request a password reset",
+            description =
+                    "Sends a reset link if the address has an account. The answer is identical either way, so the endpoint cannot be used to find out who is registered.")
+    @StandardApiResponses
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         requestPasswordResetUseCase.requestReset(request.email());
@@ -137,18 +175,32 @@ public class AuthController {
                 ApiResponse.ok(null, "Se houver uma conta com esse e-mail, enviamos um link de redefinição"));
     }
 
+    @Operation(
+            summary = "Set a new password",
+            description =
+                    "Consumes the token from the reset e-mail. The token is single-use and expires in thirty minutes.")
+    @StandardApiResponses
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         resetPasswordUseCase.resetPassword(request.token(), request.newPassword());
         return ResponseEntity.ok(ApiResponse.ok(null, "Senha redefinida com sucesso"));
     }
 
+    @Operation(
+            summary = "Confirm an e-mail address",
+            description = "Consumes the token from the verification e-mail. Single-use, valid for twenty-four hours.")
+    @StandardApiResponses
     @PostMapping("/verify-email")
     public ResponseEntity<ApiResponse<Void>> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
         verifyEmailUseCase.verify(request.token());
         return ResponseEntity.ok(ApiResponse.ok(null, "E-mail confirmado com sucesso"));
     }
 
+    @Operation(
+            summary = "Resend the verification e-mail",
+            description =
+                    "Sends it again if the account exists and is not yet verified. As with the reset, the answer does not reveal which.")
+    @StandardApiResponses
     @PostMapping("/resend-verification")
     public ResponseEntity<ApiResponse<Void>> resendVerification(@Valid @RequestBody ForgotPasswordRequest request) {
         resendEmailVerificationUseCase.resend(request.email());

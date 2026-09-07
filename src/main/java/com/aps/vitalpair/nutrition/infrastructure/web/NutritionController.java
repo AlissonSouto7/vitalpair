@@ -29,7 +29,11 @@ import com.aps.vitalpair.nutrition.domain.port.in.LogMealUseCase;
 import com.aps.vitalpair.nutrition.domain.port.in.SearchFoodUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Nutrition", description = "Searching foods, logging meals and reading the day's totals.")
 @RestController
 @RequestMapping("/api/v1/nutrition")
 public class NutritionController {
@@ -59,6 +63,7 @@ public class NutritionController {
         this.getFavoriteFoodsUseCase = getFavoriteFoodsUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping("/foods/search")
     public ResponseEntity<ApiResponse<List<FoodProductResponse>>> search(@RequestParam("q") String query) {
         List<FoodProductResponse> products = searchFoodUseCase.search(query).stream()
@@ -67,12 +72,14 @@ public class NutritionController {
         return ResponseEntity.ok(ApiResponse.ok(products));
     }
 
+    @StandardApiResponses
     @GetMapping("/foods/barcode/{code}")
     public ResponseEntity<ApiResponse<FoodProductResponse>> byBarcode(@PathVariable String code) {
         return ResponseEntity.ok(
                 ApiResponse.ok(FoodProductResponse.from(findFoodByBarcodeUseCase.findByBarcode(code))));
     }
 
+    @StandardApiResponses
     @PostMapping("/logs")
     public ResponseEntity<ApiResponse<FoodLogResponse>> log(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody LogMealRequest request) {
@@ -93,6 +100,7 @@ public class NutritionController {
                 .body(ApiResponse.ok(FoodLogResponse.from(saved), "Refeição registrada"));
     }
 
+    @StandardApiResponses
     @GetMapping("/logs")
     public ResponseEntity<ApiResponse<List<FoodLogResponse>>> logs(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -104,6 +112,7 @@ public class NutritionController {
         return ResponseEntity.ok(ApiResponse.ok(logs));
     }
 
+    @StandardApiResponses
     @DeleteMapping("/logs/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable UUID id) {
@@ -111,6 +120,7 @@ public class NutritionController {
         return ResponseEntity.ok(ApiResponse.ok(null, "Registro removido"));
     }
 
+    @StandardApiResponses
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<DailySummaryResponse>> summary(
             @AuthenticationPrincipal AuthenticatedUser principal,
@@ -120,6 +130,7 @@ public class NutritionController {
         return ResponseEntity.ok(ApiResponse.ok(DailySummaryResponse.from(summary)));
     }
 
+    @StandardApiResponses
     @GetMapping("/favorites")
     public ResponseEntity<ApiResponse<List<FavoriteFoodResponse>>> favorites(
             @AuthenticationPrincipal AuthenticatedUser principal) {

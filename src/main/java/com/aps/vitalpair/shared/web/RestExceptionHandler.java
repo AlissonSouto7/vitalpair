@@ -1,8 +1,13 @@
 package com.aps.vitalpair.shared.web;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +22,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Tratamento global de erros. Traduz exceções em respostas {@link ApiResponse} padronizadas,
@@ -46,6 +53,29 @@ public class RestExceptionHandler {
                 .map(fe -> new ApiError.FieldViolation(fe.getField(), fe.getDefaultMessage()))
                 .toList();
         return ApiErrors.response(HttpStatus.BAD_REQUEST, "Erro de validação", request, violations);
+    }
+
+    /**
+     * Validation on a query parameter, as opposed to a request body.
+     *
+     * <p>Constraints on a method parameter raise a different exception from constraints on a
+     * body, and without this handler it reached the generic one: a negative {@code ?size=}
+     * came back as 500 and logged a stack trace for what is plainly bad input.
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleParameterValidation(
+            ConstraintViolationException ex, HttpServletRequest request) {
+        List<ApiError.FieldViolation> violations = ex.getConstraintViolations().stream()
+                .map(violation -> new ApiError.FieldViolation(lastNode(violation), violation.getMessage()))
+                .toList();
+        return ApiErrors.response(HttpStatus.BAD_REQUEST, "Erro de validação", request, violations);
+    }
+
+    /** The parameter name, which is the last node of a path like {@code feed.size}. */
+    private String lastNode(ConstraintViolation<?> violation) {
+        String path = violation.getPropertyPath().toString();
+        int dot = path.lastIndexOf('.');
+        return dot >= 0 ? path.substring(dot + 1) : path;
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
@@ -79,7 +109,41 @@ public class RestExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleUnreadable(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
-        return ApiErrors.response(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou mal formatado", request);
+        return ApiErrors.response(
+                HttpStatus.BAD_REQUEST,
+                "Corpo da requisição inválido ou mal formatado",
+                request,
+                unreadableViolations(ex));
+    }
+
+    /**
+     * Names the field Jackson choked on, when it can be worked out.
+     *
+     * <p>A wrong enum value produces the same "corpo inválido" as a truncated body, with an
+     * empty violations list, so the caller is told only that something is wrong somewhere.
+     * Sending {@code activityType: "WALKING"} instead of {@code "WALK"} costs a round of
+     * guesswork that the exception already has the answer to. The accepted values are
+     * included because the whole difficulty is not knowing them.
+     */
+    private List<ApiError.FieldViolation> unreadableViolations(HttpMessageNotReadableException ex) {
+        if (!(ex.getCause() instanceof InvalidFormatException cause)) {
+            return List.of();
+        }
+        String field = cause.getPath().stream()
+                .map(JsonMappingException.Reference::getFieldName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("."));
+        if (field.isBlank()) {
+            return List.of();
+        }
+        Class<?> target = cause.getTargetType();
+        String message = target != null && target.isEnum()
+                ? "valor inválido. Aceitos: "
+                        + Arrays.stream(target.getEnumConstants())
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(", "))
+                : "valor inválido para este campo";
+        return List.of(new ApiError.FieldViolation(field, message));
     }
 
     @ExceptionHandler(Exception.class)

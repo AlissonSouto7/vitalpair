@@ -32,38 +32,37 @@ Write it in English.
 
 ## Status
 
-No feature documents exist yet. They are written as each feature is next
-touched, and backfilled for the larger ones.
+Every backend feature package has a document. Counts measured on 2026-09-06.
 
-Backend feature packages, by class count on `main`:
+| Package        | Classes | Document                                                       |
+| -------------- | ------- | -------------------------------------------------------------- |
+| `ai`           | 64      | [ai-plans.md](ai-plans.md)                                     |
+| `auth`         | 45      | [auth.md](auth.md)                                             |
+| `nutrition`    | 42      | [nutrition.md](nutrition.md)                                   |
+| `gamification` | 41      | [gamification.md](gamification.md)                             |
+| `mission`      | 36      | [missions.md](missions.md)                                     |
+| `notification` | 31      | [notifications.md](notifications.md)                           |
+| `mealvision`   | 27      | [meal-vision.md](meal-vision.md)                               |
+| `season`       | 26      | [season.md](season.md)                                         |
+| `feed`         | 23      | [feed.md](feed.md)                                             |
+| `pair`         | 23      | [pair.md](pair.md)                                             |
+| `activity`     | 19      | [activity.md](activity.md)                                     |
+| `progress`     | 19      | [progress.md](progress.md)                                     |
+| `user`         | 19      | [user-profile.md](user-profile.md)                             |
+| `dashboard`    | 9       | [dashboard.md](dashboard.md)                                   |
+| `tdee`         | 5       | [user-profile.md](user-profile.md), with the feature it serves |
+| `admin`        | 1       | [admin.md](admin.md)                                           |
 
-| Package | Classes | Document |
-|---|---|---|
-| `ai` | 63 | not written |
-| `auth` | 45 | not written |
-| `nutrition` | 41 | not written |
-| `gamification` | 41 | not written |
-| `mission` | 36 | not written |
-| `notification` | 31 | not written |
-| `mealvision` | 26 | not written |
-| `season` | 26 | not written |
-| `feed` | 23 | not written |
-| `pair` | 23 | not written |
-| `activity` | 19 | not written |
-| `progress` | 19 | not written |
-| `user` | 19 | not written |
-| `dashboard` | 9 | not written |
-| `tdee` | 5 | not written |
-| `workout` | placeholder | not written |
-
-`config`, `shared` and `tenant` are infrastructure packages, not features, and
-do not get feature documents.
+`config`, `shared` and `tenant` are infrastructure packages, not features. The
+cross-cutting documents are [testing.md](testing.md),
+[observability.md](observability.md),
+[frontend-foundation.md](frontend-foundation.md) and
+[browser-tests.md](browser-tests.md).
 
 <!--
-Counts measured on main@ad9203d with:
+Counts measured with:
   for d in src/main/java/com/aps/vitalpair/*/; do
     echo "$(basename "$d"): $(find "$d" -name '*.java' | wc -l)"
   done
-Update them when they stop being roughly right; they exist to show relative
-size, not to be exact.
+They exist to show relative size, not to be exact.
 -->

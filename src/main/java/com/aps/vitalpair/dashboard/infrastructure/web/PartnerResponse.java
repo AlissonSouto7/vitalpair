@@ -2,7 +2,7 @@ package com.aps.vitalpair.dashboard.infrastructure.web;
 
 import java.util.UUID;
 
-import com.aps.vitalpair.dashboard.application.dto.PartnerSummary;
+import com.aps.vitalpair.dashboard.domain.model.PartnerSummary;
 
 public record PartnerResponse(
         UUID userId,

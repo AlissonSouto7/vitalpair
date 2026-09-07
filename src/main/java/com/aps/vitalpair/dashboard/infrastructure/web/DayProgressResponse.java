@@ -1,6 +1,6 @@
 package com.aps.vitalpair.dashboard.infrastructure.web;
 
-import com.aps.vitalpair.dashboard.application.dto.DayProgress;
+import com.aps.vitalpair.dashboard.domain.model.DayProgress;
 
 public record DayProgressResponse(
         Integer calorieTarget,

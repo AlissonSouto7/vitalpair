@@ -1,4 +1,4 @@
-package com.aps.vitalpair.dashboard.application.dto;
+package com.aps.vitalpair.dashboard.domain.model;
 
 import java.util.UUID;
 

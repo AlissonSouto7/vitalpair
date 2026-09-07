@@ -46,6 +46,30 @@ class HexagonalArchitectureTest {
             .resideInAPackage("..infrastructure..")
             .because("application talks to the outside through ports, not adapters");
 
+    /**
+     * The inward arrow has to point all the way in.
+     *
+     * <p>The framework rule above catches a domain that imports Spring, and the one after it
+     * catches an application that imports an adapter. Neither catches a domain that imports
+     * its own application layer, which is what an inbound port does whenever its return type
+     * is an {@code application.dto}.
+     *
+     * <p>Frozen at what was there when the rule was written: 28 violations across most
+     * features, because the convention has been to put use case DTOs in {@code application}
+     * from the start. That is a real inconsistency with the stated rule and it is recorded
+     * as debt rather than hidden, exactly like the package cycles below. What the freeze buys
+     * is that the 29th cannot appear without the build saying so.
+     */
+    @ArchTest
+    static final ArchRule domain_does_not_depend_on_application =
+            com.tngtech.archunit.library.freeze.FreezingArchRule.freeze(noClasses()
+                    .that()
+                    .resideInAPackage("..domain..")
+                    .should()
+                    .dependOnClassesThat()
+                    .resideInAPackage("..application..")
+                    .because("a port whose type lives outside the domain inverts the dependency it declares"));
+
     /** A controller that reaches into persistence skips every rule the service enforces. */
     @ArchTest
     static final ArchRule web_does_not_depend_on_persistence = noClasses()

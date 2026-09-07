@@ -14,7 +14,11 @@ import com.aps.vitalpair.progress.domain.port.in.GetProgressUseCase;
 import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Progress", description = "Weight, calories and macros over time.")
 @RestController
 @RequestMapping("/api/v1/progress")
 public class ProgressController {
@@ -27,6 +31,7 @@ public class ProgressController {
         this.recordWeightUseCase = recordWeightUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping
     public ResponseEntity<ApiResponse<ProgressResponse>> progress(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -34,6 +39,7 @@ public class ProgressController {
         return ResponseEntity.ok(ApiResponse.ok(ProgressResponse.from(view)));
     }
 
+    @StandardApiResponses
     @PostMapping("/weight")
     public ResponseEntity<ApiResponse<Void>> recordWeight(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody RecordWeightRequest request) {

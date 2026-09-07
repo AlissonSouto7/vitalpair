@@ -2,7 +2,7 @@ package com.aps.vitalpair.dashboard.infrastructure.web;
 
 import java.time.LocalDate;
 
-import com.aps.vitalpair.dashboard.application.dto.DashboardView;
+import com.aps.vitalpair.dashboard.domain.model.DashboardView;
 
 public record DashboardResponse(LocalDate date, DayProgressResponse me, PartnerResponse partner) {
 
