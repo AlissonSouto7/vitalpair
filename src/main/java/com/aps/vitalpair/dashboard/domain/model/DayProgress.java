@@ -1,10 +1,10 @@
 package com.aps.vitalpair.dashboard.domain.model;
 
 /**
- * Progresso do dia de um usuário: consumido (nutrição) vs gasto (atividade) vs meta.
+ * A user's day: consumed (nutrition) against burned (activity) against the target.
  *
- * @param netCalories       consumido - gasto
- * @param remainingCalories meta - net (positivo = ainda pode comer; negativo = passou da meta)
+ * @param netCalories       consumed - burned
+ * @param remainingCalories target - net (positive means room to eat; negative means over)
  */
 public record DayProgress(
         Integer calorieTarget,

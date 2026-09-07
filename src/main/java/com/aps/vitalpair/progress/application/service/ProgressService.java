@@ -27,17 +27,17 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Casos de uso da tela de Progresso. Histórico de peso vem de {@code weight_logs};
- * calorias e macros vêm de agregados de {@code food_logs}; as metas
- * (calorias e macros) vêm do perfil do usuário (já calculadas pelo TDEE).
+ * Use cases of the Progress screen. Weight history comes from {@code weight_logs}; calories and
+ * macros from aggregates of {@code food_logs}; the targets (calories and macros) from the
+ * user's profile, already computed by the TDEE feature.
  */
 @Service
 public class ProgressService implements GetProgressUseCase, RecordWeightUseCase {
 
-    /** Quantos pontos do histórico de peso devolver, do mais antigo ao mais recente. */
+    /** How many weight history points to return, oldest to newest. */
     private static final int WEIGHT_HISTORY_LIMIT = 26;
 
-    /** Janela do gráfico de calorias e das médias de macros: 7 dias (hoje + 6 anteriores). */
+    /** The window of the calorie chart and the macro averages: 7 days (today plus the 6 before). */
     private static final int WINDOW_DAYS = 7;
 
     /** Iniciais dos dias da semana em PT, indexadas por DayOfWeek (1=segunda ... 7=domingo). */
@@ -113,7 +113,7 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
                 new MacroAverage("FAT", "Gordura", fat, user.getFatTargetG()));
     }
 
-    /** Média no período: soma do macro nos dias com registro dividida por {@link #WINDOW_DAYS}. */
+    /** The period average: the macro summed over the days with records, divided by {@link #WINDOW_DAYS}. */
     private static int avg(
             java.util.Collection<DailyNutritionTotals> totals,
             java.util.function.ToIntFunction<DailyNutritionTotals> field) {

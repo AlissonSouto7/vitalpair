@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.aps.vitalpair.mission.domain.model.WeeklyMission;
 
-/** Porta de saída para o catálogo de missões semanais. */
+/** Outbound port to the weekly mission catalogue. */
 public interface WeeklyMissionCatalogRepositoryPort {
 
-    /** Todas as missões do catálogo ordenadas por {@code display_order}. */
+    /** Every mission of the catalogue, ordered by {@code display_order}. */
     List<WeeklyMission> findAllOrdered();
 }

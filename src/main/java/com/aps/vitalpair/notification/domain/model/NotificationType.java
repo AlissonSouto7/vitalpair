@@ -1,6 +1,6 @@
 package com.aps.vitalpair.notification.domain.model;
 
-/** Tipo da notificação in-app, define o ícone/cor no front. */
+/** The in-app notification type; it decides the icon and colour on the frontend. */
 public enum NotificationType {
     PARTNER_MEAL,
     PARTNER_ACTIVITY,

@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Item da timeline compartilhada do par. Imutável. */
+/** An item of the pair's shared timeline. Immutable. */
 @Getter
 @Builder(toBuilder = true)
 public class FeedItem {

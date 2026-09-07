@@ -3,14 +3,13 @@ package com.aps.vitalpair.progress.domain.model;
 import java.time.LocalDate;
 
 /**
- * Totais diários agregados de food_logs (um por dia com registro). Soma das
- * calorias e dos macros consumidos no dia. Usado para montar o gráfico de
- * calorias e as médias de macros.
+ * Daily totals aggregated from food_logs, one per day with records: the calories and macros
+ * consumed that day. Used to build the calorie chart and the macro averages.
  *
- * @param date     dia do registro
- * @param kcal     total de calorias consumidas no dia
- * @param proteinG total de proteína (g) no dia
- * @param carbG    total de carboidrato (g) no dia
- * @param fatG     total de gordura (g) no dia
+ * @param date     the day
+ * @param kcal     total calories consumed that day
+ * @param proteinG total protein (g) that day
+ * @param carbG    total carbohydrate (g) that day
+ * @param fatG     total fat (g) that day
  */
 public record DailyNutritionTotals(LocalDate date, int kcal, int proteinG, int carbG, int fatG) {}

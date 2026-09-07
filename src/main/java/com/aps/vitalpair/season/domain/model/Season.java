@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Temporada de 30 dias do par (tenant). Imutável: alterações via {@link #toBuilder()}. */
+/** The pair's (tenant's) thirty-day season. Immutable: changes go through {@link #toBuilder()}. */
 @Getter
 @Builder(toBuilder = true)
 public class Season {

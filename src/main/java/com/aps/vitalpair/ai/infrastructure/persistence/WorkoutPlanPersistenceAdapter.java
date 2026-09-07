@@ -18,9 +18,9 @@ import com.aps.vitalpair.ai.domain.model.WorkoutPlan;
 import com.aps.vitalpair.ai.domain.port.out.WorkoutPlanRepositoryPort;
 
 /**
- * Adaptador JPA do plano de treino. {@code replace} apaga exercícios, dias e plano da mesma
- * semana antes de inserir o novo (respeitando o UNIQUE user_id/week_start). As leituras devolvem
- * dias ordenados por {@code dayIndex} e exercícios por {@code position}.
+ * JPA adapter of the workout plan. {@code replace} deletes the exercises, days and plan of the
+ * same week before inserting the new one (honouring the UNIQUE on user_id and week_start).
+ * Reads return days ordered by {@code dayIndex} and exercises by {@code position}.
  */
 @Component
 public class WorkoutPlanPersistenceAdapter implements WorkoutPlanRepositoryPort {

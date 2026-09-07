@@ -12,7 +12,7 @@ import com.aps.vitalpair.shared.web.ApiError;
 import com.aps.vitalpair.shared.web.ApiErrors;
 import com.aps.vitalpair.shared.web.ApiResponse;
 
-/** Tratamento de erros específicos da feature auth. */
+/** Handles the errors specific to the auth feature. */
 @RestControllerAdvice
 public class AuthExceptionHandler {
 

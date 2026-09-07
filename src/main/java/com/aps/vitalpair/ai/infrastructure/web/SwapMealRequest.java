@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import com.aps.vitalpair.ai.domain.model.PlanMealType;
 
-/** Corpo do POST /api/v1/meal-plan/swap: qual refeição de qual dia trocar. */
+/** Body of POST /api/v1/meal-plan/swap: which meal of which day to swap. */
 public record SwapMealRequest(
         @NotNull(message = "dayIndex é obrigatório")
                 @Min(value = 0, message = "dayIndex deve estar entre 0 e 6")

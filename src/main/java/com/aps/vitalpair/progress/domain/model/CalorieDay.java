@@ -3,11 +3,11 @@ package com.aps.vitalpair.progress.domain.model;
 import java.time.LocalDate;
 
 /**
- * Calorias consumidas num dia, dentro da janela dos últimos 7 dias.
+ * The calories consumed on one day within the last-7-days window.
  *
- * @param date       dia
- * @param label      inicial do dia da semana em PT (D, S, T, Q, Q, S, S)
- * @param kcal       total de calorias consumidas no dia (0 se sem registro)
- * @param withinGoal true se {@code kcal <= meta}; true também quando não há meta
+ * @param date       the day
+ * @param label      the weekday's initial in Portuguese (D, S, T, Q, Q, S, S)
+ * @param kcal       total calories consumed that day (0 when nothing was logged)
+ * @param withinGoal true when {@code kcal <= target}; also true when there is no target
  */
 public record CalorieDay(LocalDate date, String label, int kcal, boolean withinGoal) {}

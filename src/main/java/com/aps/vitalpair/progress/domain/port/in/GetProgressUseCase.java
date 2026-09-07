@@ -5,8 +5,8 @@ import java.util.UUID;
 import com.aps.vitalpair.progress.domain.model.ProgressView;
 
 /**
- * Caso de uso: montar a visão da tela de Progresso de um usuário
- * (histórico de peso, calorias dos últimos 7 dias e médias de macros).
+ * Use case: build a user's Progress screen (weight history, the last 7 days of calories and the
+ * macro averages).
  */
 public interface GetProgressUseCase {
 

@@ -5,15 +5,15 @@ import java.util.List;
 import com.aps.vitalpair.ai.domain.model.MealPlanItem;
 import com.aps.vitalpair.ai.domain.model.NutritionTargets;
 
-/** Porta de saída para a IA que monta o cardápio (implementada sobre a Anthropic). */
+/** Outbound port to the model that builds the menu (implemented over Anthropic). */
 public interface MealPlanGeneratorPort {
 
-    /** Gera a semana inteira: 7 dias x 4 refeições alinhadas às metas do usuário. */
+    /** Generates the whole week: 7 days x 4 meals aligned with the user's targets. */
     List<MealPlanItem> generateWeek(NutritionTargets targets);
 
     /**
-     * Gera UMA refeição alternativa ao item atual: prato diferente, mesma faixa de kcal/macros.
-     * O retorno preserva {@code dayIndex} e {@code mealType} do item atual.
+     * Generates ONE alternative to the current item: a different dish in the same kcal and macro
+     * range. The result keeps the current item's {@code dayIndex} and {@code mealType}.
      */
     MealPlanItem generateAlternative(MealPlanItem current);
 }

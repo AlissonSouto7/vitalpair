@@ -1,10 +1,11 @@
 /**
- * Feature de temporada (30 dias) + ledger de pontos.
+ * Feature <b>season</b>: the thirty-day season plus the points ledger.
  *
- * <p>O ledger ({@code point_events}) registra cada award que entra no placar da competição,
- * gravado no mesmo ponto em que a gamification incrementa o {@code competition_scores}
- * (ver {@code gamification.application.listener.GamificationEventListener}). A temporada tem
- * lifecycle lazy: é garantida/fechada/aberta ao consultar {@code GET /api/v1/season}, sem scheduler.
- * Os pontos da temporada são sempre somados do ledger na janela da temporada ativa.
+ * <p>The ledger ({@code point_events}) records every award that enters the competition
+ * scoreboard, written at the same point where gamification increments
+ * {@code competition_scores} (see {@code gamification.application.listener.GamificationEventListener}).
+ * The season's lifecycle is lazy: it is guaranteed, closed and opened when
+ * {@code GET /api/v1/season} is read, with no scheduler. Season points are always summed from
+ * the ledger over the active season's window.
  */
 package com.aps.vitalpair.season;

@@ -7,16 +7,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTOs da API {@code POST /v1/messages} da Anthropic para geração de planos (só texto, sem imagem).
+ * DTOs of Anthropic's {@code POST /v1/messages} for plan generation (text only, no image).
  *
- * <p>O corpo usa {@code output_config.format} (json_schema) para forçar a saída estruturada. Não
- * enviamos {@code temperature}/{@code top_p}/{@code top_k}/{@code thinking}: o modelo
- * {@code claude-opus-4-8} rejeita esses parâmetros com HTTP 400.
+ * <p>The body uses {@code output_config.format} (json_schema) to force structured output.
+ * {@code temperature}, {@code top_p}, {@code top_k} and {@code thinking} are not sent: the
+ * {@code claude-opus-4-8} model rejects them with HTTP 400.
  *
- * <p>Esta classe e os records {@code Request}/{@code Response} são públicos porque aparecem na
- * assinatura de {@link AnthropicPlanClient}, que é uma interface pública. O proxy dinâmico que o
- * Feign gera vive em outro módulo e não consegue acessar tipos package-private: deixá-los sem
- * {@code public} faz a chamada estourar {@code IllegalAccessError} em runtime.
+ * <p>This class and its {@code Request} and {@code Response} records are public because they
+ * appear in the signature of {@link AnthropicPlanClient}, a public interface. The dynamic proxy
+ * Feign generates lives in another module and cannot reach package-private types: without
+ * {@code public} the call fails at runtime with {@code IllegalAccessError}.
  */
 public final class PlanMessages {
 

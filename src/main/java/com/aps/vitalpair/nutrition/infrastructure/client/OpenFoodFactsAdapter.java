@@ -13,12 +13,12 @@ import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
 
 /**
- * Adaptador da porta de busca de alimentos sobre a API pública da Open Food Facts.
+ * Adapter of the food search port over the public Open Food Facts API.
  *
- * <p>A chamada HTTP, com retentativa e disjuntor, vive em {@link OpenFoodFactsHttpClient}.
- * Aqui fica a tradução para o domínio e a decisão de degradar: qualquer falha vira lista
- * vazia ou {@code Optional.empty()}, porque uma caixa de busca sem resultados é melhor que
- * uma tela de erro por causa de um serviço gratuito que ninguém controla.
+ * <p>The HTTP call, with its retry and circuit breaker, lives in {@link OpenFoodFactsHttpClient}.
+ * This class translates to the domain and decides to degrade: any failure becomes an empty
+ * list or {@code Optional.empty()}, because a search box with no results beats an error screen
+ * caused by a free service nobody controls.
  */
 @Component
 public class OpenFoodFactsAdapter implements OpenFoodFactsPort {

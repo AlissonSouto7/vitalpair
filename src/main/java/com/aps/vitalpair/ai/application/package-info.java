@@ -1,2 +1,2 @@
-/** Camada de aplicação da feature ai (planos por IA). */
+/** Application layer of the ai feature (AI-generated plans). */
 package com.aps.vitalpair.ai.application;

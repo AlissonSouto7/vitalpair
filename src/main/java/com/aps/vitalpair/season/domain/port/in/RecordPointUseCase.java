@@ -6,8 +6,9 @@ import java.util.UUID;
 import com.aps.vitalpair.season.domain.model.PointSource;
 
 /**
- * Registra um award no ledger de pontos. Chamado pela gamification no MESMO ponto
- * em que o placar da competição é incrementado, garantindo que o ledger bata com o placar.
+ * Records an award in the points ledger. Called by gamification at the SAME point where the
+ * competition scoreboard is incremented, which is what keeps the ledger equal to the
+ * scoreboard.
  */
 public interface RecordPointUseCase {
 

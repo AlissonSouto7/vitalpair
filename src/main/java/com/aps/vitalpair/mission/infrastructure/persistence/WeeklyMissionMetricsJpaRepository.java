@@ -10,16 +10,16 @@ import org.springframework.data.repository.query.Param;
 import com.aps.vitalpair.activity.infrastructure.persistence.ActivityLogJpaEntity;
 
 /**
- * Contagens read-only que alimentam o progresso das missões semanais. Bate
- * direto nas entidades de log de outras features, sempre isolando por usuário e
- * período, sem acoplar nas services de nutrition/activity.
+ * Read-only counts that feed weekly mission progress. Reads other features' log entities
+ * directly, always scoped by user and period, without depending on the nutrition or activity
+ * services.
  *
- * <p>Ancorado em {@link ActivityLogJpaEntity} apenas para registrar o repositório;
- * as queries usam o nome de entidade JPQL de cada log.
+ * <p>Anchored on {@link ActivityLogJpaEntity} only so the repository can be registered; each
+ * query names the JPQL entity of the log it reads.
  */
 public interface WeeklyMissionMetricsJpaRepository extends JpaRepository<ActivityLogJpaEntity, UUID> {
 
-    /** Dias distintos com ao menos uma refeição registrada no período. */
+    /** Distinct days with at least one meal logged within the period. */
     @Query(
             """
             SELECT COUNT(DISTINCT CAST(f.loggedAt AS LocalDate))
@@ -30,7 +30,7 @@ public interface WeeklyMissionMetricsJpaRepository extends JpaRepository<Activit
             """)
     long countMealDays(@Param("userId") UUID userId, @Param("start") Instant start, @Param("end") Instant end);
 
-    /** Atividades do usuário no período cujo tipo não seja STEPS. */
+    /** The user's activities within the period whose type is not STEPS. */
     @Query(
             """
             SELECT COUNT(a)

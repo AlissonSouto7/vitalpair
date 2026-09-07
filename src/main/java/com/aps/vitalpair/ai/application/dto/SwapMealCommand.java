@@ -2,5 +2,5 @@ package com.aps.vitalpair.ai.application.dto;
 
 import com.aps.vitalpair.ai.domain.model.PlanMealType;
 
-/** Pedido de troca de uma refeição do plano da semana atual (dia + tipo de refeição). */
+/** A request to swap one meal of the current week's plan (day plus meal type). */
 public record SwapMealCommand(int dayIndex, PlanMealType mealType) {}

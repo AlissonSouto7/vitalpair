@@ -1,6 +1,6 @@
 package com.aps.vitalpair.mission.domain.model;
 
-/** Tipo de missão. */
+/** The kind of mission. */
 public enum MissionKind {
     FLASH,
     WEEKLY

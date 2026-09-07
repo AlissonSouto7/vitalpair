@@ -81,7 +81,7 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
         return user.getTenantId();
     }
 
-    /** Escolhe uma missão FLASH de forma determinística pelo dia do ano. */
+    /** Picks a FLASH mission deterministically from the day of the year. */
     private Mission missionOfDay(LocalDate date) {
         List<Mission> flash = catalogRepository.findByKind(MissionKind.FLASH);
         if (flash.isEmpty()) {

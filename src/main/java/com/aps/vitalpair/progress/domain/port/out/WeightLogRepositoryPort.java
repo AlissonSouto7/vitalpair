@@ -8,19 +8,19 @@ import java.util.UUID;
 import com.aps.vitalpair.progress.domain.model.WeightPoint;
 
 /**
- * Porta de saída para o histórico de peso ({@code weight_logs}).
+ * Outbound port to the weight history ({@code weight_logs}).
  */
 public interface WeightLogRepositoryPort {
 
     /**
-     * Registra/atualiza o peso do usuário numa data (upsert por
+     * Records or replaces the user's weight on a date (an upsert on
      * {@code (user_id, recorded_on)}).
      */
     void upsert(UUID userId, LocalDate recordedOn, BigDecimal weightKg);
 
     /**
-     * Histórico de peso do usuário em ordem cronológica (asc por data),
-     * limitado aos {@code limit} registros mais recentes.
+     * The user's weight history in chronological order (ascending by date), limited to the
+     * {@code limit} most recent records.
      */
     List<WeightPoint> findRecentByUser(UUID userId, int limit);
 }

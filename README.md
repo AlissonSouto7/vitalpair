@@ -1,194 +1,151 @@
-# VitalPair — Backend
+# VitalPair
 
-App web de saúde e fitness para **casais** com objetivos opostos ou complementares (ex: um quer perder peso, o outro ganhar massa). O sistema gerencia os dois de forma independente mas conectada, com competição, feed compartilhado e gamificação.
+[![CI](https://github.com/AlissonSouto7/vitalpair/actions/workflows/ci.yml/badge.svg)](https://github.com/AlissonSouto7/vitalpair/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/AlissonSouto7/vitalpair/actions/workflows/codeql.yml/badge.svg)](https://github.com/AlissonSouto7/vitalpair/actions/workflows/codeql.yml)
+[![License: BUSL-1.1](https://img.shields.io/badge/license-BUSL--1.1-blue.svg)](LICENSE)
 
-Este repositório contém o **backend** (Java 17 + Spring Boot 3). O frontend (React + TypeScript + Tailwind) virá em repositório/módulo separado.
+Health and fitness for two. Nobody sticks with their health alone for long, so
+VitalPair puts you and one other person, a partner, a friend, a sibling, into a
+thirty-day showdown. You photograph what you eat, log what you do, score points
+for staying on track, and the other person sees the scoreboard move. Slack off
+for two days and they pull ahead.
+
+Two people with opposite goals can compete on the same terms: one cutting, one
+bulking, each measured against their own targets.
+
+<p align="center">
+  <img src="docs/design/screenshots/app/landing.png" width="49%" alt="Landing page">
+  <img src="docs/design/screenshots/app/dashboard.png" width="49%" alt="Dashboard with the season scoreboard">
+</p>
+<p align="center">
+  <img src="docs/design/screenshots/app/nutrition.png" width="49%" alt="Logging a meal, with today's macros">
+  <img src="docs/design/screenshots/app/progress.png" width="49%" alt="Weight progress">
+</p>
+
+## What it does
+
+- **Log meals** by photo (a vision model identifies the foods and estimates
+  portions and macros), by searching Open Food Facts, by barcode, or by hand.
+- **Log activity**: steps, runs, rides, workouts, with calories computed or
+  estimated.
+- **Targets that follow you**: basal and total daily energy (Mifflin-St Jeor)
+  and a macro split derived from your goal, recomputed whenever the profile
+  changes.
+- **AI plans**: a week of meals and a week of workouts generated from your own
+  targets, with single-meal swaps and tickable exercises.
+- **Points, streaks, badges** and a weekly scoreboard between the two of you.
+- **Seasons**: thirty days, a stake you agree on, a per-day chart and a history
+  of who won.
+- **A shared feed** with reactions, and a private toggle for a meal you would
+  rather not show.
+- **Missions**: a daily flash challenge for the pair and weekly targets counted
+  live from what you actually logged.
+- Four interface languages (Portuguese, English, Spanish, French), dark and
+  light themes, e-mail verification, password reset, Google sign-in.
 
 ## Stack
 
-| Camada            | Tecnologia                                                                  |
-| ----------------- | --------------------------------------------------------------------------- |
-| Linguagem/Runtime | Java 17                                                                     |
-| Framework         | Spring Boot 3.5 (Web, Security, Data JPA, Data Redis, Validation, Actuator) |
-| Banco             | PostgreSQL 15 + Flyway (migrations)                                         |
-| Cache/Sessões     | Redis 7                                                                     |
-| Auth              | Spring Security + JWT (jjwt)                                                |
-| Docs              | springdoc-openapi (Swagger UI)                                              |
-| Mapeamento        | MapStruct + Lombok                                                          |
-| Testes            | JUnit 5, Mockito, Testcontainers                                            |
+| Layer                        | Technology                                                                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Backend                      | Java 17, Spring Boot 3.5, Spring Security, Spring Data JPA, Flyway, MapStruct, springdoc-openapi                               |
+| Data                         | PostgreSQL 16, Redis 7 (refresh tokens, rate limits)                                                                           |
+| Resilience and observability | resilience4j circuit breakers, ShedLock, Micrometer with Prometheus, structured JSON logs (ECS), request correlation ids       |
+| External APIs                | Anthropic (photo analysis, plan generation), Open Food Facts                                                                   |
+| Frontend                     | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, react-hook-form with zod, react-i18next                            |
+| Tests                        | JUnit 5, Mockito, Testcontainers, WireMock with captured real responses, ArchUnit, Vitest, Playwright                          |
+| Quality gates                | Spotless, Checkstyle, JaCoCo, CodeQL, Dependabot, Husky with commitlint                                                        |
+| Deployment                   | Multi-stage Docker images, Docker Compose with an edge proxy per machine and a stack per environment, nginx with Let's Encrypt |
 
-## Arquitetura
+## Architecture in one paragraph
 
-Arquitetura **hexagonal (Ports & Adapters) por feature**. Cada feature tem três camadas com a regra de dependência `infrastructure → application → domain` (o domínio não depende de framework):
+The backend is hexagonal and organised by feature: `nutrition`, `pair`,
+`season` and so on each own their `domain`, `application` and `infrastructure`
+layers, and dependencies point inwards only. Features talk to each other
+through published ports or domain events, never through each other's services
+or tables. A pair is a tenant; every business table carries `tenant_id`, and an
+integration test builds two pairs with distinguishable data and checks that no
+endpoint leaks one into the other. These rules are enforced by ArchUnit, not by
+convention. The full picture is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md);
+the reasons behind the decisions are in [docs/adr/](docs/adr/).
 
-```
-com.aps.vitalpair
-├── shared/        # kernel: ApiResponse, ApiError, exceções, tratamento global de erros
-├── config/        # SecurityConfig, JwtProperties, OpenApiConfig
-├── tenant/        # TenantContext (multi-tenancy via ThreadLocal)
-└── <feature>/
-    ├── domain/          # model + port/in (casos de uso) + port/out (gateways)
-    ├── application/     # service (implementa os casos de uso) + dto
-    └── infrastructure/  # web (REST) + persistence (JPA) + client (APIs externas)
-```
+## Running it locally
 
-Detalhes e convenções: [docs/ARQUITETURA.md](docs/ARQUITETURA.md) e [docs/adr/0001-arquitetura-hexagonal.md](docs/adr/0001-arquitetura-hexagonal.md). A feature `nutrition` é a referência (molde) da estrutura.
-
-Multi-tenancy: cada **par de usuários é um tenant** (tabela `pairs`, cujo `id` é o `tenant_id` de todas as tabelas de negócio).
-
-## Pré-requisitos
-
-- JDK 17
-- Docker + Docker Compose (para Postgres e Redis)
-
-## Como rodar (desenvolvimento)
-
-O projeto usa `spring-boot-docker-compose`: ao iniciar a aplicação em dev, o Postgres e o Redis do [compose.yaml](compose.yaml) sobem automaticamente.
-
-1. Copie `.env.example` para `.env` e ajuste se necessário. O `.env` é lido tanto pelo Spring (`spring-dotenv`) quanto pelo docker compose, e **não** é versionado.
-2. Rode:
+Requires JDK 17, Node 22 or newer, and Docker.
 
 ```bash
-./mvnw spring-boot:run
+cp .env.example .env                                        # then fill in the values
+docker compose up -d                                        # Postgres 16, Redis 7, Mailpit
+SPRING_DOCKER_COMPOSE_ENABLED=false ./mvnw spring-boot:run  # API on http://localhost:8081
+cd frontend && npm ci && npm run dev                        # app on http://localhost:5173
 ```
 
-A API sobe em **`http://localhost:8081`** no profile `dev` (porta 8081 para coexistir com outros serviços locais na 8080; configurável via `SERVER_PORT`). O profile `dev` é o padrão e já traz um `JWT_SECRET` de desenvolvimento.
+The frontend calls `/api` on its own origin and Vite proxies it to the backend,
+which is what the `SameSite=Strict` refresh cookie needs.
 
-> Se as portas 5432/6379 já estiverem em uso na sua máquina, defina `VITALPAIR_DB_PORT` e `VITALPAIR_REDIS_PORT` no `.env` (o app detecta a porta publicada automaticamente).
+| Address                                     | What it is                                                                                                                                |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| http://localhost:5173                       | The app                                                                                                                                   |
+| http://localhost:8081/swagger-ui/index.html | Interactive API documentation, one section per feature. Log in there, copy the `accessToken`, click **Authorize**. Disabled in production |
+| http://localhost:9090/actuator/health       | Health, on a management port that production never publishes                                                                              |
+| http://localhost:9090/actuator/prometheus   | Metrics: JVM, HTTP, circuit breakers, AI calls by kind and outcome                                                                        |
+| http://localhost:8025                       | Mailpit, the inbox for the e-mails the app "sent"                                                                                         |
 
-### Subindo o banco/redis manualmente
+With `MAIL_ENABLED=false` (the development default) verification and reset
+e-mails go to Mailpit instead of the internet. AI features answer 503 until
+`ANTHROPIC_API_KEY` is set.
 
-```bash
-docker compose up -d
-./mvnw spring-boot:run
-```
+## Tests
 
-> As portas do host do Postgres/Redis são parametrizáveis (caso 5432/6379 já estejam em uso):
->
-> ```bash
-> VITALPAIR_DB_PORT=5433 VITALPAIR_REDIS_PORT=6380 docker compose up -d
-> ```
+| Command                      | What runs                                                                                                                                          | Needs               |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| `./mvnw test`                | 80 unit tests                                                                                                                                      | nothing             |
+| `./mvnw verify`              | everything: unit, 132 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
+| `cd frontend && npm test`    | 98 frontend tests, including translation parity across the four languages                                                                          | nothing             |
+| `cd frontend && npm run e2e` | 14 browser tests in a real Chromium against the production build                                                                                   | the backend running |
 
-## Variáveis de ambiente
+Measured on 2026-09-07: line coverage 88%, branch coverage 62%, with a build
+floor of 80 / 50 that only moves up. Every test added since phase 7 was proved
+non-vacuous by breaking the code on purpose and watching it fail.
 
-Veja [.env.example](.env.example). Em dev há defaults; em produção, defina ao menos: `DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `REDIS_HOST`, `REDIS_PASSWORD`, `JWT_SECRET` (≥ 32 caracteres), `FRONTEND_URL`.
+External APIs are never called in tests. Anthropic and Open Food Facts are
+replayed by WireMock from responses captured from the real services, so a
+change in their shape shows up as a fixture to re-record, not as a surprise in
+production.
 
-## Documentação da API (Swagger)
+## Security, in short
 
-Com a aplicação rodando (porta 8081 em dev):
+Access tokens are fifteen-minute JWTs held in memory; refresh tokens are opaque,
+single-use, rotated in families, and delivered only as an `HttpOnly`
+`SameSite=Strict` cookie, so a replay revokes the whole session. Every
+authentication and AI endpoint is rate limited in Redis. Secrets have no
+defaults: production refuses to start without a real `JWT_SECRET`. Every
+response error carries a `requestId` that finds its log lines. The full
+checklist that every change goes through is in [CLAUDE.md](CLAUDE.md); the
+findings per feature, fixed and open, are in [docs/features/](docs/features/).
 
-- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
-- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
+## Documentation
 
-Para testar endpoints protegidos: faça `POST /api/v1/auth/login`, copie o `accessToken`, clique em **Authorize** no Swagger e cole o token.
+| Document                                     | What it holds                                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organised and why                                                     |
+| [docs/features/](docs/features/)             | One living document per feature: rules, security findings, tests, what is not covered |
+| [docs/adr/](docs/adr/)                       | Architecture decision records                                                         |
+| [CLAUDE.md](CLAUDE.md)                       | Engineering rules and the definition of done                                          |
+| [CONTRIBUTING.md](CONTRIBUTING.md)           | Branching, commits, pull requests, migrations, i18n                                   |
+| [SECURITY.md](SECURITY.md)                   | How to report a vulnerability                                                         |
+| [deploy/README.md](deploy/README.md)         | Running it on a server: TLS, backups, deploy with rollback                            |
+| [docs/design/](docs/design/)                 | Mockups, the colour law, voice and tone                                               |
 
-## Endpoints disponíveis
+## Workflow
 
-Todas as respostas usam o envelope `ApiResponse<T> { success, message, data }`.
+GitHub Flow. `main` is protected and always releasable; every change comes
+through a short branch and a pull request, merged once the three CI jobs
+(backend, frontend, browser) are green. Commits follow Conventional Commits and
+are checked by a git hook. Releases are cut by release-please from the commit
+history: merging its pull request tags the version and updates the changelog.
 
-| Método | Rota                                      | Descrição                                                     | Auth    |
-| ------ | ----------------------------------------- | ------------------------------------------------------------- | ------- |
-| POST   | `/api/v1/auth/register`                   | Cria conta (e o tenant do usuário)                            | público |
-| POST   | `/api/v1/auth/login`                      | Autentica, retorna access + refresh token                     | público |
-| POST   | `/api/v1/auth/oauth2/google`              | Login com Google (valida o `idToken`, find-or-create)         | público |
-| POST   | `/api/v1/auth/refresh`                    | Renova tokens (rotação do refresh)                            | público |
-| POST   | `/api/v1/auth/logout`                     | Revoga o refresh token                                        | público |
-| GET    | `/api/v1/users/me`                        | Perfil do usuário autenticado                                 | JWT     |
-| PUT    | `/api/v1/users/me`                        | Atualiza o perfil e recalcula TDEE/macros                     | JWT     |
-| GET    | `/api/v1/users/me/tdee`                   | BMR, TDEE, meta calórica e macros                             | JWT     |
-| GET    | `/api/v1/pair`                            | Relação atual (membros, status e tipo)                        | JWT     |
-| POST   | `/api/v1/pair/invite`                     | Retorna o código de convite do par                            | JWT     |
-| POST   | `/api/v1/pair/join/{code}`                | Aceita um convite e forma o par                               | JWT     |
-| PUT    | `/api/v1/pair/type`                       | Define o tipo de relação (casal, dupla, amigos...)            | JWT     |
-| GET    | `/api/v1/pair/feed?page=&size=`           | Timeline do par (refeições privadas só aparecem para o autor) | JWT     |
-| POST   | `/api/v1/pair/feed/{id}/reactions`        | Reage a um item (FIRE, EYE, STRENGTH)                         | JWT     |
-| DELETE | `/api/v1/pair/feed/{id}/reactions/{type}` | Remove a reação                                               | JWT     |
-| GET    | `/api/v1/nutrition/foods/search?q=`       | Busca alimentos (Open Food Facts)                             | JWT     |
-| GET    | `/api/v1/nutrition/foods/barcode/{code}`  | Busca por código de barras                                    | JWT     |
-| POST   | `/api/v1/nutrition/logs`                  | Registra uma refeição                                         | JWT     |
-| GET    | `/api/v1/nutrition/logs?date=`            | Refeições do dia                                              | JWT     |
-| DELETE | `/api/v1/nutrition/logs/{id}`             | Remove um registro                                            | JWT     |
-| GET    | `/api/v1/nutrition/summary?date=`         | Resumo diário (consumido vs meta)                             | JWT     |
-| POST   | `/api/v1/activity/logs`                   | Registra atividade (estima kcal de passos)                    | JWT     |
-| GET    | `/api/v1/activity/logs?date=`             | Atividades do dia                                             | JWT     |
-| GET    | `/api/v1/activity/summary?date=`          | Total de calorias gastas e passos                             | JWT     |
-| GET    | `/api/v1/dashboard?date=`                 | Balanço do dia (consumido − gasto vs meta) + parceiro         | JWT     |
-| GET    | `/api/v1/gamification/streaks`            | Sequências (streaks) do usuário                               | JWT     |
-| GET    | `/api/v1/gamification/competition`        | Placar semanal do par                                         | JWT     |
-| GET    | `/api/v1/gamification/badges`             | Conquistas do usuário                                         | JWT     |
-| GET    | `/api/v1/gamification/badges/catalog`     | Catálogo de conquistas                                        | JWT     |
-| GET    | `/api/v1/notifications`                   | Notificações do usuário + total não lidas                     | JWT     |
-| PUT    | `/api/v1/notifications/read`              | Marca todas as notificações como lidas                        | JWT     |
-| GET    | `/actuator/health`                        | Health check                                                  | público |
+## Licence
 
-### Exemplo
-
-```bash
-# Registrar
-curl -X POST http://localhost:8081/api/v1/auth/register \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"ana@vitalpair.app","password":"senha1234","name":"Ana"}'
-
-# Login
-curl -X POST http://localhost:8081/api/v1/auth/login \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"ana@vitalpair.app","password":"senha1234"}'
-```
-
-## Testes
-
-```bash
-./mvnw test
-```
-
-- Testes unitários (Mockito) rodam sem infraestrutura.
-- O teste de contexto (`contextLoads`) sobe Postgres e Redis via **Testcontainers** (requer Docker em execução).
-
-## Build
-
-```bash
-./mvnw clean package        # gera o JAR em target/
-java -jar target/vitalpair-*.jar
-```
-
-## Fluxo de trabalho (GitHub Flow)
-
-O projeto segue **GitHub Flow**: `main` é a única branch de longa duração e está sempre pronta para deploy. Todo trabalho sai de uma branch curta (`feat/`, `fix/`, `chore/`, `docs/`, `refactor/`, `test/`, `build/`, `ci/`, `infra/`) e volta por pull request com CI verde. Não se commita direto na `main`.
-
-Convenções de commit, checklist de PR, regras de migration e processo de release em [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Frontend
-
-O frontend (React + TypeScript + Vite + Tailwind v4) fica em [frontend/](frontend/).
-
-```bash
-cd frontend
-cp .env.example .env   # VITE_API_URL aponta para o backend (default http://localhost:8081/api/v1)
-npm install
-npm run dev            # http://localhost:5173
-```
-
-Estrutura: `src/api` (axios + interceptors com refresh de JWT), `src/store` (Zustand + persist), `src/router` (rotas públicas/protegidas), `src/features` (auth, dashboard), `src/hooks`, `src/types`. O backend já libera CORS para `http://localhost:5173`.
-
-## Deploy (produção)
-
-Imagens multi-stage para backend ([Dockerfile](Dockerfile)) e frontend ([frontend/Dockerfile](frontend/Dockerfile)), e a infraestrutura em [deploy/](deploy/README.md): um proxy por máquina, uma pilha por ambiente (staging e produção lado a lado), backup com restauração verificada e deploy com rollback automático.
-
-```bash
-# ver deploy/README.md para o passo a passo completo
-docker compose -f deploy/compose.edge.yaml --env-file deploy/env/edge.env up -d
-docker compose -f deploy/compose.app.yaml --env-file deploy/env/staging.env up -d --wait
-deploy/scripts/smoke.sh https://seu.dominio
-```
-
-- A aplicação roda com o profile `prod`, atrás de um Nginx com TLS (Let's Encrypt/certbot), HSTS e limite de requisições nas rotas de autenticação. Banco e cache ficam numa rede interna sem rota a partir do proxy.
-- **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): build + testes em cada push e PR para `main`.
-- **Deploy automatizado**: ainda não existe. Nenhum ambiente está no ar. O pipeline (staging por push na `main`, produção por tag com aprovação, backup antes de migration, smoke test e rollback) será construído junto com a infra de staging e produção.
-
-## Roadmap
-
-- **Fase 1 (MVP)** — em andamento: auth (✅ email/senha), perfil + TDEE, sistema de par, registro de refeições (Open Food Facts), dashboard diário, deploy Oracle.
-- **Fase 2** — planos por IA, gamificação completa, notificações, OAuth2 Google.
-- **Fase 3** — multi-tenancy validado, Stripe, integrações de wearables, admin panel.
-
-Detalhes: [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+[Business Source License 1.1](LICENSE). Anyone may read, run and learn from the
+code; offering it as a hosted service to others is reserved until each version's
+change date, four years after release, when it becomes Apache 2.0.

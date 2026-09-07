@@ -1,8 +1,8 @@
 package com.aps.vitalpair.gamification.domain.model;
 
 public enum StreakType {
-    /** Dias consecutivos registrando refeições. */
+    /** Consecutive days logging meals. */
     NUTRITION_LOG,
-    /** Dias consecutivos registrando atividade física. */
+    /** Consecutive days logging physical activity. */
     ACTIVITY
 }

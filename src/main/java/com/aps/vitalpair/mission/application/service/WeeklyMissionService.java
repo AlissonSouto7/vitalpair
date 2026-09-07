@@ -54,7 +54,7 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
         Instant weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                 .atStartOfDay(zone)
                 .toInstant();
-        // Fim exclusivo: começo do dia seguinte a hoje, cobrindo o dia atual inteiro.
+        // Exclusive end: the start of tomorrow, so the whole of today is covered.
         Instant weekEnd = today.plusDays(1).atStartOfDay(zone).toInstant();
 
         User partner = findPartner(user, userId);
@@ -74,7 +74,7 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
                         .completed(completed)
                         .build());
             } else if (mission.getScope() == WeeklyMissionScope.PAIR) {
-                // Missão de dupla sem parceiro: não há como concluir.
+                // A pair mission with no partner: there is nobody to do the other half.
                 result.add(WeeklyMissionProgress.builder()
                         .mission(mission)
                         .current(current)
@@ -102,7 +102,7 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
         };
     }
 
-    /** Resolve o outro membro do par, ou {@code null} se o usuário não tem parceiro. */
+    /** Resolves the other member of the pair, or {@code null} when the user has no partner. */
     private User findPartner(User user, UUID userId) {
         Pair pair = pairRepository.findById(user.getTenantId()).orElse(null);
         if (pair == null) {

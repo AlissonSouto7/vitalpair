@@ -1,11 +1,13 @@
 /**
- * Kernel compartilhado entre todas as features.
+ * The kernel shared by every feature.
  *
- * <p>Não contém regra de negócio de domínio: apenas tipos transversais.
+ * <p>Holds no domain business rule, only cross-cutting types.
  * <ul>
- *   <li>{@code web} — envelope {@link com.aps.vitalpair.shared.web.ApiResponse}, paginação,
- *       {@link com.aps.vitalpair.shared.web.ApiError} e o tratamento global de erros.</li>
- *   <li>{@code exception} — hierarquia base de exceções de domínio.</li>
+ *   <li>{@code web}: the {@link com.aps.vitalpair.shared.web.ApiResponse} envelope, paging,
+ *       {@link com.aps.vitalpair.shared.web.ApiError} and global error handling.</li>
+ *   <li>{@code exception}: the base hierarchy of domain exceptions.</li>
+ *   <li>{@code event}: the domain events features publish to each other.</li>
+ *   <li>{@code security}, {@code ratelimit}, {@code metrics}: the cross-cutting adapters.</li>
  * </ul>
  */
 package com.aps.vitalpair.shared;

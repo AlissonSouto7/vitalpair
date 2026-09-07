@@ -10,7 +10,7 @@ import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Sex;
 import com.aps.vitalpair.user.domain.model.User;
 
-/** Representação pública do perfil (nunca expõe a entidade de domínio nem o hash de senha). */
+/** The public representation of the profile. Never the domain entity, never the password hash. */
 public record UserProfileResponse(
         UUID id,
         String email,

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Visão do treino de hoje: o dia da semana atual dentro do plano semanal do usuário.
- * Em dia de descanso, {@code rest=true}, {@code focus}/{@code durationMin} nulos e
- * {@code exercises} vazio. {@code completed} = o dia já foi marcado como concluído.
+ * Today's workout: the current weekday within the user's weekly plan. On a rest day
+ * {@code rest=true}, {@code focus} and {@code durationMin} are null and {@code exercises} is
+ * empty. {@code completed} means the day has already been marked done.
  */
 public record WorkoutToday(
         String goal,
@@ -17,6 +17,6 @@ public record WorkoutToday(
         boolean completed,
         List<Exercise> exercises) {
 
-    /** Exercício do treino de hoje com o estado do check ({@code done}). */
+    /** An exercise of today's workout with its tick state ({@code done}). */
     public record Exercise(UUID id, String name, int sets, String reps, int restSeconds, boolean done) {}
 }

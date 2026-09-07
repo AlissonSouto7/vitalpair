@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Adaptador da porta de geração de cardápio sobre a Anthropic. Monta o prompt com as metas do
- * usuário, força a saída estruturada (json_schema) e converte a resposta em itens do plano
- * (com deduplicação por dia/refeição; a IA nunca é confiada às cegas).
+ * Adapter of the menu generation port over Anthropic. Builds the prompt from the user's
+ * targets, forces structured output (json_schema) and turns the answer into plan items,
+ * deduplicated by day and meal: the model is never trusted blindly.
  */
 @Component
 public class AnthropicMealPlanGenerator implements MealPlanGeneratorPort {

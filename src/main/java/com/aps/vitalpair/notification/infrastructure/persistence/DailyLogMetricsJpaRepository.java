@@ -10,11 +10,11 @@ import org.springframework.data.repository.query.Param;
 import com.aps.vitalpair.activity.infrastructure.persistence.ActivityLogJpaEntity;
 
 /**
- * Contagens read-only de logs do dia para o lembrete (LOG_REMINDER). Bate direto nas entidades
- * de log de outras features, isolando por usuário e período, sem acoplar nas services delas.
+ * Read-only counts of the day's logs for the reminder (LOG_REMINDER). Reads other features' log
+ * entities directly, scoped by user and period, without depending on their services.
  *
- * <p>Ancorado em {@link ActivityLogJpaEntity} apenas para registrar o repositório; cada query usa
- * o nome de entidade JPQL do log correspondente.
+ * <p>Anchored on {@link ActivityLogJpaEntity} only so the repository can be registered; each
+ * query names the JPQL entity of the log it reads.
  */
 public interface DailyLogMetricsJpaRepository extends JpaRepository<ActivityLogJpaEntity, UUID> {
 

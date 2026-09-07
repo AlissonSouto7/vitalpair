@@ -1,14 +1,14 @@
 package com.aps.vitalpair.tdee.domain.model;
 
 /**
- * Resultado do cálculo energético.
+ * The result of the energy calculation.
  *
- * @param bmr                taxa metabólica basal (kcal)
- * @param tdee               gasto energético total diário de manutenção (kcal)
- * @param dailyCalorieTarget meta calórica diária conforme o objetivo (kcal)
- * @param proteinTargetG     meta de proteína (g)
- * @param carbTargetG        meta de carboidrato (g)
- * @param fatTargetG         meta de gordura (g)
+ * @param bmr                basal metabolic rate (kcal)
+ * @param tdee               total daily energy expenditure at maintenance (kcal)
+ * @param dailyCalorieTarget the daily calorie target after the goal adjustment (kcal)
+ * @param proteinTargetG     the protein target (g)
+ * @param carbTargetG        the carbohydrate target (g)
+ * @param fatTargetG         the fat target (g)
  */
 public record TdeeResult(
         int bmr, int tdee, int dailyCalorieTarget, int proteinTargetG, int carbTargetG, int fatTargetG) {}

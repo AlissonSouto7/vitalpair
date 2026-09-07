@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
- * Cliente Feign da API de Mensagens da Anthropic (Claude) para geração de planos. É um cliente
- * separado do da feature mealvision de propósito: os planos precisam de timeout de leitura maior
- * (gerar a semana inteira demora mais que analisar uma foto). Headers e timeouts vêm do
+ * Feign client of the Anthropic Messages API (Claude) for plan generation. Deliberately separate
+ * from the mealvision feature's client: plans need a longer read timeout, because generating a
+ * whole week takes longer than analysing a photo. Headers and timeouts come from
  * {@link AnthropicPlanClientConfig}.
  */
 @FeignClient(

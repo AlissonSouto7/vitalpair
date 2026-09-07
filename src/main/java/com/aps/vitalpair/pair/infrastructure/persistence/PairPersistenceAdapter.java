@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 
-/** Implementa a porta de saída de persistência de pares sobre Spring Data JPA. */
+/** Implements the pair persistence port over Spring Data JPA. */
 @Component
 public class PairPersistenceAdapter implements PairRepositoryPort {
 

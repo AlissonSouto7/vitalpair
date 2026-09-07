@@ -28,7 +28,7 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 @Service
 public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUseCase, GetActivitySummaryUseCase {
 
-    /** kcal por passo para pessoa média (ver §5.4). */
+    /** kcal per step for an average person (see ARQUITETURA.md, section 5.4). */
     private static final BigDecimal KCAL_PER_STEP = new BigDecimal("0.04");
 
     private final ActivityLogRepositoryPort activityLogRepository;
@@ -96,7 +96,7 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
         return new ActivitySummary(date, calories, steps, logs.size());
     }
 
-    /** Usa as calorias informadas; senão estima a partir dos passos; senão zero. */
+    /** The calories given; failing that, an estimate from steps; failing that, zero. */
     private BigDecimal resolveCalories(LogActivityCommand command) {
         if (command.caloriesBurned() != null) {
             return command.caloriesBurned();

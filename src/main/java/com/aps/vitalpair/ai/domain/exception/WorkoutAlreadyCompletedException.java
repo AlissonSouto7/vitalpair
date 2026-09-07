@@ -3,8 +3,8 @@ package com.aps.vitalpair.ai.domain.exception;
 import com.aps.vitalpair.shared.exception.DomainException;
 
 /**
- * O treino de hoje já foi marcado como concluído (evita registrar a atividade em dobro).
- * Mapeada para HTTP 409 no {@link com.aps.vitalpair.ai.infrastructure.web.AiPlanExceptionHandler}.
+ * Today's workout has already been marked done, which stops the activity being logged twice.
+ * Mapped to HTTP 409 in {@link com.aps.vitalpair.ai.infrastructure.web.AiPlanExceptionHandler}.
  */
 public class WorkoutAlreadyCompletedException extends DomainException {
 

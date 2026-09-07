@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 
-/** Resposta da análise de foto. Contrato consumido diretamente pelo frontend. */
+/** The photo analysis response. A contract consumed directly by the frontend. */
 public record PhotoAnalysisResponse(List<Item> items) {
 
     public record Item(

@@ -15,7 +15,7 @@ import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
-/** Cria itens da timeline do par a partir dos eventos de nutrição/atividade. */
+/** Creates the pair's timeline items from the nutrition and activity events. */
 @Component
 public class FeedEventListener {
 

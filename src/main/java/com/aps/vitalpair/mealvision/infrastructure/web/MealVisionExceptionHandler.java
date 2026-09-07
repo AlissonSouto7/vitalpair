@@ -17,9 +17,9 @@ import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.LogSafe;
 
 /**
- * Tradução para HTTP das exceções específicas da análise de foto, no mesmo formato
- * {@link ApiResponse} do {@link com.aps.vitalpair.shared.web.RestExceptionHandler}.
- * IA não configurada vira 503; falha na análise vira 502.
+ * HTTP translation of the exceptions specific to photo analysis, in the same
+ * {@link ApiResponse} shape as {@link com.aps.vitalpair.shared.web.RestExceptionHandler}. AI not
+ * configured is 503; a failed analysis is 502.
  */
 @RestControllerAdvice
 public class MealVisionExceptionHandler {

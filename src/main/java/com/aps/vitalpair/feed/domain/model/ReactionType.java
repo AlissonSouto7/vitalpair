@@ -1,7 +1,7 @@
 package com.aps.vitalpair.feed.domain.model;
 
 public enum ReactionType {
-    /** Motivação. */
+    /** Encouragement. */
     FIRE,
     /** Saudade. */
     EYE,

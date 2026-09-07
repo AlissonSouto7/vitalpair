@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.aps.vitalpair.pair.domain.model.Pair;
 
-/** Porta de saída para persistência de pares (tenants). */
+/** Outbound port for persisting pairs (tenants). */
 public interface PairRepositoryPort {
 
     Pair save(Pair pair);

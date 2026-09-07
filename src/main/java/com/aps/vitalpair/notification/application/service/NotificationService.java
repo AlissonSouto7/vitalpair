@@ -66,8 +66,8 @@ public class NotificationService
     }
 
     /**
-     * Tipos disparados por gatilhos automáticos (rival, missão relâmpago, lembrete) respeitam a
-     * preferência do destinatário. Os tipos antigos (refeição/atividade/par) são sempre criados.
+     * The automatically triggered types (rival, flash mission, reminder) honour the recipient's
+     * preference. The older types (meal, activity, pair) are always created.
      */
     private boolean suppressedByPreference(UUID userId, NotificationType type) {
         if (type != NotificationType.RIVAL_OVERTOOK

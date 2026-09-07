@@ -31,9 +31,9 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Casos de uso do plano de treino semanal por IA. Concluir o treino de hoje registra uma
- * atividade WORKOUT pelo {@link LogActivityUseCase} da feature activity, que já dispara
- * pontos, feed e streak; nada de somar pontos na mão aqui.
+ * Use cases of the AI weekly workout plan. Completing today's workout logs a WORKOUT activity
+ * through the activity feature's {@link LogActivityUseCase}, which already awards points, feeds
+ * the timeline and advances the streak; nothing here adds points by hand.
  */
 @Service
 public class WorkoutPlanService
@@ -137,7 +137,7 @@ public class WorkoutPlanService
                 .orElseThrow(() -> new ResourceNotFoundException("Plano de treino da semana não encontrado."));
     }
 
-    /** Monta a visão do dia atual; dia ausente no plano é tratado como descanso. */
+    /** Builds today's view; a day missing from the plan is treated as rest. */
     private static WorkoutToday todayView(WorkoutPlan plan) {
         int dayIndex = todayIndex();
         WorkoutDay day = dayOf(plan, dayIndex).orElse(null);
@@ -168,7 +168,7 @@ public class WorkoutPlanService
         return plan.days().stream().filter(day -> day.dayIndex() == dayIndex).findFirst();
     }
 
-    /** Índice de hoje na semana do plano (0 = segunda ... 6 = domingo). */
+    /** Today's index within the plan's week (0 = Monday ... 6 = Sunday). */
     private static int todayIndex() {
         return LocalDate.now().getDayOfWeek().getValue() - 1;
     }

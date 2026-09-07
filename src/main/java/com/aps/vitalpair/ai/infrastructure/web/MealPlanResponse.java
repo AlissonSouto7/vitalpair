@@ -12,8 +12,8 @@ import com.aps.vitalpair.ai.domain.model.MealPlanItem;
 import com.aps.vitalpair.ai.domain.model.PlanMealType;
 
 /**
- * Contrato do plano alimentar semanal para o frontend: 7 dias (dayIndex 0 = segunda) ordenados,
- * com as refeições de cada dia na ordem café da manhã → almoço → lanche → janta.
+ * The weekly meal plan contract for the frontend: 7 ordered days (dayIndex 0 = Monday), each
+ * day's meals in the order breakfast, lunch, snack, dinner.
  */
 public record MealPlanResponse(LocalDate weekStart, Integer targetKcal, List<Day> days) {
 

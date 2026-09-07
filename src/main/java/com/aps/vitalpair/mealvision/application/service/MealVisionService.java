@@ -6,7 +6,7 @@ import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 import com.aps.vitalpair.mealvision.domain.port.in.AnalyzeMealPhotoUseCase;
 import com.aps.vitalpair.mealvision.domain.port.out.MealPhotoAnalyzerPort;
 
-/** Orquestra o use case de análise de foto, delegando à porta de IA (stateless, nada é persistido). */
+/** Orchestrates the photo analysis use case by delegating to the model port. Stateless: nothing is persisted. */
 @Service
 public class MealVisionService implements AnalyzeMealPhotoUseCase {
 

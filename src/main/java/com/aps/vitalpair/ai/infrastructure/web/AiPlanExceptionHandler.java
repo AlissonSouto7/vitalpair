@@ -18,9 +18,9 @@ import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.LogSafe;
 
 /**
- * Tradução para HTTP das exceções específicas dos planos por IA, no mesmo formato
- * {@link ApiResponse} do {@link com.aps.vitalpair.shared.web.RestExceptionHandler}.
- * IA não configurada vira 503; falha na geração vira 502; treino já concluído vira 409.
+ * HTTP translation of the exceptions specific to the AI plans, in the same {@link ApiResponse}
+ * shape as {@link com.aps.vitalpair.shared.web.RestExceptionHandler}. AI not configured is 503;
+ * a failed generation is 502; a workout already completed is 409.
  */
 @RestControllerAdvice
 public class AiPlanExceptionHandler {

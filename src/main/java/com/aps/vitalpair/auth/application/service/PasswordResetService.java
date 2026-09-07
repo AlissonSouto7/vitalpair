@@ -22,8 +22,8 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
- * Fluxo de redefinição de senha por e-mail. O token é opaco e guardado no Redis com TTL curto;
- * o link aponta para a tela do frontend, que então chama {@code POST /auth/reset-password}.
+ * Password reset by e-mail. The token is opaque and kept in Redis with a short TTL; the link
+ * points at the frontend screen, which then calls {@code POST /auth/reset-password}.
  */
 @Service
 public class PasswordResetService implements RequestPasswordResetUseCase, ResetPasswordUseCase {

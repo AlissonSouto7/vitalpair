@@ -1,10 +1,10 @@
 /**
- * Adaptadores de nutrition: conectam o mundo externo aos casos de uso.
+ * Adapters of nutrition: they connect the outside world to the use cases.
  *
  * <ul>
- *   <li>{@code web} — controllers REST, DTOs de request/response e mappers web.</li>
- *   <li>{@code persistence} — entidade JPA, repositório Spring Data e adapter da porta de persistência.</li>
- *   <li>{@code client} — cliente Feign do Open Food Facts e seu adapter.</li>
+ *   <li>{@code web}: REST controllers, request and response DTOs, web mappers.</li>
+ *   <li>{@code persistence}: JPA entity, Spring Data repository and the persistence port adapter.</li>
+ *   <li>{@code client}: the Open Food Facts HTTP client and its adapter.</li>
  * </ul>
  */
 package com.aps.vitalpair.nutrition.infrastructure;
