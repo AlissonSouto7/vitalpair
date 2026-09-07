@@ -13,14 +13,11 @@ import feign.RequestInterceptor;
 
 /**
  * Configuração do {@link AnthropicPlanClient}. Injeta os headers obrigatórios da Anthropic e
- * define timeout de leitura de 60s (gerar uma semana de plano é a chamada mais lenta do app).
- * Não é {@code @Configuration} para não virar config global do Feign: vale só para o cliente
- * {@code anthropic-plans}.
+ * define os timeouts (gerar uma semana de plano é a chamada mais lenta do app; o valor vem de
+ * {@link AnthropicProperties#planReadTimeout()}). Não é {@code @Configuration} para não virar
+ * config global do Feign: vale só para o cliente {@code anthropic-plans}.
  */
 public class AnthropicPlanClientConfig {
-
-    private static final int CONNECT_TIMEOUT_SECONDS = 5;
-    private static final int READ_TIMEOUT_SECONDS = 60;
 
     @Bean
     public RequestInterceptor anthropicPlanHeaders(AnthropicProperties properties) {
@@ -32,8 +29,12 @@ public class AnthropicPlanClientConfig {
     }
 
     @Bean
-    public Request.Options anthropicPlanTimeouts() {
+    public Request.Options anthropicPlanTimeouts(AnthropicProperties properties) {
         return new Request.Options(
-                CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS, READ_TIMEOUT_SECONDS, TimeUnit.SECONDS, true);
+                properties.connectTimeout().toMillis(),
+                TimeUnit.MILLISECONDS,
+                properties.planReadTimeout().toMillis(),
+                TimeUnit.MILLISECONDS,
+                true);
     }
 }

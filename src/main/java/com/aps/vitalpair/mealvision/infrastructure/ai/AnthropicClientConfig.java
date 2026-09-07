@@ -13,13 +13,11 @@ import feign.RequestInterceptor;
 
 /**
  * Configuração do {@link AnthropicClient}. Injeta os headers obrigatórios da Anthropic em toda
- * requisição e define timeouts generosos para leitura (a visão é lenta). Não é {@code @Configuration}
- * para não virar config global do Feign: ela vale só para o cliente {@code anthropic}.
+ * requisição e define os timeouts (a visão é lenta; o valor vem de
+ * {@link AnthropicProperties#photoReadTimeout()}). Não é {@code @Configuration} para não virar
+ * config global do Feign: ela vale só para o cliente {@code anthropic}.
  */
 public class AnthropicClientConfig {
-
-    private static final int CONNECT_TIMEOUT_SECONDS = 5;
-    private static final int READ_TIMEOUT_SECONDS = 30;
 
     @Bean
     public RequestInterceptor anthropicHeaders(AnthropicProperties properties) {
@@ -31,8 +29,12 @@ public class AnthropicClientConfig {
     }
 
     @Bean
-    public Request.Options anthropicTimeouts() {
+    public Request.Options anthropicTimeouts(AnthropicProperties properties) {
         return new Request.Options(
-                CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS, READ_TIMEOUT_SECONDS, TimeUnit.SECONDS, true);
+                properties.connectTimeout().toMillis(),
+                TimeUnit.MILLISECONDS,
+                properties.photoReadTimeout().toMillis(),
+                TimeUnit.MILLISECONDS,
+                true);
     }
 }

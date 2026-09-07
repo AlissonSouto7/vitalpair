@@ -14,12 +14,10 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
-import com.aps.vitalpair.shared.ratelimit.RateLimiter;
+import com.aps.vitalpair.support.ControllerSliceTest;
+import com.aps.vitalpair.support.security.WithVitalPairUser;
 
 /**
  * Proves that the role guard on the admin endpoint actually denies.
@@ -30,7 +28,7 @@ import com.aps.vitalpair.shared.ratelimit.RateLimiter;
  */
 @WebMvcTest(AdminStatsController.class)
 @Import(AdminStatsControllerTest.MethodSecurityForTest.class)
-class AdminStatsControllerTest {
+class AdminStatsControllerTest extends ControllerSliceTest {
 
     /**
      * @EnableMethodSecurity lives on SecurityConfig, which a slice test does not load. Without
@@ -38,7 +36,7 @@ class AdminStatsControllerTest {
      * false confidence this class exists to prevent.
      */
     @TestConfiguration
-    @org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+    @EnableMethodSecurity
     static class MethodSecurityForTest {
 
         @Bean
@@ -48,19 +46,10 @@ class AdminStatsControllerTest {
     }
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
     private JdbcTemplate jdbc;
 
-    @MockitoBean
-    private TokenProviderPort tokenProvider;
-
-    @MockitoBean
-    private RateLimiter rateLimiter;
-
     @Test
-    @WithMockUser(roles = "USER")
+    @WithVitalPairUser
     void deniesAPlainUser() throws Exception {
         mockMvc.perform(get("/api/v1/admin/stats")).andExpect(status().isForbidden());
     }
@@ -71,7 +60,7 @@ class AdminStatsControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithVitalPairUser(role = "ADMIN")
     void allowsAnAdmin() throws Exception {
         when(jdbc.queryForObject(anyString(), eq(Long.class))).thenReturn(7L);
 

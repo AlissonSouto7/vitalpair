@@ -7,5 +7,5 @@ import com.aps.vitalpair.ai.application.dto.MealPlanView;
 public interface GenerateMealPlanUseCase {
 
     /** Gera o cardápio da semana atual via IA, substituindo o plano existente (se houver). */
-    MealPlanView generate(UUID userId);
+    MealPlanView generate(UUID userId, UUID tenantId);
 }

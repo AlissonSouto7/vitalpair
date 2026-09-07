@@ -28,6 +28,9 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 /**
  * Casos de uso do plano alimentar semanal por IA. A semana é sempre a que contém a data atual
  * (week start = segunda-feira, {@code previousOrSame(MONDAY)}). Gerar substitui o plano da semana.
+ *
+ * <p>O tenant vem do token em toda operação e é gravado junto com o plano, como em qualquer
+ * tabela de dado de usuário.
  */
 @Service
 public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseCase, SwapMealUseCase {
@@ -47,15 +50,15 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<MealPlanView> getCurrentWeekPlan(UUID userId) {
+    public Optional<MealPlanView> getCurrentWeekPlan(UUID userId, UUID tenantId) {
         return mealPlanRepository
-                .findByUserAndWeek(userId, currentWeekStart())
+                .findByUserAndWeek(userId, tenantId, currentWeekStart())
                 .map(plan -> new MealPlanView(plan, calorieTargetOf(userId)));
     }
 
     @Override
     @Transactional
-    public MealPlanView generate(UUID userId) {
+    public MealPlanView generate(UUID userId, UUID tenantId) {
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         if (user.getDailyCalorieTarget() == null) {
             throw new BusinessRuleException("Termina teu perfil primeiro que eu monto o cardápio na tua meta.");
@@ -69,16 +72,17 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
                 user.getGoal());
         List<MealPlanItem> items = generator.generateWeek(targets);
 
-        MealPlan saved = mealPlanRepository.replace(new MealPlan(null, userId, currentWeekStart(), null, items));
+        MealPlan saved = mealPlanRepository.replace(
+                new MealPlan(null, userId, user.getTenantId(), currentWeekStart(), null, items));
         return new MealPlanView(saved, user.getDailyCalorieTarget());
     }
 
     @Override
     @Transactional
-    public MealPlanView swap(UUID userId, SwapMealCommand command) {
+    public MealPlanView swap(UUID userId, UUID tenantId, SwapMealCommand command) {
         LocalDate weekStart = currentWeekStart();
         MealPlan plan = mealPlanRepository
-                .findByUserAndWeek(userId, weekStart)
+                .findByUserAndWeek(userId, tenantId, weekStart)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Plano alimentar da semana não encontrado. Gere o cardápio primeiro."));
 
@@ -89,6 +93,7 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
 
         MealPlanItem alternative = generator.generateAlternative(current);
         mealPlanRepository.updateItem(
+                plan.id(),
                 current.id(),
                 alternative.name(),
                 alternative.kcal(),
@@ -97,7 +102,7 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
                 alternative.fatG());
 
         MealPlan updated = mealPlanRepository
-                .findByUserAndWeek(userId, weekStart)
+                .findByUserAndWeek(userId, tenantId, weekStart)
                 .orElseThrow(() -> new ResourceNotFoundException("Plano alimentar da semana não encontrado."));
         return new MealPlanView(updated, calorieTargetOf(userId));
     }

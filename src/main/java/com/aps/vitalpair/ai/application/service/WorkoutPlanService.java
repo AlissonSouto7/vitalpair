@@ -60,32 +60,35 @@ public class WorkoutPlanService
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<WorkoutToday> getToday(UUID userId) {
+    public Optional<WorkoutToday> getToday(UUID userId, UUID tenantId) {
         return workoutPlanRepository
-                .findByUserAndWeek(userId, currentWeekStart())
+                .findByUserAndWeek(userId, tenantId, currentWeekStart())
                 .map(WorkoutPlanService::todayView);
     }
 
     @Override
     @Transactional
-    public WorkoutToday generate(UUID userId) {
+    public WorkoutToday generate(UUID userId, UUID tenantId) {
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         if (user.getGoal() == null) {
             throw new BusinessRuleException("Escolhe teu objetivo no perfil primeiro.");
         }
 
         List<WorkoutDay> days = generator.generateWeek(user.getGoal(), user.getActivityLevel());
-        WorkoutPlan saved =
-                workoutPlanRepository.replace(new WorkoutPlan(null, userId, currentWeekStart(), user.getGoal(), days));
+        WorkoutPlan saved = workoutPlanRepository.replace(
+                new WorkoutPlan(null, userId, user.getTenantId(), currentWeekStart(), user.getGoal(), days));
         return todayView(saved);
     }
 
     @Override
     @Transactional
-    public WorkoutToday toggle(UUID userId, UUID exerciseId) {
+    public WorkoutToday toggle(UUID userId, UUID tenantId, UUID exerciseId) {
+        // Both owner and tenant are checked: an exercise id is a guessable UUID coming from
+        // the request, so ownership is established here rather than assumed.
         WorkoutPlan plan = workoutPlanRepository
                 .findByExerciseId(exerciseId)
-                .filter(found -> found.userId().equals(userId))
+                .filter(found ->
+                        found.userId().equals(userId) && found.tenantId().equals(tenantId))
                 .orElseThrow(() -> ResourceNotFoundException.of("Exercício", exerciseId));
 
         WorkoutExercise exercise = plan.days().stream()
@@ -95,14 +98,14 @@ public class WorkoutPlanService
                 .orElseThrow(() -> ResourceNotFoundException.of("Exercício", exerciseId));
 
         workoutPlanRepository.setExerciseDone(exerciseId, !exercise.done());
-        return requireToday(userId);
+        return requireToday(userId, tenantId);
     }
 
     @Override
     @Transactional
-    public WorkoutToday complete(UUID userId) {
+    public WorkoutToday complete(UUID userId, UUID tenantId) {
         WorkoutPlan plan = workoutPlanRepository
-                .findByUserAndWeek(userId, currentWeekStart())
+                .findByUserAndWeek(userId, tenantId, currentWeekStart())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Plano de treino da semana não encontrado. Gere o plano primeiro."));
 
@@ -126,11 +129,11 @@ public class WorkoutPlanService
                         ActivitySource.MANUAL,
                         null,
                         null));
-        return requireToday(userId);
+        return requireToday(userId, tenantId);
     }
 
-    private WorkoutToday requireToday(UUID userId) {
-        return getToday(userId)
+    private WorkoutToday requireToday(UUID userId, UUID tenantId) {
+        return getToday(userId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Plano de treino da semana não encontrado."));
     }
 

@@ -46,7 +46,7 @@ public class WorkoutPlanController {
     public ResponseEntity<ApiResponse<WorkoutTodayResponse>> today(
             @AuthenticationPrincipal AuthenticatedUser principal) {
         WorkoutTodayResponse today = getTodayWorkoutUseCase
-                .getToday(principal.userId())
+                .getToday(principal.userId(), principal.tenantId())
                 .map(WorkoutTodayResponse::from)
                 .orElse(null);
         return ResponseEntity.ok(ApiResponse.ok(today));
@@ -55,22 +55,24 @@ public class WorkoutPlanController {
     @PostMapping("/generate")
     public ResponseEntity<ApiResponse<WorkoutTodayResponse>> generate(
             @AuthenticationPrincipal AuthenticatedUser principal) {
-        WorkoutTodayResponse today = WorkoutTodayResponse.from(generateWorkoutPlanUseCase.generate(principal.userId()));
+        WorkoutTodayResponse today = WorkoutTodayResponse.from(
+                generateWorkoutPlanUseCase.generate(principal.userId(), principal.tenantId()));
         return ResponseEntity.ok(ApiResponse.ok(today, "Plano de treino da semana gerado"));
     }
 
     @PostMapping("/exercises/{id}/toggle")
     public ResponseEntity<ApiResponse<WorkoutTodayResponse>> toggle(
             @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable("id") UUID exerciseId) {
-        WorkoutTodayResponse today =
-                WorkoutTodayResponse.from(toggleWorkoutExerciseUseCase.toggle(principal.userId(), exerciseId));
+        WorkoutTodayResponse today = WorkoutTodayResponse.from(
+                toggleWorkoutExerciseUseCase.toggle(principal.userId(), principal.tenantId(), exerciseId));
         return ResponseEntity.ok(ApiResponse.ok(today));
     }
 
     @PostMapping("/complete")
     public ResponseEntity<ApiResponse<WorkoutTodayResponse>> complete(
             @AuthenticationPrincipal AuthenticatedUser principal) {
-        WorkoutTodayResponse today = WorkoutTodayResponse.from(completeWorkoutUseCase.complete(principal.userId()));
+        WorkoutTodayResponse today =
+                WorkoutTodayResponse.from(completeWorkoutUseCase.complete(principal.userId(), principal.tenantId()));
         return ResponseEntity.ok(ApiResponse.ok(today, "Treino de hoje concluído"));
     }
 }
