@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
+import com.aps.vitalpair.shared.web.RequestContext;
 import com.aps.vitalpair.tenant.TenantContext;
 
 /**
@@ -51,6 +52,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 TenantContext.set(payload.tenantId());
+                // Every log line from here on says who made the request, without any call
+                // site having to pass it along.
+                RequestContext.putCaller(
+                        payload.userId().toString(), payload.tenantId().toString());
             });
             chain.doFilter(request, response);
         } finally {

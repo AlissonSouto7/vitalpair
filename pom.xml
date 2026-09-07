@@ -24,6 +24,8 @@
 		<mapstruct.version>1.6.2</mapstruct.version>
 		<archunit.version>1.3.0</archunit.version>
 		<wiremock.version>3.13.1</wiremock.version>
+		<resilience4j.version>2.3.0</resilience4j.version>
+		<shedlock.version>6.6.0</shedlock.version>
 		<!-- Build quality gates -->
 		<spotless.version>2.44.0</spotless.version>
 		<palantir.version>2.50.0</palantir.version>
@@ -115,6 +117,63 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!--
+			Exposes the metrics Micrometer already collects in the format Prometheus
+			scrapes. Without a registry, Actuator counts everything and publishes nothing.
+		-->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!--
+			Circuit breakers for the two external APIs. A stalled partner would otherwise
+			hold a request thread until its timeout on every single call; the breaker gives
+			up early once failures pile up, and lets traffic back in gradually.
+		-->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot3</artifactId>
+			<version>${resilience4j.version}</version>
+		</dependency>
+		<!--
+			Pinned explicitly. resilience4j-spring-boot3 2.3.0 declares a transitive
+			resilience4j-spring6 2.2.0, and its autoconfiguration references
+			RxJava3FallbackDecorator, a class that only exists from 2.3.0 onwards. With the
+			resolved version the context fails to start with a NoClassDefFoundError buried
+			four levels down a condition-evaluation error.
+		-->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring6</artifactId>
+			<version>${resilience4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-micrometer</artifactId>
+			<version>${resilience4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<!--
+			Scheduled jobs must run once per schedule, not once per instance. The lock lives
+			in Postgres, so a second instance sees the first one holding it.
+		-->
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-spring</artifactId>
+			<version>${shedlock.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-provider-jdbc-template</artifactId>
+			<version>${shedlock.version}</version>
 		</dependency>
 
 		<!-- ===== MAIL (recuperação de senha, verificação de e-mail) ===== -->

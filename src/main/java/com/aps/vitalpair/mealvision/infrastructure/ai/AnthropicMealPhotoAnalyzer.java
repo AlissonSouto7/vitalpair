@@ -12,12 +12,16 @@ import org.springframework.stereotype.Component;
 import com.aps.vitalpair.config.AnthropicProperties;
 import com.aps.vitalpair.mealvision.domain.exception.AiNotConfiguredException;
 import com.aps.vitalpair.mealvision.domain.exception.MealPhotoAnalysisException;
+import com.aps.vitalpair.mealvision.domain.exception.MealPhotoContentException;
 import com.aps.vitalpair.mealvision.domain.model.DetectedFood;
 import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 import com.aps.vitalpair.mealvision.domain.port.out.MealPhotoAnalyzerPort;
+import com.aps.vitalpair.shared.metrics.AiMetrics;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 /**
  * Adaptador da porta de análise de foto sobre a API de Mensagens da Anthropic (Claude visão).
@@ -40,15 +44,23 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
     private final AnthropicClient client;
     private final AnthropicProperties properties;
     private final ObjectMapper objectMapper;
+    private final AiMetrics metrics;
 
     public AnthropicMealPhotoAnalyzer(
-            AnthropicClient client, AnthropicProperties properties, ObjectMapper objectMapper) {
+            AnthropicClient client, AnthropicProperties properties, ObjectMapper objectMapper, AiMetrics metrics) {
         this.client = client;
         this.properties = properties;
         this.objectMapper = objectMapper;
+        this.metrics = metrics;
     }
 
+    /**
+     * Analisa a foto. Compartilha o disjuntor {@code anthropic} com a geração de planos, porque
+     * é o mesmo parceiro: se ele está fora, não faz sentido cada funcionalidade descobrir isso
+     * separadamente esperando o próprio timeout.
+     */
     @Override
+    @CircuitBreaker(name = "anthropic", fallbackMethod = "unavailable")
     public MealPhotoAnalysis analyze(String imageBase64, String mediaType) {
         if (!properties.isConfigured()) {
             throw new AiNotConfiguredException(
@@ -57,7 +69,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
 
         AnthropicMessages.Response response;
         try {
-            response = client.createMessage(buildRequest(imageBase64, mediaType));
+            response = metrics.timed("meal-photo", () -> client.createMessage(buildRequest(imageBase64, mediaType)));
         } catch (AiNotConfiguredException ex) {
             throw ex;
         } catch (RuntimeException ex) {
@@ -67,14 +79,28 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
         }
 
         if (response == null) {
-            throw new MealPhotoAnalysisException("A IA não retornou nenhuma resposta.");
+            throw new MealPhotoContentException("A IA não retornou nenhuma resposta.");
         }
         if ("refusal".equals(response.stopReason())) {
-            throw new MealPhotoAnalysisException("A IA não conseguiu analisar esta foto. Tente outra imagem do prato.");
+            throw new MealPhotoContentException("A IA não conseguiu analisar esta foto. Tente outra imagem do prato.");
         }
 
         String json = extractTextBlock(response);
         return parse(json);
+    }
+
+    /** Ver {@code PlanAiGateway.unavailable}: exceções de domínio passam intactas. */
+    @SuppressWarnings("unused")
+    private MealPhotoAnalysis unavailable(String imageBase64, String mediaType, Throwable cause) {
+        if (cause instanceof AiNotConfiguredException notConfigured) {
+            throw notConfigured;
+        }
+        if (cause instanceof MealPhotoAnalysisException analysisFailure) {
+            throw analysisFailure;
+        }
+        log.warn("Anthropic circuit is open, refusing photo analysis without calling");
+        throw new MealPhotoAnalysisException(
+                "A análise por foto está indisponível no momento. Tente em alguns minutos.");
     }
 
     private AnthropicMessages.Request buildRequest(String imageBase64, String mediaType) {
@@ -127,7 +153,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
 
     private static String extractTextBlock(AnthropicMessages.Response response) {
         if (response.content() == null) {
-            throw new MealPhotoAnalysisException("A IA retornou uma resposta vazia.");
+            throw new MealPhotoContentException("A IA retornou uma resposta vazia.");
         }
         return response.content().stream()
                 .filter(block -> "text".equals(block.type())
@@ -135,7 +161,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
                         && !block.text().isBlank())
                 .map(AnthropicMessages.Block::text)
                 .findFirst()
-                .orElseThrow(() -> new MealPhotoAnalysisException("A IA não retornou os alimentos detectados."));
+                .orElseThrow(() -> new MealPhotoContentException("A IA não retornou os alimentos detectados."));
     }
 
     private MealPhotoAnalysis parse(String json) {
@@ -158,7 +184,7 @@ public class AnthropicMealPhotoAnalyzer implements MealPhotoAnalyzerPort {
             return new MealPhotoAnalysis(foods);
         } catch (JsonProcessingException ex) {
             log.warn("Resposta da Anthropic fora do formato esperado: {}", ex.getMessage(), ex);
-            throw new MealPhotoAnalysisException("A IA retornou um resultado em formato inesperado.", ex);
+            throw new MealPhotoContentException("A IA retornou um resultado em formato inesperado.", ex);
         }
     }
 

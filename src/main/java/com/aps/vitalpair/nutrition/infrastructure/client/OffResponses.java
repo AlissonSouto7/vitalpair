@@ -5,25 +5,30 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** DTOs de resposta da Open Food Facts (apenas os campos usados). */
-final class OffResponses {
+/**
+ * DTOs de resposta da Open Food Facts (apenas os campos usados).
+ *
+ * <p>Público porque aparecem na assinatura de {@link OpenFoodFactsHttpClient}, que precisa ser
+ * um bean próprio para o proxy de resiliência funcionar.
+ */
+public final class OffResponses {
 
     private OffResponses() {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Nutriments(
+    public record Nutriments(
             @JsonProperty("energy-kcal_100g") Double energyKcal100g,
             @JsonProperty("proteins_100g") Double proteins100g,
             @JsonProperty("carbohydrates_100g") Double carbohydrates100g,
             @JsonProperty("fat_100g") Double fat100g) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record Product(@JsonProperty("product_name") String productName, String code, Nutriments nutriments) {}
+    public record Product(@JsonProperty("product_name") String productName, String code, Nutriments nutriments) {}
 
     /** Resposta da Search-a-licious (search.openfoodfacts.org). */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record SearchResponse(List<Product> hits) {}
+    public record SearchResponse(List<Product> hits) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record ProductResponse(int status, Product product) {}
+    public record ProductResponse(int status, Product product) {}
 }

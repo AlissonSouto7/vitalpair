@@ -1,8 +1,5 @@
 package com.aps.vitalpair.ai.infrastructure.web;
 
-import java.time.Instant;
-import java.util.List;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -16,6 +13,7 @@ import com.aps.vitalpair.ai.domain.exception.AiPlanNotConfiguredException;
 import com.aps.vitalpair.ai.domain.exception.PlanGenerationException;
 import com.aps.vitalpair.ai.domain.exception.WorkoutAlreadyCompletedException;
 import com.aps.vitalpair.shared.web.ApiError;
+import com.aps.vitalpair.shared.web.ApiErrors;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.LogSafe;
 
@@ -32,25 +30,19 @@ public class AiPlanExceptionHandler {
     @ExceptionHandler(AiPlanNotConfiguredException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleNotConfigured(
             AiPlanNotConfiguredException ex, HttpServletRequest request) {
-        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+        return ApiErrors.response(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
     }
 
     @ExceptionHandler(PlanGenerationException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleGenerationFailure(
             PlanGenerationException ex, HttpServletRequest request) {
         log.warn("Falha na geração de plano em {}: {}", LogSafe.value(request.getRequestURI()), ex.getMessage(), ex);
-        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
+        return ApiErrors.response(HttpStatus.BAD_GATEWAY, ex.getMessage(), request);
     }
 
     @ExceptionHandler(WorkoutAlreadyCompletedException.class)
     public ResponseEntity<ApiResponse<ApiError>> handleAlreadyCompleted(
             WorkoutAlreadyCompletedException ex, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), request);
-    }
-
-    private ResponseEntity<ApiResponse<ApiError>> build(HttpStatus status, String message, HttpServletRequest request) {
-        ApiError detail = new ApiError(
-                Instant.now(), status.value(), status.getReasonPhrase(), request.getRequestURI(), List.of());
-        return ResponseEntity.status(status).body(ApiResponse.fail(message, detail));
+        return ApiErrors.response(HttpStatus.CONFLICT, ex.getMessage(), request);
     }
 }
