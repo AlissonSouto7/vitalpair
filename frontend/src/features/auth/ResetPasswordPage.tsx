@@ -1,8 +1,19 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { resetPassword } from '../../api/auth'
-import { AuthShell } from '../../components/auth/AuthShell'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { z } from 'zod'
+
+import { resetPassword } from '@/api/auth'
+import { AuthShell } from '@/components/auth/AuthShell'
+import { FormError } from '@/shared/ui/form/FormError'
+import { TextField } from '@/shared/ui/form/TextField'
+
+/** Same bound the backend enforces on ResetPasswordRequest. */
+const schema = z.object({ password: z.string().min(8).max(100) })
+
+type ResetForm = z.infer<typeof schema>
 
 export function ResetPasswordPage() {
   const { t } = useTranslation()
@@ -10,27 +21,27 @@ export function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') ?? ''
 
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetForm>({ resolver: zodResolver(schema), mode: 'onTouched' })
+
+  async function onSubmit(values: ResetForm) {
     setError(null)
     if (!token) {
       setError(t('auth.resetMissingToken'))
       return
     }
-    setLoading(true)
     try {
-      await resetPassword(token, password)
+      await resetPassword(token, values.password)
       setDone(true)
       setTimeout(() => navigate('/login'), 2500)
     } catch {
       setError(t('auth.errorReset'))
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -46,26 +57,24 @@ export function ResetPasswordPage() {
           {t('auth.resetSuccess')}
         </p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+          className="space-y-4"
+          noValidate
+        >
           <div>
-            <label className="label">{t('auth.newPassword')}</label>
-            <input
+            <TextField
+              label={t('auth.newPassword')}
               type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input"
+              autoComplete="new-password"
+              error={errors.password && t('auth.passwordTooShort')}
+              {...register('password')}
             />
             <p className="mt-1 text-xs text-faint">{t('auth.minChars')}</p>
           </div>
-          {error && (
-            <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
-              {error}
-            </p>
-          )}
-          <button type="submit" disabled={loading} className="btn-primary w-full">
-            {loading ? t('auth.resetting') : t('auth.resetCta')}
+          <FormError message={error} />
+          <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+            {isSubmitting ? t('auth.resetting') : t('auth.resetCta')}
           </button>
         </form>
       )}

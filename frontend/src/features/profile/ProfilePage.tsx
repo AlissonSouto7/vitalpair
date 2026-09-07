@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AxiosError } from 'axios'
 import { getProfile, getTdee, updateProfile } from '../../api/profile'
@@ -267,6 +267,7 @@ function WeightCard({
   onLogged: () => Promise<void>
   t: TFn
 }) {
+  const weightId = useId()
   const [valor, setValor] = useState('')
   const [salvando, setSalvando] = useState(false)
   const delta = weights.length >= 2 ? weights[weights.length - 1].weightKg - weights[0].weightKg : 0
@@ -311,8 +312,11 @@ function WeightCard({
 
       <form onSubmit={registrar} className="mt-4 flex items-end gap-2 border-t border-hair pt-4">
         <div className="flex-1">
-          <label className="label">{t('profile.updateWeight')}</label>
+          <label htmlFor={weightId} className="label">
+            {t('profile.updateWeight')}
+          </label>
           <input
+            id={weightId}
             type="number"
             min={0}
             step="0.1"
@@ -418,63 +422,78 @@ function EditForm({
     <form onSubmit={submit} className="mt-4 space-y-4 border-t border-hair pt-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t('profile.name')}>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input"
-          />
+          {(field) => (
+            <input
+              {...field}
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input"
+            />
+          )}
         </Field>
         <Field label={t('profile.birthDate')}>
-          <DateField value={birthDate} onChange={setBirthDate} />
+          {(field) => <DateField {...field} value={birthDate} onChange={setBirthDate} />}
         </Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label={t('profile.height')}>
-          <Unit unit="cm">
-            <input
-              type="number"
-              required
-              min={50}
-              max={300}
-              step="any"
-              value={heightCm}
-              onChange={(e) => setHeightCm(e.target.value)}
-              className="input pr-10"
-            />
-          </Unit>
+          {(field) => (
+            <Unit unit="cm">
+              <input
+                {...field}
+                type="number"
+                required
+                min={50}
+                max={300}
+                step="any"
+                value={heightCm}
+                onChange={(e) => setHeightCm(e.target.value)}
+                className="input pr-10"
+              />
+            </Unit>
+          )}
         </Field>
         <Field label={t('profile.weight')}>
-          <Unit unit="kg">
-            <input
-              type="number"
-              required
-              min={20}
-              max={500}
-              step="0.1"
-              value={weightKg}
-              onChange={(e) => setWeightKg(e.target.value)}
-              className="input pr-10"
-            />
-          </Unit>
+          {(field) => (
+            <Unit unit="kg">
+              <input
+                {...field}
+                type="number"
+                required
+                min={20}
+                max={500}
+                step="0.1"
+                value={weightKg}
+                onChange={(e) => setWeightKg(e.target.value)}
+                className="input pr-10"
+              />
+            </Unit>
+          )}
         </Field>
         <Field label={t('profile.sex')}>
-          <Select
-            value={sex}
-            onChange={setSex}
-            options={sexOptions}
-            placeholder={t('profile.chooseHint')}
-          />
+          {(field) => (
+            <Select
+              {...field}
+              value={sex}
+              onChange={setSex}
+              options={sexOptions}
+              placeholder={t('profile.chooseHint')}
+            />
+          )}
         </Field>
       </div>
       <Field label={t('profile.activityLevel')}>
-        <Select
-          value={activityLevel}
-          onChange={setActivityLevel}
-          options={levelOptions}
-          placeholder={t('profile.chooseHint')}
-        />
+        {(field) => (
+          <Select
+            {...field}
+            value={activityLevel}
+            onChange={setActivityLevel}
+            options={levelOptions}
+            placeholder={t('profile.chooseHint')}
+          />
+        )}
       </Field>
       <button type="submit" disabled={saving} className="btn-primary w-full">
         {saving ? t('profile.saving') : t('profile.saveData')}
@@ -546,11 +565,26 @@ function MacroCell({
   )
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+/**
+ * Wraps a control with a label that is actually attached to it.
+ *
+ * The children are given the id to put on the control: a label with nothing pointing at it
+ * is announced as loose text and does not focus the field when clicked.
+ */
+function Field({
+  label,
+  children,
+}: {
+  label: string
+  children: (props: { id: string }) => ReactNode
+}) {
+  const id = useId()
   return (
     <div>
-      <label className="label">{label}</label>
-      {children}
+      <label htmlFor={id} className="label">
+        {label}
+      </label>
+      {children({ id })}
     </div>
   )
 }

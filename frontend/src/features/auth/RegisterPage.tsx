@@ -1,11 +1,30 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { AxiosError } from 'axios'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from '../../hooks/useAuth'
-import { joinPair } from '../../api/pair'
-import { GoogleLoginButton } from '../../components/GoogleLoginButton'
-import { AuthShell } from '../../components/auth/AuthShell'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { z } from 'zod'
+
+import { joinPair } from '@/api/pair'
+import { AuthShell } from '@/components/auth/AuthShell'
+import { GoogleLoginButton } from '@/components/GoogleLoginButton'
+import { useAuth } from '@/hooks/useAuth'
+import { getApiErrorMessage } from '@/shared/api/errors'
+import { FormError } from '@/shared/ui/form/FormError'
+import { TextField } from '@/shared/ui/form/TextField'
+
+/**
+ * Mirrors the backend's RegisterRequest: name and password have the same bounds it
+ * enforces, so a person is told here rather than after a round trip. The server validates
+ * regardless; this schema is about the message, not the guarantee.
+ */
+const schema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().min(1).email(),
+  password: z.string().min(8).max(100),
+})
+
+type RegisterForm = z.infer<typeof schema>
 
 function strength(pw: string): number {
   let s = 0
@@ -18,34 +37,36 @@ function strength(pw: string): number {
 
 export function RegisterPage() {
   const { t } = useTranslation()
-  const { register } = useAuth()
+  const { register: createAccount } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const invite = params.get('convite')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
 
-  const score = strength(password)
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(schema),
+    mode: 'onTouched',
+    defaultValues: { name: '', email: '', password: '' },
+  })
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  const score = strength(watch('password'))
+
+  async function onSubmit(values: RegisterForm) {
     setError(null)
-    setLoading(true)
     try {
-      await register({ name, email, password })
+      await createAccount(values)
       if (invite) {
         // Veio de um convite: entra na dupla antes de seguir pro onboarding.
         await joinPair(invite.trim().toUpperCase()).catch(() => undefined)
       }
       navigate('/onboarding')
     } catch (err) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? t('auth.errorRegister'))
-    } finally {
-      setLoading(false)
+      setError(getApiErrorMessage(err, t('auth.errorRegister')))
     }
   }
 
@@ -72,38 +93,34 @@ export function RegisterPage() {
         <span className="h-px flex-1 bg-hair" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form
+        onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+        className="space-y-4"
+        noValidate
+      >
+        <TextField
+          label={t('auth.nameLabel')}
+          type="text"
+          autoComplete="name"
+          error={errors.name && t('auth.nameRequired')}
+          {...register('name')}
+        />
+        <TextField
+          label={t('auth.email')}
+          type="email"
+          autoComplete="email"
+          error={errors.email && t('auth.invalidEmail')}
+          {...register('email')}
+        />
         <div>
-          <label className="label">{t('auth.nameLabel')}</label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input"
-          />
-        </div>
-        <div>
-          <label className="label">{t('auth.email')}</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input"
-          />
-        </div>
-        <div>
-          <label className="label">{t('auth.password')}</label>
-          <input
+          <TextField
+            label={t('auth.password')}
             type="password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="input"
+            autoComplete="new-password"
+            error={errors.password && t('auth.passwordTooShort')}
+            {...register('password')}
           />
-          <div className="mt-2 flex gap-1.5">
+          <div className="mt-2 flex gap-1.5" aria-hidden="true">
             {[0, 1, 2, 3].map((i) => (
               <span
                 key={i}
@@ -113,14 +130,10 @@ export function RegisterPage() {
           </div>
         </div>
 
-        {error && (
-          <p className="rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
-            {error}
-          </p>
-        )}
+        <FormError message={error} />
 
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? t('auth.creating') : t('auth.createAccountCta')}
+        <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+          {isSubmitting ? t('auth.creating') : t('auth.createAccountCta')}
         </button>
       </form>
 

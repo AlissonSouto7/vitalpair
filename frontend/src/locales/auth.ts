@@ -20,6 +20,10 @@ export const auth = {
     noAccount: 'Ainda não tem conta?',
     createOne: 'Cria uma aí',
     errorLogin: 'Não rolou entrar. Confere o email e a senha.',
+    invalidEmail: 'Confere esse e-mail: falta algo nele.',
+    nameRequired: 'Como a gente te chama? Escreve teu nome.',
+    passwordTooShort: 'A senha precisa de pelo menos 8 caracteres.',
+    passwordRequired: 'Escreve tua senha pra continuar.',
 
     // register
     registerTitle: 'Cria sua conta',
@@ -81,6 +85,10 @@ export const auth = {
     noAccount: 'Don’t have an account yet?',
     createOne: 'Make one',
     errorLogin: 'Couldn’t sign in. Double-check your email and password.',
+    invalidEmail: 'Check this e-mail: something is missing.',
+    nameRequired: 'What should we call you? Type your name.',
+    passwordTooShort: 'The password needs at least 8 characters.',
+    passwordRequired: 'Type your password to continue.',
 
     registerTitle: 'Create your account',
     registerSubtitle: 'Takes less time than picking a show on Netflix.',
@@ -138,6 +146,10 @@ export const auth = {
     noAccount: '¿Aún no tienes cuenta?',
     createOne: 'Crea una',
     errorLogin: 'No se pudo entrar. Revisa el correo y la contraseña.',
+    invalidEmail: 'Revisa este correo: le falta algo.',
+    nameRequired: '¿Cómo te llamamos? Escribe tu nombre.',
+    passwordTooShort: 'La contraseña necesita al menos 8 caracteres.',
+    passwordRequired: 'Escribe tu contraseña para continuar.',
 
     registerTitle: 'Crea tu cuenta',
     registerSubtitle: 'Tardas menos que en elegir serie en Netflix.',
@@ -195,6 +207,10 @@ export const auth = {
     noAccount: 'Pas encore de compte ?',
     createOne: 'Crées-en un',
     errorLogin: 'Connexion impossible. Vérifie ton email et ton mot de passe.',
+    invalidEmail: 'Vérifie cet e-mail : il manque quelque chose.',
+    nameRequired: 'Comment on t’appelle ? Écris ton nom.',
+    passwordTooShort: 'Le mot de passe doit faire au moins 8 caractères.',
+    passwordRequired: 'Saisis ton mot de passe pour continuer.',
 
     registerTitle: 'Crée ton compte',
     registerSubtitle: 'Plus rapide que de choisir une série sur Netflix.',
