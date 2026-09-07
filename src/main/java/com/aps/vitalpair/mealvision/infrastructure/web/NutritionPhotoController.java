@@ -13,11 +13,15 @@ import com.aps.vitalpair.mealvision.domain.model.MealPhotoAnalysis;
 import com.aps.vitalpair.mealvision.domain.port.in.AnalyzeMealPhotoUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Análise de refeição por foto com IA. Controller separado do {@code NutritionController}.
  * Stateless: devolve os alimentos detectados; quem registra é o {@code POST /api/v1/nutrition/logs}.
  */
+@Tag(name = "Meal photo", description = "Estimating what is on a plate from a photograph, with AI.")
 @RestController
 @RequestMapping("/api/v1/nutrition")
 public class NutritionPhotoController {
@@ -28,6 +32,7 @@ public class NutritionPhotoController {
         this.analyzeMealPhotoUseCase = analyzeMealPhotoUseCase;
     }
 
+    @StandardApiResponses
     @PostMapping("/photo")
     public ResponseEntity<ApiResponse<PhotoAnalysisResponse>> analyzePhoto(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody PhotoAnalysisRequest request) {

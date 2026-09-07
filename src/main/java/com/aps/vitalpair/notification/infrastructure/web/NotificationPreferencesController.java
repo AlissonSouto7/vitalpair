@@ -14,7 +14,11 @@ import com.aps.vitalpair.notification.domain.port.in.GetNotificationPreferencesU
 import com.aps.vitalpair.notification.domain.port.in.UpdateNotificationPreferencesUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Notification preferences", description = "Which notifications a person wants to receive.")
 @RestController
 @RequestMapping("/api/v1/me/notification-prefs")
 public class NotificationPreferencesController {
@@ -29,6 +33,7 @@ public class NotificationPreferencesController {
         this.updatePreferencesUseCase = updatePreferencesUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping
     public ResponseEntity<ApiResponse<NotificationPreferencesResponse>> get(
             @AuthenticationPrincipal AuthenticatedUser principal) {
@@ -36,6 +41,7 @@ public class NotificationPreferencesController {
         return ResponseEntity.ok(ApiResponse.ok(NotificationPreferencesResponse.from(prefs)));
     }
 
+    @StandardApiResponses
     @PutMapping
     public ResponseEntity<ApiResponse<NotificationPreferencesResponse>> update(
             @AuthenticationPrincipal AuthenticatedUser principal,

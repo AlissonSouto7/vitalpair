@@ -12,11 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
+import com.aps.vitalpair.shared.web.StandardApiResponses;
 import com.aps.vitalpair.user.application.dto.UpdateProfileCommand;
 import com.aps.vitalpair.user.domain.port.in.GetProfileUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetTdeeUseCase;
 import com.aps.vitalpair.user.domain.port.in.UpdateProfileUseCase;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(
+        name = "Profile",
+        description = "The signed-in person's profile and the calorie and macro targets derived from it.")
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -34,12 +40,14 @@ public class UserController {
         this.getTdeeUseCase = getTdeeUseCase;
     }
 
+    @StandardApiResponses
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserProfileResponse>> me(@AuthenticationPrincipal AuthenticatedUser principal) {
         var user = getProfileUseCase.getProfile(principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(UserProfileResponse.from(user)));
     }
 
+    @StandardApiResponses
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateMe(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody UpdateProfileRequest request) {
@@ -56,6 +64,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok(UserProfileResponse.from(user), "Perfil atualizado"));
     }
 
+    @StandardApiResponses
     @GetMapping("/me/tdee")
     public ResponseEntity<ApiResponse<TdeeResponse>> myTdee(@AuthenticationPrincipal AuthenticatedUser principal) {
         var result = getTdeeUseCase.getTdee(principal.userId());

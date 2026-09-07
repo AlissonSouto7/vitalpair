@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import com.aps.vitalpair.activity.domain.port.in.GetActivitySummaryUseCase;
-import com.aps.vitalpair.dashboard.application.dto.DashboardView;
-import com.aps.vitalpair.dashboard.application.dto.DayProgress;
-import com.aps.vitalpair.dashboard.application.dto.PartnerSummary;
+import com.aps.vitalpair.dashboard.domain.model.DashboardView;
+import com.aps.vitalpair.dashboard.domain.model.DayProgress;
+import com.aps.vitalpair.dashboard.domain.model.PartnerSummary;
 import com.aps.vitalpair.dashboard.domain.port.in.GetDashboardUseCase;
 import com.aps.vitalpair.nutrition.application.dto.DailySummary;
 import com.aps.vitalpair.nutrition.domain.port.in.GetDailySummaryUseCase;

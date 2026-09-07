@@ -1,4 +1,4 @@
-package com.aps.vitalpair.dashboard.application.dto;
+package com.aps.vitalpair.dashboard.domain.model;
 
 /**
  * Progresso do dia de um usuário: consumido (nutrição) vs gasto (atividade) vs meta.
