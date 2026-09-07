@@ -29,16 +29,24 @@ always releasable. Every change starts from `main` on a short branch named
 **squash** once the three CI jobs are green. Releases are tags on `main`.
 
 `main` is protected by a ruleset named "main protection": pull request
-required, no force pushes, no deletion, and the status checks "Backend build
-and tests" and "Frontend build and tests" required with the strict policy.
-Three things this ADR calls for are **not yet applied** on the repository,
-measured through the GitHub API on 2026-09-07: all three merge methods are
-still allowed (pull request #23 was merged with a merge commit), merged
-branches are not deleted automatically, and the browser job "Browser tests"
-added in phase 10 is not in the required checks, so a pull request that breaks
-the browser suite can still be merged. Each is one switch; until they are
-flipped, the squash rule is a convention, the branch cleanup is manual, and the
-browser suite is advisory.
+required, squash the only allowed merge method, no force pushes, no deletion,
+and the status checks "Backend build and tests", "Frontend build and tests" and
+"Browser tests" required with the strict policy. Merged branches are deleted
+automatically. All of this was applied through the GitHub API on 2026-09-07
+and can be read back with the commands under Verification.
+
+Squash became the only method after a measured cost of merge commits: GitHub
+writes the pull request title into the merge commit's body, release-please
+parses that body as a conventional commit, and the 0.4.0 changelog came out
+with duplicated entries (18 merge commits since v0.3.0; 11 of them produced a
+duplicate, the rest belonged to hidden categories). The duplicates were
+removed by hand from the 0.4.0 section; later versions are clean by
+construction.
+
+Pull requests opened by release-please are authored by the Actions bot, and
+their workflow runs wait for a manual approval (`action_required`) before the
+required checks can report. Approving the two runs on the release pull request
+is part of cutting a release.
 
 One phase of work is one branch and one pull request. Stacked branches are
 merged in order, each rebased onto the new `main` before its own pull request
