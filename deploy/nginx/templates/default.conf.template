@@ -1,0 +1,103 @@
+# The edge: the only thing on this machine the internet can reach.
+#
+# Rendered by the nginx image's own envsubst at startup, so one file serves staging and
+# production by environment variable. ${DOLLAR} is used wherever an nginx variable must
+# survive that substitution.
+
+# Limits how fast anyone can hammer the authentication endpoints. The application has its
+# own rate limiter, which is the one that counts per user and survives a restart; this one
+# is cruder and sits in front, so a flood is dropped before it costs a thread and a
+# database connection. Ten megabytes holds roughly 160 thousand addresses.
+limit_req_zone ${DOLLAR}binary_remote_addr zone=auth:10m rate=10r/m;
+
+server {
+    listen 80;
+    server_name ${SERVER_NAME};
+
+    # The only thing served over plain HTTP: the challenge Let's Encrypt reads to prove
+    # this machine controls the domain. Redirecting it too would break renewal.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${SERVER_NAME};
+
+    ssl_certificate     /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+
+    # 1.2 is the floor: everything older is broken, and dropping it costs only browsers
+    # that are themselves unsafe to use.
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    # Tells the browser to never use plain HTTP for this domain again, which closes the
+    # window where a first request can be intercepted and downgraded.
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # What the page is allowed to load. Google's script and frame are here because sign-in
+    # with Google needs them; 'unsafe-inline' for styles is what Tailwind's runtime
+    # injection requires. Everything else is same-origin only, so an injected script has
+    # nowhere to send what it steals.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com; frame-src https://accounts.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://accounts.google.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'" always;
+
+    server_tokens off;
+
+    # A meal photo travels as base64 in a JSON body, which is roughly a third larger than
+    # the file. The default limit of 1 MB rejects almost any photo from a phone.
+    client_max_body_size 12m;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+    # Phase 8 moved health and metrics to their own port so that publishing the API would
+    # not publish a live readout of the system. Refusing the path outright, rather than
+    # simply not routing it, matters: without this the single-page application's catch-all
+    # answers /actuator/prometheus with index.html and a 200, which looks from the outside
+    # exactly like an exposed endpoint and cannot be told apart by a scanner or by the
+    # smoke test. Anything that genuinely needs metrics runs on this machine and reaches
+    # the container's port 9090 directly.
+    location /actuator {
+        return 404;
+    }
+
+    location /api/ {
+        proxy_pass http://backend-${ENVIRONMENT}:8080;
+        include /etc/nginx/proxy_params.conf;
+
+        # Generating a week of meals is a paid call that can take a minute. The default of
+        # 60s would cut it off just as it succeeds.
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+    }
+
+    location /api/v1/auth/ {
+        # burst allows a person who mistypes their password a few times in a row; nodelay
+        # serves those immediately rather than queueing them.
+        limit_req zone=auth burst=20 nodelay;
+        limit_req_status 429;
+
+        proxy_pass http://backend-${ENVIRONMENT}:8080;
+        include /etc/nginx/proxy_params.conf;
+    }
+
+    location / {
+        proxy_pass http://frontend-${ENVIRONMENT}:8080;
+        include /etc/nginx/proxy_params.conf;
+    }
+}
