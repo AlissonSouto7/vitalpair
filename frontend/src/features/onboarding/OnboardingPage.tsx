@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type ReactNode, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -88,6 +88,14 @@ const buildActivityOptions = (
 
 export function OnboardingPage() {
   const { t } = useTranslation()
+  const nameId = useId()
+  const weightId = useId()
+  const heightId = useId()
+  const birthId = useId()
+  const sexId = useId()
+  const inviteId = useId()
+  const betId = useId()
+  const focusLabelId = useId()
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
 
@@ -292,8 +300,11 @@ export function OnboardingPage() {
               />
 
               <div className="mb-4">
-                <label className="label">{t('onboarding.nameLabel')}</label>
+                <label htmlFor={nameId} className="label">
+                  {t('onboarding.nameLabel')}
+                </label>
                 <input
+                  id={nameId}
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -304,9 +315,12 @@ export function OnboardingPage() {
 
               <div className="mb-4 grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">{t('onboarding.weightLabel')}</label>
+                  <label htmlFor={weightId} className="label">
+                    {t('onboarding.weightLabel')}
+                  </label>
                   <Unit unit="kg">
                     <input
+                      id={weightId}
                       type="number"
                       min={20}
                       max={500}
@@ -319,9 +333,12 @@ export function OnboardingPage() {
                   </Unit>
                 </div>
                 <div>
-                  <label className="label">{t('onboarding.heightLabel')}</label>
+                  <label htmlFor={heightId} className="label">
+                    {t('onboarding.heightLabel')}
+                  </label>
                   <Unit unit="cm">
                     <input
+                      id={heightId}
                       type="number"
                       min={50}
                       max={300}
@@ -336,13 +353,18 @@ export function OnboardingPage() {
               </div>
 
               <div className="mb-4">
-                <label className="label">{t('onboarding.birthLabel')}</label>
-                <DateField value={birthDate} onChange={setBirthDate} />
+                <label htmlFor={birthId} className="label">
+                  {t('onboarding.birthLabel')}
+                </label>
+                <DateField id={birthId} value={birthDate} onChange={setBirthDate} />
               </div>
 
               <div className="mb-5">
-                <label className="label">{t('onboarding.sexLabel')}</label>
+                <label htmlFor={sexId} className="label">
+                  {t('onboarding.sexLabel')}
+                </label>
                 <Select
+                  id={sexId}
                   value={sex}
                   onChange={setSex}
                   options={SEX_OPTIONS}
@@ -351,8 +373,16 @@ export function OnboardingPage() {
               </div>
 
               <div>
-                <label className="label">{t('onboarding.focusLabel')}</label>
-                <div className="grid gap-2.5 sm:grid-cols-2">
+                {/* A set of cards, not a single control: htmlFor has nothing to point at,
+                    so the group carries the name instead. */}
+                <p id={focusLabelId} className="label">
+                  {t('onboarding.focusLabel')}
+                </p>
+                <div
+                  role="group"
+                  aria-labelledby={focusLabelId}
+                  className="grid gap-2.5 sm:grid-cols-2"
+                >
                   {GOAL_OPTIONS.map((g) => (
                     <GoalCard
                       key={g.value}
@@ -455,8 +485,11 @@ export function OnboardingPage() {
                   </div>
                   {mode === 'pair' && (
                     <div className="mt-3 border-t border-hair pt-3 text-left">
-                      <label className="label">{t('onboarding.inviteLabel')}</label>
+                      <label htmlFor={inviteId} className="label">
+                        {t('onboarding.inviteLabel')}
+                      </label>
                       <input
+                        id={inviteId}
                         type="text"
                         value={inviteCode}
                         onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
@@ -508,8 +541,11 @@ export function OnboardingPage() {
                 }
               />
 
-              <label className="label">{t('onboarding.betLabel')}</label>
+              <label htmlFor={betId} className="label">
+                {t('onboarding.betLabel')}
+              </label>
               <input
+                id={betId}
                 type="text"
                 value={bet}
                 onChange={(e) => setBet(e.target.value)}

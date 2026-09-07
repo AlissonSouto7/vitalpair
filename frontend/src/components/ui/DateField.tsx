@@ -20,7 +20,25 @@ const MONTHS = [
  * sem o calendário nativo do navegador e sem deixar escolher datas no futuro.
  * value/onChange usam ISO 'yyyy-mm-dd' (ou '' enquanto estiver incompleto).
  */
-export function DateField({ value, onChange }: { value: string; onChange: (iso: string) => void }) {
+/**
+ * A date as three dropdowns.
+ *
+ * Three controls cannot share one label, so the group is a labelled region instead: a
+ * screen reader announces "Data de nascimento, grupo" and then each dropdown by its own
+ * placeholder. Pointing a single label at one of the three would name the day chooser and
+ * leave the other two anonymous.
+ */
+export function DateField({
+  id,
+  value,
+  onChange,
+  'aria-describedby': describedBy,
+}: {
+  id?: string
+  value: string
+  onChange: (iso: string) => void
+  'aria-describedby'?: string
+}) {
   const [y = '', m = '', d = ''] = value ? value.split('-') : []
   const thisYear = new Date().getFullYear()
 
@@ -40,7 +58,12 @@ export function DateField({ value, onChange }: { value: string; onChange: (iso: 
   }
 
   return (
-    <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-2">
+    <div
+      id={id}
+      role="group"
+      aria-describedby={describedBy}
+      className="grid grid-cols-[1fr_1.4fr_1fr] gap-2"
+    >
       <Select value={d} onChange={(nd) => emit(nd, m, y)} options={dayOpts} placeholder="Dia" />
       <Select value={m} onChange={(nm) => emit(d, nm, y)} options={monthOpts} placeholder="Mês" />
       <Select value={y} onChange={(ny) => emit(d, m, ny)} options={yearOpts} placeholder="Ano" />

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
@@ -92,6 +92,9 @@ function PainelPeso({
   onLogged: () => Promise<void>
 }) {
   const { t } = useTranslation()
+  // Generated rather than hardcoded: the panel can appear more than once on a page, and a
+  // duplicated id makes the label point at the wrong field.
+  const weightFieldId = useId()
   const [valor, setValor] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -140,9 +143,12 @@ function PainelPeso({
       {/* registrar peso de hoje */}
       <form onSubmit={registrar} className="card flex flex-wrap items-end gap-3">
         <div className="flex-1">
-          <label className="label">{t('progress.logTodayLabel')}</label>
+          <label htmlFor={weightFieldId} className="label">
+            {t('progress.logTodayLabel')}
+          </label>
           <div className="flex items-center gap-2">
             <input
+              id={weightFieldId}
               type="number"
               min={0}
               step="0.1"

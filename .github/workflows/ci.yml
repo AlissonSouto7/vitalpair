@@ -62,9 +62,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      # Fails on any error. Ten warnings remain, all the useEffect-fetching pattern that
-      # phase 9 replaces wholesale; they are downgraded explicitly in eslint.config.js
-      # with the reason written next to them, so they stay visible in this output.
+      # Fails on any error. Nine warnings remain, all the useEffect-fetching pattern in the
+      # screens that have not moved to TanStack Query yet; they are downgraded explicitly in
+      # eslint.config.js with the reason written next to them, so they stay in this output.
       - name: Lint
         run: npm run lint
 
@@ -73,3 +73,96 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  e2e:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # These drive the real application, so they need the API, the database and Redis. The
+    # backend runs from the packaged jar rather than from source: that is the artefact a
+    # deploy would ship, and building it here also proves it starts.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: vitalpair
+          POSTGRES_USER: vitalpair
+          POSTGRES_PASSWORD: vitalpair
+        options: >-
+          --health-cmd "pg_isready -U vitalpair -d vitalpair"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+        ports: ['5432:5432']
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # The tests already ran in the backend job; this only needs the jar.
+      - name: Package the backend
+        run: ./mvnw -B -ntp -DskipTests -Dspotless.check.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true package
+
+      - name: Start the backend
+        env:
+          SPRING_PROFILES_ACTIVE: dev
+          DATABASE_URL: jdbc:postgresql://localhost:5432/vitalpair
+          DATABASE_USER: vitalpair
+          DATABASE_PASSWORD: vitalpair
+          REDIS_HOST: localhost
+          REDIS_PORT: '6379'
+          JWT_SECRET: ci-secret-0123456789-0123456789-0123456789
+          # The browser tests run against the preview server on 4173.
+          CORS_ALLOWED_ORIGINS: http://localhost:4173
+          MAIL_ENABLED: 'false'
+        run: |
+          nohup java -jar target/vitalpair-*.jar > backend.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:9090/actuator/health > /dev/null; then
+              echo "backend up"; exit 0
+            fi
+            sleep 2
+          done
+          echo "backend did not start"; tail -50 backend.log; exit 1
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browser
+        working-directory: frontend
+        run: npx playwright install chromium --with-deps
+
+      - name: Build the frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Run browser tests
+        working-directory: frontend
+        run: npm run e2e
+
+      # The report names which step failed and carries a video and a trace of it, which is
+      # the difference between "the browser test failed" and knowing why.
+      - name: Upload the report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
