@@ -40,6 +40,18 @@ public interface RefreshTokenStorePort {
      */
     void revokeFamily(UUID familyId);
 
+    /**
+     * Revokes every session the person has, on every device.
+     *
+     * <p>A family can otherwise only be reached by presenting a token that belongs to it,
+     * which covers logout and nothing else. Anything done <em>to</em> an account rather than
+     * by it, closing it, resetting the password, cutting off a login known to be
+     * compromised, needs to end sessions whose tokens nobody here is holding.
+     *
+     * <p>Safe to call for someone with no sessions, and safe to call twice.
+     */
+    void revokeAllForUser(UUID userId);
+
     /** Owner and family of a stored token. */
     record StoredRefreshToken(UUID userId, UUID familyId) {}
 }

@@ -6,7 +6,7 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -74,8 +74,17 @@ Redis keys, none of them in Postgres:
 | `refresh:<token>`       | user id and family id                  | 30 days    |
 | `refresh:spent:<token>` | family id of a token already exchanged | 30 days    |
 | `refresh:family:<id>`   | the set of tokens in one login's chain | 30 days    |
+| `refresh:user:<userId>` | the set of that person's family ids    | 30 days    |
 | `pwdreset:<token>`      | user id                                | 30 minutes |
 | `emailverify:<token>`   | user id                                | 24 hours   |
+
+`refresh:user:<userId>` is the reverse index. Without it a family could only be
+reached by presenting a token belonging to it, which covers logout and nothing
+else: anything done **to** an account rather than by it had no way to enumerate
+that person's sessions. Rotation re-adds the same family, which a set makes a
+no-op, so it holds one entry per login rather than one per token, and
+`revokeFamily` removes its own entry so repeated logins do not accumulate dead
+families.
 
 ## Business rules
 
@@ -94,19 +103,21 @@ Redis keys, none of them in Postgres:
 | R-11 | A Google sign-in for an existing address reuses that user, and does not create a second tenant                                                      | Otherwise the same person ends up with two pairs and their data split between them                                                                    |
 | R-12 | Auth limits count per IP, not per account                                                                                                           | An attacker spreads guesses across accounts, so a per-account limit never fires while one IP works through a password list                            |
 | R-13 | The invite code alphabet excludes `I`, `O`, `0` and `1`                                                                                             | The code is read aloud and typed by the partner                                                                                                       |
+| R-14 | Resetting the password ends every session that existed before it                                                                                    | The usual reason to reset is that somebody else knows the password. Changing the hash alone left an intruder renewing for the full 30 days. See A-10  |
 
 ## Security findings
 
 ### Fixed
 
-| ID  | Severity | File                               | What happened                                                                                                       | Measured impact                                                                                                               | Fix                                                                                                                                                                                                      |
-| --- | -------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A-1 | High     | `MailSenderAdapter.java:62`        | With `MAIL_ENABLED=false` the whole reset and verification link, token included, was written to the application log | Anyone with log access could take over any account that had requested a reset. Every development and staging run was affected | The adapter never logs the link. `MailSenderAdapterTest` asserts on captured output that neither token nor full address appears                                                                          |
-| A-2 | High     | `application-dev.yaml:15`          | A JWT signing secret was committed as a default                                                                     | Anyone with the repository could forge a token for any user on any deployment that had not overridden it                      | Default removed; `JwtProperties` is `@Validated` with `@NotBlank @Size(min=32)`, so an instance without a real secret refuses to start. `DevJwtSecretGeneratorTest` covers the dev-only generated secret |
-| A-3 | High     | `AuthController` / `TokenResponse` | The refresh token was returned in the response body and stored in `localStorage`                                    | An XSS anywhere in the app yielded a 30-day self-renewing credential                                                          | Moved to the HttpOnly cookie described in R-2. `AuthFlowIT.registrationSetsTheRefreshCookieAndKeepsTheTokenOutOfTheBody` asserts the body no longer carries it                                           |
-| A-4 | High     | `RedisRefreshTokenStore`           | Refresh tokens were neither single-use nor grouped, so a stolen one stayed valid until expiry                       | 30 days of undetected access per leak                                                                                         | Families with reuse detection (R-3, R-4), covered by a unit test and an integration test                                                                                                                 |
-| A-5 | Medium   | none (missing control)             | No rate limiting on any auth endpoint                                                                               | A password list could be attempted at network speed                                                                           | `RateLimitFilter` with the policies in the endpoint table, backed by Redis so the counter survives a restart and is shared across instances                                                              |
-| A-6 | Low      | `SecurityConfig.java:71`           | The 401 entry point wrote a bare string, not the API envelope                                                       | A client parsing the envelope broke on every expired session                                                                  | `JsonAuthenticationEntryPoint` returns `ApiResponse` with `requestId`                                                                                                                                    |
+| ID   | Severity | File                                 | What happened                                                                                                       | Measured impact                                                                                                                                                                                                                                                                                                      | Fix                                                                                                                                                                                                      |
+| ---- | -------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A-1  | High     | `MailSenderAdapter.java:62`          | With `MAIL_ENABLED=false` the whole reset and verification link, token included, was written to the application log | Anyone with log access could take over any account that had requested a reset. Every development and staging run was affected                                                                                                                                                                                        | The adapter never logs the link. `MailSenderAdapterTest` asserts on captured output that neither token nor full address appears                                                                          |
+| A-2  | High     | `application-dev.yaml:15`            | A JWT signing secret was committed as a default                                                                     | Anyone with the repository could forge a token for any user on any deployment that had not overridden it                                                                                                                                                                                                             | Default removed; `JwtProperties` is `@Validated` with `@NotBlank @Size(min=32)`, so an instance without a real secret refuses to start. `DevJwtSecretGeneratorTest` covers the dev-only generated secret |
+| A-3  | High     | `AuthController` / `TokenResponse`   | The refresh token was returned in the response body and stored in `localStorage`                                    | An XSS anywhere in the app yielded a 30-day self-renewing credential                                                                                                                                                                                                                                                 | Moved to the HttpOnly cookie described in R-2. `AuthFlowIT.registrationSetsTheRefreshCookieAndKeepsTheTokenOutOfTheBody` asserts the body no longer carries it                                           |
+| A-4  | High     | `RedisRefreshTokenStore`             | Refresh tokens were neither single-use nor grouped, so a stolen one stayed valid until expiry                       | 30 days of undetected access per leak                                                                                                                                                                                                                                                                                | Families with reuse detection (R-3, R-4), covered by a unit test and an integration test                                                                                                                 |
+| A-5  | Medium   | none (missing control)               | No rate limiting on any auth endpoint                                                                               | A password list could be attempted at network speed                                                                                                                                                                                                                                                                  | `RateLimitFilter` with the policies in the endpoint table, backed by Redis so the counter survives a restart and is shared across instances                                                              |
+| A-6  | Low      | `SecurityConfig.java:71`             | The 401 entry point wrote a bare string, not the API envelope                                                       | A client parsing the envelope broke on every expired session                                                                                                                                                                                                                                                         | `JsonAuthenticationEntryPoint` returns `ApiResponse` with `requestId`                                                                                                                                    |
+| A-10 | High     | `PasswordResetService#resetPassword` | Resetting the password changed the hash and left every existing refresh token working                               | Someone resetting because their account was taken over stayed compromised: the intruder's token kept renewing for the full 30 days, and the owner had no way to end it. Measured by `SessionRevocationIT.resettingThePasswordSignsOutEveryExistingSession`, which returned 200 on a session created before the reset | The reset now calls `revokeAllForUser`. Needed the reverse index below, which is why the two shipped together                                                                                            |
 
 ### Open
 
@@ -135,6 +146,7 @@ Redis keys, none of them in Postgres:
 | `AuthFlowIT` (12 cases)           | integration | The whole flow across real Postgres, Redis and SMTP: cookie set and body clean, verification link delivered by Mailpit and confirming the account, rotation, replay, logout, 401 shapes, duplicate e-mail, 400 field list          |
 | `MailSenderAdapterTest` (4 cases) | unit        | A-1. Asserts on captured log output that no token and no full address is written                                                                                                                                                   |
 | `RateLimitIT` (4 cases)           | integration | A-5. The eleventh login is throttled even with the right password; per-user policies do not collapse into per-IP; unlimited routes carry no limit headers                                                                          |
+| `SessionRevocationIT` (5 cases)   | integration | A-10 and R-14. Revoking ends every device at once, leaves other people signed in, is harmless with no sessions and after a rotation, and the password reset ends sessions that existed before it                                   |
 | `RateLimiterTest`                 | unit        | Window arithmetic and the remaining count                                                                                                                                                                                          |
 | `DevJwtSecretGeneratorTest`       | unit        | A-2. The development secret is generated, not committed                                                                                                                                                                            |
 | `TenantIsolationIT`               | integration | Registration produces a tenant that no other pair can read                                                                                                                                                                         |
@@ -142,9 +154,17 @@ Redis keys, none of them in Postgres:
 
 ```bash
 ./mvnw test -Dtest='AuthServiceTest,MailSenderAdapterTest'
-./mvnw verify -Dit.test='AuthFlowIT,RateLimitIT'
+./mvnw verify -Dit.test='AuthFlowIT,RateLimitIT,SessionRevocationIT'
 cd frontend && npx playwright test auth
 ```
+
+**Proved non-vacuous** (2026-09-08). Removing the write to `refresh:user:<id>`
+fails three of the five. The first version of
+`revokingAUsersSessionsEndsEveryDeviceAtOnce` was **not** among them: it refreshed
+with the same token twice, and the second call is a replay, so the reuse
+detection revoked that family on its own and the test passed whether or not the
+index existed. It now uses each token once and keeps the rotated one, the way a
+real client does.
 
 ### What is not covered
 
@@ -163,7 +183,15 @@ cd frontend && npx playwright test auth
 - **Password strength.** `RegisterRequest` enforces 8 to 100 characters and nothing else.
   There is no check against common passwords or breach lists.
 - **Session count per user.** Nothing caps how many families a single account can hold, so
-  a script with valid credentials can accumulate refresh tokens.
+  a script with valid credentials can accumulate refresh tokens. The reverse index now
+  makes them all revocable at once, which bounds the damage without bounding the count.
+- **Access tokens survive revocation.** They are stateless JWTs with no denylist, so a
+  revoked session keeps working for up to fifteen minutes on endpoints that only check the
+  signature. `refresh` fails closed, so the session cannot outlive that window. Shortening
+  it or adding a denylist is a trade against a Redis read on every request.
+- **No screen lists a person's sessions.** `revokeAllForUser` is called by the password
+  reset and by nothing a user can press. "Sign out everywhere" is a button that does not
+  exist yet.
 
 ## How to verify in production
 
@@ -199,8 +227,9 @@ grep 'Refresh token replay detected' /var/log/vitalpair/app.log
 
 ## History
 
-| Date       | Change                                                           | Pull request             |
-| ---------- | ---------------------------------------------------------------- | ------------------------ |
-| 2026-09-05 | Refresh cookie, token families, reuse detection, roles (phase 6) | `feat/auth-hardening`    |
-| 2026-09-05 | Token logging, dev secret, rate limiting (phase 5)               | `fix/security-hardening` |
-| 2026-09-06 | Document created (phase 13)                                      | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                       | Pull request                |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| 2026-09-05 | Refresh cookie, token families, reuse detection, roles (phase 6)                                                                                                                                                                                                                                                                             | `feat/auth-hardening`       |
+| 2026-09-05 | Token logging, dev secret, rate limiting (phase 5)                                                                                                                                                                                                                                                                                           | `fix/security-hardening`    |
+| 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                                                                                                                  | `docs/professional-docs`    |
+| 2026-09-08 | A-10 fixed: resetting the password now ends every session that existed before it. Needed a reverse index, `refresh:user:<userId>`, because a family could previously only be reached by presenting one of its tokens. `revokeAllForUser` on the port; `revokeFamily` cleans its own entry so repeated logins do not accumulate dead families | `feat/revoke-user-sessions` |
