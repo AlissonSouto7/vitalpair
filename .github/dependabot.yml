@@ -39,6 +39,19 @@ updates:
       # it broke the whole backend group and took six healthy bumps down with it.
       # Closed as #26. The version is pinned in pom.xml and moves when Boot does.
       - dependency-name: org.springframework.cloud:*
+      # resilience4j past 2.3.0 cannot work here, and the reason is not obvious from the
+      # version number. Spring Boot manages resilience4j-annotations and pins it at 2.2.0,
+      # while this project sets the version of resilience4j-spring6 itself. In 2.4.0 the
+      # aspect started calling CircuitBreaker.configuration(), a method the 2.2.0 annotation
+      # does not have, so every guarded call dies with:
+      #
+      #   NoSuchMethodError: 'java.lang.String
+      #   io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker.configuration()'
+      #
+      # Measured by bumping it alone, with the other six members of its group left at their
+      # old versions: CircuitBreakerIT failed 3 of 3, and reverting it alone made all 149
+      # integration tests pass. It moves when Spring Boot moves the annotation with it.
+      - dependency-name: io.github.resilience4j:*
 
   - package-ecosystem: npm
     directory: /frontend
