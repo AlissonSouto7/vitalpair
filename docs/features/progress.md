@@ -6,7 +6,7 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -125,16 +125,17 @@ SELECT count(*) FROM (SELECT user_id FROM weight_logs GROUP BY 1 HAVING count(*)
 
 ## Known debt
 
-| Item                                     | Impact                                                    | When it is meant to be addressed                           |
-| ---------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------- |
-| No tests at all                          | Every rule above can change silently                      | The chart arithmetic is cheap to test and worth doing next |
-| P-1, the divisor                         | The average understates intake for anyone who skips a day | Product decision                                           |
-| P-2, an unlogged day reads as success    | Flattering and wrong                                      | Needs a response field                                     |
-| P-4, unbounded and uncorrectable weights | A typo is permanent                                       | Bound it now, correction later                             |
-| P-5, Portuguese labels from the server   | Untranslatable                                            | With the error-code work                                   |
+| Item                                     | Impact                                                    | When it is meant to be addressed                                                                                                                                                                                                           |
+| ---------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| No tests at all                          | Every rule above can change silently                      | The chart arithmetic is cheap to test and worth doing next                                                                                                                                                                                 |
+| P-1, the divisor                         | The average understates intake for anyone who skips a day | Product decision                                                                                                                                                                                                                           |
+| P-2, an unlogged day reads as success    | Flattering and wrong                                      | Needs a response field                                                                                                                                                                                                                     |
+| P-4, unbounded and uncorrectable weights | A typo is permanent                                       | Half done: the browser refuses anything outside 20 to 500 kg since phase 10a. `RecordWeightRequest` still accepts up to 999.99, so a direct API call can log 3 kg; tighten it to the profile's bound with a test. Correction still missing |
+| P-5, Portuguese labels from the server   | Untranslatable                                            | With the error-code work                                                                                                                                                                                                                   |
 
 ## History
 
-| Date       | Change                      | Pull request             |
-| ---------- | --------------------------- | ------------------------ |
-| 2026-09-06 | Document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                                                                                                                     | Pull request                        |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                                                                                | `docs/professional-docs`            |
+| 2026-09-08 | Phase 10a: the weight form became one component, `WeightForm`, shared with the profile screen. It refuses an empty weight, zero and anything outside 20 to 500 kg with a message, and shows the server's message when a save fails (the profile copy had no `catch`). First 5 component tests. P-4 updated | `refactor/frontend-forms-and-tests` |

@@ -6,7 +6,7 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -168,6 +168,7 @@ SELECT count(*) FROM pairs WHERE status = 'ACTIVE' AND (user1_id IS NULL OR user
 
 ## History
 
-| Date       | Change                                                                        | Pull request             |
-| ---------- | ----------------------------------------------------------------------------- | ------------------------ |
-| 2026-09-06 | P-1 fixed: tenant data follows the guest on join. Document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                         | Pull request                        |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| 2026-09-06 | P-1 fixed: tenant data follows the guest on join. Document created (phase 13)                                                                                                                                                                                                                                                                                  | `docs/professional-docs`            |
+| 2026-09-08 | Phase 10a: join form on react-hook-form + zod, mirroring the 8-character alphabet of `AuthService.generateInviteCode`; a blank or malformed code no longer reaches the server, and the generic "Erro de validação" is filtered through `getApiErrorMessage`. The placeholder `VITA-0000` (a shape no code ever has) became `ABCD2345`. First 5 component tests | `refactor/frontend-forms-and-tests` |

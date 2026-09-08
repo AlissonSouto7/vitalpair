@@ -1,9 +1,11 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { getProgress, recordWeight } from '@/api/progress'
+import { getProgress } from '@/api/progress'
 import type { CalorieDay, MacroAverage, WeightPoint } from '@/types/progress'
+
+import { WeightForm } from './WeightForm'
 
 /**
  * Progresso — peso, calorias e macros ao longo do tempo (dados reais).
@@ -92,29 +94,6 @@ function PainelPeso({
   onLogged: () => Promise<void>
 }) {
   const { t } = useTranslation()
-  // Generated rather than hardcoded: the panel can appear more than once on a page, and a
-  // duplicated id makes the label point at the wrong field.
-  const weightFieldId = useId()
-  const [valor, setValor] = useState('')
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState<string | null>(null)
-
-  async function registrar(e: FormEvent) {
-    e.preventDefault()
-    const kg = Number(valor.replace(',', '.'))
-    if (!kg || kg <= 0) return
-    setSalvando(true)
-    setErro(null)
-    try {
-      await recordWeight(kg)
-      setValor('')
-      await onLogged()
-    } catch {
-      setErro(t('progress.weightSaveError'))
-    } finally {
-      setSalvando(false)
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -140,40 +119,13 @@ function PainelPeso({
         </section>
       )}
 
-      {/* registrar peso de hoje */}
-      <form onSubmit={registrar} className="card flex flex-wrap items-end gap-3">
-        <div className="flex-1">
-          <label htmlFor={weightFieldId} className="label">
-            {t('progress.logTodayLabel')}
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              id={weightFieldId}
-              type="number"
-              min={0}
-              step="0.1"
-              inputMode="decimal"
-              placeholder={t('progress.weightPlaceholder')}
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              className="input"
-            />
-            <span className="text-sm font-extrabold text-muted">{t('progress.weightUnit')}</span>
-          </div>
-        </div>
-        <button
-          type="submit"
-          disabled={salvando || !valor}
-          className="btn-primary disabled:opacity-60"
-        >
-          {salvando ? t('common.saving') : t('progress.logButton')}
-        </button>
-      </form>
-      {erro && (
-        <p className="rounded-xl bg-danger-soft px-4 py-2.5 text-sm font-semibold text-danger">
-          {erro}
-        </p>
-      )}
+      <WeightForm
+        label={t('progress.logTodayLabel')}
+        submitLabel={t('progress.logButton')}
+        placeholder={t('progress.weightPlaceholder')}
+        onLogged={onLogged}
+        className="card"
+      />
     </div>
   )
 }

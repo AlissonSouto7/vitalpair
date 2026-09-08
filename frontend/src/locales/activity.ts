@@ -52,6 +52,9 @@ export const activity = {
     connectedAria: 'Conectado',
     soon: 'Em breve',
     connect: 'Conectar',
+    stepsInvalid: 'Quantos passos? Precisa ser mais que zero.',
+    noMeasure: 'Preenche pelo menos um: distância, duração ou calorias.',
+    negativeMeasure: 'Esse valor não pode ser negativo.',
   },
   en: {
     title: 'Physical activity',
@@ -106,6 +109,9 @@ export const activity = {
     connectedAria: 'Connected',
     soon: 'Soon',
     connect: 'Connect',
+    stepsInvalid: 'How many steps? It has to be more than zero.',
+    noMeasure: 'Fill in at least one: distance, duration or calories.',
+    negativeMeasure: 'This value cannot be negative.',
   },
   es: {
     title: 'Actividad física',
@@ -160,6 +166,9 @@ export const activity = {
     connectedAria: 'Conectado',
     soon: 'Pronto',
     connect: 'Conectar',
+    stepsInvalid: '¿Cuántos pasos? Tiene que ser más que cero.',
+    noMeasure: 'Rellena al menos uno: distancia, duración o calorías.',
+    negativeMeasure: 'Este valor no puede ser negativo.',
   },
   fr: {
     title: 'Activité physique',
@@ -214,5 +223,8 @@ export const activity = {
     connectedAria: 'Connecté',
     soon: 'Bientôt',
     connect: 'Connecter',
+    stepsInvalid: 'Combien de pas ? Il en faut plus que zéro.',
+    noMeasure: 'Renseigne au moins un : distance, durée ou calories.',
+    negativeMeasure: 'Cette valeur ne peut pas être négative.',
   },
 } as const

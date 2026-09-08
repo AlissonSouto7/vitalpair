@@ -1,24 +1,58 @@
-import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { AxiosError } from 'axios'
-import { getProfile, getTdee, updateProfile } from '../../api/profile'
-import { getProgress, recordWeight } from '../../api/progress'
-import { getSeason } from '../../api/season'
-import { Select } from '../../components/ui/Select'
-import { DateField } from '../../components/ui/DateField'
-import { Broto } from '../../components/brand/Broto'
-import type { ActivityLevel, Goal, UserProfile, Sex, Tdee } from '../../types/profile'
-import type { WeightPoint } from '../../types/progress'
+import { z } from 'zod'
+
+import { getProfile, getTdee, updateProfile } from '@/api/profile'
+import { getProgress } from '@/api/progress'
+import { getSeason } from '@/api/season'
+import { Broto } from '@/components/brand/Broto'
+import { DateField } from '@/components/ui/DateField'
+import { Select } from '@/components/ui/Select'
+import { WeightForm } from '@/features/progress/WeightForm'
+import { getApiErrorMessage } from '@/shared/api/errors'
+import { Field } from '@/shared/ui/form/Field'
+import { FormError } from '@/shared/ui/form/FormError'
+import { NumberField } from '@/shared/ui/form/NumberField'
+import { TextField } from '@/shared/ui/form/TextField'
+import type { ActivityLevel, Goal, UserProfile, Sex, Tdee } from '@/types/profile'
+import type { WeightPoint } from '@/types/progress'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
-const SEX_VALUES: Sex[] = ['MALE', 'FEMALE', 'OTHER']
+const SEX_VALUES = ['MALE', 'FEMALE', 'OTHER'] as const satisfies readonly Sex[]
 const GOAL_VALUES: Goal[] = ['LOSE_WEIGHT', 'GAIN_MUSCLE', 'MAINTAIN', 'IMPROVE_FITNESS']
-const LEVEL_VALUES: ActivityLevel[] = ['SEDENTARY', 'LIGHT', 'MODERATE', 'ACTIVE', 'VERY_ACTIVE']
+const LEVEL_VALUES = [
+  'SEDENTARY',
+  'LIGHT',
+  'MODERATE',
+  'ACTIVE',
+  'VERY_ACTIVE',
+] as const satisfies readonly ActivityLevel[]
 
 const goalLabel = (t: TFn, g: Goal) => t(`profile.goalLabel.${g}`)
 const sexLabel = (t: TFn, s: Sex) => t(`profile.sexLabel.${s}`)
 const activityLabel = (t: TFn, l: ActivityLevel) => t(`profile.levelLabel.${l}`)
+
+/**
+ * Mirrors the backend's UpdateProfileRequest: the same bounds it enforces, so a person
+ * hears about a slip here rather than after a round trip. The date field emits an empty
+ * string until all three parts are chosen; the server's @Past is restated as "before
+ * today".
+ */
+const editSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  birthDate: z
+    .string()
+    .refine((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < new Date().toISOString().slice(0, 10)),
+  sex: z.enum(SEX_VALUES),
+  heightCm: z.number().min(50).max(300),
+  weightKg: z.number().min(20).max(500),
+  activityLevel: z.enum(LEVEL_VALUES),
+})
+
+type EditValues = z.infer<typeof editSchema>
 
 // Curva de nível do Broto: pontos acumulados pra alcançar cada nível (1..8), depois +1500 por nível.
 function levelInfo(points: number) {
@@ -239,7 +273,6 @@ export function ProfilePage() {
               setEditing(false)
               load()
             }}
-            onError={setError}
             t={t}
           />
         )}
@@ -267,25 +300,8 @@ function WeightCard({
   onLogged: () => Promise<void>
   t: TFn
 }) {
-  const weightId = useId()
-  const [valor, setValor] = useState('')
-  const [salvando, setSalvando] = useState(false)
   const delta = weights.length >= 2 ? weights[weights.length - 1].weightKg - weights[0].weightKg : 0
   const perdeu = delta < 0
-
-  async function registrar(e: FormEvent) {
-    e.preventDefault()
-    const kg = Number(valor.replace(',', '.'))
-    if (!kg || kg <= 0) return
-    setSalvando(true)
-    try {
-      await recordWeight(kg)
-      setValor('')
-      await onLogged()
-    } finally {
-      setSalvando(false)
-    }
-  }
 
   return (
     <section className="card">
@@ -310,31 +326,13 @@ function WeightCard({
         {weights.length >= 2 && <Sparkline weights={weights} />}
       </div>
 
-      <form onSubmit={registrar} className="mt-4 flex items-end gap-2 border-t border-hair pt-4">
-        <div className="flex-1">
-          <label htmlFor={weightId} className="label">
-            {t('profile.updateWeight')}
-          </label>
-          <input
-            id={weightId}
-            type="number"
-            min={0}
-            step="0.1"
-            inputMode="decimal"
-            placeholder={t('profile.weightPlaceholder')}
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            className="input"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={salvando || !valor}
-          className="btn-primary disabled:opacity-60"
-        >
-          {salvando ? '...' : t('common.save')}
-        </button>
-      </form>
+      <WeightForm
+        label={t('profile.updateWeight')}
+        submitLabel={t('common.save')}
+        placeholder={t('profile.weightPlaceholder')}
+        onLogged={onLogged}
+        className="mt-4 border-t border-hair pt-4"
+      />
     </section>
   )
 }
@@ -368,135 +366,136 @@ function Sparkline({ weights }: { weights: WeightPoint[] }) {
 
 /* ---------- formulário de edição (recolhido) ---------- */
 
-function EditForm({
-  profile,
-  onSaved,
-  onError,
-  t,
-}: {
-  profile: UserProfile
-  onSaved: () => void
-  onError: (m: string) => void
-  t: TFn
-}) {
-  const [name, setName] = useState(profile.name ?? '')
-  const [birthDate, setBirthDate] = useState(profile.birthDate ?? '')
-  const [sex, setSex] = useState<Sex | ''>(profile.sex ?? '')
-  const [heightCm, setHeightCm] = useState(profile.heightCm != null ? String(profile.heightCm) : '')
-  const [weightKg, setWeightKg] = useState(profile.weightKg != null ? String(profile.weightKg) : '')
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel | ''>(
-    profile.activityLevel ?? '',
-  )
-  const [saving, setSaving] = useState(false)
+function EditForm({ profile, onSaved, t }: { profile: UserProfile; onSaved: () => void; t: TFn }) {
+  const [error, setError] = useState<string | null>(null)
 
   const sexOptions = SEX_VALUES.map((v) => ({ value: v, label: sexLabel(t, v) }))
   const levelOptions = LEVEL_VALUES.map((v) => ({ value: v, label: activityLabel(t, v) }))
 
-  async function submit(e: FormEvent) {
-    e.preventDefault()
-    if (!sex || !activityLevel) {
-      onError(t('profile.requiredSelects'))
-      return
-    }
-    setSaving(true)
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EditValues>({
+    resolver: zodResolver(editSchema),
+    mode: 'onTouched',
+    defaultValues: {
+      name: profile.name,
+      birthDate: profile.birthDate ?? '',
+      sex: profile.sex ?? undefined,
+      heightCm: profile.heightCm ?? undefined,
+      weightKg: profile.weightKg ?? undefined,
+      activityLevel: profile.activityLevel ?? undefined,
+    },
+  })
+
+  async function onSubmit(values: EditValues) {
+    setError(null)
     try {
-      await updateProfile({
-        name,
-        birthDate,
-        sex,
-        heightCm: Number(heightCm),
-        weightKg: Number(weightKg),
-        goal: profile.goal as Goal,
-        activityLevel,
-      })
+      await updateProfile({ ...values, goal: profile.goal as Goal })
       onSaved()
     } catch (err) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : null
-      onError(message ?? t('profile.saveError'))
-    } finally {
-      setSaving(false)
+      setError(getApiErrorMessage(err, t('profile.saveError')))
     }
   }
 
   return (
-    <form onSubmit={submit} className="mt-4 space-y-4 border-t border-hair pt-4">
+    <form
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+      noValidate
+      className="mt-4 space-y-4 border-t border-hair pt-4"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t('profile.name')}>
+        <TextField
+          label={t('profile.name')}
+          type="text"
+          autoComplete="name"
+          error={errors.name && t('profile.nameRequired')}
+          {...register('name')}
+        />
+        <Field
+          label={t('profile.birthDate')}
+          error={errors.birthDate && t('profile.birthDateInvalid')}
+        >
           {(field) => (
-            <input
-              {...field}
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="input"
+            <Controller
+              name="birthDate"
+              control={control}
+              render={({ field: f }) => (
+                // aria-invalid is not allowed on a group, so the date field gets the id and
+                // the description only; the message linked through the description says it.
+                <DateField
+                  id={field.id}
+                  aria-describedby={field['aria-describedby']}
+                  value={f.value}
+                  onChange={f.onChange}
+                />
+              )}
             />
           )}
-        </Field>
-        <Field label={t('profile.birthDate')}>
-          {(field) => <DateField {...field} value={birthDate} onChange={setBirthDate} />}
         </Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <Field label={t('profile.height')}>
+        <NumberField
+          label={t('profile.height')}
+          unit="cm"
+          min={50}
+          max={300}
+          step="any"
+          error={errors.heightCm && t('profile.heightInvalid')}
+          {...register('heightCm', { valueAsNumber: true })}
+        />
+        <NumberField
+          label={t('profile.weight')}
+          unit="kg"
+          min={20}
+          max={500}
+          step="0.1"
+          error={errors.weightKg && t('profile.weightInvalid')}
+          {...register('weightKg', { valueAsNumber: true })}
+        />
+        <Field label={t('profile.sex')} error={errors.sex && t('profile.sexRequired')}>
           {(field) => (
-            <Unit unit="cm">
-              <input
-                {...field}
-                type="number"
-                required
-                min={50}
-                max={300}
-                step="any"
-                value={heightCm}
-                onChange={(e) => setHeightCm(e.target.value)}
-                className="input pr-10"
-              />
-            </Unit>
-          )}
-        </Field>
-        <Field label={t('profile.weight')}>
-          {(field) => (
-            <Unit unit="kg">
-              <input
-                {...field}
-                type="number"
-                required
-                min={20}
-                max={500}
-                step="0.1"
-                value={weightKg}
-                onChange={(e) => setWeightKg(e.target.value)}
-                className="input pr-10"
-              />
-            </Unit>
-          )}
-        </Field>
-        <Field label={t('profile.sex')}>
-          {(field) => (
-            <Select
-              {...field}
-              value={sex}
-              onChange={setSex}
-              options={sexOptions}
-              placeholder={t('profile.chooseHint')}
+            <Controller
+              name="sex"
+              control={control}
+              render={({ field: f }) => (
+                <Select
+                  {...field}
+                  value={f.value ?? ''}
+                  onChange={f.onChange}
+                  options={sexOptions}
+                  placeholder={t('profile.chooseHint')}
+                />
+              )}
             />
           )}
         </Field>
       </div>
-      <Field label={t('profile.activityLevel')}>
+      <Field
+        label={t('profile.activityLevel')}
+        error={errors.activityLevel && t('profile.activityLevelRequired')}
+      >
         {(field) => (
-          <Select
-            {...field}
-            value={activityLevel}
-            onChange={setActivityLevel}
-            options={levelOptions}
-            placeholder={t('profile.chooseHint')}
+          <Controller
+            name="activityLevel"
+            control={control}
+            render={({ field: f }) => (
+              <Select
+                {...field}
+                value={f.value ?? ''}
+                onChange={f.onChange}
+                options={levelOptions}
+                placeholder={t('profile.chooseHint')}
+              />
+            )}
           />
         )}
       </Field>
-      <button type="submit" disabled={saving} className="btn-primary w-full">
-        {saving ? t('profile.saving') : t('profile.saveData')}
+      <FormError message={error} />
+      <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+        {isSubmitting ? t('profile.saving') : t('profile.saveData')}
       </button>
     </form>
   )
@@ -561,41 +560,6 @@ function MacroCell({
     <div className="bg-surface px-3 py-4 text-center">
       <div className={`font-display text-2xl font-semibold ${color}`}>{Math.round(grams)}g</div>
       <div className="mt-1 text-[11px] font-bold uppercase tracking-wide text-muted">{label}</div>
-    </div>
-  )
-}
-
-/**
- * Wraps a control with a label that is actually attached to it.
- *
- * The children are given the id to put on the control: a label with nothing pointing at it
- * is announced as loose text and does not focus the field when clicked.
- */
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: (props: { id: string }) => ReactNode
-}) {
-  const id = useId()
-  return (
-    <div>
-      <label htmlFor={id} className="label">
-        {label}
-      </label>
-      {children({ id })}
-    </div>
-  )
-}
-
-function Unit({ unit, children }: { unit: string; children: ReactNode }) {
-  return (
-    <div className="relative">
-      {children}
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-faint">
-        {unit}
-      </span>
     </div>
   )
 }
