@@ -64,6 +64,11 @@ account reaches across `user`, `pair` and `auth`, and it is the implementation
 the privacy policy points at, so it is documented where it can be read whole
 rather than split three ways.
 
+[legal-pages.md](legal-pages.md) has no package either. The privacy policy, the
+terms and the contact page are content, not endpoints, but the policy is a legal
+declaration: every claim in it is a promise, and the document records which ones
+are true and where each was checked.
+
 <!--
 Counts measured with:
   for d in src/main/java/com/aps/vitalpair/*/; do
