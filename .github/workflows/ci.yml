@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build the backend image
         run: docker build -t vitalpair-backend:ci .
@@ -84,7 +84,7 @@ jobs:
           # Health lives on the management port, which is deliberately not published; asking
           # from inside the container is what the image's own HEALTHCHECK does.
           for _ in $(seq 1 45); do
-            if docker exec backend-smoke wget -qO- http://localhost:9090/actuator/health/readiness 2>/dev/null | grep -q '"status":"UP"'; then
+            if docker exec backend-smoke wget -qO- http://127.0.0.1:9090/actuator/health/readiness 2>/dev/null | grep -q '"status":"UP"'; then
               echo "The backend image is ready."
               docker rm -f backend-smoke
               exit 0
@@ -106,8 +106,12 @@ jobs:
       - name: The frontend image serves the application
         run: |
           docker run -d --name frontend-smoke vitalpair-frontend:ci
+          # 127.0.0.1 rather than localhost: the entrypoint's
+          # 10-listen-on-ipv6-by-default.sh makes localhost resolve to ::1 first, and
+          # nothing answers there. The first run of this job failed for exactly that, with
+          # nginx healthy in the logs and every request refused.
           for _ in $(seq 1 20); do
-            if docker exec frontend-smoke wget -qO- http://localhost:8080/ 2>/dev/null | grep -q '<div id="root"'; then
+            if docker exec frontend-smoke wget -qO- http://127.0.0.1:8080/ 2>/dev/null | grep -q '<div id="root"'; then
               echo "The frontend image is serving the application."
               docker rm -f frontend-smoke
               exit 0
