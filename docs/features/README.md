@@ -59,6 +59,11 @@ cross-cutting documents are [testing.md](testing.md),
 [frontend-foundation.md](frontend-foundation.md) and
 [browser-tests.md](browser-tests.md).
 
+[account-closure.md](account-closure.md) has no package of its own. Closing an
+account reaches across `user`, `pair` and `auth`, and it is the implementation
+the privacy policy points at, so it is documented where it can be read whole
+rather than split three ways.
+
 <!--
 Counts measured with:
   for d in src/main/java/com/aps/vitalpair/*/; do

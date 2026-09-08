@@ -38,13 +38,14 @@ table and no port to the outside. It is a calculator that `user` calls.
 
 ### Endpoints
 
-| Method | Path                    | Action                                                |
-| ------ | ----------------------- | ----------------------------------------------------- |
-| GET    | `/api/v1/users/me`      | The caller's profile                                  |
-| PUT    | `/api/v1/users/me`      | Replace the profile and recompute the targets         |
-| GET    | `/api/v1/users/me/tdee` | BMR, TDEE, calorie target and macros, recomputed live |
+| Method | Path                    | Action                                                          |
+| ------ | ----------------------- | --------------------------------------------------------------- |
+| GET    | `/api/v1/users/me`      | The caller's profile                                            |
+| PUT    | `/api/v1/users/me`      | Replace the profile and recompute the targets                   |
+| GET    | `/api/v1/users/me/tdee` | BMR, TDEE, calorie target and macros, recomputed live           |
+| DELETE | `/api/v1/users/me`      | Close the account. See [account-closure.md](account-closure.md) |
 
-All three take the id from the authenticated principal. There is no
+All of them take the id from the authenticated principal. There is no
 `/users/{id}`, so there is no object-level authorization question to answer.
 
 ### The formulas

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 import com.aps.vitalpair.user.application.dto.UpdateProfileCommand;
+import com.aps.vitalpair.user.domain.port.in.CloseAccountUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetProfileUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetTdeeUseCase;
 import com.aps.vitalpair.user.domain.port.in.UpdateProfileUseCase;
@@ -31,14 +33,28 @@ public class UserController {
     private final GetProfileUseCase getProfileUseCase;
     private final UpdateProfileUseCase updateProfileUseCase;
     private final GetTdeeUseCase getTdeeUseCase;
+    private final CloseAccountUseCase closeAccountUseCase;
 
     public UserController(
             GetProfileUseCase getProfileUseCase,
             UpdateProfileUseCase updateProfileUseCase,
-            GetTdeeUseCase getTdeeUseCase) {
+            GetTdeeUseCase getTdeeUseCase,
+            CloseAccountUseCase closeAccountUseCase) {
         this.getProfileUseCase = getProfileUseCase;
         this.updateProfileUseCase = updateProfileUseCase;
         this.getTdeeUseCase = getTdeeUseCase;
+        this.closeAccountUseCase = closeAccountUseCase;
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "Close the account",
+            description =
+                    "Deletes what the person recorded about themselves: meals, activities, weights, plans, feed entries, notifications and preferences. What describes a competition they took part in is kept and stripped of identity, because the season history is summed live from the point ledger and removing those rows would rewrite who won a season the partner also played. The e-mail address is freed, so the person can sign up again with it. An active pair is ended first, so the partner is not left with a member who no longer exists.")
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> close(@AuthenticationPrincipal AuthenticatedUser principal) {
+        closeAccountUseCase.closeAccount(principal.userId());
+        return ResponseEntity.noContent().build();
     }
 
     @StandardApiResponses
