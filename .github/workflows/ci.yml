@@ -35,6 +35,94 @@ jobs:
       - name: Build and test
         run: ./mvnw -B -ntp verify
 
+  # Nothing built the Dockerfiles before this job existed, which meant a pull request
+  # changing a base image passed every check without anything having compiled it. Two of
+  # them did exactly that: a bump of the build JDK to 26 and of the runtime JRE to 25 both
+  # went green while CI tested on 17. A base image is the JVM the product actually runs on,
+  # so it deserves a check that is about it.
+  images:
+    name: Container images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the backend image
+        run: docker build -t vitalpair-backend:ci .
+
+      - name: Build the frontend image
+        run: docker build -t vitalpair-frontend:ci ./frontend
+
+      # Building proves the image assembles; this proves it runs. The application needs a
+      # database and a cache to start at all, because Flyway migrates before the context
+      # finishes, so both are here rather than being mocked away: an image that boots
+      # against a real Postgres is the thing worth asserting.
+      - name: Start a database and a cache
+        run: |
+          docker network create smoke
+          docker run -d --name smoke-db --network smoke \
+            -e POSTGRES_DB=vitalpair -e POSTGRES_USER=ci -e POSTGRES_PASSWORD=ci \
+            postgres:16-alpine
+          docker run -d --name smoke-redis --network smoke \
+            redis:7-alpine redis-server --requirepass ci
+          for _ in $(seq 1 30); do
+            docker exec smoke-db pg_isready -U ci -d vitalpair && break
+            sleep 2
+          done
+
+      - name: The backend image starts and answers its readiness probe
+        run: |
+          docker run -d --name backend-smoke --network smoke \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e DATABASE_URL=jdbc:postgresql://smoke-db:5432/vitalpair \
+            -e DATABASE_USER=ci -e DATABASE_PASSWORD=ci \
+            -e REDIS_HOST=smoke-redis -e REDIS_PASSWORD=ci \
+            -e JWT_SECRET=ci-only-secret-at-least-32-characters-long \
+            -e FRONTEND_URL=http://localhost:5173 \
+            -e MANAGEMENT_PORT=9090 \
+            vitalpair-backend:ci
+          # Health lives on the management port, which is deliberately not published; asking
+          # from inside the container is what the image's own HEALTHCHECK does.
+          for _ in $(seq 1 45); do
+            if docker exec backend-smoke wget -qO- http://localhost:9090/actuator/health/readiness 2>/dev/null | grep -q '"status":"UP"'; then
+              echo "The backend image is ready."
+              docker rm -f backend-smoke
+              exit 0
+            fi
+            if [ "$(docker inspect -f '{{.State.Running}}' backend-smoke)" != "true" ]; then
+              echo "The backend image exited instead of starting:"
+              docker logs backend-smoke
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "The backend image never became ready:"
+          docker logs backend-smoke
+          exit 1
+
+      # Asked from inside the container rather than through a published port: nothing here
+      # needs the host, and binding one is how this step fails on a machine that happens to
+      # have something else on that port.
+      - name: The frontend image serves the application
+        run: |
+          docker run -d --name frontend-smoke vitalpair-frontend:ci
+          for _ in $(seq 1 20); do
+            if docker exec frontend-smoke wget -qO- http://localhost:8080/ 2>/dev/null | grep -q '<div id="root"'; then
+              echo "The frontend image is serving the application."
+              docker rm -f frontend-smoke
+              exit 0
+            fi
+            if [ "$(docker inspect -f '{{.State.Running}}' frontend-smoke)" != "true" ]; then
+              echo "The frontend image exited instead of serving:"
+              docker logs frontend-smoke
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "The frontend image never answered:"
+          docker logs frontend-smoke
+          exit 1
+
   frontend:
     name: Frontend build and tests
     runs-on: ubuntu-latest
