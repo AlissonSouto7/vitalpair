@@ -1,14 +1,11 @@
-import { useId, type ReactNode } from 'react'
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'react'
 
-interface NumberFieldProps {
+interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'type'> {
   label: string
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
   /** Rendered after the input: "kg", "kcal", "min". */
   unit?: ReactNode
-  step?: string
-  min?: number
+  /** Validation message for this field, already translated. */
+  error?: string
 }
 
 /**
@@ -21,17 +18,18 @@ interface NumberFieldProps {
  *
  * `inputMode="decimal"` asks a phone for the numeric keyboard, which is the difference
  * between typing a weight in two taps and hunting for the number key.
+ *
+ * The ref is forwarded and every other prop is spread onto the input, so
+ * `{...register('weightKg')}` works here exactly as it does on TextField. Without that the
+ * numeric fields would each need a Controller, which is a lot of ceremony for an input that
+ * reports a string like any other.
  */
-export function NumberField({
-  label,
-  value,
-  onChange,
-  placeholder = '0',
-  unit,
-  step = '0.1',
-  min = 0,
-}: NumberFieldProps) {
+export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(function NumberField(
+  { label, unit, error, step = '0.1', min = 0, placeholder = '0', ...input },
+  ref,
+) {
   const id = useId()
+  const errorId = `${id}-error`
 
   return (
     <div>
@@ -40,18 +38,25 @@ export function NumberField({
       </label>
       <div className={unit ? 'flex items-center gap-2' : undefined}>
         <input
+          {...input}
+          ref={ref}
           id={id}
           type="number"
           min={min}
           step={step}
           inputMode="decimal"
           placeholder={placeholder}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
           className="input"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
         />
         {unit && <span className="text-sm font-bold text-muted">{unit}</span>}
       </div>
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
-}
+})

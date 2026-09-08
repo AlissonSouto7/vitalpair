@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
@@ -45,8 +45,8 @@ export function RegisterPage() {
 
   const {
     register,
+    control,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterForm>({
     resolver: zodResolver(schema),
@@ -54,7 +54,10 @@ export function RegisterPage() {
     defaultValues: { name: '', email: '', password: '' },
   })
 
-  const score = strength(watch('password'))
+  // useWatch rather than watch: the latter reads through a closure the React Compiler
+  // cannot see into, so it skips compiling the component and says so on every lint run.
+  const password = useWatch({ control, name: 'password' })
+  const score = strength(password)
 
   async function onSubmit(values: RegisterForm) {
     setError(null)

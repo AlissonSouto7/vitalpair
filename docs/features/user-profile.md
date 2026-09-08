@@ -6,7 +6,7 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -178,6 +178,7 @@ SELECT email, role FROM users WHERE role <> 'USER';
 
 ## History
 
-| Date       | Change                                                                         | Pull request             |
-| ---------- | ------------------------------------------------------------------------------ | ------------------------ |
-| 2026-09-06 | U-2 fixed, first HTTP-level tests for the profile, document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                                                                                                                                               | Pull request                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| 2026-09-06 | U-2 fixed, first HTTP-level tests for the profile, document created (phase 13)                                                                                                                                                                                                                                                       | `docs/professional-docs`            |
+| 2026-09-08 | Phase 10a: the edit form on react-hook-form + zod, mirroring `UpdateProfileRequest` field by field; each missing or out-of-range field gets its own message next to it, replacing one banner for "sex and activity level". The weight card uses the shared `WeightForm`, which fixed a save with no `catch`. First 6 component tests | `refactor/frontend-forms-and-tests` |

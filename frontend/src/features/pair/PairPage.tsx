@@ -1,15 +1,19 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
 
+import { refreshSession } from '@/api/auth'
+import { getPair, joinPair, updateRelationshipType } from '@/api/pair'
+import { BrandMark } from '@/components/brand/BrandMark'
+import { Avatar } from '@/components/ui/Avatar'
+import { Select } from '@/components/ui/Select'
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { Field } from '@/shared/ui/form/Field'
-import { AxiosError } from 'axios'
-import { getPair, joinPair, updateRelationshipType } from '../../api/pair'
-import { refreshSession } from '../../api/auth'
-import { useAuthStore } from '../../store/authStore'
-import { Avatar } from '../../components/ui/Avatar'
-import { Select } from '../../components/ui/Select'
-import { BrandMark } from '../../components/brand/BrandMark'
-import type { Pair, PairMember, RelationshipType } from '../../types/pair'
+import { FormError } from '@/shared/ui/form/FormError'
+import { useAuthStore } from '@/store/authStore'
+import type { Pair, PairMember, RelationshipType } from '@/types/pair'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
@@ -22,13 +26,24 @@ const RELATIONSHIP_VALUES: RelationshipType[] = [
   'OTHER',
 ]
 
+/**
+ * Mirrors how AuthService generates a code: eight characters from an alphabet without
+ * I, O, 0 and 1, the ones people misread. Trimmed and uppercased first, so a code pasted
+ * with a space or typed in lowercase still matches, and a blank never reaches the server.
+ */
+const INVITE_CODE = /^[A-HJ-NP-Z2-9]{8}$/
+
+const joinSchema = z.object({
+  code: z.string().trim().toUpperCase().regex(INVITE_CODE),
+})
+
+type JoinValues = z.infer<typeof joinSchema>
+
 export function PairPage() {
   const { t } = useTranslation()
   const userId = useAuthStore((s) => s.userId)
   const [pair, setPair] = useState<Pair | null>(null)
   const [loading, setLoading] = useState(true)
-  const [code, setCode] = useState('')
-  const [joining, setJoining] = useState(false)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,23 +70,6 @@ export function PairPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  async function handleJoin(event: FormEvent) {
-    event.preventDefault()
-    setJoining(true)
-    setError(null)
-    try {
-      const updated = await joinPair(code.trim().toUpperCase())
-      await refreshSession()
-      setPair(updated)
-      setCode('')
-    } catch (err) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? t('pair.joinError'))
-    } finally {
-      setJoining(false)
-    }
-  }
-
   if (loading) return <p className="text-muted">{t('common.loading')}</p>
 
   const isActive = pair?.status === 'ACTIVE'
@@ -90,7 +88,10 @@ export function PairPage() {
       </header>
 
       {error && (
-        <p className="flex items-center gap-2 rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+        <p
+          role="alert"
+          className="flex items-center gap-2 rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger"
+        >
           <IconAlert />
           {error}
         </p>
@@ -104,10 +105,7 @@ export function PairPage() {
           me={me}
           copied={copied}
           onCopy={copyCode}
-          code={code}
-          onCodeChange={setCode}
-          onJoin={handleJoin}
-          joining={joining}
+          onJoined={setPair}
           onChangeType={changeType}
           t={t}
         />
@@ -204,10 +202,7 @@ function InvitePanel({
   me,
   copied,
   onCopy,
-  code,
-  onCodeChange,
-  onJoin,
-  joining,
+  onJoined,
   onChangeType,
   t,
 }: {
@@ -215,10 +210,7 @@ function InvitePanel({
   me: PairMember | null
   copied: boolean
   onCopy: () => void
-  code: string
-  onCodeChange: (v: string) => void
-  onJoin: (e: FormEvent) => void
-  joining: boolean
+  onJoined: (pair: Pair) => void
   onChangeType: (type: RelationshipType) => void
   t: TFn
 }) {
@@ -276,31 +268,77 @@ function InvitePanel({
       <div className="card">
         <h2 className="font-display text-base font-semibold text-ink">{t('pair.haveCodeTitle')}</h2>
         <p className="mb-3 mt-0.5 text-sm text-muted">{t('pair.haveCodeHint')}</p>
-        <form onSubmit={onJoin} className="flex flex-col gap-2.5 sm:flex-row">
-          <div className="relative flex-1">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">
-              <IconKey />
-            </span>
-            <input
-              type="text"
-              required
-              // The heading above the form is this field's name. A placeholder is not a label:
-              // it disappears the moment someone types, and may never be announced at all.
-              aria-label={t('pair.haveCodeTitle')}
-              placeholder={t('pair.codePlaceholder')}
-              value={code}
-              onChange={(e) => onCodeChange(e.target.value)}
-              className="input pl-9 font-display uppercase tracking-[0.18em]"
-            />
-          </div>
-          <button type="submit" disabled={joining} className="btn-primary whitespace-nowrap">
-            {joining ? t('pair.joining') : t('pair.joinPair')}
-          </button>
-        </form>
+        <JoinForm onJoined={onJoined} t={t} />
       </div>
 
       <RelationCard pair={pair} onChange={onChangeType} t={t} />
     </>
+  )
+}
+
+/* ---------- entrar com o código ---------- */
+
+function JoinForm({ onJoined, t }: { onJoined: (pair: Pair) => void; t: TFn }) {
+  const [error, setError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<JoinValues>({
+    resolver: zodResolver(joinSchema),
+    mode: 'onTouched',
+  })
+
+  async function onSubmit({ code }: JoinValues) {
+    setError(null)
+    try {
+      const updated = await joinPair(code)
+      await refreshSession()
+      reset()
+      onJoined(updated)
+    } catch (err) {
+      setError(getApiErrorMessage(err, t('pair.joinError')))
+    }
+  }
+
+  return (
+    <form
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+      noValidate
+      className="space-y-2.5"
+    >
+      <div className="flex flex-col gap-2.5 sm:flex-row">
+        <div className="relative flex-1">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">
+            <IconKey />
+          </span>
+          <input
+            type="text"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            // The heading above the form is this field's name. A placeholder is not a label:
+            // it disappears the moment someone types, and may never be announced at all.
+            aria-label={t('pair.haveCodeTitle')}
+            aria-invalid={errors.code ? true : undefined}
+            placeholder={t('pair.codePlaceholder')}
+            className="input pl-9 font-display uppercase tracking-[0.18em]"
+            {...register('code')}
+          />
+        </div>
+        <button type="submit" disabled={isSubmitting} className="btn-primary whitespace-nowrap">
+          {isSubmitting ? t('pair.joining') : t('pair.joinPair')}
+        </button>
+      </div>
+      {errors.code && (
+        <p role="alert" className="text-xs font-semibold text-danger">
+          {t('pair.codeInvalid')}
+        </p>
+      )}
+      <FormError message={error} />
+    </form>
   )
 }
 

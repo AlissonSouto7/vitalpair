@@ -339,9 +339,12 @@ export const legal = {
       messagePlaceholder: 'Conta o que rolou ou o que você precisa.',
       submit: 'Enviar mensagem',
       privacyNote: 'A gente usa seu e-mail só pra responder este contato.',
-      sentTitle: 'Mensagem recebida',
+      sentTitle: 'Seu e-mail abriu com a mensagem pronta',
       sentText:
-        'Anotamos seu recado. A gente costuma responder em até um dia útil no e-mail que você deixou.',
+        'É só conferir e enviar. Se nada abriu, manda direto pra {{mail}}: a gente responde em até um dia útil.',
+      nameRequired: 'Escreve teu nome pra gente saber com quem fala.',
+      emailInvalid: 'Confere esse e-mail: falta algo nele.',
+      messageRequired: 'Conta o que rolou. A mensagem não pode ficar vazia.',
       sendAnother: 'Mandar outra',
       directEmail: 'E-MAIL DIRETO',
       directEmailText:
@@ -675,9 +678,12 @@ export const legal = {
       messagePlaceholder: 'Tell us what happened or what you need.',
       submit: 'Send message',
       privacyNote: 'We use your email only to reply to this contact.',
-      sentTitle: 'Message received',
+      sentTitle: 'Your e-mail app opened with the message ready',
       sentText:
-        'We noted your message. We usually reply within one business day to the email you left.',
+        'Just check it and send. If nothing opened, write directly to {{mail}}: we reply within one business day.',
+      nameRequired: 'Write your name so we know who we’re talking to.',
+      emailInvalid: 'Check that e-mail: something is missing.',
+      messageRequired: 'Tell us what happened. The message can’t be empty.',
       sendAnother: 'Send another',
       directEmail: 'DIRECT EMAIL',
       directEmailText:
@@ -1033,9 +1039,12 @@ export const legal = {
       messagePlaceholder: 'Cuenta qué pasó o qué necesitas.',
       submit: 'Enviar mensaje',
       privacyNote: 'Usamos tu correo solo para responder este contacto.',
-      sentTitle: 'Mensaje recibido',
+      sentTitle: 'Tu correo se abrió con el mensaje listo',
       sentText:
-        'Anotamos tu mensaje. Solemos responder en hasta un día hábil al correo que dejaste.',
+        'Solo revísalo y envíalo. Si no se abrió nada, escribe directo a {{mail}}: respondemos en hasta un día hábil.',
+      nameRequired: 'Escribe tu nombre para saber con quién hablamos.',
+      emailInvalid: 'Revisa ese correo: le falta algo.',
+      messageRequired: 'Cuéntanos qué pasó. El mensaje no puede quedar vacío.',
       sendAnother: 'Mandar otro',
       directEmail: 'CORREO DIRECTO',
       directEmailText:
@@ -1393,9 +1402,12 @@ export const legal = {
       messagePlaceholder: 'Raconte ce qu’il s’est passé ou ce dont tu as besoin.',
       submit: 'Envoyer le message',
       privacyNote: 'On utilise ton e-mail uniquement pour répondre à ce contact.',
-      sentTitle: 'Message reçu',
+      sentTitle: 'Ta messagerie s’est ouverte avec le message prêt',
       sentText:
-        'On a noté ton message. On répond en général sous un jour ouvré à l’e-mail que tu as laissé.',
+        'Il suffit de vérifier et d’envoyer. Si rien ne s’est ouvert, écris directement à {{mail}} : on répond sous un jour ouvré.',
+      nameRequired: 'Écris ton nom pour qu’on sache à qui on parle.',
+      emailInvalid: 'Vérifie cet e-mail : il manque quelque chose.',
+      messageRequired: 'Raconte ce qui s’est passé. Le message ne peut pas être vide.',
       sendAnother: 'En envoyer un autre',
       directEmail: 'E-MAIL DIRECT',
       directEmailText:

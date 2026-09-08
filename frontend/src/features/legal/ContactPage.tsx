@@ -1,19 +1,34 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import type { FormEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
 
 import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
 import { RouteFallback } from '@/shared/ui/RouteFallback'
+import { openMailClient } from './mailto'
 import { LegalHeader, LegalFooter } from './PrivacyPage'
 
 const MAIL = 'contato@vitalpair.app'
 
+const schema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email(),
+  message: z.string().trim().min(1).max(5000),
+})
+
+type ContactValues = z.infer<typeof schema>
+
 /**
- * Página de Contato do VitalPair.
- * Página standalone: sem Layout/sidebar, scroll próprio, só tokens.
- * Conteúdo via i18n (namespace legal.contact).
- * O formulário ainda não envia: faz preventDefault e mostra estado de "recebido".
+ * The contact page. Standalone, outside the app shell, with its own scroll.
+ *
+ * There is no endpoint that receives contact messages, and a public one that sends e-mail
+ * is a spam relay until it has rate limiting and a challenge in front of it. Until then
+ * the form hands the message to the visitor's own mail client: it actually leaves, and no
+ * server of ours can be abused to send it. Before this the form showed "message received"
+ * for a message that was read nowhere.
  */
 export function ContactPage() {
   // The legal texts are not in the main bundle; rendering before they arrive
@@ -60,9 +75,23 @@ function ContactForm() {
   const { t } = useTranslation()
   const [sent, setSent] = useState(false)
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    // TODO: ligar envio no backend (POST /contact). Por ora só mostra o estado de recebido.
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactValues>({
+    resolver: zodResolver(schema),
+    mode: 'onTouched',
+  })
+
+  function onSubmit(values: ContactValues) {
+    const subject = `VitalPair · ${values.name}`
+    const body = `${values.message}\n\n${values.name} <${values.email}>`
+    openMailClient(
+      `mailto:${MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    )
+    reset()
     setSent(true)
   }
 
@@ -78,7 +107,7 @@ function ContactForm() {
           {t('legal.contact.sentTitle')}
         </h2>
         <p className="mb-6 max-w-[340px] text-[14px] font-semibold leading-relaxed text-muted">
-          {t('legal.contact.sentText')}
+          {t('legal.contact.sentText', { mail: MAIL })}
         </p>
         <button
           type="button"
@@ -96,44 +125,66 @@ function ContactForm() {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
+      noValidate
       className="flex flex-col gap-4 rounded-3xl border border-hair bg-surface p-6 shadow-[0_10px_30px_rgba(70,45,20,0.06)]"
     >
-      <Field id="contact-name" label={t('legal.contact.nameLabel')} icon="user">
+      <Field
+        id="contact-name"
+        label={t('legal.contact.nameLabel')}
+        icon="user"
+        error={errors.name && t('legal.contact.nameRequired')}
+      >
         <input
           id="contact-name"
-          name="name"
           type="text"
-          required
+          autoComplete="name"
+          aria-invalid={errors.name ? true : undefined}
+          aria-describedby={errors.name ? 'contact-name-error' : undefined}
           placeholder={t('legal.contact.namePlaceholder')}
           className="w-full rounded-xl border border-hair bg-canvas px-3.5 py-2.5 text-[15px] font-semibold text-ink placeholder-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30"
+          {...register('name')}
         />
       </Field>
 
-      <Field id="contact-email" label={t('legal.contact.emailLabel')} icon="mail">
+      <Field
+        id="contact-email"
+        label={t('legal.contact.emailLabel')}
+        icon="mail"
+        error={errors.email && t('legal.contact.emailInvalid')}
+      >
         <input
           id="contact-email"
-          name="email"
           type="email"
-          required
+          autoComplete="email"
+          aria-invalid={errors.email ? true : undefined}
+          aria-describedby={errors.email ? 'contact-email-error' : undefined}
           placeholder={t('legal.contact.emailPlaceholder')}
           className="w-full rounded-xl border border-hair bg-canvas px-3.5 py-2.5 text-[15px] font-semibold text-ink placeholder-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30"
+          {...register('email')}
         />
       </Field>
 
-      <Field id="contact-message" label={t('legal.contact.messageLabel')} icon="chat">
+      <Field
+        id="contact-message"
+        label={t('legal.contact.messageLabel')}
+        icon="chat"
+        error={errors.message && t('legal.contact.messageRequired')}
+      >
         <textarea
           id="contact-message"
-          name="message"
-          required
           rows={5}
+          aria-invalid={errors.message ? true : undefined}
+          aria-describedby={errors.message ? 'contact-message-error' : undefined}
           placeholder={t('legal.contact.messagePlaceholder')}
           className="w-full resize-y rounded-xl border border-hair bg-canvas px-3.5 py-2.5 text-[15px] font-semibold leading-relaxed text-ink placeholder-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30"
+          {...register('message')}
         />
       </Field>
 
       <button
         type="submit"
+        disabled={isSubmitting}
         className="mt-1 inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-[15px] font-extrabold text-white transition hover:brightness-105"
       >
         <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-white" aria-hidden="true">
@@ -153,11 +204,14 @@ function Field({
   id,
   label,
   icon,
+  error,
   children,
 }: {
   id: string
   label: string
   icon: 'user' | 'mail' | 'chat'
+  /** Validation message for this field, already translated. */
+  error?: string
   children: ReactNode
 }) {
   const path = {
@@ -178,6 +232,11 @@ function Field({
         {label}
       </label>
       {children}
+      {error && (
+        <p id={`${id}-error`} role="alert" className="mt-1 text-xs font-semibold text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

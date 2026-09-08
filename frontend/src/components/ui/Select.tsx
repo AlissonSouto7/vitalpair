@@ -20,6 +20,7 @@ export function Select<T extends string>({
   options,
   placeholder = 'Selecione',
   'aria-describedby': describedBy,
+  'aria-invalid': invalid,
 }: {
   id?: string
   value: T | ''
@@ -27,6 +28,8 @@ export function Select<T extends string>({
   options: Option<T>[]
   placeholder?: string
   'aria-describedby'?: string
+  /** Set by a form when this control failed validation, so assistive technology says so. */
+  'aria-invalid'?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -59,6 +62,7 @@ export function Select<T extends string>({
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-describedby={describedBy}
+        aria-invalid={invalid}
       >
         <span className={selected ? 'text-ink' : 'text-faint'}>
           {selected ? selected.label : placeholder}
