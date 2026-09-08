@@ -1,3 +1,5 @@
+import { fileURLToPath, URL } from 'node:url'
+
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
@@ -15,6 +17,13 @@ import react from '@vitejs/plugin-react'
  */
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    // Same alias as vite.config.ts. This file does not extend that one (see above), so the
+    // alias has to be restated or every screen under test fails to import its own API.
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   test: {
     // jsdom gives component tests a DOM. Node alone cannot render React.
     environment: 'jsdom',
