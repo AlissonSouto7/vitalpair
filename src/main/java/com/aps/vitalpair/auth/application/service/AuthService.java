@@ -145,6 +145,14 @@ public class AuthService
                 .findById(stored.get().userId())
                 .orElseThrow(() -> new InvalidCredentialsException("Refresh token inválido ou expirado"));
 
+        // A closed account keeps its row as a tombstone, so finding the user is not proof
+        // the account is live. Closing revokes the sessions it knows about, and this is what
+        // catches a token issued before that: the JWT filter validates a signature and never
+        // reads the database, so without this check a stale session would keep renewing.
+        if (user.getDeletedAt() != null) {
+            throw new InvalidCredentialsException("Refresh token inválido ou expirado");
+        }
+
         refreshTokenStore.markSpent(refreshToken, stored.get().familyId(), jwtProperties.refreshExpirationMs());
         return issueTokens(user, stored.get().familyId());
     }
