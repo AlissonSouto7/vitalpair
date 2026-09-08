@@ -18,13 +18,13 @@ export const legal = {
       title: 'Política de Privacidade',
       intro:
         'O VitalPair lida com informação de saúde, que é coisa delicada. Aqui a gente explica em português normal o que coletamos, por que coletamos e o que você pode mandar a gente fazer com isso. Sem juridiquês escondendo o jogo.',
-      effective: 'Vigência: junho de 2026',
+      effective: 'Versão 1, setembro de 2026',
       sections: [
         {
           title: 'Quem é o responsável',
           paragraphs: [
-            'O VitalPair é o controlador dos seus dados pessoais, nos termos da Lei Geral de Proteção de Dados (Lei nº 13.709/2018, a LGPD). Quando falamos "a gente", "nós" ou "VitalPair" nesta página, é dessa empresa que estamos falando.',
-            'Dúvida, pedido ou reclamação sobre privacidade você manda direto pro nosso encarregado (DPO) no e-mail {{mail}}. A gente responde.',
+            'O controlador dos seus dados pessoais é Alisson Pinheiro Souto, microempreendedor individual (MEI) inscrito no CNPJ 65.088.337/0001-48, nos termos da Lei nº 13.709/2018 (a LGPD). Quando falamos "a gente", "nós" ou "VitalPair" nesta página, é dele que estamos falando.',
+            'O encarregado pelos dados é a mesma pessoa: Alisson Pinheiro Souto. O VitalPair é um projeto de uma pessoa só, e a lei permite que o controlador acumule esse papel. Dúvida, pedido ou reclamação: {{mail}}. A gente responde em até três dias úteis.',
           ],
         },
         {
@@ -35,7 +35,7 @@ export const legal = {
           bullets: [
             [
               'Cadastro',
-              'nome, e-mail e senha (a senha fica guardada criptografada, a gente nunca vê ela em texto puro).',
+              'nome, e-mail e senha (a senha não fica guardada: a gente guarda uma marca dela que não dá pra desfazer).',
             ],
             [
               'Perfil de saúde',
@@ -124,11 +124,15 @@ export const legal = {
             ],
             [
               'Infraestrutura',
-              'serviços de hospedagem e banco de dados (PostgreSQL) que armazenam os dados pra gente, sob contrato e com obrigação de sigilo.',
+              'A Oracle Cloud Infrastructure hospeda a aplicação e o banco de dados (PostgreSQL), na região de São Paulo, no Brasil. Os termos da Oracle incluem acordo de tratamento de dados, com obrigação de sigilo.',
             ],
             [
               'Autoridades',
               'só se formos legalmente obrigados, por ordem judicial ou requisição legítima.',
+            ],
+            [
+              'Fora do Brasil',
+              'a foto do prato é a única coisa que sai do país: vai pra Anthropic, nos Estados Unidos, pelo tempo de estimar as calorias. O resto (sua conta, refeições, pesos, temporadas) fica no Brasil, na Oracle em São Paulo. A transferência é permitida pelo artigo 33 da LGPD, pra executar o serviço que você pediu.',
             ],
           ],
           callout: {
@@ -140,7 +144,7 @@ export const legal = {
         {
           title: 'Por quanto tempo guardamos',
           paragraphs: [
-            'Mantemos seus dados enquanto sua conta estiver ativa. Se você apagar a conta, removemos seus dados pessoais em até 30 dias, salvo o que a lei nos obrigue a reter por mais tempo (e nesse caso fica isolado, só pra cumprir a obrigação). Backups técnicos podem levar um pouco mais pra expirar dentro do ciclo normal de rotação.',
+            'A gente guarda seus dados enquanto sua conta estiver aberta. Quando você encerra, apagamos na hora o que você registrou sobre você: refeições, treinos, pesos, planos, notificações e perfil. O que descreve uma temporada que vocês dois jogaram (o placar, os pontos, as medalhas) fica, mas sem o seu nome: é história do seu par também, e o artigo 12 da LGPD entende que dado anonimizado deixa de ser dado pessoal. Seu e-mail é liberado, então dá pra voltar com o mesmo. Backups técnicos levam um pouco mais pra expirar, no ciclo normal de rotação.',
           ],
         },
         {
@@ -170,7 +174,7 @@ export const legal = {
         {
           title: 'Segurança',
           paragraphs: [
-            'Senhas ficam criptografadas, o tráfego trafega em HTTPS e o acesso interno aos dados é restrito a quem precisa. Nenhum sistema é 100% à prova de falha, mas a gente leva segurança a sério e, se algo grave acontecer, te avisamos e avisamos a ANPD conforme a lei manda.',
+            'Senha não fica guardada: fica embaralhada de um jeito que não dá pra desfazer, nem por nós. O tráfego anda em HTTPS. Nenhum sistema é infalível, e se acontecer algo grave a gente avisa você e avisa a ANPD, como a lei manda.',
           ],
         },
         {
@@ -193,7 +197,7 @@ export const legal = {
       title: 'Termos de Uso',
       intro:
         'Estas são as regras de usar o VitalPair. Leitura rápida, sem pegadinha. Ao criar conta ou usar o app, você concorda com o que está aqui. Se não concordar com alguma coisa, melhor não usar.',
-      effective: 'Vigência: junho de 2026',
+      effective: 'Versão 1, setembro de 2026',
       sections: [
         {
           title: 'O que é o VitalPair',
@@ -259,7 +263,7 @@ export const legal = {
         {
           title: 'Plano gratuito e plano pago',
           paragraphs: [
-            'Hoje o VitalPair tem um plano gratuito, que dá pra jogar a primeira temporada sem pagar nada e sem precisar de cartão. No futuro vamos ter um plano pago com recursos extras.',
+            'Hoje o VitalPair é de graça e não pede cartão. As temporadas vão continuar de graça: elas são o coração do produto. Um dia pode ter um plano pago com recursos extras.',
           ],
           bullets: [
             [
@@ -330,7 +334,7 @@ export const legal = {
       badge: 'tem gente de verdade do outro lado',
       title: 'Fala com a gente',
       intro:
-        'Bug, sugestão, dúvida sobre seus dados ou só pra contar como foi sua temporada. Escreve aqui que a gente responde. Sem robô, sem ticket número 4827.',
+        'Bug, sugestão, dúvida sobre seus dados ou só pra contar como foi sua temporada. Escreve aqui que a gente responde. Ninguém vai te dar número de ticket.',
       nameLabel: 'Seu nome',
       namePlaceholder: 'Como te chamamos?',
       emailLabel: 'Seu e-mail',
@@ -350,11 +354,11 @@ export const legal = {
       directEmailText:
         'Prefere mandar do seu próprio e-mail? Pode ser por aqui também. É o mesmo canal pra assuntos de privacidade e exercício dos seus direitos.',
       responseTime: 'Tempo de resposta',
-      responseTimeText: 'Normalmente até 1 dia útil. Bug grave a gente prioriza.',
+      responseTimeText: 'Normalmente até três dias úteis. Bug grave a gente prioriza.',
       faqTitle: 'Perguntas rápidas',
       faqFreeQ: 'O VitalPair é gratuito?',
       faqFreeA:
-        'A primeira temporada é de graça e a gente nem pede cartão. Lá na frente vai ter um plano pago com recursos extras, mas a gente pretende manter um nível gratuito.',
+        'Hoje tudo é de graça e a gente nem pede cartão. As temporadas vão continuar de graça. Um dia pode ter um plano pago com recursos extras, e a gente avisa antes.',
       faqPhotoQ: 'A foto do prato vai pra onde?',
       faqPhotoA:
         'A imagem é analisada por IA (Anthropic) só pra estimar as calorias e te devolver o resultado. Detalhe completo está na Política de Privacidade.',
@@ -378,13 +382,13 @@ export const legal = {
       title: 'Privacy Policy',
       intro:
         'VitalPair handles health information, which is sensitive stuff. Here we explain in plain words what we collect, why we collect it, and what you can tell us to do with it. No legalese hiding the ball.',
-      effective: 'Effective: June 2026',
+      effective: 'Version 1, September 2026',
       sections: [
         {
           title: 'Who is responsible',
           paragraphs: [
-            'VitalPair is the controller of your personal data under Brazil’s data protection law (Law 13.709/2018, the LGPD). When we say "we" or "VitalPair" on this page, that’s the company we mean.',
-            'Questions, requests or complaints about privacy go straight to our data protection officer (DPO) at {{mail}}. We answer.',
+            'The controller of your personal data is Alisson Pinheiro Souto, a Brazilian sole trader (MEI) registered under CNPJ 65.088.337/0001-48, under Law 13.709/2018 (the LGPD). When we say "we" or "VitalPair" on this page, that is who we mean.',
+            'The data protection officer is the same person: Alisson Pinheiro Souto. VitalPair is a one-person project, and the law lets the controller take that role. Questions, requests or complaints: {{mail}}. We answer within three business days.',
           ],
         },
         {
@@ -395,7 +399,7 @@ export const legal = {
           bullets: [
             [
               'Account',
-              'name, email and password (the password is stored encrypted, we never see it in plain text).',
+              'name, email and password (the password is not stored: we keep a fingerprint of it that cannot be reversed).',
             ],
             [
               'Health profile',
@@ -475,9 +479,13 @@ export const legal = {
             ],
             [
               'Infrastructure',
-              'hosting and database services (PostgreSQL) that store the data for us, under contract and a duty of confidentiality.',
+              'Oracle Cloud Infrastructure hosts the application and the database (PostgreSQL), in the São Paulo region, Brazil. Oracle’s terms include a data processing agreement, with a duty of confidentiality.',
             ],
             ['Authorities', 'only if legally required, by court order or legitimate request.'],
+            [
+              'Outside Brazil',
+              'the plate photo is the only thing that leaves the country: it goes to Anthropic, in the United States, for as long as it takes to estimate the calories. Everything else (your account, meals, weights, seasons) stays in Brazil, on Oracle in São Paulo. Article 33 of the LGPD allows the transfer, to deliver the service you asked for.',
+            ],
           ],
           callout: {
             tone: 'brand',
@@ -488,7 +496,7 @@ export const legal = {
         {
           title: 'How long we keep it',
           paragraphs: [
-            'We keep your data while your account is active. If you delete your account, we remove your personal data within 30 days, except what the law requires us to retain longer (isolated, only to meet the obligation). Technical backups may take a bit longer to expire within the normal rotation cycle.',
+            'We keep your data while your account is open. When you close it, we erase what you logged about yourself right away: meals, workouts, weights, plans, notifications and profile. What describes a season the two of you played (the scoreboard, the points, the badges) stays, but without your name on it: it is your partner’s history too, and article 12 of the LGPD treats anonymised data as no longer personal data. Your e-mail address is freed, so you can come back with the same one. Technical backups take a little longer to expire, within the normal rotation cycle.',
           ],
         },
         {
@@ -515,7 +523,7 @@ export const legal = {
         {
           title: 'Security',
           paragraphs: [
-            'Passwords are encrypted, traffic runs over HTTPS, and internal access to data is restricted to those who need it. No system is 100% foolproof, but we take security seriously and, if something serious happens, we notify you and notify the ANPD as the law requires.',
+            'Passwords are hashed, not stored: not even we can read them back. Traffic runs over HTTPS. No system is foolproof, and if something serious happens, we tell you and we tell the ANPD, as the law requires.',
           ],
         },
         {
@@ -538,7 +546,7 @@ export const legal = {
       title: 'Terms of Use',
       intro:
         'These are the rules for using VitalPair. Quick read, no catch. By creating an account or using the app, you agree to what’s here. If you don’t agree with something, better not use it.',
-      effective: 'Effective: June 2026',
+      effective: 'Version 1, September 2026',
       sections: [
         {
           title: 'What VitalPair is',
@@ -601,7 +609,7 @@ export const legal = {
         {
           title: 'Free plan and paid plan',
           paragraphs: [
-            'Today VitalPair has a free plan that lets you play the first season without paying anything and without a card. In the future we’ll have a paid plan with extra features.',
+            'Today VitalPair is free and asks for no card. Seasons will stay free: they are the heart of the product. One day there may be a paid plan with extra features.',
           ],
           bullets: [
             [
@@ -669,7 +677,7 @@ export const legal = {
       badge: 'there’s a real person on the other side',
       title: 'Talk to us',
       intro:
-        'A bug, a suggestion, a question about your data, or just to tell us how your season went. Write here and we answer. No bot, no ticket number 4827.',
+        'A bug, a suggestion, a question about your data, or just to tell us how your season went. Write here and we answer. Nobody is going to hand you a ticket number.',
       nameLabel: 'Your name',
       namePlaceholder: 'What should we call you?',
       emailLabel: 'Your email',
@@ -689,11 +697,11 @@ export const legal = {
       directEmailText:
         'Prefer to send from your own email? That works too. It’s the same channel for privacy matters and exercising your rights.',
       responseTime: 'Response time',
-      responseTimeText: 'Usually within 1 business day. Serious bugs we prioritize.',
+      responseTimeText: 'Usually within three business days. Serious bugs we prioritise.',
       faqTitle: 'Quick questions',
       faqFreeQ: 'Is VitalPair free?',
       faqFreeA:
-        'The first season is free and we don’t even ask for a card. Down the road there’ll be a paid plan with extra features, but we plan to keep a free tier.',
+        'Today everything is free and we don’t ask for a card. Seasons will stay free. One day there may be a paid plan with extra features, and we’ll tell you before that happens.',
       faqPhotoQ: 'Where does the plate photo go?',
       faqPhotoA:
         'The image is analyzed by AI (Anthropic) only to estimate the calories and return the result. Full detail is in the Privacy Policy.',
@@ -716,13 +724,13 @@ export const legal = {
       title: 'Política de Privacidad',
       intro:
         'VitalPair maneja información de salud, que es algo delicado. Aquí te explicamos en palabras normales qué recopilamos, por qué lo recopilamos y qué puedes pedirnos hacer con ello. Sin jerga legal escondiendo nada.',
-      effective: 'Vigencia: junio de 2026',
+      effective: 'Versión 1, septiembre de 2026',
       sections: [
         {
           title: 'Quién es el responsable',
           paragraphs: [
-            'VitalPair es el responsable de tus datos personales, según la ley brasileña de protección de datos (Ley 13.709/2018, la LGPD). Cuando decimos "nosotros" o "VitalPair" en esta página, hablamos de esa empresa.',
-            'Dudas, solicitudes o reclamaciones sobre privacidad las mandas directo a nuestro encargado (DPO) al correo {{mail}}. Respondemos.',
+            'El responsable de tus datos personales es Alisson Pinheiro Souto, microempresario individual (MEI) inscrito con el CNPJ 65.088.337/0001-48, en Brasil, según la Ley 13.709/2018 (la LGPD). Cuando decimos "nosotros" o "VitalPair" en esta página, hablamos de él.',
+            'El encargado de protección de datos es la misma persona: Alisson Pinheiro Souto. VitalPair es un proyecto de una sola persona, y la ley permite que el responsable asuma ese papel. Dudas, solicitudes o reclamaciones: {{mail}}. Respondemos en hasta tres días hábiles.',
           ],
         },
         {
@@ -733,7 +741,7 @@ export const legal = {
           bullets: [
             [
               'Registro',
-              'nombre, correo y contraseña (la contraseña se guarda cifrada, nunca la vemos en texto plano).',
+              'nombre, correo y contraseña (la contraseña no se guarda: guardamos una huella que no se puede revertir).',
             ],
             [
               'Perfil de salud',
@@ -824,11 +832,15 @@ export const legal = {
             ],
             [
               'Infraestructura',
-              'servicios de hospedaje y base de datos (PostgreSQL) que almacenan los datos por nosotros, bajo contrato y con deber de confidencialidad.',
+              'Oracle Cloud Infrastructure aloja la aplicación y la base de datos (PostgreSQL), en la región de São Paulo, Brasil. Los términos de Oracle incluyen un acuerdo de tratamiento de datos, con obligación de confidencialidad.',
             ],
             [
               'Autoridades',
-              'solo si estamos legalmente obligados, por orden judicial o requerimiento legítimo.',
+              'solo si la ley nos obliga, por orden judicial o requerimiento legítimo.',
+            ],
+            [
+              'Fuera de Brasil',
+              'la foto del plato es lo único que sale del país: va a Anthropic, en Estados Unidos, el tiempo de estimar las calorías. Lo demás (cuenta, comidas, pesos, temporadas) se queda en Brasil, en Oracle São Paulo. La transferencia está prevista en el artículo 33 de la LGPD, para ejecutar el servicio que pediste.',
             ],
           ],
           callout: {
@@ -840,7 +852,7 @@ export const legal = {
         {
           title: 'Cuánto tiempo los guardamos',
           paragraphs: [
-            'Mantenemos tus datos mientras tu cuenta esté activa. Si borras la cuenta, eliminamos tus datos personales en hasta 30 días, salvo lo que la ley nos obligue a retener más tiempo (aislado, solo para cumplir la obligación). Las copias de seguridad técnicas pueden tardar un poco más en expirar dentro del ciclo normal de rotación.',
+            'Mantenemos tus datos mientras tu cuenta esté abierta. Cuando la cierras, borramos enseguida lo que registraste sobre ti: comidas, entrenamientos, pesos, planes, notificaciones y perfil. Lo que describe una temporada que jugaron los dos (el marcador, los puntos, las medallas) se queda, pero sin tu nombre: también es la historia de tu dupla, y el artículo 12 de la LGPD considera que un dato anonimizado ya no es un dato personal. Tu correo queda libre, así que puedes volver con el mismo. Las copias de seguridad técnicas tardan un poco más en expirar, dentro del ciclo normal de rotación.',
           ],
         },
         {
@@ -870,7 +882,7 @@ export const legal = {
         {
           title: 'Seguridad',
           paragraphs: [
-            'Las contraseñas van cifradas, el tráfico viaja por HTTPS y el acceso interno a los datos está restringido a quien lo necesita. Ningún sistema es 100% infalible, pero nos tomamos la seguridad en serio y, si pasa algo grave, te avisamos y avisamos a la ANPD como manda la ley.',
+            'Las contraseñas se guardan con hash, no en texto: ni nosotros podemos leerlas. El tráfico viaja por HTTPS. Ningún sistema es infalible, y si pasa algo grave, te avisamos y avisamos a la ANPD como manda la ley.',
           ],
         },
         {
@@ -893,7 +905,7 @@ export const legal = {
       title: 'Términos de Uso',
       intro:
         'Estas son las reglas para usar VitalPair. Lectura rápida, sin trampa. Al crear cuenta o usar la app, aceptas lo que está aquí. Si no estás de acuerdo con algo, mejor no la uses.',
-      effective: 'Vigencia: junio de 2026',
+      effective: 'Versión 1, septiembre de 2026',
       sections: [
         {
           title: 'Qué es VitalPair',
@@ -959,7 +971,7 @@ export const legal = {
         {
           title: 'Plan gratuito y plan de pago',
           paragraphs: [
-            'Hoy VitalPair tiene un plan gratuito que te deja jugar la primera temporada sin pagar nada y sin tarjeta. En el futuro tendremos un plan de pago con funciones extra.',
+            'Hoy VitalPair es gratis y no pide tarjeta. Las temporadas van a seguir gratis: son el corazón del producto. Algún día quizá haya un plan de pago con funciones extra.',
           ],
           bullets: [
             [
@@ -1030,7 +1042,7 @@ export const legal = {
       badge: 'hay gente de verdad del otro lado',
       title: 'Habla con nosotros',
       intro:
-        'Un bug, una sugerencia, una duda sobre tus datos o solo para contar cómo fue tu temporada. Escribe aquí y respondemos. Sin robot, sin ticket número 4827.',
+        'Un bug, una sugerencia, una duda sobre tus datos o solo para contar cómo fue tu temporada. Escribe aquí y respondemos. Nadie te va a dar un número de ticket.',
       nameLabel: 'Tu nombre',
       namePlaceholder: '¿Cómo te llamamos?',
       emailLabel: 'Tu correo',
@@ -1050,11 +1062,11 @@ export const legal = {
       directEmailText:
         '¿Prefieres mandar desde tu propio correo? También vale. Es el mismo canal para temas de privacidad y ejercicio de tus derechos.',
       responseTime: 'Tiempo de respuesta',
-      responseTimeText: 'Normalmente hasta 1 día hábil. Los bugs graves los priorizamos.',
+      responseTimeText: 'Normalmente hasta tres días hábiles. Los bugs graves los priorizamos.',
       faqTitle: 'Preguntas rápidas',
       faqFreeQ: '¿VitalPair es gratis?',
       faqFreeA:
-        'La primera temporada es gratis y ni te pedimos tarjeta. Más adelante habrá un plan de pago con funciones extra, pero pensamos mantener un nivel gratuito.',
+        'Hoy todo es gratis y no pedimos tarjeta. Las temporadas van a seguir gratis. Algún día quizá haya un plan de pago con funciones extra, y te lo diremos antes.',
       faqPhotoQ: '¿A dónde va la foto del plato?',
       faqPhotoA:
         'La imagen se analiza con IA (Anthropic) solo para estimar las calorías y devolverte el resultado. El detalle completo está en la Política de Privacidad.',
@@ -1078,13 +1090,13 @@ export const legal = {
       title: 'Politique de Confidentialité',
       intro:
         'VitalPair traite des informations de santé, c’est quelque chose de sensible. Ici on t’explique en mots normaux ce qu’on collecte, pourquoi on le collecte et ce que tu peux nous demander d’en faire. Sans jargon juridique pour cacher le jeu.',
-      effective: 'En vigueur : juin 2026',
+      effective: 'Version 1, septembre 2026',
       sections: [
         {
           title: 'Qui est responsable',
           paragraphs: [
-            'VitalPair est le responsable de tes données personnelles, au sens de la loi brésilienne de protection des données (loi 13.709/2018, la LGPD). Quand on dit "nous" ou "VitalPair" sur cette page, c’est de cette société qu’on parle.',
-            'Questions, demandes ou réclamations sur la confidentialité vont directement à notre délégué (DPO) à l’adresse {{mail}}. On répond.',
+            'Le responsable de tes données personnelles est Alisson Pinheiro Souto, micro-entrepreneur individuel (MEI) inscrit au CNPJ 65.088.337/0001-48, au Brésil, au sens de la loi 13.709/2018 (la LGPD). Quand on dit "nous" ou "VitalPair" sur cette page, c’est de lui qu’on parle.',
+            'Le délégué à la protection des données, c’est la même personne : Alisson Pinheiro Souto. VitalPair est un projet d’une seule personne, et la loi permet au responsable d’assumer ce rôle. Questions, demandes ou réclamations : {{mail}}. On répond sous trois jours ouvrés.',
           ],
         },
         {
@@ -1095,7 +1107,7 @@ export const legal = {
           bullets: [
             [
               'Compte',
-              'nom, e-mail et mot de passe (le mot de passe est stocké chiffré, on ne le voit jamais en clair).',
+              'nom, e-mail et mot de passe (le mot de passe n’est pas stocké : on en garde une empreinte qu’on ne peut pas inverser).',
             ],
             [
               'Profil de santé',
@@ -1184,11 +1196,15 @@ export const legal = {
             ],
             [
               'Infrastructure',
-              'services d’hébergement et de base de données (PostgreSQL) qui stockent les données pour nous, sous contrat et avec obligation de confidentialité.',
+              'Oracle Cloud Infrastructure héberge l’application et la base de données (PostgreSQL), dans la région de São Paulo, au Brésil. Les conditions d’Oracle incluent un accord de traitement des données, avec obligation de confidentialité.',
             ],
             [
               'Autorités',
-              'seulement si on y est légalement obligés, par décision de justice ou réquisition légitime.',
+              'seulement si la loi nous y oblige, sur décision de justice ou réquisition légitime.',
+            ],
+            [
+              'Hors du Brésil',
+              'la photo du plat est le seul élément qui quitte le pays : elle part chez Anthropic, aux États-Unis, le temps d’estimer les calories. Le reste (compte, repas, poids, saisons) reste au Brésil, chez Oracle à São Paulo. Le transfert est prévu par l’article 33 de la LGPD, pour exécuter le service que tu as demandé.',
             ],
           ],
           callout: {
@@ -1200,7 +1216,7 @@ export const legal = {
         {
           title: 'Combien de temps on conserve',
           paragraphs: [
-            'On garde tes données tant que ton compte est actif. Si tu supprimes ton compte, on retire tes données personnelles sous 30 jours, sauf ce que la loi nous oblige à conserver plus longtemps (isolé, uniquement pour remplir l’obligation). Les sauvegardes techniques peuvent mettre un peu plus de temps à expirer dans le cycle normal de rotation.',
+            'On garde tes données tant que ton compte est ouvert. Quand tu le fermes, on efface tout de suite ce que tu as noté sur toi : repas, entraînements, poids, programmes, notifications et profil. Ce qui décrit une saison disputée à deux (le classement, les points, les badges) reste, mais sans ton nom : c’est aussi l’histoire de ton binôme, et l’article 12 de la LGPD considère qu’une donnée anonymisée n’est plus une donnée personnelle. Ton adresse e-mail est libérée, tu peux donc revenir avec la même. Les sauvegardes techniques mettent un peu plus de temps à expirer, dans le cycle normal de rotation.',
           ],
         },
         {
@@ -1230,7 +1246,7 @@ export const legal = {
         {
           title: 'Sécurité',
           paragraphs: [
-            'Les mots de passe sont chiffrés, le trafic passe en HTTPS et l’accès interne aux données est réservé à ceux qui en ont besoin. Aucun système n’est infaillible à 100 %, mais on prend la sécurité au sérieux et, si quelque chose de grave arrive, on te prévient et on prévient l’ANPD comme la loi l’exige.',
+            'Les mots de passe sont hachés, pas stockés : même nous, on ne peut pas les relire. Le trafic passe en HTTPS. Aucun système n’est infaillible, et si quelque chose de grave arrive, on te prévient et on prévient l’ANPD comme la loi l’exige.',
           ],
         },
         {
@@ -1253,7 +1269,7 @@ export const legal = {
       title: 'Conditions d’Utilisation',
       intro:
         'Voici les règles pour utiliser VitalPair. Lecture rapide, sans piège. En créant un compte ou en utilisant l’app, tu acceptes ce qui est ici. Si tu n’es pas d’accord avec quelque chose, mieux vaut ne pas l’utiliser.',
-      effective: 'En vigueur : juin 2026',
+      effective: 'Version 1, septembre 2026',
       sections: [
         {
           title: 'Ce qu’est VitalPair',
@@ -1322,7 +1338,7 @@ export const legal = {
         {
           title: 'Offre gratuite et offre payante',
           paragraphs: [
-            'Aujourd’hui VitalPair a une offre gratuite qui te permet de jouer la première saison sans rien payer et sans carte. À l’avenir, on aura une offre payante avec des fonctionnalités en plus.',
+            'Aujourd’hui VitalPair est gratuit et ne demande pas de carte. Les saisons resteront gratuites : c’est le cœur du produit. Un jour il y aura peut-être une offre payante avec des fonctions en plus.',
           ],
           bullets: [
             [
@@ -1393,7 +1409,7 @@ export const legal = {
       badge: 'il y a une vraie personne de l’autre côté',
       title: 'Parle avec nous',
       intro:
-        'Un bug, une suggestion, une question sur tes données ou juste pour raconter comment s’est passée ta saison. Écris ici et on répond. Pas de robot, pas de ticket numéro 4827.',
+        'Un bug, une suggestion, une question sur tes données ou juste pour raconter comment s’est passée ta saison. Écris ici et on répond. Personne ne te donnera un numéro de ticket.',
       nameLabel: 'Ton nom',
       namePlaceholder: 'Comment on t’appelle ?',
       emailLabel: 'Ton e-mail',
@@ -1413,11 +1429,11 @@ export const legal = {
       directEmailText:
         'Tu préfères envoyer depuis ton propre e-mail ? Ça marche aussi. C’est le même canal pour les sujets de confidentialité et l’exercice de tes droits.',
       responseTime: 'Temps de réponse',
-      responseTimeText: 'En général sous 1 jour ouvré. Les bugs graves, on les priorise.',
+      responseTimeText: 'En général sous trois jours ouvrés. Les bugs graves, on les priorise.',
       faqTitle: 'Questions rapides',
       faqFreeQ: 'VitalPair est-il gratuit ?',
       faqFreeA:
-        'La première saison est gratuite et on ne demande même pas de carte. Plus tard il y aura une offre payante avec des fonctions en plus, mais on compte garder un niveau gratuit.',
+        'Aujourd’hui tout est gratuit, et on ne demande pas de carte. Les saisons resteront gratuites. Un jour il y aura peut-être une offre payante avec des fonctions en plus, et on te le dira avant.',
       faqPhotoQ: 'Où va la photo de l’assiette ?',
       faqPhotoA:
         'L’image est analysée par IA (Anthropic) uniquement pour estimer les calories et te renvoyer le résultat. Le détail complet est dans la Politique de Confidentialité.',
