@@ -8,6 +8,7 @@ import { BrandMark } from '../../components/brand/BrandMark'
 import { getProfile } from '../../api/profile'
 import { getNotificationPrefs, updateNotificationPrefs } from '../../api/notifications'
 import type { NotificationPrefs } from '../../types/notification'
+import { CloseAccountCard } from './CloseAccountCard'
 
 export function SettingsPage() {
   const { t } = useTranslation()
@@ -183,6 +184,11 @@ export function SettingsPage() {
             {t('settings.logout')}
           </button>
         </div>
+      </Section>
+
+      {/* ENCERRAR CONTA */}
+      <Section title={t('settings.dangerZone')}>
+        <CloseAccountCard />
       </Section>
 
       {/* SOBRE */}

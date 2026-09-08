@@ -101,4 +101,8 @@ public class UserJpaEntity {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    /** Set when the account is closed; null while it is live. See {@code V26}. */
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 }

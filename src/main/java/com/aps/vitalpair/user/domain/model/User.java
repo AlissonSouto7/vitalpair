@@ -38,4 +38,13 @@ public class User {
     private final String avatarUrl;
     private final Instant createdAt;
     private final Instant updatedAt;
+
+    /**
+     * When the account was closed, or null while it is live.
+     *
+     * <p>The row survives closure as a tombstone, so something has to say so. The JWT filter
+     * validates a signature and never reads the database, which is why the session refresh
+     * checks this column: without it, a token issued before the closure would keep renewing.
+     */
+    private final Instant deletedAt;
 }
