@@ -287,5 +287,3 @@ export function Broto({
     ...build(c, expr, g, level, id),
   )
 }
-
-export default Broto

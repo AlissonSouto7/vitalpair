@@ -65,7 +65,7 @@ export async function loadLegalNamespace(lang: Lang): Promise<void> {
 }
 
 /** The namespaces of one language, in the shape i18next expects. */
-export function bundle(lang: Lang): Record<string, unknown> {
+function bundle(lang: Lang): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [ns, mod] of Object.entries(modules)) {
     out[ns] = (mod as Record<Lang, unknown>)[lang]

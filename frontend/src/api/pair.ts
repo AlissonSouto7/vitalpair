@@ -13,11 +13,6 @@ export async function getInvitePreview(code: string): Promise<InvitePreview> {
   return res.data.data
 }
 
-export async function generateInvite(): Promise<Pair> {
-  const res = await api.post<ApiResponse<Pair>>('/pair/invite')
-  return res.data.data
-}
-
 export async function joinPair(code: string): Promise<Pair> {
   const res = await api.post<ApiResponse<Pair>>(`/pair/join/${code}`)
   return res.data.data
