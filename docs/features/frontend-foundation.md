@@ -6,7 +6,7 @@
 
 - **Status**: shipped, partially applied (see "Dívida conhecida")
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -118,12 +118,27 @@ npm --prefix frontend audit --omit=dev
 - **A entrada ainda tem 476 kB**, dominada por React, i18next e os bundles de
   tradução dos quatro idiomas. Separar por idioma exigiria reestruturar os 22
   arquivos de tradução, porque hoje cada um exporta `{ pt, en, es, fr }` junto.
-- **`sonner` e `lucide-react` foram instalados mas quase não são usados**: o
-  `Toaster` está montado, e nenhuma página emite toast ainda; os ícones em SVG
-  duplicados por página continuam.
+- **`sonner` está montado e nenhuma página emite toast ainda.** O `Toaster` está
+  no lugar; falta usá-lo.
+- **`lucide-react` foi removido na fase 15.** Ele tinha sido instalado para
+  trocar os SVGs duplicados por ícones prontos, e nunca foi importado. A lei das
+  cores do design pede ícone próprio, não biblioteca genérica, então os SVGs
+  ficam até o design novo chegar.
+- **65 botões escritos à mão em 20 arquivos**, 38 deles repetindo o estilo
+  primário, enquanto `components/ui/Button.tsx` existe e não é usado por
+  ninguém. O componente é onde a lei das cores dos botões está escrita, então
+  foi mantido e listado em `knip.json`; padronizar as telas é a fase 10.
 
 ## Histórico
 
+- **2026-09-08**: fase 15 (limpeza). Removidos `Bar.tsx` e `ProgressRing.tsx`
+  (sem uso; o segundo duplicava o `CalorieRing`, usado por três telas, e ainda
+  cravava um hex fora dos tokens), a função `generateInvite` da API do par (a
+  tela lê o código do `GET /pair`), o componente `Badge` e seus rótulos em
+  português dentro do código, e os `export` de quatro funções internas do
+  `PrivacyPage` e do `bundle` em `locales/index.ts`. Dependências fora:
+  `lucide-react` e `@testing-library/user-event`. `knip` entrou no repositório
+  com os falsos positivos configurados.
 - **2026-09-06**: fase 9. Alias `@/`, código por rota, 404 real, limite de erro,
   helper único de erro, TanStack Query no dashboard e no progresso, textos legais
   sob demanda, react-router atualizado por vulnerabilidade. Entrada de 742,85 kB

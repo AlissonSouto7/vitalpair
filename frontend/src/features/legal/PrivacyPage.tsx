@@ -104,11 +104,11 @@ function withMail(text: string): ReactNode {
   )
 }
 
-export function P({ children }: { children: ReactNode }) {
+function P({ children }: { children: ReactNode }) {
   return <p className="text-[15px] font-semibold leading-relaxed text-muted">{children}</p>
 }
 
-export function Mail({ children }: { children: ReactNode }) {
+function Mail({ children }: { children: ReactNode }) {
   return (
     <a
       href={`mailto:${children}`}
@@ -119,7 +119,7 @@ export function Mail({ children }: { children: ReactNode }) {
   )
 }
 
-export function BulletList({ items }: { items: [string, string][] }) {
+function BulletList({ items }: { items: [string, string][] }) {
   return (
     <ul className="flex flex-col gap-2.5">
       {items.map(([term, desc]) => (
@@ -137,7 +137,7 @@ export function BulletList({ items }: { items: [string, string][] }) {
   )
 }
 
-export function Callout({ callout }: { callout: LegalCallout }) {
+function Callout({ callout }: { callout: LegalCallout }) {
   const toneClasses = {
     brand: 'border-brand/30 bg-brand-soft',
     rival: 'border-rival/30 bg-rival-soft',
