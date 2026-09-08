@@ -157,10 +157,9 @@ acontecia. Cada caso tem uma frase agora.
 - **Não existe endpoint de contato.** O `mailto:` é o caminho honesto até haver
   um, e um endpoint público que envia e-mail precisa de rate limit e desafio antes
   de existir.
-- **8 avisos de `react-hooks/set-state-in-effect`** continuam, em 6 arquivos que
-  ainda buscam dados com `useEffect`. Eram 9 no início da fase 10a; o aviso do
-  compilador do React sobre `watch` saiu com `useWatch`. O padrão sai com a
-  migração dessas páginas (ver dívida).
+- **Nenhum aviso de lint em aberto.** Eram 9 no início da fase 10a e 8 depois
+  dela, todos `react-hooks/set-state-in-effect` nos arquivos que buscavam dados
+  com `useEffect`. A fase 10b migrou os seis restantes e zerou a conta.
 
 ## Testes: o que cada um protege
 
@@ -224,20 +223,25 @@ grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | xargs grep -l u
 
 ## Dívida conhecida
 
-- **Só 2 das 27 telas usam TanStack Query** (dashboard e progresso). As outras
-  ainda buscam com `useEffect` + `useState`, sem cache nem invalidação. Migrar as
-  restantes é a fase 10b. A escrita do peso no progresso usa `refetch` manual, não
-  `useMutation`.
-- **13 telas acima de 300 linhas**, as três maiores sendo nutrição (942),
-  onboarding (817) e perfil (607). A fase 10a não decompôs nenhuma: atividade
-  ganhou dois subcomponentes de formulário e cresceu de 521 para 601 linhas com
-  eles. Decompor é a fase 10b.
+- **9 telas ainda buscam com `useEffect`**, medidas por grep em 08/09:
+  gamificação, plano alimentar, missões, convite, par, temporada, fim de
+  temporada, configurações e plano de treino. As sete migradas (dashboard,
+  progresso, nutrição, perfil, atividade, feed, verificação de e-mail) mais o sino
+  do cabeçalho cobrem o que a pessoa abre todo dia. Nenhuma das nove restantes
+  gera aviso de lint: elas atribuem estado dentro de um `.then`, não de forma
+  síncrona no efeito, que é o padrão que a regra acusa.
+- **14 telas acima de 300 linhas**, contadas em 08/09. Nutrição caiu de 944 para
+  640 com as três abas extraídas e deixou de ser a maior. Onboarding, com 817,
+  passou a ser, e não foi tocada de propósito: os cinco campos dela não têm
+  elemento `<form>`, então migrar o formulário e decompor a tela é o mesmo
+  trabalho, e fazer metade agora significaria abrir o arquivo duas vezes.
 - **O layout feature-first do plano não foi feito.** As pastas continuam em
   `src/features`, `src/components`, `src/api`. O alias `@/` já existe, que era a
   pré-condição; mover os arquivos é um diff enorme sem ganho funcional imediato.
-- **A entrada tem 480,88 kB** (era 476 na fase 9; os 4,88 kB são os cinco
-  formulários novos), dominada por React, i18next e os bundles de tradução dos
-  quatro idiomas. Separar por idioma exigiria reestruturar os 22 arquivos de
+- **A entrada tem 474,04 kB**, dominada por React, i18next e os bundles de
+  tradução dos quatro idiomas. Foi a 480,88 kB com os formulários da fase 10a e
+  encolheu de volta na 10b, porque cada tela migrada deixou de carregar o estado
+  que mantinha à mão. Separar por idioma exigiria reestruturar os 22 arquivos de
   tradução, porque hoje cada um exporta `{ pt, en, es, fr }` junto.
 - **`sonner` está montado e nenhuma página emite toast ainda.** O `Toaster` está
   no lugar; falta usá-lo.
@@ -259,6 +263,17 @@ grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | xargs grep -l u
 
 ## Histórico
 
+- **2026-09-08**: fase 10b (dados e decomposição). Sete telas mais o sino do
+  cabeçalho saíram do `useEffect` para o TanStack Query, e os 8 avisos de lint
+  foram a zero: eram o sintoma exato desse padrão. Cada migração corrigiu um
+  defeito próprio, não só a forma. Nutrição perdeu a corrida da busca (uma
+  resposta atrasada sobrescrevia a atual), o favorito que ficava vazio para sempre
+  depois de uma falha, e o `delete` sem `catch`. O feed parou de jogar fora as
+  páginas já carregadas a cada reação. O sino trocou o intervalo escrito à mão por
+  polling da query. A verificação de e-mail trocou a trava por `ref`, que existia
+  porque o modo estrito gastava o token duas vezes, pela deduplicação da query.
+  As três abas da nutrição viraram arquivos próprios: a tela caiu de 944 para 640
+  linhas. Testes de 135 para 143; entrada de 480,88 para 474,04 kB.
 - **2026-09-08**: fase 10a (formulários e testes de componente). Os 5 arquivos
   com `<form>` que faltavam (atividade, contato, par, perfil, progresso) passaram
   para react-hook-form + zod, com 21 chaves de mensagem novas em 4 idiomas. Sete
