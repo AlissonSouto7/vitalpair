@@ -1,5 +1,5 @@
-import { useAuthStore } from '../store/authStore'
 import * as authApi from '../api/auth'
+import { useAuthStore } from '../store/authStore'
 import type { LoginPayload, RegisterPayload } from '../types/auth'
 
 export function useAuth() {

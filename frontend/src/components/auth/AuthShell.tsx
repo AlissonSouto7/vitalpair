@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { useTheme } from '../../hooks/useTheme'
 import { BrandLockup } from '../brand/BrandMark'
 

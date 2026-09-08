@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import type { FavoriteFood } from '@/types/nutrition'
 
 import { PlusIcon } from './icons'
 import { nutritionQueries } from './queries'
+
+import type { FavoriteFood } from '@/types/nutrition'
 
 const round = (v: number) => Math.round(v * 10) / 10
 

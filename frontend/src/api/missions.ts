@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { FlashMission, WeeklyMission } from '../types/missions'
+
+import { api } from './client'
 
 export async function getWeeklyMissions(): Promise<WeeklyMission[]> {
   const res = await api.get<ApiResponse<WeeklyMission[]>>('/missions/weekly')

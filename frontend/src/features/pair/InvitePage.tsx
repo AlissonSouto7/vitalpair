@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getInvitePreview, joinPair } from '../../api/pair'
+
 import { refreshSession } from '../../api/auth'
-import { useAuthStore } from '../../store/authStore'
+import { getInvitePreview, joinPair } from '../../api/pair'
 import { BrandMark } from '../../components/brand/BrandMark'
+import { useAuthStore } from '../../store/authStore'
 import type { InvitePreview } from '../../types/pair'
 
 type State =
@@ -32,7 +33,7 @@ export function InvitePage() {
   async function accept() {
     // Deslogado: manda pro cadastro segurando o código (entra na dupla depois do cadastro).
     if (!accessToken) {
-      navigate(`/register?convite=${encodeURIComponent(code)}`)
+      void navigate(`/register?convite=${encodeURIComponent(code)}`)
       return
     }
     setJoining(true)
@@ -40,7 +41,7 @@ export function InvitePage() {
     try {
       await joinPair(code.trim().toUpperCase())
       await refreshSession()
-      navigate('/dashboard')
+      void navigate('/dashboard')
     } catch {
       setJoinError(t('pair.inviteJoinError'))
     } finally {
@@ -122,7 +123,7 @@ export function InvitePage() {
 
             <button
               type="button"
-              onClick={accept}
+              onClick={() => void accept()}
               disabled={joining}
               className="btn-primary mt-5 w-full disabled:opacity-60"
             >
@@ -131,7 +132,7 @@ export function InvitePage() {
 
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => void navigate('/')}
               className="mt-3 w-full text-sm font-bold text-muted transition hover:text-ink"
             >
               {t('pair.notNow')}

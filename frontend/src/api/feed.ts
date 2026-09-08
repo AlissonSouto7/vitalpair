@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { FeedItem, Page, ReactionType } from '../types/feed'
+
+import { api } from './client'
 
 export async function getFeed(page = 0, size = 20): Promise<Page<FeedItem>> {
   const res = await api.get<ApiResponse<Page<FeedItem>>>('/pair/feed', {

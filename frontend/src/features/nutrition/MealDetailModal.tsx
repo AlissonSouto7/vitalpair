@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import type { FoodLog } from '../../types/nutrition'
 
 function formatTime(iso: string, locale: string): string {

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Link, useSearchParams } from 'react-router-dom'
+
 import { verifyEmail } from '../../api/auth'
 import { AuthShell } from '../../components/auth/AuthShell'
 

@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { NotificationFeed, NotificationPrefs } from '../types/notification'
+
+import { api } from './client'
 
 export async function listNotifications(): Promise<NotificationFeed> {
   const res = await api.get<ApiResponse<NotificationFeed>>('/notifications')

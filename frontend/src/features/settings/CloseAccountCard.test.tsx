@@ -2,12 +2,13 @@ import { screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { CloseAccountCard } from './CloseAccountCard'
+
 import { useAuthStore } from '@/store/authStore'
 import { fail, ok, path } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
-import { CloseAccountCard } from './CloseAccountCard'
 
 /**
  * The gate in front of the only action in the product that cannot be undone.

@@ -1,9 +1,10 @@
 import { useState, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useTheme } from '../../hooks/useTheme'
+import { Link } from 'react-router-dom'
+
 import { BrandMark } from '../../components/brand/BrandMark'
 import { LanguageSelect } from '../../components/LanguageSelect'
+import { useTheme } from '../../hooks/useTheme'
 
 /**
  * Landing pública (logado-out) do VitalPair.

@@ -39,7 +39,9 @@ export function ResetPasswordPage() {
     try {
       await resetPassword(token, values.password)
       setDone(true)
-      setTimeout(() => navigate('/login'), 2500)
+      // The pause is the point: the success message has to be readable before the screen
+      // changes under the person who just reset their password.
+      setTimeout(() => void navigate('/login'), 2500)
     } catch {
       setError(t('auth.errorReset'))
     }

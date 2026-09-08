@@ -2,12 +2,13 @@ import { screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
 import { describe, expect, it } from 'vitest'
 
+import { ProgressPage } from './ProgressPage'
+
 import { progressFixture } from '@/test/fixtures'
 import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
-import { ProgressPage } from './ProgressPage'
 
 /**
  * The weight form on the progress screen.

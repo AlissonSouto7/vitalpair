@@ -1,6 +1,7 @@
-import { api } from './client'
-import type { ApiResponse } from '../types/api'
 import type { MealPlan, PlanMealType, WorkoutToday } from '../types/aiplan'
+import type { ApiResponse } from '../types/api'
+
+import { api } from './client'
 
 // Gerações por IA demoram (a semana inteira vem num tiro só).
 const SLOW = { timeout: 90000 }

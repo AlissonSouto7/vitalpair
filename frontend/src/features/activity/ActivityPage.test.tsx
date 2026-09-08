@@ -2,13 +2,14 @@ import { screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
 import { describe, expect, it } from 'vitest'
 
+import { ActivityPage } from './ActivityPage'
+
 import { activityLogsFixture, activitySummaryFixture } from '@/test/fixtures'
 import { ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 import type { LogActivityPayload } from '@/types/activity'
 
-import { ActivityPage } from './ActivityPage'
 
 function mount() {
   server.use(

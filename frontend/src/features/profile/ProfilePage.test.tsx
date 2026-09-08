@@ -2,13 +2,14 @@ import { screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
 import { describe, expect, it } from 'vitest'
 
+import { ProfilePage } from './ProfilePage'
+
 import { profileFixture, progressFixture, seasonFixture, tdeeFixture } from '@/test/fixtures'
 import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 import type { UpdateProfilePayload } from '@/types/profile'
 
-import { ProfilePage } from './ProfilePage'
 
 function mount(profile = profileFixture) {
   server.use(

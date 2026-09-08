@@ -1,4 +1,3 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type {
   DailySummary,
@@ -8,6 +7,8 @@ import type {
   LogMealPayload,
   PhotoAnalysis,
 } from '../types/nutrition'
+
+import { api } from './client'
 
 export async function searchFoods(query: string): Promise<FoodProduct[]> {
   const res = await api.get<ApiResponse<FoodProduct[]>>('/nutrition/foods/search', {
