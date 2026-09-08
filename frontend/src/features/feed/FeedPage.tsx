@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { getFeed, reactToItem, removeReaction } from '../../api/feed'
 import type { FeedItem, ReactionType } from '../../types/feed'
@@ -53,40 +54,46 @@ const REACTIONS: {
 export function FeedPage() {
   const { t, i18n } = useTranslation()
   const myId = useAuthStore((s) => s.userId)
-  const [items, setItems] = useState<FeedItem[]>([])
-  const [page, setPage] = useState(0)
-  const [last, setLast] = useState(true)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
 
-  const load = useCallback(async (pageToLoad: number) => {
-    const result = await getFeed(pageToLoad, 20)
-    setItems((prev) => (pageToLoad === 0 ? result.content : [...prev, ...result.content]))
-    setPage(result.page)
-    setLast(result.last)
-  }, [])
+  /**
+   * The pair's timeline, one page at a time.
+   *
+   * Accumulating the pages by hand meant a reaction had to refetch page zero and then
+   * discard everything after it, so someone who had loaded four pages lost three of them
+   * to a single tap. An infinite query keeps every loaded page and refreshes them all.
+   */
+  const feed = useInfiniteQuery({
+    queryKey: ['feed', 'timeline'],
+    queryFn: ({ pageParam }) => getFeed(pageParam, 20),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => (lastPage.last ? undefined : lastPage.page + 1),
+  })
 
-  useEffect(() => {
-    load(0)
-      .catch(() => setError(t('feed.loadError')))
-      .finally(() => setLoading(false))
-  }, [load, t])
+  const items: FeedItem[] = feed.data?.pages.flatMap((p) => p.content) ?? []
 
   async function toggle(item: FeedItem, type: ReactionType) {
+    setError(null)
     try {
       if (item.myReactions.includes(type)) {
         await removeReaction(item.id, type)
       } else {
         await reactToItem(item.id, type)
       }
-      await load(0)
-      setPage(0)
+      await queryClient.invalidateQueries({ queryKey: ['feed'] })
     } catch {
       setError(t('feed.reactError'))
     }
   }
 
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (feed.isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (feed.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('feed.loadError')}
+      </p>
+    )
 
   return (
     <div className="mx-auto max-w-[620px]">
@@ -120,12 +127,13 @@ export function FeedPage() {
         </div>
       )}
 
-      {!last && items.length > 0 && (
+      {feed.hasNextPage && items.length > 0 && (
         <button
-          onClick={() => load(page + 1).catch(() => setError(t('feed.loadMoreError')))}
-          className="btn-ghost mt-4 w-full"
+          onClick={() => void feed.fetchNextPage()}
+          disabled={feed.isFetchingNextPage}
+          className="btn-ghost mt-4 w-full disabled:opacity-60"
         >
-          {t('common.loadMore')}
+          {feed.isFetchingNextPage ? t('common.loading') : t('common.loadMore')}
         </button>
       )}
     </div>

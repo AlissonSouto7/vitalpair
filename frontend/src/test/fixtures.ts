@@ -1,4 +1,5 @@
 import type { ActivityLog, ActivitySummary } from '@/types/activity'
+import type { DailySummary, FavoriteFood, FoodLog, FoodProduct } from '@/types/nutrition'
 import type { Pair } from '@/types/pair'
 import type { Tdee, UserProfile } from '@/types/profile'
 import type { ProgressView } from '@/types/progress'
@@ -88,6 +89,59 @@ export const pairActiveFixture: Pair = {
     { userId: 'u2', name: 'Bruno Lima', email: 'bruno@example.com', avatarUrl: null },
   ],
 }
+
+export const dailySummaryFixture: DailySummary = {
+  date: '2026-09-08',
+  consumedCalories: 890,
+  consumedProteinG: 45,
+  consumedCarbG: 100,
+  consumedFatG: 30,
+  targetCalories: 2100,
+  targetProteinG: 140,
+  targetCarbG: 220,
+  targetFatG: 70,
+  remainingCalories: 1210,
+  mealCount: 2,
+}
+
+export const foodLogsFixture: FoodLog[] = [
+  {
+    id: 'f1',
+    foodName: 'Banana',
+    barcode: null,
+    quantityG: 120,
+    caloriesKcal: 107,
+    proteinG: 1.3,
+    carbG: 27,
+    fatG: 0.4,
+    mealType: 'BREAKFAST',
+    source: 'MANUAL',
+    loggedAt: '2026-09-08T09:00:00Z',
+  },
+]
+
+export const favoriteFoodsFixture: FavoriteFood[] = [
+  {
+    foodName: 'Ovo mexido',
+    quantityG: 100,
+    caloriesKcal: 155,
+    proteinG: 13,
+    carbG: 1.1,
+    fatG: 11,
+    count: 7,
+  },
+]
+
+export const foodProductsFixture: FoodProduct[] = [
+  {
+    name: 'Iogurte natural',
+    barcode: '7891000100103',
+    caloriesPer100g: 61,
+    proteinPer100g: 3.5,
+    carbPer100g: 4.7,
+    fatPer100g: 3.3,
+  },
+]
 
 export const activitySummaryFixture: ActivitySummary = {
   date: '2026-09-08',
