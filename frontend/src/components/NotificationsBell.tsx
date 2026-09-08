@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { listNotifications, markNotificationsRead } from '../api/notifications'
 import type { AppNotification, NotificationFeed, NotificationType } from '../types/notification'
@@ -14,31 +15,43 @@ const DOT: Record<NotificationType, string> = {
 
 export function NotificationsBell() {
   const { t } = useTranslation()
-  const [feed, setFeed] = useState<NotificationFeed>({ unreadCount: 0, items: [] })
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   // Reading Date.now() while rendering makes the output differ between renders of the
   // same state. Captured once per mount and refreshed on the interval below instead.
   const [now, setNow] = useState(() => Date.now())
   const ref = useRef<HTMLDivElement>(null)
 
-  async function load() {
-    try {
-      setFeed(await listNotifications())
-    } catch {
-      /* silencioso: o sino não deve quebrar o header */
-    }
-  }
+  // Polled rather than fetched once: the bell is about the partner acting somewhere else,
+  // so it has to notice without the person navigating. The query owns the polling, which
+  // is what removes the hand-rolled interval that also had to swallow its own errors.
+  const notifications = useQuery({
+    queryKey: ['notifications'],
+    queryFn: listNotifications,
+    refetchInterval: 30_000,
+    // The bell sits in the header of every screen. A failure here must not put an error
+    // where the notifications go, so the empty feed below is the fallback.
+    retry: false,
+  })
+  const feed: NotificationFeed = notifications.data ?? { unreadCount: 0, items: [] }
 
   useEffect(() => {
-    load()
-    // The same tick refreshes the relative timestamps ("5 min ago"), so there is no
-    // second timer and the labels never sit frozen while the panel is open.
-    const id = setInterval(() => {
-      load()
-      setNow(Date.now())
-    }, 30000)
+    // Only the relative timestamps ("5 min ago"); the feed itself is the query's business.
+    const id = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(id)
   }, [])
+
+  const markRead = useMutation({
+    mutationFn: markNotificationsRead,
+    // The badge clears the moment the panel opens, before the request finishes, because
+    // waiting for a round trip to hide a number the person is already looking at reads as
+    // lag. A failure leaves the optimistic state alone: the next poll corrects it.
+    onMutate: () => {
+      queryClient.setQueryData<NotificationFeed>(['notifications'], (current) =>
+        current ? { ...current, unreadCount: 0 } : current,
+      )
+    },
+  })
 
   useEffect(() => {
     function onDocClick(event: MouseEvent) {
@@ -80,16 +93,11 @@ export function NotificationsBell() {
     return t('notifications.day', { n: Math.floor(hours / 24) })
   }
 
-  async function toggle() {
+  function toggle() {
     const next = !open
     setOpen(next)
     if (next && feed.unreadCount > 0) {
-      setFeed((f) => ({ ...f, unreadCount: 0 }))
-      try {
-        await markNotificationsRead()
-      } catch {
-        /* mantém o estado otimista */
-      }
+      markRead.mutate()
     }
   }
 

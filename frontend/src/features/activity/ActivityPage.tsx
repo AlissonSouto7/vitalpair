@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
+import { useId, useMemo, useState, type ReactNode } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 
-import { getActivities, getActivitySummary, logActivity } from '@/api/activity'
+import { logActivity } from '@/api/activity'
 import { Points } from '@/components/ui/Badge'
 import { Select } from '@/components/ui/Select'
 import { getApiErrorMessage } from '@/shared/api/errors'
@@ -12,6 +13,8 @@ import { Field } from '@/shared/ui/form/Field'
 import { FormError } from '@/shared/ui/form/FormError'
 import { NumberField } from '@/shared/ui/form/NumberField'
 import type { ActivityLog, ActivitySource, ActivitySummary, ActivityType } from '@/types/activity'
+
+import { activityQueries } from './queries'
 
 const WORKOUT_TYPES = [
   'RUN',
@@ -68,20 +71,22 @@ const stepsToKcal = (steps: number) => Math.round(steps * 0.04)
 
 export function ActivityPage() {
   const { t, i18n } = useTranslation()
+  const queryClient = useQueryClient()
   const [tab, setTab] = useState<Tab>('treino')
-  const [logs, setLogs] = useState<ActivityLog[]>([])
-  const [summary, setSummary] = useState<ActivitySummary | null>(null)
-  const [loadError, setLoadError] = useState<string | null>(null)
 
-  const refresh = useCallback(async () => {
-    const [logsData, summaryData] = await Promise.all([getActivities(), getActivitySummary()])
-    setLogs(logsData)
-    setSummary(summaryData)
-  }, [])
+  const logsQuery = useQuery(activityQueries.logs())
+  const summaryQuery = useQuery(activityQueries.summary())
+  const logs: ActivityLog[] = logsQuery.data ?? []
+  const summary: ActivitySummary | null = summaryQuery.data ?? null
+  const loadError = logsQuery.isError || summaryQuery.isError ? t('activity.loadError') : null
 
-  useEffect(() => {
-    refresh().catch(() => setLoadError(t('activity.loadError')))
-  }, [refresh, t])
+  /** Every read a logged activity makes stale, here and on the dashboard. */
+  async function refresh() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['activity'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    ])
+  }
 
   return (
     <div className="space-y-5 pb-2">
