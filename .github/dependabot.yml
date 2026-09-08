@@ -4,6 +4,10 @@ version: 2
 # ecosystem, because reviewing thirty separate "bump x from 1.0 to 1.1" pull requests is
 # how people start ignoring them. Major bumps stay separate: they break things and deserve
 # their own review.
+#
+# The ignore rules exist because a pull request nobody can merge is worse than no pull
+# request: it arrives every Monday, fails, and teaches everyone to skim past the robot.
+# Each one below was added after closing a real pull request, and each says which.
 updates:
   - package-ecosystem: maven
     directory: /
@@ -20,6 +24,21 @@ updates:
       backend-minor-and-patch:
         patterns: ['*']
         update-types: [minor, patch]
+    ignore:
+      # Spring Boot 4 needs Java 21 and is a migration, not a bump: it moves Jackson to the
+      # tools.jackson namespace and restructures the BOM, so the POM does not even parse
+      # against this project's dependency declarations. Closed as #13.
+      - dependency-name: org.springframework.boot:spring-boot-starter-parent
+        update-types: [version-update:semver-major]
+      # springdoc 3.x is built for Spring Boot 4 and references a class Boot 3 does not
+      # have, so the application context fails to start. Closed as #10.
+      - dependency-name: org.springdoc:*
+        update-types: [version-update:semver-major]
+      # Spring Cloud numbers its releases by year, so 2025.0 to 2025.1 looks like a minor
+      # and is in fact the Boot 4 train, pulling Jackson 3 in with it. Grouped as a minor,
+      # it broke the whole backend group and took six healthy bumps down with it.
+      # Closed as #26. The version is pinned in pom.xml and moves when Boot does.
+      - dependency-name: org.springframework.cloud:*
 
   - package-ecosystem: npm
     directory: /frontend
@@ -36,6 +55,17 @@ updates:
       frontend-minor-and-patch:
         patterns: ['*']
         update-types: [minor, patch]
+    ignore:
+      # TypeScript 7 cannot be installed yet: i18next and msw declare peer ranges that
+      # exclude it, so npm ci aborts before anything runs. Closed as #17. Remove this once
+      # those two ship peers that accept 7.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      # @types/node describes the API surface of a Node the project does not run: .nvmrc
+      # pins 22. Typing against 26 is how code compiles locally and fails on the machine
+      # that ships it.
+      - dependency-name: '@types/node'
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
@@ -59,3 +89,16 @@ updates:
       timezone: America/Sao_Paulo
     commit-message:
       prefix: build
+    ignore:
+      # The Java version is a decision, not an upgrade. It is pinned in five places
+      # (pom.xml, both stages of the Dockerfile, ci.yml twice, codeql.yml) and moving one
+      # of them alone means testing on one JVM and shipping on another. Closed as #7 and
+      # #8. When Java moves, all five move together, deliberately.
+      #
+      # Worth knowing before trusting a green check on one of these: no workflow runs
+      # `docker build`, so CI never exercises the Dockerfile at all. Both closed pull
+      # requests passed every check without anything having built the image.
+      - dependency-name: eclipse-temurin
+        update-types: [version-update:semver-major]
+      - dependency-name: maven
+        update-types: [version-update:semver-major]
