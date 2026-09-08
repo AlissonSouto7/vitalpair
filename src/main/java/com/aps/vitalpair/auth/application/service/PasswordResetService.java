@@ -18,6 +18,7 @@ import com.aps.vitalpair.auth.domain.port.in.ResetPasswordUseCase;
 import com.aps.vitalpair.auth.domain.port.out.MailSenderPort;
 import com.aps.vitalpair.auth.domain.port.out.PasswordHasherPort;
 import com.aps.vitalpair.auth.domain.port.out.PasswordResetTokenStorePort;
+import com.aps.vitalpair.auth.domain.port.out.RefreshTokenStorePort;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
@@ -34,6 +35,7 @@ public class PasswordResetService implements RequestPasswordResetUseCase, ResetP
     private final UserRepositoryPort userRepository;
     private final PasswordHasherPort passwordHasher;
     private final PasswordResetTokenStorePort tokenStore;
+    private final RefreshTokenStorePort refreshTokenStore;
     private final MailSenderPort mailSender;
     private final long tokenTtlMs;
     private final String frontendUrl;
@@ -42,12 +44,14 @@ public class PasswordResetService implements RequestPasswordResetUseCase, ResetP
             UserRepositoryPort userRepository,
             PasswordHasherPort passwordHasher,
             PasswordResetTokenStorePort tokenStore,
+            RefreshTokenStorePort refreshTokenStore,
             MailSenderPort mailSender,
             @Value("${vitalpair.password-reset.token-ttl-ms:1800000}") long tokenTtlMs,
             @Value("${vitalpair.app.frontend-url:http://localhost:5173}") String frontendUrl) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
         this.tokenStore = tokenStore;
+        this.refreshTokenStore = refreshTokenStore;
         this.mailSender = mailSender;
         this.tokenTtlMs = tokenTtlMs;
         this.frontendUrl = frontendUrl;
@@ -83,7 +87,13 @@ public class PasswordResetService implements RequestPasswordResetUseCase, ResetP
         userRepository.save(
                 user.toBuilder().passwordHash(passwordHasher.hash(newPassword)).build());
         tokenStore.revoke(token);
-        log.info("Senha redefinida para o usuário {}", userId);
+
+        // The usual reason to reset a password is that somebody else knows it. Changing the
+        // hash alone leaves every existing refresh token working, so an intruder keeps
+        // renewing for the full thirty days while the owner believes they locked them out.
+        refreshTokenStore.revokeAllForUser(userId);
+
+        log.info("Senha redefinida para o usuário {}; sessões encerradas", userId);
     }
 
     private String generateOpaqueToken() {
