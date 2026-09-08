@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { verifyEmail } from '../../api/auth'
@@ -10,20 +10,32 @@ export function VerifyEmailPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') ?? ''
-  const [status, setStatus] = useState<Status>('verifying')
-  const ran = useRef(false)
 
-  useEffect(() => {
-    if (ran.current) return
-    ran.current = true
-    if (!token) {
-      setStatus('error')
-      return
-    }
-    verifyEmail(token)
-      .then(() => setStatus('success'))
-      .catch(() => setStatus('error'))
-  }, [token])
+  /**
+   * Spends the token from the e-mail link.
+   *
+   * A query rather than an effect, and the difference matters here more than on a screen
+   * that only reads: the token is single use, and React's strict mode mounts twice in
+   * development, so the effect version needed a ref to stop the second run from burning it.
+   * The query deduplicates by key, which is the same guarantee without the flag. Retrying
+   * is off for the same reason: a second attempt would spend a token the first one
+   * consumed and report a failure that did not happen.
+   */
+  const verification = useQuery({
+    queryKey: ['auth', 'verify-email', token],
+    queryFn: () => verifyEmail(token),
+    enabled: token !== '',
+    retry: false,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
+
+  const status: Status =
+    token === '' || verification.isError
+      ? 'error'
+      : verification.isSuccess
+        ? 'success'
+        : 'verifying'
 
   return (
     <AuthShell>

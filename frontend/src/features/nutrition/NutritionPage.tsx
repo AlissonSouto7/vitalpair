@@ -1,18 +1,15 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AxiosError } from 'axios'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { NumberField } from '@/shared/ui/form/NumberField'
-import {
-  analyzePhoto,
-  deleteLog,
-  getFavorites,
-  getLogs,
-  getSummary,
-  logMeal,
-  searchFoods,
-} from '../../api/nutrition'
+import { deleteLog, logMeal } from '../../api/nutrition'
+import { FavoritesTab } from './FavoritesTab'
+import { PhotoTab } from './PhotoTab'
+import { SearchTab } from './SearchTab'
+import { nutritionQueries } from './queries'
 import type {
   DailySummary,
   DetectedFood,
@@ -52,87 +49,41 @@ function per100(value: number, grams: number) {
   return grams > 0 ? round(value / (grams / 100)) : round(value)
 }
 
-function fileToImage(file: File): Promise<{ base64: string; mediaType: string; dataUrl: string }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = reader.result as string
-      const comma = result.indexOf(',')
-      resolve({
-        base64: result.slice(comma + 1),
-        mediaType: file.type || 'image/jpeg',
-        dataUrl: result,
-      })
-    }
-    reader.onerror = () => reject(new Error('Não rolou ler a foto.'))
-    reader.readAsDataURL(file)
-  })
-}
-
 export function NutritionPage() {
   const { t } = useTranslation()
   const foodNameId = useId()
   const mealLabel = (m: MealType) => t(`nutrition.mealShort.${m}`)
+  const queryClient = useQueryClient()
   const [tab, setTab] = useState<Tab>('foto')
   const [meal, setMeal] = useState<MealType>('LUNCH')
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState<FoodProduct[]>([])
-  const [searching, setSearching] = useState(false)
   const [draft, setDraft] = useState<Draft | null>(null)
-  const [logs, setLogs] = useState<FoodLog[]>([])
-  const [summary, setSummary] = useState<DailySummary | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
   const [selected, setSelected] = useState<FoodLog | null>(null)
 
-  // Favoritos
-  const [favorites, setFavorites] = useState<FavoriteFood[] | null>(null)
-  const [favLoading, setFavLoading] = useState(false)
+  const logsQuery = useQuery(nutritionQueries.logs())
+  const summaryQuery = useQuery(nutritionQueries.summary())
+  const logs: FoodLog[] = logsQuery.data ?? []
+  const summary: DailySummary | null = summaryQuery.data ?? null
+  const loadError = logsQuery.isError || summaryQuery.isError ? t('nutrition.loadError') : null
+
+  /** Every read a write makes stale: the day's meals, the day's totals, the dashboard. */
+  async function refresh() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['nutrition', 'logs'] }),
+      queryClient.invalidateQueries({ queryKey: ['nutrition', 'summary'] }),
+      // The dashboard shows the same numbers, so it is stale the moment a meal is logged.
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+    ])
+  }
+
+  const logMealMutation = useMutation({ mutationFn: logMeal, onSuccess: refresh })
+  const deleteLogMutation = useMutation({ mutationFn: deleteLog, onSuccess: refresh })
+
+  // Which favourite is being logged right now, or null. Tracked explicitly rather than read
+  // off the mutation: saving from the editor uses the same mutation, and a "MANUAL" source
+  // does not tell the two apart.
   const [addingFav, setAddingFav] = useState<string | null>(null)
-
-  // Foto-IA
-  const fileRef = useRef<HTMLInputElement>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
-  const [photoData, setPhotoData] = useState<{ base64: string; mediaType: string } | null>(null)
-  const [analyzing, setAnalyzing] = useState(false)
-  const [detected, setDetected] = useState<DetectedFood[] | null>(null)
-  const [photoError, setPhotoError] = useState<string | null>(null)
-
-  const refresh = useCallback(async () => {
-    const [logsData, summaryData] = await Promise.all([getLogs(), getSummary()])
-    setLogs(logsData)
-    setSummary(summaryData)
-  }, [])
-
-  useEffect(() => {
-    refresh().catch(() => setError(t('nutrition.loadError')))
-  }, [refresh, t])
-
-  // Busca (debounce)
-  useEffect(() => {
-    if (query.trim().length < 2) {
-      setResults([])
-      return
-    }
-    setSearching(true)
-    const timer = setTimeout(() => {
-      searchFoods(query)
-        .then(setResults)
-        .catch(() => setResults([]))
-        .finally(() => setSearching(false))
-    }, 400)
-    return () => clearTimeout(timer)
-  }, [query])
-
-  // Favoritos: carrega na primeira vez que abre a aba
-  useEffect(() => {
-    if (tab !== 'favoritos' || favorites !== null || favLoading) return
-    setFavLoading(true)
-    getFavorites()
-      .then(setFavorites)
-      .catch(() => setFavorites([]))
-      .finally(() => setFavLoading(false))
-  }, [tab, favorites, favLoading])
+  const saving = logMealMutation.isPending && addingFav === null
 
   function startFromProduct(p: FoodProduct) {
     setDraft({
@@ -186,7 +137,7 @@ export function NutritionPage() {
     setAddingFav(f.foodName)
     setError(null)
     try {
-      await logMeal({
+      await logMealMutation.mutateAsync({
         foodName: f.foodName,
         barcode: null,
         quantityG: f.quantityG,
@@ -198,51 +149,10 @@ export function NutritionPage() {
         source: 'MANUAL',
         isPrivate: false,
       })
-      await refresh()
-    } catch {
-      setError(t('nutrition.favAddError'))
+    } catch (err) {
+      setError(getApiErrorMessage(err, t('nutrition.favAddError')))
     } finally {
       setAddingFav(null)
-    }
-  }
-
-  async function onPickPhoto(file: File | undefined) {
-    if (!file) return
-    setPhotoError(null)
-    setDetected(null)
-    try {
-      const img = await fileToImage(file)
-      setPhotoPreview(img.dataUrl)
-      setPhotoData({ base64: img.base64, mediaType: img.mediaType })
-    } catch {
-      setPhotoError(t('nutrition.photoOpenError'))
-    }
-  }
-
-  function resetPhoto() {
-    setPhotoPreview(null)
-    setPhotoData(null)
-    setDetected(null)
-    setPhotoError(null)
-    if (fileRef.current) fileRef.current.value = ''
-  }
-
-  async function runAnalysis() {
-    if (!photoData) return
-    setAnalyzing(true)
-    setPhotoError(null)
-    setDetected(null)
-    try {
-      const res = await analyzePhoto(photoData.base64, photoData.mediaType)
-      setDetected(res.items)
-      if (res.items.length === 0) {
-        setPhotoError(t('nutrition.photoNoFood'))
-      }
-    } catch (err) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setPhotoError(message ?? t('nutrition.photoAiError'))
-    } finally {
-      setAnalyzing(false)
     }
   }
 
@@ -258,10 +168,9 @@ export function NutritionPage() {
 
   async function save() {
     if (!draft || !computed) return
-    setSaving(true)
     setError(null)
     try {
-      await logMeal({
+      await logMealMutation.mutateAsync({
         foodName: draft.name,
         barcode: draft.barcode,
         quantityG: num(draft.grams),
@@ -274,21 +183,21 @@ export function NutritionPage() {
         isPrivate: draft.isPrivate,
       })
       setDraft(null)
-      setQuery('')
-      setResults([])
-      await refresh()
     } catch (err) {
-      const message = err instanceof AxiosError ? err.response?.data?.message : null
-      setError(message ?? t('nutrition.saveError'))
-    } finally {
-      setSaving(false)
+      setError(getApiErrorMessage(err, t('nutrition.saveError')))
     }
   }
 
   async function removeLog(id: string) {
     setSelected((cur) => (cur?.id === id ? null : cur))
-    await deleteLog(id)
-    await refresh()
+    setError(null)
+    try {
+      await deleteLogMutation.mutateAsync(id)
+    } catch (err) {
+      // Deleting had no catch at all: a failed removal left the meal on screen with no
+      // explanation, and the person could only tell by reloading.
+      setError(getApiErrorMessage(err, t('nutrition.deleteError')))
+    }
   }
 
   return (
@@ -347,9 +256,12 @@ export function NutritionPage() {
         </section>
       )}
 
-      {error && (
-        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
-          {error}
+      {(error ?? loadError) && (
+        <p
+          role="alert"
+          className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger"
+        >
+          {error ?? loadError}
         </p>
       )}
 
@@ -402,218 +314,12 @@ export function NutritionPage() {
           />
         </div>
 
-        {/* --- Aba Foto --- */}
-        {tab === 'foto' && (
-          <div className="space-y-3">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={(e) => onPickPhoto(e.target.files?.[0])}
-            />
-
-            {!photoPreview ? (
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-hair bg-canvas px-6 py-10 text-center transition hover:border-brand"
-              >
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft text-brand">
-                  <CameraIcon big />
-                </span>
-                <span className="font-display text-base font-semibold text-ink">
-                  {t('nutrition.photoDropTitle')}
-                </span>
-                <span className="text-sm font-semibold text-muted">
-                  {t('nutrition.photoDropSubtitle')}
-                </span>
-              </button>
-            ) : (
-              <div className="space-y-3">
-                <div className="overflow-hidden rounded-2xl border border-hair">
-                  <img
-                    src={photoPreview}
-                    alt={t('nutrition.photoAlt')}
-                    className="max-h-64 w-full object-cover"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={runAnalysis}
-                    disabled={analyzing}
-                    className="btn-primary flex-1 text-sm disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {analyzing
-                      ? t('nutrition.analyzing')
-                      : detected
-                        ? t('nutrition.analyzeAgain')
-                        : t('nutrition.analyze')}
-                  </button>
-                  <button type="button" onClick={resetPhoto} className="btn-ghost">
-                    {t('nutrition.changePhoto')}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {photoError && (
-              <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
-                {photoError}
-              </p>
-            )}
-
-            {detected && detected.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-extrabold text-ink">{t('nutrition.detectedTitle')}</p>
-                <ul className="space-y-2">
-                  {detected.map((d, i) => (
-                    <li
-                      key={`${d.foodName}-${i}`}
-                      className="flex items-center gap-3 rounded-xl border border-hair bg-surface px-4 py-3"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-extrabold text-ink">{d.foodName}</p>
-                        <p className="text-[11.5px] font-semibold text-muted">
-                          ~{round(d.quantityG)}g · {round(d.caloriesKcal)} kcal
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => startFromDetected(d)}
-                        aria-label={t('nutrition.detectedCheckAdd', { name: d.foodName })}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105"
-                      >
-                        <PlusIcon />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-[11.5px] font-semibold text-muted">
-                  {t('nutrition.detectedHint')}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        {tab === 'foto' && <PhotoTab onPick={startFromDetected} />}
 
         {/* --- Aba Buscar --- */}
-        {tab === 'buscar' && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5 rounded-xl border border-brand bg-canvas px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-brand/30">
-              <SearchIcon />
-              <input
-                type="text"
-                placeholder={t('nutrition.searchInputPlaceholder')}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="min-w-0 flex-1 border-none bg-transparent font-bold text-ink placeholder-faint outline-none"
-              />
-            </div>
+        {tab === 'buscar' && <SearchTab onPick={startFromProduct} onManual={startManual} />}
 
-            {searching && (
-              <p className="text-sm font-semibold text-muted">{t('nutrition.searchingShort')}</p>
-            )}
-
-            {!searching && query.trim().length >= 2 && results.length === 0 && (
-              <p className="text-sm font-semibold text-muted">{t('nutrition.searchEmpty')}</p>
-            )}
-
-            {results.length > 0 && (
-              <ul className="space-y-2">
-                {results.map((p, i) => (
-                  <li
-                    key={`${p.barcode ?? p.name}-${i}`}
-                    className="flex items-center gap-3 rounded-xl border border-hair bg-surface px-4 py-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-extrabold text-ink">{p.name}</p>
-                      <p className="text-[11.5px] font-semibold text-muted">
-                        {p.caloriesPer100g != null
-                          ? t('nutrition.per100Source')
-                          : t('nutrition.noInfoSource')}
-                      </p>
-                    </div>
-                    {p.caloriesPer100g != null && (
-                      <span className="shrink-0 font-display text-sm font-semibold text-muted">
-                        {p.caloriesPer100g} kcal
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => startFromProduct(p)}
-                      aria-label={t('nutrition.addAria', { name: p.name })}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105"
-                    >
-                      <PlusIcon />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            <button
-              type="button"
-              onClick={startManual}
-              className="w-full rounded-xl border border-dashed border-hair py-3 text-sm font-bold text-muted transition hover:border-brand hover:text-brand-ink"
-            >
-              {t('nutrition.manualCta')}
-            </button>
-          </div>
-        )}
-
-        {/* --- Aba Favoritos --- */}
-        {tab === 'favoritos' && (
-          <div className="space-y-3">
-            <p className="text-sm font-semibold text-muted">{t('nutrition.favoritesHint')}</p>
-
-            {favLoading && (
-              <p className="text-sm font-semibold text-muted">{t('nutrition.favoritesLoading')}</p>
-            )}
-
-            {!favLoading && favorites && favorites.length === 0 && (
-              <div className="rounded-xl border border-dashed border-hair bg-surface px-5 py-8 text-center">
-                <p className="text-sm font-bold text-ink">{t('nutrition.favoritesEmptyTitle')}</p>
-                <p className="mt-1 text-sm font-semibold text-muted">
-                  {t('nutrition.favoritesEmptyText')}
-                </p>
-              </div>
-            )}
-
-            {favorites && favorites.length > 0 && (
-              <ul className="space-y-2">
-                {favorites.map((f, i) => (
-                  <li
-                    key={`${f.foodName}-${i}`}
-                    className="flex items-center gap-3 rounded-xl border border-hair bg-surface px-4 py-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-extrabold text-ink">{f.foodName}</p>
-                      <p className="text-[11.5px] font-semibold text-muted">
-                        {round(f.quantityG)}g · {round(f.caloriesKcal)} kcal
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => addFavorite(f)}
-                      disabled={addingFav === f.foodName}
-                      aria-label={t('nutrition.addAria', { name: f.foodName })}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105 disabled:opacity-60"
-                    >
-                      {addingFav === f.foodName ? (
-                        <span className="text-[11px] font-extrabold">...</span>
-                      ) : (
-                        <PlusIcon />
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
+        {tab === 'favoritos' && <FavoritesTab onAdd={addFavorite} addingName={addingFav} />}
       </section>
 
       {/* Editor do item */}
@@ -908,14 +614,6 @@ function StarIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.9 6 6.6.6-5 4.3 1.5 6.5L12 16.9 5.9 19.4 7.4 12.9l-5-4.3L9 8z" />
-    </svg>
-  )
-}
-
-function PlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-      <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
     </svg>
   )
 }

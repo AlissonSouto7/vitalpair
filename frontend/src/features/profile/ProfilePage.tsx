@@ -1,12 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 
-import { getProfile, getTdee, updateProfile } from '@/api/profile'
-import { getProgress } from '@/api/progress'
-import { getSeason } from '@/api/season'
+import { updateProfile } from '@/api/profile'
 import { Broto } from '@/components/brand/Broto'
 import { DateField } from '@/components/ui/DateField'
 import { Select } from '@/components/ui/Select'
@@ -18,6 +17,8 @@ import { NumberField } from '@/shared/ui/form/NumberField'
 import { TextField } from '@/shared/ui/form/TextField'
 import type { ActivityLevel, Goal, UserProfile, Sex, Tdee } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
+
+import { profileQueries } from './queries'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
@@ -74,53 +75,59 @@ function levelInfo(points: number) {
 
 export function ProfilePage() {
   const { t } = useTranslation()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [tdee, setTdee] = useState<Tdee | null>(null)
-  const [weights, setWeights] = useState<WeightPoint[]>([])
-  const [lifetimePoints, setLifetimePoints] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
   const [changingGoal, setChangingGoal] = useState(false)
 
-  const load = useCallback(async () => {
-    const [p, prog, season] = await Promise.all([
-      getProfile(),
-      getProgress().catch(() => null),
-      getSeason().catch(() => null),
+  const profileQuery = useQuery(profileQueries.profile())
+  const tdeeQuery = useQuery(profileQueries.tdee())
+  const progressQuery = useQuery(profileQueries.progress())
+  const seasonQuery = useQuery(profileQueries.season())
+
+  const profile = profileQuery.data ?? null
+  const weights: WeightPoint[] = progressQuery.data?.weights ?? []
+
+  /** Everything the screen reads again after a write. */
+  async function reload() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['profile'] }),
+      queryClient.invalidateQueries({ queryKey: ['progress'] }),
+      queryClient.invalidateQueries({ queryKey: ['season'] }),
+      // The dashboard shows the same targets.
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
     ])
-    setProfile(p)
-    if (prog) setWeights(prog.weights)
-    if (season) {
-      const fromHistory = season.history.reduce((acc, h) => acc + h.you, 0)
-      setLifetimePoints(season.you.score + fromHistory)
-    }
-    getTdee()
-      .then(setTdee)
-      .catch(() => {
-        if (p.dailyCalorieTarget != null) {
-          setTdee({
-            bmr: 0,
-            tdee: 0,
-            dailyCalorieTarget: p.dailyCalorieTarget,
-            proteinTargetG: p.proteinTargetG ?? 0,
-            carbTargetG: p.carbTargetG ?? 0,
-            fatTargetG: p.fatTargetG ?? 0,
-          })
+  }
+
+  // The endpoint refuses an incomplete profile with a 422, which is the normal state of a
+  // new account. What the profile already carries is the fallback, so the macros card
+  // shows numbers instead of vanishing on the first visit.
+  const tdee: Tdee | null =
+    tdeeQuery.data ??
+    (profile?.dailyCalorieTarget != null
+      ? {
+          bmr: 0,
+          tdee: 0,
+          dailyCalorieTarget: profile.dailyCalorieTarget,
+          proteinTargetG: profile.proteinTargetG ?? 0,
+          carbTargetG: profile.carbTargetG ?? 0,
+          fatTargetG: profile.fatTargetG ?? 0,
         }
-      })
-  }, [])
+      : null)
 
-  useEffect(() => {
-    load()
-      .catch(() => setError(t('profile.loadError')))
-      .finally(() => setLoading(false))
-  }, [load, t])
+  const lifetimePoints = seasonQuery.data
+    ? seasonQuery.data.you.score + seasonQuery.data.history.reduce((acc, h) => acc + h.you, 0)
+    : 0
 
-  if (loading) return <p className="text-muted">{t('common.loading')}</p>
-  if (error)
-    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
-  if (!profile) return null
+  if (profileQuery.isPending) return <p className="text-muted">{t('common.loading')}</p>
+  // Only the profile is required. Progress and season failing is a thinner screen, not a
+  // broken one, which is why they are not part of this condition.
+  if (profileQuery.isError || !profile)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('profile.loadError')}
+      </p>
+    )
 
   const firstName = (profile.name?.trim().split(' ')[0] || t('profile.fallbackName')).trim()
   const lvl = levelInfo(lifetimePoints)
@@ -142,7 +149,7 @@ export function ProfilePage() {
         activityLevel: profile.activityLevel as ActivityLevel,
       })
       setChangingGoal(false)
-      await load()
+      await reload()
     } catch {
       setError(t('profile.goalChangeError'))
     }
@@ -182,7 +189,7 @@ export function ProfilePage() {
       </section>
 
       {/* Peso */}
-      <WeightCard weights={weights} currentWeight={currentWeight} onLogged={load} t={t} />
+      <WeightCard weights={weights} currentWeight={currentWeight} onLogged={reload} t={t} />
 
       {/* Objetivo */}
       <section className="card">
@@ -271,7 +278,7 @@ export function ProfilePage() {
             profile={profile}
             onSaved={() => {
               setEditing(false)
-              load()
+              void reload()
             }}
             t={t}
           />
@@ -279,7 +286,10 @@ export function ProfilePage() {
       </section>
 
       {error && (
-        <p className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+        <p
+          role="alert"
+          className="rounded-xl bg-danger-soft px-4 py-3 text-sm font-semibold text-danger"
+        >
           {error}
         </p>
       )}
