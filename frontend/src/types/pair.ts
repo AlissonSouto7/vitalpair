@@ -1,4 +1,4 @@
-export type PairStatus = 'PENDING' | 'ACTIVE' | 'PAUSED'
+export type PairStatus = 'PENDING' | 'ACTIVE' | 'PAUSED' | 'ENDED'
 export type RelationshipType = 'PAIR' | 'DUO' | 'FRIENDS' | 'CONFIDANTS' | 'BROTHERS' | 'OTHER'
 
 export interface PairMember {

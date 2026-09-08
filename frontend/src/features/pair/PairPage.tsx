@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 
 import { refreshSession } from '@/api/auth'
-import { getPair, joinPair, updateRelationshipType } from '@/api/pair'
+import { getPair, joinPair, leavePair, updateRelationshipType } from '@/api/pair'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { Avatar } from '@/components/ui/Avatar'
 import { Select } from '@/components/ui/Select'
@@ -98,7 +98,14 @@ export function PairPage() {
       )}
 
       {isActive && pair ? (
-        <PairFormed pair={pair} me={me} partner={partner} onChangeType={changeType} t={t} />
+        <PairFormed
+          pair={pair}
+          me={me}
+          partner={partner}
+          onChangeType={changeType}
+          onLeft={setPair}
+          t={t}
+        />
       ) : (
         <InvitePanel
           pair={pair}
@@ -121,12 +128,14 @@ function PairFormed({
   me,
   partner,
   onChangeType,
+  onLeft,
   t,
 }: {
   pair: Pair
   me: PairMember | null
   partner: PairMember | null
   onChangeType: (type: RelationshipType) => void
+  onLeft: (pair: Pair) => void
   t: TFn
 }) {
   return (
@@ -160,7 +169,99 @@ function PairFormed({
       </div>
 
       <RelationCard pair={pair} onChange={onChangeType} t={t} />
+
+      <LeavePairCard partnerName={firstName(partner?.name)} onLeft={onLeft} t={t} />
     </>
+  )
+}
+
+/**
+ * Ending the pair.
+ *
+ * <p>Two steps rather than one, and the second is not a browser confirm(): this ends a
+ * competition between two people, and the person deserves to read what happens to what they
+ * built before the button they press does it. Destructive, so red, and never the first
+ * thing the eye lands on: it sits at the bottom, below everything the pair is for.
+ */
+function LeavePairCard({
+  partnerName,
+  onLeft,
+  t,
+}: {
+  partnerName: string
+  onLeft: (pair: Pair) => void
+  t: TFn
+}) {
+  const [confirming, setConfirming] = useState(false)
+  const [leaving, setLeaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function confirm() {
+    setLeaving(true)
+    setError(null)
+    try {
+      const fresh = await leavePair()
+      // The tenant changed, so the access token's claims are stale. Without this the next
+      // request is scoped to a pair this person no longer belongs to.
+      await refreshSession()
+      onLeft(fresh)
+    } catch (err) {
+      setError(getApiErrorMessage(err, t('pair.leaveError')))
+      setLeaving(false)
+    }
+  }
+
+  if (!confirming) {
+    return (
+      <div className="card flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-extrabold text-ink">{t('pair.leave')}</p>
+          <p className="mt-0.5 text-xs font-semibold text-muted">{t('pair.leaveHint')}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="shrink-0 rounded-xl border border-danger/40 px-3.5 py-2 text-[13px] font-extrabold text-danger transition hover:bg-danger-soft"
+        >
+          {t('pair.leave')}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card border-danger/30 bg-danger-soft/40">
+      <h2 className="font-display text-base font-semibold text-ink">
+        {t('pair.leaveConfirmTitle', { name: partnerName })}
+      </h2>
+      <p className="mt-1.5 text-sm font-semibold leading-relaxed text-muted">
+        {t('pair.leaveConfirmText')}
+      </p>
+
+      <FormError message={error} />
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <button
+          type="button"
+          onClick={() => void confirm()}
+          disabled={leaving}
+          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-white transition hover:brightness-105 disabled:opacity-60"
+        >
+          {leaving ? t('pair.leaving') : t('pair.leaveConfirm')}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setConfirming(false)
+            setError(null)
+          }}
+          disabled={leaving}
+          className="rounded-xl border border-hair bg-surface px-4 py-2.5 text-sm font-extrabold text-ink transition hover:border-brand disabled:opacity-60"
+        >
+          {t('pair.leaveCancel')}
+        </button>
+      </div>
+    </div>
   )
 }
 

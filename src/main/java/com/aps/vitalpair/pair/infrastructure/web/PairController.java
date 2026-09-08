@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import com.aps.vitalpair.pair.domain.port.in.GenerateInviteUseCase;
 import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
 import com.aps.vitalpair.pair.domain.port.in.GetInvitePreviewUseCase;
 import com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase;
+import com.aps.vitalpair.pair.domain.port.in.LeavePairUseCase;
 import com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
@@ -32,6 +34,7 @@ public class PairController {
     private final GetCurrentPairUseCase getCurrentPairUseCase;
     private final GenerateInviteUseCase generateInviteUseCase;
     private final JoinPairUseCase joinPairUseCase;
+    private final LeavePairUseCase leavePairUseCase;
     private final UpdateRelationshipTypeUseCase updateRelationshipTypeUseCase;
     private final GetInvitePreviewUseCase getInvitePreviewUseCase;
 
@@ -39,11 +42,13 @@ public class PairController {
             GetCurrentPairUseCase getCurrentPairUseCase,
             GenerateInviteUseCase generateInviteUseCase,
             JoinPairUseCase joinPairUseCase,
+            LeavePairUseCase leavePairUseCase,
             UpdateRelationshipTypeUseCase updateRelationshipTypeUseCase,
             GetInvitePreviewUseCase getInvitePreviewUseCase) {
         this.getCurrentPairUseCase = getCurrentPairUseCase;
         this.generateInviteUseCase = generateInviteUseCase;
         this.joinPairUseCase = joinPairUseCase;
+        this.leavePairUseCase = leavePairUseCase;
         this.updateRelationshipTypeUseCase = updateRelationshipTypeUseCase;
         this.getInvitePreviewUseCase = getInvitePreviewUseCase;
     }
@@ -88,6 +93,17 @@ public class PairController {
             @Valid @RequestBody UpdateRelationshipTypeRequest request) {
         var view = updateRelationshipTypeUseCase.updateRelationshipType(principal.userId(), request.type());
         return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view), "Tipo de relação atualizado"));
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "End the pair",
+            description =
+                    "Both people come out of it alone, each with a fresh invite code and everything they personally logged. The seasons and scores stay with the pair that produced them: a competition that happened is not undone by it ending. Answers 422 when there is no partner to leave.")
+    @DeleteMapping("/membership")
+    public ResponseEntity<ApiResponse<PairResponse>> leave(@AuthenticationPrincipal AuthenticatedUser principal) {
+        var view = leavePairUseCase.leavePair(principal.userId());
+        return ResponseEntity.ok(ApiResponse.ok(PairResponse.from(view), "Parceria encerrada"));
     }
 
     @StandardApiResponses
