@@ -25,6 +25,7 @@ import com.aps.vitalpair.auth.domain.port.out.PasswordHasherPort;
 import com.aps.vitalpair.auth.domain.port.out.RefreshTokenStorePort;
 import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
 import com.aps.vitalpair.config.JwtProperties;
+import com.aps.vitalpair.pair.domain.model.InviteCode;
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.model.RelationshipType;
@@ -45,8 +46,6 @@ public class AuthService
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private static final int INVITE_LENGTH = 8;
 
     private final UserRepositoryPort userRepository;
     private final PairRepositoryPort pairRepository;
@@ -179,7 +178,7 @@ public class AuthService
 
     private User createUserWithTenant(String email, String name, String passwordHash, boolean emailVerified) {
         Pair tenant = pairRepository.save(Pair.builder()
-                .inviteCode(generateInviteCode())
+                .inviteCode(InviteCode.generate())
                 .status(PairStatus.PENDING)
                 .relationshipType(RelationshipType.PAIR)
                 .build());
@@ -195,14 +194,6 @@ public class AuthService
                 .build());
         pairRepository.save(tenant.toBuilder().user1Id(user.getId()).build());
         return user;
-    }
-
-    private String generateInviteCode() {
-        StringBuilder sb = new StringBuilder(INVITE_LENGTH);
-        for (int i = 0; i < INVITE_LENGTH; i++) {
-            sb.append(INVITE_ALPHABET.charAt(RANDOM.nextInt(INVITE_ALPHABET.length())));
-        }
-        return sb.toString();
     }
 
     private String generateOpaqueToken() {

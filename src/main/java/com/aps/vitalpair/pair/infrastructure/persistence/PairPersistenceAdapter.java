@@ -26,6 +26,11 @@ public class PairPersistenceAdapter implements PairRepositoryPort {
     }
 
     @Override
+    public Pair saveAndFlush(Pair pair) {
+        return mapper.toDomain(repository.saveAndFlush(mapper.toEntity(pair)));
+    }
+
+    @Override
     public Optional<Pair> findById(UUID id) {
         return repository.findById(id).map(mapper::toDomain);
     }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.aps.vitalpair.pair.application.dto.MemberView;
 import com.aps.vitalpair.pair.application.dto.PairView;
+import com.aps.vitalpair.pair.domain.model.InviteCode;
 import com.aps.vitalpair.pair.domain.model.InvitePreview;
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
@@ -18,9 +19,11 @@ import com.aps.vitalpair.pair.domain.port.in.GenerateInviteUseCase;
 import com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase;
 import com.aps.vitalpair.pair.domain.port.in.GetInvitePreviewUseCase;
 import com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase;
+import com.aps.vitalpair.pair.domain.port.in.LeavePairUseCase;
 import com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.pair.domain.port.out.TenantDataMigrationPort;
+import com.aps.vitalpair.shared.event.PairEndedEvent;
 import com.aps.vitalpair.shared.event.PairFormedEvent;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
@@ -30,13 +33,15 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 /**
  * Use cases of the pair (the tenant). On accepting an invite, the joining user is moved into the
  * inviter's tenant along with everything they had recorded, the pair is activated, and the
- * guest's now-empty pending pair is removed.
+ * guest's now-empty pending pair is removed. Leaving reverses the first half of that for both
+ * people and leaves the competition behind.
  */
 @Service
 public class PairService
         implements GetCurrentPairUseCase,
                 GenerateInviteUseCase,
                 JoinPairUseCase,
+                LeavePairUseCase,
                 UpdateRelationshipTypeUseCase,
                 GetInvitePreviewUseCase {
 
@@ -121,6 +126,73 @@ public class PairService
 
         eventPublisher.publishEvent(new PairFormedEvent(activated.getId(), activated.getUser1Id(), userId));
         return toView(activated);
+    }
+
+    @Override
+    @Transactional
+    public PairView leavePair(UUID userId) {
+        Pair pair = currentPairOf(userId);
+        if (pair.getStatus() != PairStatus.ACTIVE) {
+            throw new BusinessRuleException("Você ainda não tem um parceiro");
+        }
+
+        UUID partnerId = userId.equals(pair.getUser1Id()) ? pair.getUser2Id() : pair.getUser1Id();
+        if (partnerId == null) {
+            throw new BusinessRuleException("Você ainda não tem um parceiro");
+        }
+
+        // Both people leave, not only the one who asked. The alternative is letting one of
+        // them keep the tenant, and with it the other's meals, weights and score: rows the
+        // person who left can no longer reach, since every query is scoped by tenant.
+        Pair leaverTenant = freshTenantFor(userId, pair.getRelationshipType());
+        Pair partnerTenant = freshTenantFor(partnerId, pair.getRelationshipType());
+
+        // The old pair keeps its seasons, its weekly scores and its ledger. Deleting them
+        // would not just erase a record: the season history is summed live from the ledger
+        // every time it is read, so removing the rows would recompute every past season
+        // with a rival score of zero and hand the loser the win. What happened between two
+        // people stays with the pair it happened in; it is simply nobody's tenant now.
+        pairRepository.save(pair.toBuilder()
+                .user1Id(null)
+                .user2Id(null)
+                .status(PairStatus.ENDED)
+                .build());
+
+        eventPublisher.publishEvent(new PairEndedEvent(pair.getId(), userId, partnerId));
+        return toView(leaverTenant);
+    }
+
+    /**
+     * Moves one person into a tenant of their own, carrying what they recorded.
+     *
+     * <p>A user cannot exist without a tenant: {@code users.tenant_id} is NOT NULL. So
+     * leaving is not clearing a column, it is minting a pending pair and migrating into it,
+     * which is exactly what registration does for a new account.
+     *
+     * <p>What the move decides is reachability, and only for the tables read by tenant: the
+     * feed, the plans, the ledger. Meals and activities are read by user id and would stay
+     * visible either way, but they move too, so that a row's tenant always names the pair
+     * the person was in when they wrote it.
+     */
+    private Pair freshTenantFor(UUID userId, RelationshipType relationshipType) {
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        UUID oldTenantId = user.getTenantId();
+
+        // Flushed rather than merely saved: moveUserData reassigns rows with SQL that does
+        // not go through the persistence context, and JPA would otherwise still be holding
+        // this insert. The update then fails on a foreign key to a pair the database has not
+        // seen yet, which is a 500 with a message about user_badges that says nothing about
+        // what actually happened.
+        Pair tenant = pairRepository.saveAndFlush(Pair.builder()
+                .inviteCode(InviteCode.generate())
+                .status(PairStatus.PENDING)
+                .relationshipType(relationshipType)
+                .build());
+
+        userRepository.save(user.toBuilder().tenantId(tenant.getId()).build());
+        tenantDataMigration.moveUserData(userId, oldTenantId, tenant.getId());
+
+        return pairRepository.save(tenant.toBuilder().user1Id(userId).build());
     }
 
     @Override

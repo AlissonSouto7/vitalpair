@@ -18,6 +18,17 @@ export async function joinPair(code: string): Promise<Pair> {
   return res.data.data
 }
 
+/**
+ * Ends the pair. Both people come out of it alone, each with a fresh invite code and
+ * everything they logged; the seasons and scores stay with the pair that produced them.
+ *
+ * @returns the caller's new, empty pair
+ */
+export async function leavePair(): Promise<Pair> {
+  const res = await api.delete<ApiResponse<Pair>>('/pair/membership')
+  return res.data.data
+}
+
 export async function updateRelationshipType(type: RelationshipType): Promise<Pair> {
   const res = await api.put<ApiResponse<Pair>>('/pair/type', { type })
   return res.data.data

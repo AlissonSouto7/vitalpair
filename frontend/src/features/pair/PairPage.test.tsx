@@ -3,7 +3,7 @@ import { http } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { useAuthStore } from '@/store/authStore'
-import { pairPendingFixture } from '@/test/fixtures'
+import { pairActiveFixture, pairPendingFixture } from '@/test/fixtures'
 import { fail, ok, path } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
@@ -100,5 +100,79 @@ describe('PairPage join form', () => {
     await user.click(joinButton())
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Código não encontrado')
+  })
+})
+
+describe('PairPage leaving', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ userId: 'u1' })
+  })
+
+  function mountPaired() {
+    server.use(
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
+      http.post(path('/auth/refresh'), () => ok({ accessToken: 't', userId: 'u1' })),
+    )
+    return renderWithProviders(<PairPage />)
+  }
+
+  /** Recorded so a test can assert the request was withheld, not merely that a dialog showed. */
+  function leaveHandler(respond: () => Response = () => ok(pairPendingFixture)) {
+    const calls: number[] = []
+    const handler = http.delete(path('/pair/membership'), () => {
+      calls.push(1)
+      return respond()
+    })
+    return { handler, calls }
+  }
+
+  it('asks before ending anything', async () => {
+    const { handler, calls } = leaveHandler()
+    server.use(handler)
+    const { user } = mountPaired()
+
+    await user.click(await screen.findByRole('button', { name: i18n.t('pair.leave') }))
+
+    expect(
+      screen.getByText(i18n.t('pair.leaveConfirmTitle', { name: 'Bruno' })),
+    ).toBeInTheDocument()
+    expect(calls).toHaveLength(0)
+  })
+
+  it('sends nothing when the person backs out', async () => {
+    const { handler, calls } = leaveHandler()
+    server.use(handler)
+    const { user } = mountPaired()
+
+    await user.click(await screen.findByRole('button', { name: i18n.t('pair.leave') }))
+    await user.click(screen.getByRole('button', { name: i18n.t('pair.leaveCancel') }))
+
+    expect(calls).toHaveLength(0)
+    expect(screen.queryByText(i18n.t('pair.leaveConfirmText'))).not.toBeInTheDocument()
+  })
+
+  it('ends the pair and shows the invite screen again', async () => {
+    const { handler, calls } = leaveHandler()
+    server.use(handler)
+    const { user } = mountPaired()
+
+    await user.click(await screen.findByRole('button', { name: i18n.t('pair.leave') }))
+    await user.click(screen.getByRole('button', { name: i18n.t('pair.leaveConfirm') }))
+
+    await waitFor(() => expect(calls).toHaveLength(1))
+    // Back to the screen for someone with no partner: the code to share is on it.
+    expect(await screen.findByText(i18n.t('pair.sendCode'))).toBeInTheDocument()
+  })
+
+  it('keeps the pair on screen when the server refuses', async () => {
+    const { handler } = leaveHandler(() => fail(500, 'Erro interno'))
+    server.use(handler)
+    const { user } = mountPaired()
+
+    await user.click(await screen.findByRole('button', { name: i18n.t('pair.leave') }))
+    await user.click(screen.getByRole('button', { name: i18n.t('pair.leaveConfirm') }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Erro interno')
+    expect(screen.getByText(i18n.t('pair.leaveConfirmText'))).toBeInTheDocument()
   })
 })
