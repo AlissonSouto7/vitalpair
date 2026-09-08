@@ -76,6 +76,19 @@ export const pairPendingFixture: Pair = {
   members: [{ userId: 'u1', name: 'Ana Souza', email: 'ana@example.com', avatarUrl: null }],
 }
 
+/** A formed pair, which is the screen with the relationship card and the leave button. */
+export const pairActiveFixture: Pair = {
+  id: 'p1',
+  pairName: 'Ana & Bruno',
+  status: 'ACTIVE',
+  relationshipType: 'PAIR',
+  inviteCode: 'ABCD2345',
+  members: [
+    { userId: 'u1', name: 'Ana Souza', email: 'ana@example.com', avatarUrl: null },
+    { userId: 'u2', name: 'Bruno Lima', email: 'bruno@example.com', avatarUrl: null },
+  ],
+}
+
 export const activitySummaryFixture: ActivitySummary = {
   date: '2026-09-08',
   totalCaloriesBurned: 0,

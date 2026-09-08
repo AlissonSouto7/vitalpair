@@ -22,6 +22,7 @@ Method <com.aps.vitalpair.nutrition.domain.port.in.LogMealUseCase.logMeal(java.u
 Method <com.aps.vitalpair.pair.domain.port.in.GenerateInviteUseCase.generateInvite(java.util.UUID)> has return type <com.aps.vitalpair.pair.application.dto.PairView> in (GenerateInviteUseCase.java:0)
 Method <com.aps.vitalpair.pair.domain.port.in.GetCurrentPairUseCase.getCurrentPair(java.util.UUID)> has return type <com.aps.vitalpair.pair.application.dto.PairView> in (GetCurrentPairUseCase.java:0)
 Method <com.aps.vitalpair.pair.domain.port.in.JoinPairUseCase.joinPair(java.util.UUID, java.lang.String)> has return type <com.aps.vitalpair.pair.application.dto.PairView> in (JoinPairUseCase.java:0)
+Method <com.aps.vitalpair.pair.domain.port.in.LeavePairUseCase.leavePair(java.util.UUID)> has return type <com.aps.vitalpair.pair.application.dto.PairView> in (LeavePairUseCase.java:0)
 Method <com.aps.vitalpair.pair.domain.port.in.UpdateRelationshipTypeUseCase.updateRelationshipType(java.util.UUID, com.aps.vitalpair.pair.domain.model.RelationshipType)> has return type <com.aps.vitalpair.pair.application.dto.PairView> in (UpdateRelationshipTypeUseCase.java:0)
 Method <com.aps.vitalpair.season.domain.port.in.GetSeasonUseCase.getCurrentSeason(java.util.UUID)> has return type <com.aps.vitalpair.season.application.dto.SeasonView> in (GetSeasonUseCase.java:0)
 Method <com.aps.vitalpair.season.domain.port.in.UpdateStakeUseCase.updateStake(java.util.UUID, java.lang.String)> has return type <com.aps.vitalpair.season.application.dto.SeasonView> in (UpdateStakeUseCase.java:0)
