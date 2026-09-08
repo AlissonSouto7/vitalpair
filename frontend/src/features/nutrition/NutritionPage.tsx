@@ -647,27 +647,27 @@ export function NutritionPage() {
               <NumberField
                 label={t('nutrition.kcalField')}
                 value={draft.kcalPer100}
-                onChange={(v) => setDraft({ ...draft, kcalPer100: v })}
+                onChange={(e) => setDraft({ ...draft, kcalPer100: e.target.value })}
               />
               <NumberField
                 label={t('nutrition.protField')}
                 value={draft.proteinPer100}
-                onChange={(v) => setDraft({ ...draft, proteinPer100: v })}
+                onChange={(e) => setDraft({ ...draft, proteinPer100: e.target.value })}
               />
               <NumberField
                 label={t('nutrition.carbField')}
                 value={draft.carbPer100}
-                onChange={(v) => setDraft({ ...draft, carbPer100: v })}
+                onChange={(e) => setDraft({ ...draft, carbPer100: e.target.value })}
               />
               <NumberField
                 label={t('nutrition.fatField')}
                 value={draft.fatPer100}
-                onChange={(v) => setDraft({ ...draft, fatPer100: v })}
+                onChange={(e) => setDraft({ ...draft, fatPer100: e.target.value })}
               />
               <NumberField
                 label={t('nutrition.gramsField')}
                 value={draft.grams}
-                onChange={(v) => setDraft({ ...draft, grams: v })}
+                onChange={(e) => setDraft({ ...draft, grams: e.target.value })}
               />
             </div>
 

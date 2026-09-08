@@ -6,7 +6,7 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -128,6 +128,7 @@ SELECT count(*) FROM activity_logs a JOIN users u ON u.id = a.user_id WHERE a.te
 
 ## History
 
-| Date       | Change                      | Pull request             |
-| ---------- | --------------------------- | ------------------------ |
-| 2026-09-06 | Document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                                                                                                                       | Pull request                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                                                                                  | `docs/professional-docs`            |
+| 2026-09-08 | Phase 10a: both forms on react-hook-form + zod. An empty workout and a zero step count are refused in the browser with a message; `NaN` no longer reaches the request body. First 7 component tests. Server-side, `LogActivityRequest` still accepts every measure null (open, see `frontend-foundation.md`) | `refactor/frontend-forms-and-tests` |
