@@ -1,34 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { refreshSession } from '../../api/auth'
-import { getInvitePreview, joinPair } from '../../api/pair'
+import { joinPair } from '../../api/pair'
 import { BrandMark } from '../../components/brand/BrandMark'
 import { useAuthStore } from '../../store/authStore'
-import type { InvitePreview } from '../../types/pair'
 
-type State =
-  | { kind: 'loading' }
-  | { kind: 'error' }
-  | { kind: 'full' }
-  | { kind: 'ok'; preview: InvitePreview }
+import { pairQueries } from './queries'
 
 export function InvitePage() {
   const { t } = useTranslation()
   const { code = '' } = useParams()
   const navigate = useNavigate()
   const accessToken = useAuthStore((s) => s.accessToken)
-  const [state, setState] = useState<State>({ kind: 'loading' })
   const [joining, setJoining] = useState(false)
   const [joinError, setJoinError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getInvitePreview(code)
-      .then((preview) => setState(preview.full ? { kind: 'full' } : { kind: 'ok', preview }))
-      .catch(() => setState({ kind: 'error' }))
-  }, [code])
+  const preview = useQuery(pairQueries.invitePreview(code))
+
+  // The four states the page draws, kept as one value so the markup below reads the same
+  // as it did: a pair that is already complete is not an error, and it gets its own screen.
+  const state = preview.isPending
+    ? ({ kind: 'loading' } as const)
+    : preview.isError
+      ? ({ kind: 'error' } as const)
+      : preview.data.full
+        ? ({ kind: 'full' } as const)
+        : ({ kind: 'ok', preview: preview.data } as const)
 
   async function accept() {
     // Deslogado: manda pro cadastro segurando o código (entra na dupla depois do cadastro).

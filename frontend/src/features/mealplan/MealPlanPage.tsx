@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { generateMealPlan, getMealPlan, swapMeal } from '../../api/aiplan'
+import { generateMealPlan, swapMeal } from '../../api/aiplan'
 import type { MealPlan, PlanMeal, PlanMealType } from '../../types/aiplan'
+
+import { mealPlanQueries } from './queries'
 
 import { getApiErrorMessage } from '@/shared/api/errors'
 
@@ -15,49 +18,51 @@ const WEEKDAY_KEYS = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'] as const
 
 export function MealPlanPage() {
   const { t } = useTranslation()
-  const [plan, setPlan] = useState<MealPlan | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
-  const [swapping, setSwapping] = useState<PlanMealType | null>(null)
-  const [selected, setSelected] = useState(0)
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
+  // Null until the person picks a day, so the plan arriving can open on today without
+  // overwriting a choice they already made. Resetting to today on every refetch would move
+  // the screen under them each time a swap came back.
+  const [picked, setPicked] = useState<number | null>(null)
 
-  useEffect(() => {
-    getMealPlan()
-      .then((p) => {
-        setPlan(p)
-        if (p) setSelected(todayIndex(p))
-      })
-      .catch(() => setError(t('mealplan.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
+  const key = mealPlanQueries.plan().queryKey
+  const planQuery = useQuery(mealPlanQueries.plan())
+  const plan = planQuery.data ?? null
+  const selected = picked ?? (plan ? todayIndex(plan) : 0)
 
-  async function generate() {
-    setGenerating(true)
-    setError(null)
-    try {
-      const p = await generateMealPlan()
-      setPlan(p)
-      setSelected(todayIndex(p))
-    } catch (err) {
-      setError(getApiErrorMessage(err, t('mealplan.generateError')))
-    } finally {
-      setGenerating(false)
-    }
+  const generateMutation = useMutation({
+    mutationFn: generateMealPlan,
+    onSuccess: (p) => {
+      queryClient.setQueryData(key, p)
+      // A brand new plan is a new week, so it opens on today rather than on whatever day
+      // the previous plan was left showing.
+      setPicked(null)
+    },
+    onError: (err) => setError(getApiErrorMessage(err, t('mealplan.generateError'))),
+  })
+
+  const swapMutation = useMutation({
+    mutationFn: (mealType: PlanMealType) => swapMeal(selected, mealType),
+    onSuccess: (p) => queryClient.setQueryData(key, p),
+    onError: (err) => setError(getApiErrorMessage(err, t('mealplan.swapError'))),
+  })
+
+  const generating = generateMutation.isPending
+  const swapping = swapMutation.isPending ? swapMutation.variables : null
+
+  function setSelected(index: number) {
+    setPicked(index)
   }
 
-  async function swap(mealType: PlanMealType) {
-    if (!plan) return
-    setSwapping(mealType)
+  function generate() {
     setError(null)
-    try {
-      const p = await swapMeal(selected, mealType)
-      setPlan(p)
-    } catch (err) {
-      setError(getApiErrorMessage(err, t('mealplan.swapError')))
-    } finally {
-      setSwapping(null)
-    }
+    generateMutation.mutate()
+  }
+
+  function swap(mealType: PlanMealType) {
+    if (!plan) return
+    setError(null)
+    swapMutation.mutate(mealType)
   }
 
   const day = plan?.days[selected] ?? null
@@ -75,7 +80,13 @@ export function MealPlanPage() {
     )
   }, [day])
 
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (planQuery.isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (planQuery.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('mealplan.loadError')}
+      </p>
+    )
 
   return (
     <div className="space-y-6 pb-12">
