@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
-import { getSeason } from '../../api/season'
 import { Avatar } from '../../components/ui/Avatar'
 import type { SeasonHistoryItem, SeasonView } from '../../types/season'
+import { profileQueries } from '../profile/queries'
 
 /**
  * Fim de temporada — a ÚNICA tela de celebração do app (dados reais).
@@ -12,20 +12,18 @@ import type { SeasonHistoryItem, SeasonView } from '../../types/season'
  */
 export function SeasonEndPage() {
   const { t } = useTranslation()
-  const [season, setSeason] = useState<SeasonView | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // Shares the season query with the profile and dashboard screens: same data, same key, so
+  // the three cannot disagree about which season is running.
+  const seasonQuery = useQuery(profileQueries.season())
+  const season: SeasonView | null = seasonQuery.data ?? null
 
-  useEffect(() => {
-    getSeason()
-      .then(setSeason)
-      .catch(() => setError(t('season.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
-
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error)
-    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (seasonQuery.isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (seasonQuery.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('season.loadError')}
+      </p>
+    )
 
   const last: SeasonHistoryItem | undefined = season?.history[0]
   const partnerName = season?.rival?.name ?? t('season.defaultPartner')

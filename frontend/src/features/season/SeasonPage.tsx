@@ -1,27 +1,25 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
-import { getSeason } from '../../api/season'
 import { Points } from '../../components/ui/Badge'
 import { Scoreboard } from '../../components/ui/Scoreboard'
 import type { SeasonBreakdown, SeasonDay, SeasonHistoryItem, SeasonView } from '../../types/season'
+import { profileQueries } from '../profile/queries'
 
 export function SeasonPage() {
   const { t } = useTranslation()
-  const [season, setSeason] = useState<SeasonView | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // The same season query the dashboard, profile and end-of-season screens read.
+  const seasonQuery = useQuery(profileQueries.season())
+  const season: SeasonView | null = seasonQuery.data ?? null
 
-  useEffect(() => {
-    getSeason()
-      .then(setSeason)
-      .catch(() => setError(t('season.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
-
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error)
-    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (seasonQuery.isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (seasonQuery.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('season.loadError')}
+      </p>
+    )
   if (!season) return null
 
   const { you, rival, hasPartner } = season

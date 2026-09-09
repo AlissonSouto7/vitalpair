@@ -1,11 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 
+import { pairQueries } from './queries'
+
 import { refreshSession } from '@/api/auth'
-import { getPair, joinPair, leavePair, updateRelationshipType } from '@/api/pair'
+import { joinPair, leavePair, updateRelationshipType } from '@/api/pair'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { Avatar } from '@/components/ui/Avatar'
 import { Select } from '@/components/ui/Select'
@@ -42,17 +45,22 @@ type JoinValues = z.infer<typeof joinSchema>
 export function PairPage() {
   const { t } = useTranslation()
   const userId = useAuthStore((s) => s.userId)
-  const [pair, setPair] = useState<Pair | null>(null)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getPair()
-      .then(setPair)
-      .catch(() => setError(t('pair.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
+  const pairQuery = useQuery(pairQueries.current())
+  const pair: Pair | null = pairQuery.data ?? null
+
+  /**
+   * Children hand back the pair the server returned, which is this screen's whole state.
+   *
+   * Leaving a pair answers with the new solo pair rather than with nothing, so there is
+   * always a pair to write: the endpoint never returns null.
+   */
+  function setPair(next: Pair) {
+    queryClient.setQueryData(pairQueries.current().queryKey, next)
+  }
 
   async function changeType(type: RelationshipType) {
     try {
@@ -70,7 +78,13 @@ export function PairPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (loading) return <p className="text-muted">{t('common.loading')}</p>
+  if (pairQuery.isPending) return <p className="text-muted">{t('common.loading')}</p>
+  if (pairQuery.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('pair.loadError')}
+      </p>
+    )
 
   const isActive = pair?.status === 'ACTIVE'
   const me = pair?.members.find((m) => m.userId === userId) ?? null
