@@ -6,7 +6,7 @@
 
 - **Status**: shipped, partially applied (see "Dívida conhecida")
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-08
+- **Last updated**: 2026-09-09
 
 ## What it is and where it lives
 
@@ -23,14 +23,14 @@ attached to them.
 
 ## Architecture
 
-| Layer           | Files                                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------- |
-| Configuration   | `frontend/playwright.config.ts`                                                                   |
-| Shared setup    | `frontend/e2e/support/session.setup.ts`, `frontend/e2e/support/accounts.ts`                       |
-| Specs           | `frontend/e2e/auth.spec.ts`, `frontend/e2e/navigation.spec.ts`, `frontend/e2e/onboarding.spec.ts` |
-| Form primitives | `frontend/src/shared/ui/form/TextField.tsx`, `frontend/src/shared/ui/form/FormError.tsx`          |
-| Migrated forms  | `frontend/src/features/auth/LoginPage.tsx`, `frontend/src/features/auth/RegisterPage.tsx`         |
-| CI              | `.github/workflows/ci.yml`, job `e2e`                                                             |
+| Layer           | Files                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------------- |
+| Configuration   | `frontend/playwright.config.ts`                                                                               |
+| Shared setup    | `frontend/e2e/support/session.setup.ts`, `frontend/e2e/support/accounts.ts`                                   |
+| Specs           | `auth`, `navigation`, `accessibility`, `errors`, `onboarding`, `nutrition`, `pair` (todos em `frontend/e2e/`) |
+| Form primitives | `frontend/src/shared/ui/form/TextField.tsx`, `frontend/src/shared/ui/form/FormError.tsx`                      |
+| Migrated forms  | `frontend/src/features/auth/LoginPage.tsx`, `frontend/src/features/auth/RegisterPage.tsx`                     |
+| CI              | `.github/workflows/ci.yml`, job `e2e`                                                                         |
 
 ### How to run
 
@@ -47,6 +47,19 @@ npm --prefix frontend run e2e:report   # open the last report
 - **The suite runs against the production build**, served by `vite preview`, not
   the dev server. The dev server transforms modules on demand and hides bundling
   mistakes that only appear in the artefact users receive.
+- **Os limites de taxa sobem só para esta suíte.** Ela roda em série a partir de um
+  endereço só e renova a sessão em toda tela que abre, então disputa consigo mesma
+  uma cota dimensionada para uma pessoa. O que estoura primeiro é o `refresh`, a
+  cerca de uma chamada por página carregada, e o sintoma era um teste diferente
+  falhando a cada rodada. O job de CI define
+  `VITALPAIR_RATELIMIT_{LOGIN,REGISTER,REFRESH}_PER_MINUTE`; produção mantém 10, 5
+  e 30, que são os padrões no código. `RateLimitIT` continua provando o guarda nos
+  números de produção, e `RateLimitFilterTest` prova que a configuração pega.
+
+  Medido antes: duas rodadas seguidas da suíte **já falhavam**, mesmo sem os testes
+  novos, e ninguém tinha visto porque ninguém rodava duas vezes em sequência.
+  Depois: três rodadas seguidas, 19 testes passando em cada uma.
+
 - **The suite is serial, on purpose.** Every test signs in as the same account
   against one backend, and registration is rate-limited to five a minute per
   address. Measured: 10 of 12 passing in parallel against 12 of 12 serially. The
@@ -138,6 +151,9 @@ passando depois; reintroduzir o bug original derruba 2 dos 4.
 | `navigation.spec.ts` (4)    | 404 redirecionando em silêncio; página legal mostrando chave de tradução; tela cujo pedaço de código não carrega; troca de idioma quebrada                        |
 | `accessibility.spec.ts` (2) | regressão do achado A-1: qualquer controle sem rótulo em 8 telas volta a quebrar o build                                                                          |
 | `onboarding.spec.ts` (2)    | os cinco passos que toda conta nova percorre uma vez; formulário que avança vazio. Achou A-4 e A-5                                                                |
+| `nutrition.spec.ts` (1)     | refeição que salva e some da lista do dia. Achou o bug de fuso na virada do dia                                                                                   |
+| `pair.spec.ts` (1)          | o fluxo que define o produto: convite → aceite com os dois lados confirmando; código inexistente sem mensagem; link de convite morto falhando calado              |
+| `errors.spec.ts` (1)        | 5xx sem aviso na tela e sem o código da requisição                                                                                                                |
 | `DateField.test.tsx` (4)    | regressão de A-5: data parcial que volta pro placeholder, e data completa que não vira ISO                                                                        |
 | `errors.test.ts` (9)        | leitura de erro da API (fase 9)                                                                                                                                   |
 | `locales.test.ts` (89)      | chave de tradução faltando                                                                                                                                        |
@@ -147,9 +163,10 @@ passando depois; reintroduzir o bug original derruba 2 dos 4.
 - **Só Chromium.** Firefox e Safari estão configurados no Playwright mas não
   habilitados; rodar três navegadores triplica o tempo sem, hoje, cobrir um risco
   conhecido.
-- **Convite, aceite e registro de refeição ainda não têm percurso.** Onboarding
-  já tem; parear duas contas exige um segundo contexto de navegador. Gerar plano
-  de IA também não tem, porque gastaria chamada paga.
+- **Gerar plano de IA não tem percurso**, porque gastaria chamada paga a cada
+  rodada. Convite, aceite, onboarding e registro de refeição têm.
+- **Só um caminho por fluxo.** O teste de dupla cobre convidar e aceitar; não
+  cobre desfazer a dupla e refazer com outra pessoa, nem convite expirado.
 - **Sem teste de responsividade** nem de viewport móvel.
 - **Sem teste de componente** (Testing Library) ainda: os formulários migrados
   são cobertos pelo navegador, não isoladamente.
@@ -168,6 +185,13 @@ passando depois; reintroduzir o bug original derruba 2 dos 4.
   `useEffect`.
 
 ## Histórico
+
+- **2026-09-09**: percurso de dupla. `pair.spec.ts`, duas pessoas em contextos
+  separados, o convite lido da tela e os dois lados confirmando. Achou que a
+  suíte não aguentava duas rodadas seguidas, o que já era verdade antes dela: o
+  limite de `refresh` estourava porque cada tela aberta renova a sessão. Os três
+  limites viraram configuração, com produção nos mesmos números. Três rodadas
+  seguidas passando, 19 testes cada.
 
 - **2026-09-08**: percurso de onboarding. `onboarding.spec.ts`, que achou A-4 e
   A-5. Testes de frontend: 147 unitários + 16 de navegador.

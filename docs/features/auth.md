@@ -48,15 +48,23 @@ All under `/api/v1/auth`, all public, all rate limited.
 
 | Method | Path                   | Action                                      | Limit               |
 | ------ | ---------------------- | ------------------------------------------- | ------------------- |
-| POST   | `/register`            | Create an account, its tenant and a session | 5/min per IP        |
-| POST   | `/login`               | Exchange e-mail and password for a session  | 10/min per IP       |
+| POST   | `/register`            | Create an account, its tenant and a session | 5/min per IP ¹      |
+| POST   | `/login`               | Exchange e-mail and password for a session  | 10/min per IP ¹     |
 | POST   | `/oauth2/google`       | Exchange a Google ID token for a session    | 10/min per IP       |
-| POST   | `/refresh`             | Rotate the session from the cookie          | 30/min per IP       |
+| POST   | `/refresh`             | Rotate the session from the cookie          | 30/min per IP ¹     |
 | POST   | `/logout`              | Revoke the token family, clear the cookie   | not limited         |
 | POST   | `/forgot-password`     | Send a reset link                           | 3 per 10 min per IP |
 | POST   | `/reset-password`      | Consume a reset token, set a new password   | not limited         |
 | POST   | `/verify-email`        | Consume a verification token                | not limited         |
 | POST   | `/resend-verification` | Send the verification e-mail again          | 3 per 10 min per IP |
+
+¹ Configurable through `vitalpair.ratelimit.{login,register,refresh}-per-minute`,
+defaulting in code to the numbers above. Only the browser-test job in CI sets them,
+because that suite runs serially from one address and renews the session on every
+screen it opens, so it exhausts an allowance sized for one person; `refresh` is the
+one it runs out of first. Nothing else overrides them, and no deploy environment file
+mentions them, so production runs on the defaults. `RateLimitIT` proves the guard at
+those numbers and `RateLimitFilterTest` proves the configuration is actually read.
 
 ### Data
 

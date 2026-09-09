@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,6 +41,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
+    private final Map<String, RateLimitPolicy> policies;
+    private final RateLimiter rateLimiter;
+    private final ObjectMapper objectMapper;
+
     /**
      * Limits are deliberately generous for a person and restrictive for a script.
      *
@@ -47,32 +52,43 @@ public class RateLimitFilter extends OncePerRequestFilter {
      * guessing rate. Password reset and resend are lower because each one sends an e-mail,
      * so the abuse is mailbox flooding as much as account guessing. Plan generation is
      * capped hourly because each call is a paid request that takes around 20 seconds.
+     *
+     * <p>Login, registration and refresh read their ceiling from configuration, defaulting
+     * to those same numbers, so nothing changes unless something says otherwise. The browser
+     * suite is why: it runs serially from one address, and every screen it opens renews the
+     * session, so it competes with itself for an allowance sized for one human being.
+     * Refresh is the one that runs out first, at roughly one per page load. Raising the
+     * three for that job keeps the tests honest about everything else instead of deleting
+     * the ones that do not fit; {@code RateLimitIT} proves the mechanism at the shipped
+     * numbers, so the guard is still tested.
      */
-    private static final Map<String, RateLimitPolicy> POLICIES = Map.of(
-            "POST /api/v1/auth/login", RateLimitPolicy.perIp("login", 10, Duration.ofMinutes(1)),
-            "POST /api/v1/auth/register", RateLimitPolicy.perIp("register", 5, Duration.ofMinutes(1)),
-            "POST /api/v1/auth/oauth2/google", RateLimitPolicy.perIp("google", 10, Duration.ofMinutes(1)),
-            "POST /api/v1/auth/refresh", RateLimitPolicy.perIp("refresh", 30, Duration.ofMinutes(1)),
-            "POST /api/v1/auth/forgot-password", RateLimitPolicy.perIp("forgot", 3, Duration.ofMinutes(10)),
-            "POST /api/v1/auth/resend-verification", RateLimitPolicy.perIp("resend", 3, Duration.ofMinutes(10)),
-            "POST /api/v1/nutrition/photo", RateLimitPolicy.perUser("photo", 20, Duration.ofHours(1)),
-            "POST /api/v1/meal-plan/generate", RateLimitPolicy.perUser("mealplan", 5, Duration.ofHours(1)),
-            "POST /api/v1/workout-plan/generate", RateLimitPolicy.perUser("workoutplan", 5, Duration.ofHours(1)),
-            "POST /api/v1/meal-plan/swap", RateLimitPolicy.perUser("mealswap", 20, Duration.ofHours(1)));
-
-    private final RateLimiter rateLimiter;
-    private final ObjectMapper objectMapper;
-
-    public RateLimitFilter(RateLimiter rateLimiter, ObjectMapper objectMapper) {
+    public RateLimitFilter(
+            RateLimiter rateLimiter,
+            ObjectMapper objectMapper,
+            @Value("${vitalpair.ratelimit.login-per-minute:10}") int loginPerMinute,
+            @Value("${vitalpair.ratelimit.register-per-minute:5}") int registerPerMinute,
+            @Value("${vitalpair.ratelimit.refresh-per-minute:30}") int refreshPerMinute) {
         this.rateLimiter = rateLimiter;
         this.objectMapper = objectMapper;
+        this.policies = Map.of(
+                "POST /api/v1/auth/login", RateLimitPolicy.perIp("login", loginPerMinute, Duration.ofMinutes(1)),
+                "POST /api/v1/auth/register",
+                        RateLimitPolicy.perIp("register", registerPerMinute, Duration.ofMinutes(1)),
+                "POST /api/v1/auth/oauth2/google", RateLimitPolicy.perIp("google", 10, Duration.ofMinutes(1)),
+                "POST /api/v1/auth/refresh", RateLimitPolicy.perIp("refresh", refreshPerMinute, Duration.ofMinutes(1)),
+                "POST /api/v1/auth/forgot-password", RateLimitPolicy.perIp("forgot", 3, Duration.ofMinutes(10)),
+                "POST /api/v1/auth/resend-verification", RateLimitPolicy.perIp("resend", 3, Duration.ofMinutes(10)),
+                "POST /api/v1/nutrition/photo", RateLimitPolicy.perUser("photo", 20, Duration.ofHours(1)),
+                "POST /api/v1/meal-plan/generate", RateLimitPolicy.perUser("mealplan", 5, Duration.ofHours(1)),
+                "POST /api/v1/workout-plan/generate", RateLimitPolicy.perUser("workoutplan", 5, Duration.ofHours(1)),
+                "POST /api/v1/meal-plan/swap", RateLimitPolicy.perUser("mealswap", 20, Duration.ofHours(1)));
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        RateLimitPolicy policy = POLICIES.get(request.getMethod() + " " + request.getRequestURI());
+        RateLimitPolicy policy = policies.get(request.getMethod() + " " + request.getRequestURI());
         if (policy == null) {
             chain.doFilter(request, response);
             return;
