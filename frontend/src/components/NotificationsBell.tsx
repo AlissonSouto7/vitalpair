@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { listNotifications, markNotificationsRead } from '../api/notifications'
@@ -22,6 +22,7 @@ export function NotificationsBell() {
   // same state. Captured once per mount and refreshed on the interval below instead.
   const [now, setNow] = useState(() => Date.now())
   const ref = useRef<HTMLDivElement>(null)
+  const badgeId = useId()
 
   // Polled rather than fetched once: the bell is about the partner acting somewhere else,
   // so it has to notice without the person navigating. The query owns the polling, which
@@ -104,9 +105,19 @@ export function NotificationsBell() {
 
   return (
     <div ref={ref} className="relative">
+      {/*
+        aria-label rather than title alone: the badge span sits inside the button, so its
+        text joined the accessible name and the control announced itself as "Notificações 2"
+        one moment and "Notificações" the next. A label that changes as data arrives is a
+        moving target for anyone navigating by name. The count is still announced, through
+        aria-describedby, where it belongs as a detail rather than as the button's identity.
+      */}
       <button
         onClick={toggle}
         title={t('header.notifications')}
+        aria-label={t('header.notifications')}
+        aria-describedby={feed.unreadCount > 0 ? badgeId : undefined}
+        aria-expanded={open}
         className="relative rounded-lg border border-line px-2 py-1.5 text-muted transition hover:text-ink"
       >
         <svg
@@ -123,7 +134,10 @@ export function NotificationsBell() {
           />
         </svg>
         {feed.unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          <span
+            id={badgeId}
+            className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+          >
             {feed.unreadCount > 9 ? '9+' : feed.unreadCount}
           </span>
         )}
