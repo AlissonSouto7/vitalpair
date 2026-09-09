@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 import type { ActivityLevel, Goal, Sex } from '@/types/profile'
 
-/** The shape of the translate function the label helpers take. */
 /** The translate function, typed against the pt bundle: a wrong key fails tsc. */
 export type TFn = TFunction
 
