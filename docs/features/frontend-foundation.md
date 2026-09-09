@@ -289,10 +289,15 @@ requisições, e quatro toasts idênticos são ruído.
   arquivos lendo o mesmo estado, o que deixa o número bonito e o código pior. Esta
   é uma parada deliberada, não uma pendência.
 
-- **O `max-lines` continua como aviso, não erro.** O plano pedia que virasse erro
-  em 300 nesta fase. Com quatro arquivos acima, ligar agora quebraria o build.
-  Ligar em 450 passaria em tudo hoje e ainda barraria crescimento novo; é decisão
-  de quem mantém, e por isso está registrado aqui em vez de decidido sozinho.
+- ~~**O `max-lines` continua como aviso, não erro.**~~ Virou erro em 09/09, em
+  **325**. O plano pedia 300; o maior arquivo restante, `NutritionPage`, mede 321
+  pela contagem da regra (sem linhas em branco nem comentários) e é o fluxo de uma
+  tela só. Partir mais seria dois arquivos lendo o mesmo estado. Um teto que
+  ninguém alcança é levantado ou apagado; este tem 25 linhas de folga e a próxima
+  tela que crescer quebra o build. Provado: 30 linhas a mais no `NutritionPage`
+  derrubam o `lint`. Os bundles de tradução (`src/locales/`) ficam isentos, porque
+  o comprimento deles é o conteúdo: `legal.ts` tem 1425 linhas de texto legal em
+  quatro idiomas, e nenhuma decomposição encurta uma política de privacidade.
 - **A regra de fast refresh moldou a divisão.** `react-refresh/only-export-components`
   é erro e só aparece no hook de pre-commit, não no `npm run lint`: um módulo que
   exporta componente e valor junto quebra o hot reload, porque o React não
