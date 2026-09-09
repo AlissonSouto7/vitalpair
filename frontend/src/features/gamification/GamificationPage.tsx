@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { getBadgeCatalog, getBadges, getStreaks } from '../../api/gamification'
 import type { Badge, BadgeCategory, EarnedBadge, Streak } from '../../types/gamification'
 

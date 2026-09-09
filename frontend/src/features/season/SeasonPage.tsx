@@ -1,8 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+
 import { getSeason } from '../../api/season'
-import { Scoreboard } from '../../components/ui/Scoreboard'
 import { Points } from '../../components/ui/Badge'
+import { Scoreboard } from '../../components/ui/Scoreboard'
 import type { SeasonBreakdown, SeasonDay, SeasonHistoryItem, SeasonView } from '../../types/season'
 
 export function SeasonPage() {

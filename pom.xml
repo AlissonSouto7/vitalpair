@@ -329,6 +329,50 @@
 			</plugin>
 
 			<!--
+				The build environment itself, checked before anything is compiled.
+
+				Java is pinned at 17 by decision, in five places: this file, both stages of
+				the Dockerfile, and the CI workflows. A machine with a different JDK would
+				compile happily and produce bytecode nobody tested, so the version is
+				asserted rather than assumed. The upper bound is what makes it an
+				assertion: [17,18) fails on 21 as well as on 11.
+
+				requireUpperBoundDeps is deliberately absent. Measured against this project
+				it reports thirteen failures, and every one is an artifact whose version
+				Spring Boot's BOM manages: the rule reads the version a transitive
+				dependency asks for, not the one the BOM pins, so a managed upgrade looks
+				to it like a downgrade. A gate that fails on correct configuration teaches
+				people to skip the gate. The one genuine finding it surfaced, resilience4j
+				resolving at 2.2.0 while this project sets 2.3.0, is already recorded and
+				pinned in .github/dependabot.yml.
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${enforcer.version}</version>
+				<executions>
+					<execution>
+						<id>enforce-build-environment</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireJavaVersion>
+									<version>[17,18)</version>
+									<message>This project is built and shipped on Java 17. Anything else compiles code nobody tested.</message>
+								</requireJavaVersion>
+								<requireMavenVersion>
+									<version>[3.9,)</version>
+								</requireMavenVersion>
+								<banDuplicatePomDependencyVersions />
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--
 				Checkstyle catches defects a formatter cannot see: swallowed exceptions,
 				console output, lost stack traces, missing braces. Every layout rule is
 				deliberately absent because Spotless already owns formatting.

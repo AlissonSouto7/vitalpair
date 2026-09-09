@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getProfile } from '../api/profile'
+
 import { resendVerification } from '../api/auth'
+import { getProfile } from '../api/profile'
 
 /** Aviso discreto, não-bloqueante: aparece só enquanto a conta não tiver e-mail confirmado. */
 export function EmailVerificationBanner() {
@@ -40,7 +41,7 @@ export function EmailVerificationBanner() {
         <span className="font-semibold">{t('auth.bannerResent')}</span>
       ) : (
         <button
-          onClick={handleResend}
+          onClick={() => void handleResend()}
           disabled={sending}
           className="shrink-0 rounded-lg border border-amber-500/40 px-3 py-1 font-semibold transition hover:bg-amber-500/20 disabled:opacity-60"
         >

@@ -1,10 +1,11 @@
-import { useState, type ReactElement } from 'react'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { useState, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { getFeed, reactToItem, removeReaction } from '../../api/feed'
-import type { FeedItem, ReactionType } from '../../types/feed'
-import { useAuthStore } from '../../store/authStore'
 import { Avatar } from '../../components/ui/Avatar'
+import { useAuthStore } from '../../store/authStore'
+import type { FeedItem, ReactionType } from '../../types/feed'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
@@ -121,7 +122,7 @@ export function FeedPage() {
               item={item}
               isMine={item.userId === myId}
               locale={i18n.language}
-              onToggle={toggle}
+              onToggle={(item, type) => void toggle(item, type)}
             />
           ))}
         </div>

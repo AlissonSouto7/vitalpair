@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { ProgressView } from '../types/progress'
+
+import { api } from './client'
 
 export async function getProgress(): Promise<ProgressView> {
   const res = await api.get<ApiResponse<ProgressView>>('/progress')

@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { Tdee, UpdateProfilePayload, UserProfile } from '../types/profile'
+
+import { api } from './client'
 
 export async function getProfile(): Promise<UserProfile> {
   const res = await api.get<ApiResponse<UserProfile>>('/users/me')

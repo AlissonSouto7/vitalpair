@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next'
 
+import { LegalHeader, LegalFooter, Section } from './PrivacyPage'
+
 import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
 import { RouteFallback } from '@/shared/ui/RouteFallback'
-import { LegalHeader, LegalFooter, Section } from './PrivacyPage'
 
 interface LegalSection {
   title: string

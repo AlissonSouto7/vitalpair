@@ -1,7 +1,8 @@
-import { api } from './client'
 import { useAuthStore } from '../store/authStore'
 import type { ApiResponse } from '../types/api'
 import type { LoginPayload, RegisterPayload, TokenResponse } from '../types/auth'
+
+import { api } from './client'
 
 export async function register(payload: RegisterPayload): Promise<TokenResponse> {
   const res = await api.post<ApiResponse<TokenResponse>>('/auth/register', payload)

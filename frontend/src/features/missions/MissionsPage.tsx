@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { acceptFlashMission, getFlashMission, getWeeklyMissions } from '../../api/missions'
 import { Points } from '../../components/ui/Badge'
 import type {
@@ -167,7 +168,7 @@ function FlashMission({
         </div>
         <button
           type="button"
-          onClick={topar}
+          onClick={() => void topar()}
           disabled={mission.accepted || acabou || accepting}
           className="btn-primary mt-1.5 px-4 py-2 text-[13px] disabled:opacity-60"
         >

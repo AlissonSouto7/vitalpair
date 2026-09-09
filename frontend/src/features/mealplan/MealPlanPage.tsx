@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getApiErrorMessage } from '@/shared/api/errors'
 import { generateMealPlan, getMealPlan, swapMeal } from '../../api/aiplan'
 import type { MealPlan, PlanMeal, PlanMealType } from '../../types/aiplan'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 
 /**
  * Plano alimentar semanal — gerado pela IA na meta do usuário (dados reais).
@@ -90,7 +91,7 @@ export function MealPlanPage() {
         {plan && (
           <button
             type="button"
-            onClick={generate}
+            onClick={() => void generate()}
             disabled={generating}
             className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -122,7 +123,7 @@ export function MealPlanPage() {
           </div>
           <button
             type="button"
-            onClick={generate}
+            onClick={() => void generate()}
             disabled={generating}
             className="btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -169,7 +170,7 @@ export function MealPlanPage() {
                 key={m.mealType}
                 meal={m}
                 swapping={swapping === m.mealType}
-                onSwap={() => swap(m.mealType)}
+                onSwap={() => void swap(m.mealType)}
               />
             ))}
           </div>

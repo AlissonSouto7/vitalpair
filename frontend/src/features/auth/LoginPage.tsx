@@ -54,7 +54,7 @@ export function LoginPage() {
       if (invite) {
         await joinPair(invite.trim().toUpperCase()).catch(() => undefined)
       }
-      navigate('/dashboard')
+      void navigate('/dashboard')
     } catch (err) {
       setError(getApiErrorMessage(err, t('auth.errorLogin')))
     }

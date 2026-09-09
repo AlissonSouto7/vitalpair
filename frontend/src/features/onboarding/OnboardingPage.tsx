@@ -1,17 +1,19 @@
-import { useState, type ReactNode, useId } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 
-import { getApiErrorMessage } from '@/shared/api/errors'
 import type { TFunction } from 'i18next'
-import { getTdee, updateProfile } from '../../api/profile'
+import { useState, type ReactNode, useId } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+
 import { joinPair } from '../../api/pair'
-import { Select } from '../../components/ui/Select'
-import { DateField } from '../../components/ui/DateField'
-import { CalorieRing } from '../../components/ui/CalorieRing'
+import { getTdee, updateProfile } from '../../api/profile'
 import { BrandMark } from '../../components/brand/BrandMark'
+import { CalorieRing } from '../../components/ui/CalorieRing'
+import { DateField } from '../../components/ui/DateField'
+import { Select } from '../../components/ui/Select'
 import { useTheme } from '../../hooks/useTheme'
 import type { ActivityLevel, Goal, Sex, Tdee } from '../../types/profile'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 
 const TOTAL_STEPS = 5
 
@@ -184,7 +186,7 @@ export function OnboardingPage() {
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1)
     } else {
-      finish()
+      void finish()
     }
   }
 
@@ -231,10 +233,21 @@ export function OnboardingPage() {
     }
   }
 
-  async function finish() {
+  /**
+   * The last step: the stake, and into the app.
+   *
+   * The stake is not persisted here, and that is deliberate rather than forgotten. A
+   * season only exists once there is a pair, and this step is reached by people going
+   * solo as well; `PUT /api/v1/season/stake` needs a season to attach to. Someone who
+   * pairs up sets the stake on the season screen, where the season is real. The field
+   * here is a prompt, not a form: it gets people thinking about what they are playing for.
+   *
+   * Not async: there is nothing to await, and pretending otherwise makes the button look
+   * like it is waiting on a request that was never made.
+   */
+  function finish() {
     setFinishing(true)
-    // TODO: backend de temporada/aposta — persistir `bet` e abrir a temporada de 30 dias.
-    navigate('/dashboard')
+    void navigate('/dashboard')
   }
 
   const progress = `${(step / TOTAL_STEPS) * 100}%`
@@ -600,7 +613,7 @@ export function OnboardingPage() {
           )}
           <button
             type="button"
-            onClick={goNext}
+            onClick={() => void goNext()}
             disabled={busy}
             className="btn-primary flex-1 disabled:opacity-60"
           >

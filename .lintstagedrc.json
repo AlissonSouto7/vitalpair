@@ -3,5 +3,6 @@
     "prettier --write",
     "npm --prefix frontend exec -- eslint --fix --no-warn-ignored"
   ],
+  "src/**/*.java": ["./mvnw -q spotless:apply"],
   "*.{md,yml,yaml,json}": ["prettier --write"]
 }

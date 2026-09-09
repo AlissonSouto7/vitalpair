@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getApiErrorMessage } from '@/shared/api/errors'
 import {
   completeWorkout,
   generateWorkoutPlan,
@@ -9,6 +8,8 @@ import {
   toggleExercise,
 } from '../../api/aiplan'
 import type { WorkoutToday } from '../../types/aiplan'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
 
 /**
  * Plano de treino — gerado pela IA no objetivo do usuário (dados reais).
@@ -99,7 +100,7 @@ export function WorkoutPlanPage() {
         {today && (
           <button
             type="button"
-            onClick={generate}
+            onClick={() => void generate()}
             disabled={generating}
             className="flex shrink-0 items-center gap-2 rounded-xl border border-brand/40 bg-brand-soft px-3.5 py-2 text-[13px] font-extrabold text-brand-ink transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -131,7 +132,7 @@ export function WorkoutPlanPage() {
           </div>
           <button
             type="button"
-            onClick={generate}
+            onClick={() => void generate()}
             disabled={generating}
             className="btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -190,7 +191,7 @@ export function WorkoutPlanPage() {
               >
                 <button
                   type="button"
-                  onClick={() => toggle(ex.id)}
+                  onClick={() => void toggle(ex.id)}
                   disabled={today.completed}
                   aria-pressed={ex.done}
                   aria-label={
@@ -225,7 +226,7 @@ export function WorkoutPlanPage() {
           {/* CTA: marcar treino como feito */}
           <button
             type="button"
-            onClick={finish}
+            onClick={() => void finish()}
             disabled={!allDone || today.completed || finishing}
             className={`flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-4 font-display text-[15px] font-semibold transition ${
               today.completed

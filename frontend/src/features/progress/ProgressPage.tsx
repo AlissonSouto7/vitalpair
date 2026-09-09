@@ -1,11 +1,12 @@
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { WeightForm } from './WeightForm'
 
 import { getProgress } from '@/api/progress'
 import type { CalorieDay, MacroAverage, WeightPoint } from '@/types/progress'
 
-import { WeightForm } from './WeightForm'
 
 /**
  * Progresso — peso, calorias e macros ao longo do tempo (dados reais).

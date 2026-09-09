@@ -1,11 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { ContactPage } from './ContactPage'
+import { openMailClient } from './mailto'
+
 import { loadLegalNamespace } from '@/locales'
 import { i18n, renderWithProviders } from '@/test/render'
 
-import { ContactPage } from './ContactPage'
-import { openMailClient } from './mailto'
 
 vi.mock('./mailto', () => ({ openMailClient: vi.fn() }))
 

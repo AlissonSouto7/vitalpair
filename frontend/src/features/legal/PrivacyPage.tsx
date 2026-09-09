@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+
+import { BrandLockup } from '../../components/brand/BrandMark'
 
 import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
 import { RouteFallback } from '@/shared/ui/RouteFallback'
-import { BrandLockup } from '../../components/brand/BrandMark'
 
 const MAIL = 'contato@vitalpair.app'
 
@@ -108,7 +109,14 @@ function P({ children }: { children: ReactNode }) {
   return <p className="text-[15px] font-semibold leading-relaxed text-muted">{children}</p>
 }
 
-function Mail({ children }: { children: ReactNode }) {
+/**
+ * A mail link whose address is its own text.
+ *
+ * Typed as a string rather than ReactNode: it is interpolated into the href, and anything
+ * else renders `mailto:[object Object]`, a link that silently goes nowhere. The type makes
+ * that a build error instead of something a person discovers by clicking.
+ */
+function Mail({ children }: { children: string }) {
   return (
     <a
       href={`mailto:${children}`}

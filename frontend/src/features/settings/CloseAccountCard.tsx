@@ -40,7 +40,7 @@ export function CloseAccountCard() {
       // The session is already dead on the server; clearing here stops the app from
       // retrying with a token that will never work again.
       clearSession()
-      navigate('/', { replace: true })
+      void navigate('/', { replace: true })
     } catch (err) {
       setError(getApiErrorMessage(err, t('settings.closeError')))
       setClosing(false)
