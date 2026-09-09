@@ -98,10 +98,10 @@ e-mails go to Mailpit instead of the internet. AI features answer 503 until
 
 | Command                      | What runs                                                                                                                                          | Needs               |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `./mvnw test`                | 84 unit tests                                                                                                                                      | nothing             |
-| `./mvnw verify`              | everything: unit, 149 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
-| `cd frontend && npm test`    | 153 frontend tests, including translation parity across the four languages                                                                         | nothing             |
-| `cd frontend && npm run e2e` | 17 browser tests in a real Chromium against the production build                                                                                   | the backend running |
+| `./mvnw test`                | 90 unit tests                                                                                                                                      | nothing             |
+| `./mvnw verify`              | everything: unit, 158 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
+| `cd frontend && npm test`    | 170 frontend tests, including translation parity across the four languages                                                                         | nothing             |
+| `cd frontend && npm run e2e` | 20 browser tests in a real Chromium against the production build                                                                                   | the backend running |
 
 Measured on 2026-09-09: line coverage 88%, branch coverage 62%, with a build
 floor of 80 / 50 that only moves up. Every test added since phase 7 was proved

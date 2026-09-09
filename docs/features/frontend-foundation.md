@@ -275,17 +275,29 @@ requisições, e quatro toasts idênticos são ruído.
   Sobraram três `useEffect` no `src/features`, e nenhum busca dado: trava de
   rolagem e tecla Esc no modal de refeição, o atraso de digitação da busca, e a
   contagem regressiva da missão relâmpago.
-- **14 telas acima de 300 linhas**, contadas em 09/09. O número não mudou porque
-  onboarding continua acima do limite, só que bem menor. Nutrição caiu de 944 para
-  640 com as três abas extraídas; onboarding, que era a maior com 834, caiu para
-  404 com os cinco passos, as peças de apresentação e os ícones em arquivos
-  próprios. As duas continuam acima do limite.
-- **`OnboardingPage` ainda tem 404 linhas** e não tenho intenção de forçá-la
-  abaixo de 300 quebrando mais. O que sobrou é o fluxo: o estado dos cinco
-  passos, `goNext`, o salvamento com cálculo de meta, a entrada no par e o
-  rodapé. Isso é uma unidade só; separar em dois arquivos que leem o mesmo estado
-  deixaria o número bonito e o código pior. O `max-lines` continua como aviso, e
-  este é um dos casos em que o aviso é a resposta certa.
+- **4 arquivos acima de 300 linhas**, medidos em 09/09 na `main`, contra 15 no
+  início da fase. Os que sobraram, e o porquê de cada um:
+
+  | Arquivo              | Linhas | Por quê                                         |
+  | -------------------- | ------ | ----------------------------------------------- |
+  | `NutritionPage.tsx`  | 424    | fluxo: abas, rascunho, salvar, lista do dia     |
+  | `OnboardingPage.tsx` | 403    | fluxo: cinco passos e o estado que compartilham |
+  | `MealPlanPage.tsx`   | 332    | fluxo: plano, dia escolhido, gerar e trocar     |
+  | `progress/parts.tsx` | 304    | os painéis, que são SVG longo                   |
+
+  Os três primeiros são fluxo, não apresentação. Partir mais significaria dois
+  arquivos lendo o mesmo estado, o que deixa o número bonito e o código pior. Esta
+  é uma parada deliberada, não uma pendência.
+
+- **O `max-lines` continua como aviso, não erro.** O plano pedia que virasse erro
+  em 300 nesta fase. Com quatro arquivos acima, ligar agora quebraria o build.
+  Ligar em 450 passaria em tudo hoje e ainda barraria crescimento novo; é decisão
+  de quem mantém, e por isso está registrado aqui em vez de decidido sozinho.
+- **A regra de fast refresh moldou a divisão.** `react-refresh/only-export-components`
+  é erro e só aparece no hook de pre-commit, não no `npm run lint`: um módulo que
+  exporta componente e valor junto quebra o hot reload, porque o React não
+  distingue os dois e recarrega a página. Por isso cada feature dividida tem um
+  arquivo de componentes e outro de constantes e helpers.
 - **O layout feature-first do plano não foi feito.** As pastas continuam em
   `src/features`, `src/components`, `src/api`. O alias `@/` já existe, que era a
   pré-condição; mover os arquivos é um diff enorme sem ganho funcional imediato.
@@ -313,6 +325,18 @@ requisições, e quatro toasts idênticos são ruído.
   Não é o formulário; ficou como estava.
 
 ## Histórico
+
+- **2026-09-09**: fim da fase 10. As telas grandes foram divididas: nutrição
+  649→424, perfil 623→257, atividade 602→270, dupla 588→118, temporada 458→200,
+  dashboard 421→227, landing 415→19, missões 401→115, contato 359→68, progresso
+  345→55, configurações 321→211, treino 313→274, fim de temporada 307→169. De 15
+  arquivos acima de 300 linhas para 4. Números medidos por `wc -l` na `main`, não
+  deduzidos.
+
+  Quatro cortes por intervalo de linha perderam código no caminho (duas funções em
+  missões, cinco exports em temporada, e outros dois casos), e todos foram pegos
+  por typecheck ou pelo hook antes de subir. É o motivo de rodar as checagens antes
+  de cada commit e não depois.
 
 - **2026-09-09**: as nove telas que ainda buscavam com `useEffect` foram para o
   TanStack Query. `season` e `missions.flash` passaram a ser lidas pela mesma
