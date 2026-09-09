@@ -1,61 +1,16 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
 
+import { EditForm } from './EditForm'
+import { activityLabel, GOAL_VALUES, goalLabel, sexLabel, type TFn } from './profileForm'
 import { profileQueries } from './queries'
-import { TimeZoneField } from './TimeZoneField'
 
 import { updateProfile } from '@/api/profile'
 import { Broto } from '@/components/brand/Broto'
-import { DateField } from '@/components/ui/DateField'
-import { Select } from '@/components/ui/Select'
 import { WeightForm } from '@/features/progress/WeightForm'
-import { getApiErrorMessage } from '@/shared/api/errors'
-import { Field } from '@/shared/ui/form/Field'
-import { FormError } from '@/shared/ui/form/FormError'
-import { NumberField } from '@/shared/ui/form/NumberField'
-import { TextField } from '@/shared/ui/form/TextField'
-import type { ActivityLevel, Goal, UserProfile, Sex, Tdee } from '@/types/profile'
+import type { ActivityLevel, Goal, Sex, Tdee } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
-
-type TFn = (key: string, opts?: Record<string, unknown>) => string
-
-const SEX_VALUES = ['MALE', 'FEMALE', 'OTHER'] as const satisfies readonly Sex[]
-const GOAL_VALUES: Goal[] = ['LOSE_WEIGHT', 'GAIN_MUSCLE', 'MAINTAIN', 'IMPROVE_FITNESS']
-const LEVEL_VALUES = [
-  'SEDENTARY',
-  'LIGHT',
-  'MODERATE',
-  'ACTIVE',
-  'VERY_ACTIVE',
-] as const satisfies readonly ActivityLevel[]
-
-const goalLabel = (t: TFn, g: Goal) => t(`profile.goalLabel.${g}`)
-const sexLabel = (t: TFn, s: Sex) => t(`profile.sexLabel.${s}`)
-const activityLabel = (t: TFn, l: ActivityLevel) => t(`profile.levelLabel.${l}`)
-
-/**
- * Mirrors the backend's UpdateProfileRequest: the same bounds it enforces, so a person
- * hears about a slip here rather than after a round trip. The date field emits an empty
- * string until all three parts are chosen; the server's @Past is restated as "before
- * today".
- */
-const editSchema = z.object({
-  name: z.string().trim().min(1).max(100),
-  birthDate: z
-    .string()
-    .refine((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d < new Date().toISOString().slice(0, 10)),
-  sex: z.enum(SEX_VALUES),
-  heightCm: z.number().min(50).max(300),
-  weightKg: z.number().min(20).max(500),
-  activityLevel: z.enum(LEVEL_VALUES),
-  timeZone: z.string().min(1),
-})
-
-type EditValues = z.infer<typeof editSchema>
 
 // Curva de nível do Broto: pontos acumulados pra alcançar cada nível (1..8), depois +1500 por nível.
 function levelInfo(points: number) {
@@ -377,149 +332,6 @@ function Sparkline({ weights }: { weights: WeightPoint[] }) {
 }
 
 /* ---------- formulário de edição (recolhido) ---------- */
-
-function EditForm({ profile, onSaved, t }: { profile: UserProfile; onSaved: () => void; t: TFn }) {
-  const [error, setError] = useState<string | null>(null)
-
-  const sexOptions = SEX_VALUES.map((v) => ({ value: v, label: sexLabel(t, v) }))
-  const levelOptions = LEVEL_VALUES.map((v) => ({ value: v, label: activityLabel(t, v) }))
-
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<EditValues>({
-    resolver: zodResolver(editSchema),
-    mode: 'onTouched',
-    defaultValues: {
-      name: profile.name,
-      birthDate: profile.birthDate ?? '',
-      sex: profile.sex ?? undefined,
-      heightCm: profile.heightCm ?? undefined,
-      weightKg: profile.weightKg ?? undefined,
-      activityLevel: profile.activityLevel ?? undefined,
-      timeZone: profile.timeZone,
-    },
-  })
-
-  async function onSubmit(values: EditValues) {
-    setError(null)
-    try {
-      await updateProfile({ ...values, goal: profile.goal as Goal })
-      onSaved()
-    } catch (err) {
-      setError(getApiErrorMessage(err, t('profile.saveError')))
-    }
-  }
-
-  return (
-    <form
-      onSubmit={(event) => void handleSubmit(onSubmit)(event)}
-      noValidate
-      className="mt-4 space-y-4 border-t border-hair pt-4"
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          label={t('profile.name')}
-          type="text"
-          autoComplete="name"
-          error={errors.name && t('profile.nameRequired')}
-          {...register('name')}
-        />
-        <Field
-          label={t('profile.birthDate')}
-          error={errors.birthDate && t('profile.birthDateInvalid')}
-          labelsAGroup
-        >
-          {(field) => (
-            <Controller
-              name="birthDate"
-              control={control}
-              render={({ field: f }) => (
-                // aria-invalid is not allowed on a group, so the date field gets the name
-                // and the description only; the message linked through the description
-                // says what is wrong.
-                <DateField
-                  labelId={field.labelId}
-                  aria-describedby={field['aria-describedby']}
-                  value={f.value}
-                  onChange={f.onChange}
-                />
-              )}
-            />
-          )}
-        </Field>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <NumberField
-          label={t('profile.height')}
-          unit="cm"
-          min={50}
-          max={300}
-          step="any"
-          error={errors.heightCm && t('profile.heightInvalid')}
-          {...register('heightCm', { valueAsNumber: true })}
-        />
-        <NumberField
-          label={t('profile.weight')}
-          unit="kg"
-          min={20}
-          max={500}
-          step="0.1"
-          error={errors.weightKg && t('profile.weightInvalid')}
-          {...register('weightKg', { valueAsNumber: true })}
-        />
-        <Field label={t('profile.sex')} error={errors.sex && t('profile.sexRequired')}>
-          {(field) => (
-            <Controller
-              name="sex"
-              control={control}
-              render={({ field: f }) => (
-                <Select
-                  {...field}
-                  value={f.value ?? ''}
-                  onChange={f.onChange}
-                  options={sexOptions}
-                  placeholder={t('profile.chooseHint')}
-                />
-              )}
-            />
-          )}
-        </Field>
-      </div>
-      <Field
-        label={t('profile.activityLevel')}
-        error={errors.activityLevel && t('profile.activityLevelRequired')}
-      >
-        {(field) => (
-          <Controller
-            name="activityLevel"
-            control={control}
-            render={({ field: f }) => (
-              <Select
-                {...field}
-                value={f.value ?? ''}
-                onChange={f.onChange}
-                options={levelOptions}
-                placeholder={t('profile.chooseHint')}
-              />
-            )}
-          />
-        )}
-      </Field>
-      <Controller
-        name="timeZone"
-        control={control}
-        render={({ field: f }) => <TimeZoneField value={f.value} onChange={f.onChange} t={t} />}
-      />
-      <FormError message={error} />
-      <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
-        {isSubmitting ? t('profile.saving') : t('profile.saveData')}
-      </button>
-    </form>
-  )
-}
 
 /* ---------- subcomponentes ---------- */
 
