@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,10 +23,10 @@ public class NutritionMetricsPersistenceAdapter implements NutritionMetricsPort 
     }
 
     @Override
-    public List<DailyNutritionTotals> findDailyTotals(UUID userId, LocalDate from, LocalDate to) {
-        Instant start = from.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant end = to.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-        return repository.findDailyTotals(userId, start, end).stream()
+    public List<DailyNutritionTotals> findDailyTotals(UUID userId, LocalDate from, LocalDate to, ZoneId zone) {
+        Instant start = from.atStartOfDay(zone).toInstant();
+        Instant end = to.plusDays(1).atStartOfDay(zone).toInstant();
+        return repository.findDailyTotals(userId, start, end, zone.getId()).stream()
                 .map(view -> new DailyNutritionTotals(
                         view.getDay(),
                         round(view.getKcal()),

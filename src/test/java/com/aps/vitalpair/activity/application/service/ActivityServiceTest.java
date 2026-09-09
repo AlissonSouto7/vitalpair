@@ -93,7 +93,7 @@ class ActivityServiceTest {
 
     @Test
     void getSummarySomaCaloriasEPassos() {
-        when(activityLogRepository.findByUserAndDate(eq(USER_ID), any()))
+        when(activityLogRepository.findByUserAndDay(eq(USER_ID), any()))
                 .thenReturn(List.of(
                         ActivityLog.builder()
                                 .caloriesBurned(new BigDecimal("400"))

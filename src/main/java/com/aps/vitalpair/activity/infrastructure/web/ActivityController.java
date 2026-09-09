@@ -23,6 +23,7 @@ import com.aps.vitalpair.activity.domain.port.in.LogActivityUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
+import com.aps.vitalpair.user.domain.port.in.UserDayUseCase;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,14 +36,17 @@ public class ActivityController {
     private final LogActivityUseCase logActivityUseCase;
     private final GetDailyActivitiesUseCase getDailyActivitiesUseCase;
     private final GetActivitySummaryUseCase getActivitySummaryUseCase;
+    private final UserDayUseCase userDayUseCase;
 
     public ActivityController(
             LogActivityUseCase logActivityUseCase,
             GetDailyActivitiesUseCase getDailyActivitiesUseCase,
-            GetActivitySummaryUseCase getActivitySummaryUseCase) {
+            GetActivitySummaryUseCase getActivitySummaryUseCase,
+            UserDayUseCase userDayUseCase) {
         this.logActivityUseCase = logActivityUseCase;
         this.getDailyActivitiesUseCase = getDailyActivitiesUseCase;
         this.getActivitySummaryUseCase = getActivitySummaryUseCase;
+        this.userDayUseCase = userDayUseCase;
     }
 
     @StandardApiResponses
@@ -78,7 +82,7 @@ public class ActivityController {
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate date) {
         List<ActivityLogResponse> logs =
-                getDailyActivitiesUseCase.getActivities(principal.userId(), orToday(date)).stream()
+                getDailyActivitiesUseCase.getActivities(principal.userId(), orToday(principal, date)).stream()
                         .map(ActivityLogResponse::from)
                         .toList();
         return ResponseEntity.ok(ApiResponse.ok(logs));
@@ -94,11 +98,17 @@ public class ActivityController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate date) {
-        var summary = getActivitySummaryUseCase.getSummary(principal.userId(), orToday(date));
+        var summary = getActivitySummaryUseCase.getSummary(principal.userId(), orToday(principal, date));
         return ResponseEntity.ok(ApiResponse.ok(ActivitySummaryResponse.from(summary)));
     }
 
-    private static LocalDate orToday(LocalDate date) {
-        return date != null ? date : LocalDate.now();
+    /**
+     * The requested date, or today where the caller is.
+     *
+     * <p>Not {@code LocalDate.now()}: that is today where the server is, which used to disagree
+     * with the window the query ran over.
+     */
+    private LocalDate orToday(AuthenticatedUser principal, LocalDate date) {
+        return date != null ? date : userDayUseCase.today(principal.userId());
     }
 }

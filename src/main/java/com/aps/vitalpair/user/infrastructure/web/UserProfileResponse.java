@@ -27,6 +27,8 @@ public record UserProfileResponse(
         Integer carbTargetG,
         Integer fatTargetG,
         String avatarUrl,
+        /** IANA identifier, e.g. "America/Sao_Paulo". Decides where this user's day starts. */
+        String timeZone,
         Instant createdAt,
         Instant updatedAt) {
 
@@ -47,6 +49,7 @@ public record UserProfileResponse(
                 user.getCarbTargetG(),
                 user.getFatTargetG(),
                 user.getAvatarUrl(),
+                user.zone().getId(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
     }

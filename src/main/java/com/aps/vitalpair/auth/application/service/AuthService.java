@@ -33,6 +33,7 @@ import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.User;
+import com.aps.vitalpair.user.domain.model.UserTimeZones;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
@@ -199,6 +200,10 @@ public class AuthService
                 // Everyone signs up as a plain user. ADMIN is granted by a database update,
                 // never through a request, so registration cannot be an escalation path.
                 .role(Role.USER)
+                // Set explicitly rather than left to the column default: JPA sends the null it
+                // was given, and a null is not absent, so the default would never apply. The
+                // person changes it on their profile if they are somewhere else.
+                .timeZone(UserTimeZones.FALLBACK)
                 .build());
         pairRepository.save(tenant.toBuilder().user1Id(user.getId()).build());
         return user;

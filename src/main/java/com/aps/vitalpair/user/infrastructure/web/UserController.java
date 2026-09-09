@@ -84,7 +84,12 @@ public class UserController {
                 request.weightKg(),
                 request.goal(),
                 request.activityLevel(),
-                request.avatarUrl());
+                request.avatarUrl(),
+                // Validated by @ValidTimeZone, so ZoneId.of cannot throw here. Blank is treated
+                // as absent rather than as a zone, so clearing the field leaves the stored one.
+                request.timeZone() == null || request.timeZone().isBlank()
+                        ? null
+                        : java.time.ZoneId.of(request.timeZone()));
         var user = updateProfileUseCase.updateProfile(principal.userId(), command);
         return ResponseEntity.ok(ApiResponse.ok(UserProfileResponse.from(user), "Perfil atualizado"));
     }

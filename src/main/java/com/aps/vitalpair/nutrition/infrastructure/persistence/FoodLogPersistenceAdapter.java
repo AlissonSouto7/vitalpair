@@ -1,8 +1,5 @@
 package com.aps.vitalpair.nutrition.infrastructure.persistence;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.aps.vitalpair.nutrition.domain.model.FavoriteFood;
 import com.aps.vitalpair.nutrition.domain.model.FoodLog;
 import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
+import com.aps.vitalpair.shared.time.DayWindow;
 
 @Component
 public class FoodLogPersistenceAdapter implements FoodLogRepositoryPort {
@@ -36,11 +34,10 @@ public class FoodLogPersistenceAdapter implements FoodLogRepositoryPort {
     }
 
     @Override
-    public List<FoodLog> findByUserAndDate(UUID userId, LocalDate date) {
-        Instant start = date.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant end = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    public List<FoodLog> findByUserAndDay(UUID userId, DayWindow day) {
         return repository
-                .findByUserIdAndLoggedAtGreaterThanEqualAndLoggedAtLessThanOrderByLoggedAtAsc(userId, start, end)
+                .findByUserIdAndLoggedAtGreaterThanEqualAndLoggedAtLessThanOrderByLoggedAtAsc(
+                        userId, day.start(), day.end())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();

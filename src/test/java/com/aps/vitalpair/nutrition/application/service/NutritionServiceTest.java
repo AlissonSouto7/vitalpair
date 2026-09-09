@@ -98,7 +98,7 @@ class NutritionServiceTest {
                         .carbTargetG(180)
                         .fatTargetG(60)
                         .build()));
-        when(foodLogRepository.findByUserAndDate(eq(USER_ID), any()))
+        when(foodLogRepository.findByUserAndDay(eq(USER_ID), any()))
                 .thenReturn(List.of(log(bd(300), bd(20), bd(40), bd(10)), log(bd(200), bd(10), bd(30), bd(5))));
 
         DailySummary summary = service.getSummary(USER_ID, LocalDate.now());

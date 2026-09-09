@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -29,6 +28,7 @@ import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
 import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
+import com.aps.vitalpair.shared.time.DayWindow;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
@@ -95,7 +95,10 @@ public class NutritionService
         eventPublisher.publishEvent(new MealLoggedEvent(
                 userId,
                 saved.getTenantId(),
-                saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate(),
+                // The user's day, not UTC's: this date is what the streak, the missions and the
+                // weekly scoreboard are keyed on, so a meal logged at 21:00 in Brazil counted
+                // towards tomorrow and could break a streak the person had not broken.
+                saved.getLoggedAt().atZone(user.zone()).toLocalDate(),
                 saved.getFoodName(),
                 saved.getMealType().name(),
                 saved.isPrivate(),
@@ -121,14 +124,15 @@ public class NutritionService
     @Override
     @Transactional(readOnly = true)
     public List<FoodLog> getLogs(UUID userId, LocalDate date) {
-        return foodLogRepository.findByUserAndDate(userId, date);
+        User user = requireUser(userId);
+        return foodLogRepository.findByUserAndDay(userId, dayOf(user, date));
     }
 
     @Override
     @Transactional(readOnly = true)
     public DailySummary getSummary(UUID userId, LocalDate date) {
         User user = requireUser(userId);
-        List<FoodLog> logs = foodLogRepository.findByUserAndDate(userId, date);
+        List<FoodLog> logs = foodLogRepository.findByUserAndDay(userId, dayOf(user, date));
 
         int calories = sum(logs, FoodLog::getCaloriesKcal);
         int protein = sum(logs, FoodLog::getProteinG);
@@ -160,6 +164,17 @@ public class NutritionService
 
     private User requireUser(UUID userId) {
         return userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+    }
+
+    /**
+     * The day's boundaries in the user's own zone, not the server's.
+     *
+     * <p>Reading the zone off the user already loaded rather than asking {@code UserDayUseCase}
+     * again: both callers need the user anyway, and a second lookup would be a second query per
+     * request for an answer already in hand.
+     */
+    private static DayWindow dayOf(User user, LocalDate date) {
+        return DayWindow.of(date, user.zone());
     }
 
     private static BigDecimal orZero(BigDecimal value) {
