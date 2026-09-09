@@ -6,7 +6,7 @@
 
 - **Status**: shipped, partially applied (see "Dívida conhecida")
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-08
 
 ## What it is and where it lives
 
@@ -23,14 +23,14 @@ attached to them.
 
 ## Architecture
 
-| Layer           | Files                                                                                     |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| Configuration   | `frontend/playwright.config.ts`                                                           |
-| Shared setup    | `frontend/e2e/support/session.setup.ts`, `frontend/e2e/support/accounts.ts`               |
-| Specs           | `frontend/e2e/auth.spec.ts`, `frontend/e2e/navigation.spec.ts`                            |
-| Form primitives | `frontend/src/shared/ui/form/TextField.tsx`, `frontend/src/shared/ui/form/FormError.tsx`  |
-| Migrated forms  | `frontend/src/features/auth/LoginPage.tsx`, `frontend/src/features/auth/RegisterPage.tsx` |
-| CI              | `.github/workflows/ci.yml`, job `e2e`                                                     |
+| Layer           | Files                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| Configuration   | `frontend/playwright.config.ts`                                                                   |
+| Shared setup    | `frontend/e2e/support/session.setup.ts`, `frontend/e2e/support/accounts.ts`                       |
+| Specs           | `frontend/e2e/auth.spec.ts`, `frontend/e2e/navigation.spec.ts`, `frontend/e2e/onboarding.spec.ts` |
+| Form primitives | `frontend/src/shared/ui/form/TextField.tsx`, `frontend/src/shared/ui/form/FormError.tsx`          |
+| Migrated forms  | `frontend/src/features/auth/LoginPage.tsx`, `frontend/src/features/auth/RegisterPage.tsx`         |
+| CI              | `.github/workflows/ci.yml`, job `e2e`                                                             |
 
 ### How to run
 
@@ -88,6 +88,29 @@ lista está aberta.
 placeholder some no primeiro caractere digitado e pode nunca ser anunciado. O
 campo passou a carregar o título da seção como nome.
 
+**A-4 (médio, corrigido): grupo de data sem nome acessível.** `DateField`
+desenha `role="group"` em volta de três dropdowns, e o rótulo apontava para ele
+com `<label htmlFor>`. Um `label` nomeia um controle de formulário, e um grupo
+não é um: o grupo saía anônimo e um leitor de tela lia três dropdowns sem nome.
+`aria-labelledby` é o atributo que nomeia um grupo, então `labelId` passou a ser
+obrigatório em vez de opcional, e `Field` ganhou `labelsAGroup` para renderizar
+`<span id>` no lugar de `<label htmlFor>`. Descoberto pelo teste de onboarding,
+que não conseguiu encontrar o grupo pelo nome.
+
+**A-5 (alto, corrigido): a data de nascimento não podia ser preenchida.**
+`DateField` não guardava estado: lia dia, mês e ano de volta do `value`, e
+`value` só vira uma data ISO quando os três existem. Escolher o dia emitia `''`,
+o componente relia `''` e o dropdown voltava para o placeholder. Os três juntos
+também não funcionavam.
+
+Medido em navegador de verdade, escolhendo dia, mês e ano em sequência:
+`AFTER ALL THREE ["Dia","Mês","Ano"]`. Como o passo 1 do onboarding exige a data
+para avançar, nenhuma conta nova conseguia terminar o cadastro, e no perfil a
+data também não podia ser alterada. Corrigido guardando as três partes no
+componente e ajustando durante a renderização quando o pai troca o `value`.
+Prova vermelho para verde em `DateField.test.tsx`: 2 de 3 falhando antes, 4 de 4
+passando depois; reintroduzir o bug original derruba 2 dos 4.
+
 ### Verificados e OK
 
 - **Erro de formulário é anunciado**: `FormError` e as mensagens de campo usam
@@ -114,6 +137,8 @@ campo passou a carregar o título da seção como nome.
 | `auth.spec.ts` (7)          | cadastro que não leva pra dentro; login quebrado; sessão perdida ao recarregar; erro sem mensagem; formulário inválido chamando o servidor; rota protegida aberta |
 | `navigation.spec.ts` (4)    | 404 redirecionando em silêncio; página legal mostrando chave de tradução; tela cujo pedaço de código não carrega; troca de idioma quebrada                        |
 | `accessibility.spec.ts` (2) | regressão do achado A-1: qualquer controle sem rótulo em 8 telas volta a quebrar o build                                                                          |
+| `onboarding.spec.ts` (2)    | os cinco passos que toda conta nova percorre uma vez; formulário que avança vazio. Achou A-4 e A-5                                                                |
+| `DateField.test.tsx` (4)    | regressão de A-5: data parcial que volta pro placeholder, e data completa que não vira ISO                                                                        |
 | `errors.test.ts` (9)        | leitura de erro da API (fase 9)                                                                                                                                   |
 | `locales.test.ts` (89)      | chave de tradução faltando                                                                                                                                        |
 
@@ -122,8 +147,9 @@ campo passou a carregar o título da seção como nome.
 - **Só Chromium.** Firefox e Safari estão configurados no Playwright mas não
   habilitados; rodar três navegadores triplica o tempo sem, hoje, cobrir um risco
   conhecido.
-- **Nenhum percurso de negócio ponta a ponta**: registrar refeição, gerar plano,
-  convidar parceiro. A suíte cobre entrada e navegação.
+- **Convite, aceite e registro de refeição ainda não têm percurso.** Onboarding
+  já tem; parear duas contas exige um segundo contexto de navegador. Gerar plano
+  de IA também não tem, porque gastaria chamada paga.
 - **Sem teste de responsividade** nem de viewport móvel.
 - **Sem teste de componente** (Testing Library) ainda: os formulários migrados
   são cobertos pelo navegador, não isoladamente.
@@ -143,6 +169,8 @@ campo passou a carregar o título da seção como nome.
 
 ## Histórico
 
+- **2026-09-08**: percurso de onboarding. `onboarding.spec.ts`, que achou A-4 e
+  A-5. Testes de frontend: 147 unitários + 16 de navegador.
 - **2026-09-06**: fase 10. Playwright com 14 testes, job de CI, primitivos de
   formulário acessíveis, quatro formulários migrados para react-hook-form + zod.
   Achados A-1, A-2 e A-3 corrigidos em todas as telas, com teste de regressão.

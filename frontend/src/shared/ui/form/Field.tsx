@@ -14,6 +14,7 @@ export function Field({
   label,
   hint,
   error,
+  labelsAGroup = false,
   children,
 }: {
   label: string
@@ -21,18 +22,39 @@ export function Field({
   hint?: string
   /** Validation message for this control, already translated. */
   error?: string
-  children: (props: { id: string; 'aria-describedby'?: string; 'aria-invalid'?: true }) => ReactNode
+  /**
+   * Set when the child is several controls behind `role="group"` rather than one control.
+   *
+   * A `<label htmlFor>` names a form control, and a group is not one, so pointing a label
+   * at it leaves the group anonymous and a screen reader reads its contents unnamed. In
+   * that case the text is rendered as a span and the child names itself with
+   * `aria-labelledby`, which is the attribute that works on a group.
+   */
+  labelsAGroup?: boolean
+  children: (props: {
+    id: string
+    labelId: string
+    'aria-describedby'?: string
+    'aria-invalid'?: true
+  }) => ReactNode
 }) {
   const id = useId()
+  const labelId = `${id}-label`
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ')
 
   return (
     <div>
-      <label htmlFor={id} className="label">
-        {label}
-      </label>
+      {labelsAGroup ? (
+        <span id={labelId} className="label block">
+          {label}
+        </span>
+      ) : (
+        <label id={labelId} htmlFor={id} className="label">
+          {label}
+        </label>
+      )}
       {hint && (
         <p id={hintId} className="mb-3 text-xs text-muted">
           {hint}
@@ -40,6 +62,7 @@ export function Field({
       )}
       {children({
         id,
+        labelId,
         'aria-describedby': describedBy || undefined,
         'aria-invalid': error ? true : undefined,
       })}
