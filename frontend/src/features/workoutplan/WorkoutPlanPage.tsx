@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  completeWorkout,
-  generateWorkoutPlan,
-  getWorkoutToday,
-  toggleExercise,
-} from '../../api/aiplan'
+import { completeWorkout, generateWorkoutPlan, toggleExercise } from '../../api/aiplan'
 import type { WorkoutToday } from '../../types/aiplan'
+
+import { workoutPlanQueries } from './queries'
 
 import { getApiErrorMessage } from '@/shared/api/errors'
 
@@ -17,61 +15,78 @@ import { getApiErrorMessage } from '@/shared/api/errors'
  */
 export function WorkoutPlanPage() {
   const { t } = useTranslation()
-  const [today, setToday] = useState<WorkoutToday | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
-  const [finishing, setFinishing] = useState(false)
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getWorkoutToday()
-      .then(setToday)
-      .catch(() => setError(t('workoutplan.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
+  const key = workoutPlanQueries.today().queryKey
+  const todayQuery = useQuery(workoutPlanQueries.today())
+  const today = todayQuery.data ?? null
 
-  async function generate() {
-    setGenerating(true)
-    setError(null)
-    try {
-      setToday(await generateWorkoutPlan())
-    } catch (err) {
-      setError(getApiErrorMessage(err, t('workoutplan.generateError')))
-    } finally {
-      setGenerating(false)
-    }
+  /** Writes the server's answer straight into the cache: it is the whole screen's state. */
+  function replace(next: WorkoutToday | null) {
+    queryClient.setQueryData(key, next)
   }
 
-  async function toggle(id: string) {
-    if (!today || today.completed) return
-    // otimista: inverte local, sincroniza com a resposta
-    setToday({
-      ...today,
-      exercises: today.exercises.map((e) => (e.id === id ? { ...e, done: !e.done } : e)),
-    })
-    try {
-      setToday(await toggleExercise(id))
-    } catch {
+  const generateMutation = useMutation({
+    mutationFn: generateWorkoutPlan,
+    onSuccess: replace,
+    onError: (err) => setError(getApiErrorMessage(err, t('workoutplan.generateError'))),
+  })
+
+  const toggleMutation = useMutation({
+    mutationFn: toggleExercise,
+    // Ticking a box has to feel instant, so the box flips before the request goes. The
+    // snapshot is what puts it back if the request fails, instead of leaving a tick the
+    // server never recorded.
+    onMutate: (id: string) => {
+      const previous = queryClient.getQueryData<WorkoutToday | null>(key)
+      if (previous) {
+        const optimistic: WorkoutToday = {
+          ...previous,
+          exercises: previous.exercises.map((e) => (e.id === id ? { ...e, done: !e.done } : e)),
+        }
+        queryClient.setQueryData(key, optimistic)
+      }
+      return { previous }
+    },
+    onSuccess: replace,
+    onError: (_err, _id, context) => {
       setError(t('workoutplan.toggleError'))
-      getWorkoutToday()
-        .then(setToday)
-        .catch(() => {})
-    }
-  }
+      if (context?.previous) queryClient.setQueryData(key, context.previous)
+    },
+  })
 
-  async function finish() {
-    setFinishing(true)
+  const finishMutation = useMutation({
+    mutationFn: completeWorkout,
+    onSuccess: replace,
+    onError: (err) => setError(getApiErrorMessage(err, t('workoutplan.completeError'))),
+  })
+
+  const generating = generateMutation.isPending
+  const finishing = finishMutation.isPending
+
+  function generate() {
     setError(null)
-    try {
-      setToday(await completeWorkout())
-    } catch (err) {
-      setError(getApiErrorMessage(err, t('workoutplan.completeError')))
-    } finally {
-      setFinishing(false)
-    }
+    generateMutation.mutate()
   }
 
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  function toggle(id: string) {
+    if (!today || today.completed) return
+    toggleMutation.mutate(id)
+  }
+
+  function finish() {
+    setError(null)
+    finishMutation.mutate()
+  }
+
+  if (todayQuery.isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
+  if (todayQuery.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('workoutplan.loadError')}
+      </p>
+    )
 
   const total = today?.exercises.length ?? 0
   const done = today?.exercises.filter((e) => e.done).length ?? 0
