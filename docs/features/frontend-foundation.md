@@ -6,7 +6,7 @@
 
 - **Status**: shipped, partially applied (see "Dívida conhecida")
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-08
+- **Last updated**: 2026-09-09
 
 ## What it is and where it lives
 
@@ -125,6 +125,22 @@ helper.
 zero e peso vazio saíam do handler sem mensagem: a pessoa clicava e nada
 acontecia. Cada caso tem uma frase agora.
 
+### Corrigidos em 09/09
+
+**F-9 (baixo, corrigido): o nome acessível do sino mudava sozinho.** O `<span>`
+do contador fica dentro do `<button>`, então o texto dele entrava no nome
+acessível: o controle se anunciava como "Notificações 2" num momento e
+"Notificações" no outro, conforme o número chegava e era zerado. Nome que se
+mexe com o dado é alvo móvel pra quem navega por nome.
+
+O botão passou a ter `aria-label` fixo, que vence o conteúdo, e o contador é
+anunciado por `aria-describedby`, onde ele é detalhe e não identidade. Ganhou
+também `aria-expanded`, que faltava num controle que abre painel.
+
+Descoberto porque o teste de componente não conseguia achar o botão pelo nome
+depois que a contagem chegava, que é exatamente o que a tecnologia assistiva
+enfrenta. Provado: removendo o `aria-label`, 2 dos 6 testes caem.
+
 ### Verificados e OK
 
 - **Nenhuma vulnerabilidade de produção**: `npm audit --omit=dev` retorna zero.
@@ -198,11 +214,14 @@ deixada por outro.
 - **Escolher uma opção no `Select` ou uma data no `DateField` por dentro de um
   teste**: os testes do perfil usam um perfil já preenchido. O caminho
   `Controller` → `Select` é exercido só pelo caso "sexo ausente".
-- **`ProtectedRoute`, `NotificationsBell` e `CalorieRing`** continuam sem teste
-  de componente.
-- **Nenhum teste de navegador de fluxo de negócio** (registrar → onboarding →
-  refeição). Os três `e2e` existentes cobrem autenticação, navegação e
-  acessibilidade.
+- ~~**`ProtectedRoute`, `NotificationsBell` e `CalorieRing`** continuam sem teste
+  de componente.~~ Feitos em 09/09: 14 testes ao todo, cada grupo provado
+  não-vacuoso quebrando o componente de propósito.
+- ~~**Nenhum teste de navegador de fluxo de negócio**~~ Feito em 09/09:
+  `onboarding.spec.ts` percorre os cinco passos até o dashboard e
+  `nutrition.spec.ts` registra uma refeição e a lê de volta na lista do dia.
+  Convite → aceite continua sem percurso, porque exige um segundo contexto de
+  navegador.
 - **O `queryClient`** não tem teste da política de retentativa.
 - **`useLegalNamespace`** é exercido indiretamente pelo teste de contato, que
   espera o namespace carregar; não tem teste próprio.
@@ -296,6 +315,9 @@ requisições, e quatro toasts idênticos são ruído.
 
 ## Histórico
 
+- **2026-09-09**: testes de componente que faltavam. `ProtectedRoute` (3),
+  `NotificationsBell` (6) e `CalorieRing` (5). O do sino achou F-9. Testes de
+  frontend: 153 para 167.
 - **2026-09-09**: o que faltava da fase 9. O `sonner` estava montado sem ninguém
   emitir toast; passou a avisar falha do servidor com o código da requisição, que
   era o que o plano da fase pedia. 6 testes unitários e 1 de navegador.
