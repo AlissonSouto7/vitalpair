@@ -238,6 +238,13 @@ Rules:
 - Keys are English, camelCase, and describe the role of the string
   (`submitButton`), not its current text (`clickHere`).
 - A new namespace is registered in `frontend/src/locales/index.ts`.
+- Every key is typed. `frontend/src/i18next.d.ts` derives the key union from the
+  `pt` bundle, so a `t('...')` with a misspelled, renamed or missing key fails
+  `tsc` rather than showing the raw key in production. A function that takes a
+  translate function types it as `TFunction` from `i18next`, never as
+  `(key: string) => string`, which would let any string through. A test helper
+  that builds keys dynamically narrows its parameter to the keys under its
+  namespace rather than `string`.
 - Do not machine-translate blindly. The product's voice is informal and
   competitive; keep that tone in every language.
 

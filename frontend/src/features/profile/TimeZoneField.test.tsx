@@ -1,12 +1,18 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { TFunction } from 'i18next'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { TimeZoneField } from './TimeZoneField'
 
-/** The translations are not what is under test here, so the key is echoed with its values. */
-const t = (key: string, opts?: Record<string, unknown>) =>
-  opts ? `${key}:${Object.values(opts).join(',')}` : key
+/**
+ * The translations are not what is under test here, so the key is echoed with its values.
+ *
+ * Cast because TFunction is branded: a plain function is not one, and this is a stub that
+ * only has to be called, not a translator that has to resolve keys.
+ */
+const t = ((key: string, opts?: Record<string, unknown>) =>
+  opts ? `${key}:${Object.values(opts).join(',')}` : key) as unknown as TFunction
 
 /** Pretends the browser is somewhere, which is the only input this component reads. */
 function browserIn(zone: string) {

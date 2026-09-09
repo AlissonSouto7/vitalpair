@@ -5,12 +5,16 @@ import { ContactPage } from './ContactPage'
 import { openMailClient } from './mailto'
 
 import { loadLegalNamespace } from '@/locales'
+import type { TranslationBundle } from '@/locales'
 import { i18n, renderWithProviders } from '@/test/render'
-
 
 vi.mock('./mailto', () => ({ openMailClient: vi.fn() }))
 
-const contact = (key: string) => i18n.t(`legal.contact.${key}`)
+/** The keys under a namespace whose value is a string, which is what a test asserts on. */
+type LeafKeys<T> = { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
+
+const contact = (key: LeafKeys<TranslationBundle['legal']['contact']>) =>
+  i18n.t(`legal.contact.${key}`)
 
 async function expectAlert(text: string) {
   await waitFor(() => {

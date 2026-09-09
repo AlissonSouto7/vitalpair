@@ -15,13 +15,13 @@ import { nav } from './nav'
 import { notifications } from './notifications'
 import { nutrition } from './nutrition'
 import { onboarding } from './onboarding'
+import { pair } from './pair'
+import { profile } from './profile'
 import { progress } from './progress'
 import { season } from './season'
 import { seasonEnd } from './seasonEnd'
 import { settings } from './settings'
 import { workoutplan } from './workoutplan'
-import { profile } from './profile'
-import { pair } from './pair'
 
 /**
  * Guards translation completeness across the four supported languages.

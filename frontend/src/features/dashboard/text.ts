@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 /**
  * How the dashboard words and formats things.
  *
@@ -7,7 +8,8 @@
  */
 
 /** The shape of the translate function these take. */
-export type TFn = (key: string, opts?: Record<string, unknown>) => string
+/** The translate function, typed against the pt bundle: a wrong key fails tsc. */
+export type TFn = TFunction
 
 export function greeting(t: TFn): string {
   const h = new Date().getHours()

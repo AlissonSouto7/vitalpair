@@ -1,9 +1,10 @@
+import type { TFunction } from 'i18next'
 import { z } from 'zod'
 
 import type { ActivityLevel, Goal, Sex } from '@/types/profile'
 
-/** The shape of the translate function the label helpers take. */
-export type TFn = (key: string, opts?: Record<string, unknown>) => string
+/** The translate function, typed against the pt bundle: a wrong key fails tsc. */
+export type TFn = TFunction
 
 /**
  * The values, labels and validation the profile screen and its edit form share.

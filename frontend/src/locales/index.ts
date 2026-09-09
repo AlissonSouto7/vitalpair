@@ -27,6 +27,18 @@ import { workoutplan } from './workoutplan'
 
 export type Lang = 'pt' | 'en' | 'es' | 'fr'
 
+/**
+ * The shape of one language's bundle, with the legal namespace included even though it is
+ * loaded on demand: the keys have to exist for the type checker whether or not the chunk
+ * has arrived yet, since the pages that use them are written before it has.
+ *
+ * Derived from `pt`, the reference bundle. The parity test proves the other three carry the
+ * same keys, so typing against one of them types against all four.
+ */
+export type TranslationBundle = { [K in keyof typeof modules]: (typeof modules)[K]['pt'] } & {
+  legal: (typeof import('./legal'))['legal']['pt']
+}
+
 const modules = {
   common,
   errors,

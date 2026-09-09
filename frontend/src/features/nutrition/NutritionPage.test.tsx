@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { NutritionPage } from './NutritionPage'
 
+import type { TranslationBundle } from '@/locales'
 import {
   dailySummaryFixture,
   favoriteFoodsFixture,
@@ -14,8 +15,12 @@ import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
+/** The keys under a namespace whose value is a string, which is what a test asserts on. */
+type LeafKeys<T> = { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
 
-const n = (key: string, vars?: Record<string, string>) => i18n.t(`nutrition.${key}`, vars ?? {})
+const loose = i18n.t as unknown as (key: string, vars?: Record<string, string>) => string
+const n = (key: LeafKeys<TranslationBundle['nutrition']>, vars?: Record<string, string>) =>
+  loose(`nutrition.${key}`, vars)
 
 /** The two reads the screen always makes. Tabs add their own on top. */
 function mount() {

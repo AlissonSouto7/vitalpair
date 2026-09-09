@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next'
+
 import { Points } from '@/components/ui/Badge'
 import type { MealType } from '@/types/nutrition'
 
@@ -17,7 +19,7 @@ export function SaveBar({
   saving,
   onSave,
 }: {
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction
   calories: number
   mealType: MealType
   mealLabel: (meal: MealType) => string

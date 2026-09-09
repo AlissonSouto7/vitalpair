@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next'
+
 import type { Draft } from './draft'
 import { Dot } from './parts'
 
@@ -23,7 +25,7 @@ export function MealEditor({
   onDiscard,
   saving,
 }: {
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction
   draft: Draft
   setDraft: (next: Draft) => void
   computed: { calories: number; protein: number; carb: number; fat: number }

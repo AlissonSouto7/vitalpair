@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next'
+
 import { ForkIcon, TrashIcon } from './icons'
 
 import type { FoodLog, MealType } from '@/types/nutrition'
@@ -16,7 +18,7 @@ export function DayList({
   onOpen,
   onRemove,
 }: {
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction
   logs: FoodLog[]
   mealLabel: (meal: MealType) => string
   onOpen: (log: FoodLog) => void
