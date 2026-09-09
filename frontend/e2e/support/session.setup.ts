@@ -1,7 +1,6 @@
 import { expect, test as setup } from '@playwright/test'
 
 import {
-  PARTNER_SESSION_FILE,
   registerThroughTheUi,
   savePartnerAccount,
   saveSharedAccount,
@@ -40,9 +39,5 @@ setup('create the partner account', async ({ browser }) => {
   const context = await browser.newContext()
   const page = await context.newPage()
   savePartnerAccount(await registerThroughTheUi(page, 'Parceiro'))
-  // Saved separately from the shared session, so the pairing spec can put two people on
-  // screen at once without signing either of them in again. Login is rate limited too, and
-  // a spec that logs in four times spends an allowance the whole suite draws on.
-  await context.storageState({ path: PARTNER_SESSION_FILE })
   await context.close()
 })

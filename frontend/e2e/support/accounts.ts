@@ -10,6 +10,15 @@ export const SESSION_FILE = 'e2e/.auth/session.json'
 const ACCOUNT_FILE = 'e2e/.auth/account.json'
 
 /**
+ * The second account, for the one flow that needs two people at once.
+ *
+ * Registered in setup like the first, and for the same reason: pairing needs a partner, and
+ * registering one per run would spend the rate-limit allowance the specs that genuinely test
+ * registration depend on.
+ */
+const PARTNER_FILE = 'e2e/.auth/partner.json'
+
+/**
  * The account the setup project registered.
  *
  * Written to disk rather than kept in a module variable, because Playwright runs each spec
@@ -26,6 +35,18 @@ export function sharedAccount(): { email: string; password: string } {
     throw new Error('The setup project must run before the tests that reuse its account.')
   }
   return JSON.parse(readFileSync(ACCOUNT_FILE, 'utf8')) as { email: string; password: string }
+}
+
+export function savePartnerAccount(account: { email: string; password: string }) {
+  mkdirSync(dirname(PARTNER_FILE), { recursive: true })
+  writeFileSync(PARTNER_FILE, JSON.stringify(account), 'utf8')
+}
+
+export function partnerAccount(): { email: string; password: string } {
+  if (!existsSync(PARTNER_FILE)) {
+    throw new Error('The setup project must run before the tests that reuse its account.')
+  }
+  return JSON.parse(readFileSync(PARTNER_FILE, 'utf8')) as { email: string; password: string }
 }
 
 /** A password that satisfies the backend's rules (8 to 100 characters). */
