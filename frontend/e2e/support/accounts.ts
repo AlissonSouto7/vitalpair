@@ -1,7 +1,7 @@
-import { expect, type Page } from '@playwright/test'
-
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
+
+import { expect, type Page } from '@playwright/test'
 
 /** Where the signed-in session is saved, so tests do not each register their own account. */
 export const SESSION_FILE = 'e2e/.auth/session.json'

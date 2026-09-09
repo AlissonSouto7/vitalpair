@@ -223,6 +223,14 @@ jobs:
           # The browser tests run against the preview server on 4173.
           CORS_ALLOWED_ORIGINS: http://localhost:4173
           MAIL_ENABLED: 'false'
+          # The suite runs serially from one address and renews the session on every screen
+          # it opens, so it competes with itself for allowances sized for one person. Refresh
+          # is the one it exhausts first, at roughly one per page load. Raised only here:
+          # production keeps 10, 5 and 30, which are the defaults in the code, and
+          # RateLimitIT still proves the guard at those numbers.
+          VITALPAIR_RATELIMIT_LOGIN_PER_MINUTE: '60'
+          VITALPAIR_RATELIMIT_REGISTER_PER_MINUTE: '30'
+          VITALPAIR_RATELIMIT_REFRESH_PER_MINUTE: '500'
         run: |
           nohup java -jar target/vitalpair-*.jar > backend.log 2>&1 &
           for i in $(seq 1 60); do

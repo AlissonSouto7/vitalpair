@@ -1,6 +1,12 @@
 import { expect, test as setup } from '@playwright/test'
 
-import { registerThroughTheUi, saveSharedAccount, SESSION_FILE } from './accounts'
+import {
+  PARTNER_SESSION_FILE,
+  registerThroughTheUi,
+  savePartnerAccount,
+  saveSharedAccount,
+  SESSION_FILE,
+} from './accounts'
 
 /**
  * Creates the one account the rest of the suite signs in as, and saves its session.
@@ -21,4 +27,22 @@ setup('create the shared account', async ({ page }) => {
   // another test start already signed in without paying for another registration.
   await page.context().storageState({ path: SESSION_FILE })
   await expect(page).toHaveURL(/\/(onboarding|dashboard)/)
+})
+
+/**
+ * The partner account, for the pairing flow.
+ *
+ * Two accounts is the minimum that flow can be tested with, and registering the second one
+ * inside the spec spent an allowance the registration tests need. Registered here once, in
+ * its own context so it does not overwrite the session saved above.
+ */
+setup('create the partner account', async ({ browser }) => {
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  savePartnerAccount(await registerThroughTheUi(page, 'Parceiro'))
+  // Saved separately from the shared session, so the pairing spec can put two people on
+  // screen at once without signing either of them in again. Login is rate limited too, and
+  // a spec that logs in four times spends an allowance the whole suite draws on.
+  await context.storageState({ path: PARTNER_SESSION_FILE })
+  await context.close()
 })
