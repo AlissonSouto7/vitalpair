@@ -27,3 +27,6 @@ dist-ssr
 e2e/.auth/
 test-results/
 playwright-report/
+# Written by `npm run coverage`. Not ignored until now, so the report was one
+# `git add -A` away from being committed.
+coverage/

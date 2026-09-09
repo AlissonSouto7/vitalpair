@@ -257,11 +257,17 @@ requisições, e quatro toasts idênticos são ruído.
   do cabeçalho cobrem o que a pessoa abre todo dia. Nenhuma das nove restantes
   gera aviso de lint: elas atribuem estado dentro de um `.then`, não de forma
   síncrona no efeito, que é o padrão que a regra acusa.
-- **14 telas acima de 300 linhas**, contadas em 08/09. Nutrição caiu de 944 para
-  640 com as três abas extraídas e deixou de ser a maior. Onboarding, com 817,
-  passou a ser, e não foi tocada de propósito: os cinco campos dela não têm
-  elemento `<form>`, então migrar o formulário e decompor a tela é o mesmo
-  trabalho, e fazer metade agora significaria abrir o arquivo duas vezes.
+- **14 telas acima de 300 linhas**, contadas em 09/09. O número não mudou porque
+  onboarding continua acima do limite, só que bem menor. Nutrição caiu de 944 para
+  640 com as três abas extraídas; onboarding, que era a maior com 834, caiu para
+  404 com os cinco passos, as peças de apresentação e os ícones em arquivos
+  próprios. As duas continuam acima do limite.
+- **`OnboardingPage` ainda tem 404 linhas** e não tenho intenção de forçá-la
+  abaixo de 300 quebrando mais. O que sobrou é o fluxo: o estado dos cinco
+  passos, `goNext`, o salvamento com cálculo de meta, a entrada no par e o
+  rodapé. Isso é uma unidade só; separar em dois arquivos que leem o mesmo estado
+  deixaria o número bonito e o código pior. O `max-lines` continua como aviso, e
+  este é um dos casos em que o aviso é a resposta certa.
 - **O layout feature-first do plano não foi feito.** As pastas continuam em
   `src/features`, `src/components`, `src/api`. O alias `@/` já existe, que era a
   pré-condição; mover os arquivos é um diff enorme sem ganho funcional imediato.
