@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useId } from 'react'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -6,8 +8,9 @@ import { joinPair } from '../../api/pair'
 import { getTdee, updateProfile } from '../../api/profile'
 import { BrandMark } from '../../components/brand/BrandMark'
 import { useTheme } from '../../hooks/useTheme'
-import type { ActivityLevel, Goal, Sex, Tdee } from '../../types/profile'
+import type { Tdee } from '../../types/profile'
 
+import { ABOUT_YOU_FIELDS, onboardingSchema, type OnboardingValues } from './onboardingForm'
 import { buildActivityOptions, buildGoalOptions, buildSexOptions, buildStepLabels } from './options'
 import { StepAboutYou } from './StepAboutYou'
 import { StepBet, StepPartner, StepRoutine, StepTargets } from './Steps'
@@ -20,14 +23,8 @@ type Mode = 'pair' | 'solo'
 
 export function OnboardingPage() {
   const { t } = useTranslation()
-  const nameId = useId()
-  const weightId = useId()
-  const heightId = useId()
-  const birthId = useId()
-  const sexId = useId()
   const inviteId = useId()
   const betId = useId()
-  const focusLabelId = useId()
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
 
@@ -43,20 +40,17 @@ export function OnboardingPage() {
 
   const [step, setStep] = useState(1)
 
-  // passo 1
-  const [name, setName] = useState('')
-  const [birthDate, setBirthDate] = useState('')
-  const [sex, setSex] = useState<Sex | ''>('')
-  const [heightCm, setHeightCm] = useState('')
-  const [weightKg, setWeightKg] = useState('')
-  const [goal, setGoal] = useState<Goal | ''>('')
-
-  // passo 2
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel | ''>('')
+  // Steps 1 and 2 are one form: the profile, sent in a single request when step 2 is
+  // left. It lives here rather than in the steps so that going back shows what was typed.
+  const form = useForm<OnboardingValues>({
+    resolver: zodResolver(onboardingSchema),
+    mode: 'onTouched',
+    defaultValues: { name: '', birthDate: '' },
+  })
+  const { isSubmitting: calculating } = form.formState
 
   // passo 3 (resultado)
   const [tdee, setTdee] = useState<Tdee | null>(null)
-  const [calculating, setCalculating] = useState(false)
 
   // passo 4
   const [mode, setMode] = useState<Mode | null>(null)
@@ -69,35 +63,21 @@ export function OnboardingPage() {
   const [error, setError] = useState<string | null>(null)
   const [finishing, setFinishing] = useState(false)
 
-  function step1Valid() {
-    return (
-      name.trim().length > 0 &&
-      birthDate.length > 0 &&
-      sex !== '' &&
-      Number(heightCm) > 0 &&
-      Number(weightKg) > 0 &&
-      goal !== ''
-    )
-  }
-
   async function goNext() {
     setError(null)
 
-    // valida o passo atual
-    if (step === 1) {
-      if (!step1Valid()) {
-        setError(t('onboarding.errorStep1'))
-        return
-      }
-    }
-    if (step === 2 && activityLevel === '') {
-      setError(t('onboarding.errorStep2'))
+    // Only this step's fields: the routine is not on screen yet, so it cannot be answered.
+    if (step === 1 && !(await form.trigger(ABOUT_YOU_FIELDS))) {
+      setError(t('onboarding.errorStep1'))
       return
     }
 
-    // ao sair do passo 2, salva o perfil e calcula a meta antes de mostrar o passo 3
+    // Leaving step 2 saves the profile and computes the target. The whole form is checked
+    // here; step 1 was checked on the way in, so the routine is what can still be missing.
     if (step === 2) {
-      await saveProfileAndCalc()
+      await form.handleSubmit(saveProfileAndCalc, (errors) =>
+        setError(errors.activityLevel ? t('onboarding.errorStep2') : t('onboarding.errorStep1')),
+      )()
       return
     }
 
@@ -125,27 +105,14 @@ export function OnboardingPage() {
     setStep((s) => Math.max(1, s - 1))
   }
 
-  async function saveProfileAndCalc() {
-    if (sex === '' || goal === '' || activityLevel === '') return
-    setCalculating(true)
-    setError(null)
+  async function saveProfileAndCalc(values: OnboardingValues) {
     try {
-      await updateProfile({
-        name: name.trim(),
-        birthDate,
-        sex,
-        heightCm: Number(heightCm),
-        weightKg: Number(weightKg),
-        goal,
-        activityLevel,
-      })
+      await updateProfile(values)
       const result = await getTdee()
       setTdee(result)
       setStep(3)
     } catch (err) {
       setError(getApiErrorMessage(err, t('onboarding.errorCalc')))
-    } finally {
-      setCalculating(false)
     }
   }
 
@@ -234,99 +201,92 @@ export function OnboardingPage() {
           </span>
         </div>
 
-        <div className="flex flex-1 flex-col justify-center py-2">
-          {step === 1 && (
-            <StepAboutYou
-              t={t}
-              ids={{
-                name: nameId,
-                weight: weightId,
-                height: heightId,
-                birth: birthId,
-                sex: sexId,
-                focus: focusLabelId,
-              }}
-              name={name}
-              setName={setName}
-              birthDate={birthDate}
-              setBirthDate={setBirthDate}
-              sex={sex}
-              setSex={setSex}
-              heightCm={heightCm}
-              setHeightCm={setHeightCm}
-              weightKg={weightKg}
-              setWeightKg={setWeightKg}
-              goal={goal}
-              setGoal={setGoal}
-              sexOptions={SEX_OPTIONS}
-              goalOptions={GOAL_OPTIONS}
-            />
-          )}
-
-          {step === 2 && (
-            <StepRoutine
-              t={t}
-              activityLevel={activityLevel}
-              setActivityLevel={setActivityLevel}
-              activityOptions={ACTIVITY_OPTIONS}
-            />
-          )}
-
-          {step === 3 && tdee && <StepTargets t={t} tdee={tdee} />}
-
-          {step === 4 && (
-            <StepPartner
-              t={t}
-              inviteId={inviteId}
-              mode={mode}
-              setMode={setMode}
-              inviteCode={inviteCode}
-              setInviteCode={setInviteCode}
-            />
-          )}
-
-          {step === 5 && (
-            <StepBet
-              t={t}
-              betId={betId}
-              mode={mode}
-              bet={bet}
-              setBet={setBet}
-              betSuggestions={BET_SUGGESTIONS}
-            />
-          )}
-        </div>
-
-        {error && (
-          <p className="mt-4 rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
-            {error}
-          </p>
-        )}
-
-        {/* rodapé: voltar / avançar */}
-        <div className="mt-5 flex items-center gap-3">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={goBack}
-              disabled={busy}
-              className="btn-ghost text-ink disabled:opacity-60"
-            >
-              {t('onboarding.back')}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => void goNext()}
-            disabled={busy}
-            className="btn-primary flex-1 disabled:opacity-60"
+        {/* One form around every step, so Enter in a field advances the way the button
+            does. It submits through goNext rather than handleSubmit because only two of
+            the five steps are the profile form; the other three have their own checks. */}
+        <FormProvider {...form}>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              void goNext()
+            }}
+            noValidate
+            className="flex flex-1 flex-col"
           >
-            {nextLabel}
-          </button>
-        </div>
+            <div className="flex flex-1 flex-col justify-center py-2">
+              {step === 1 && (
+                <StepAboutYou t={t} sexOptions={SEX_OPTIONS} goalOptions={GOAL_OPTIONS} />
+              )}
+
+              {step === 2 && (
+                <Controller
+                  name="activityLevel"
+                  control={form.control}
+                  render={({ field }) => (
+                    <StepRoutine
+                      t={t}
+                      activityLevel={field.value ?? ''}
+                      setActivityLevel={field.onChange}
+                      activityOptions={ACTIVITY_OPTIONS}
+                    />
+                  )}
+                />
+              )}
+
+              {step === 3 && tdee && <StepTargets t={t} tdee={tdee} />}
+
+              {step === 4 && (
+                <StepPartner
+                  t={t}
+                  inviteId={inviteId}
+                  mode={mode}
+                  setMode={setMode}
+                  inviteCode={inviteCode}
+                  setInviteCode={setInviteCode}
+                />
+              )}
+
+              {step === 5 && (
+                <StepBet
+                  t={t}
+                  betId={betId}
+                  mode={mode}
+                  bet={bet}
+                  setBet={setBet}
+                  betSuggestions={BET_SUGGESTIONS}
+                />
+              )}
+            </div>
+
+            {error && (
+              <p className="mt-4 rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+                {error}
+              </p>
+            )}
+
+            {/* rodapé: voltar / avançar */}
+            <div className="mt-5 flex items-center gap-3">
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  disabled={busy}
+                  className="btn-ghost text-ink disabled:opacity-60"
+                >
+                  {t('onboarding.back')}
+                </button>
+              )}
+              <button
+                type="submit"
+                disabled={busy}
+                className="btn-primary flex-1 disabled:opacity-60"
+              >
+                {nextLabel}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
     </div>
   )
 }
-
-/* ---------- subcomponentes ---------- */

@@ -15,7 +15,12 @@ export type TFn = TFunction
  */
 
 export const SEX_VALUES = ['MALE', 'FEMALE', 'OTHER'] as const satisfies readonly Sex[]
-export const GOAL_VALUES: Goal[] = ['LOSE_WEIGHT', 'GAIN_MUSCLE', 'MAINTAIN', 'IMPROVE_FITNESS']
+export const GOAL_VALUES = [
+  'LOSE_WEIGHT',
+  'GAIN_MUSCLE',
+  'MAINTAIN',
+  'IMPROVE_FITNESS',
+] as const satisfies readonly Goal[]
 export const LEVEL_VALUES = [
   'SEDENTARY',
   'LIGHT',
@@ -33,8 +38,12 @@ export const activityLabel = (t: TFn, l: ActivityLevel) => t(`profile.levelLabel
  * hears about a slip here rather than after a round trip. The date field emits an empty
  * string until all three parts are chosen; the server's @Past is restated as "before
  * today".
+ *
+ * Shared with onboarding, which is where these fields are written for the first time. One
+ * schema means the first form a person fills and the one they edit later cannot disagree
+ * about what a valid profile is.
  */
-export const editSchema = z.object({
+export const profileSchema = z.object({
   name: z.string().trim().min(1).max(100),
   birthDate: z
     .string()
@@ -42,6 +51,9 @@ export const editSchema = z.object({
   sex: z.enum(SEX_VALUES),
   heightCm: z.number().min(50).max(300),
   weightKg: z.number().min(20).max(500),
+})
+
+export const editSchema = profileSchema.extend({
   activityLevel: z.enum(LEVEL_VALUES),
   timeZone: z.string().min(1),
 })

@@ -88,8 +88,11 @@ test.describe('onboarding', () => {
 
     await page.getByRole('button', { name: /continuar/i }).click()
 
-    // Still on the first step, with a reason on screen rather than a silent no-op.
+    // Still on the first step, with a reason on screen rather than a silent no-op: the
+    // summary, and a message next to each field saying what is missing.
     await expect(page.getByText(/preenche tudo aí em cima/i)).toBeVisible()
+    await expect(page.getByText('Escolhe qual é seu foco agora.')).toBeVisible()
     await expect(page.getByLabel('Como te chamam?')).toBeVisible()
+    await expect(page.getByLabel('Como te chamam?')).toHaveAttribute('aria-invalid', 'true')
   })
 })
