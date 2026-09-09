@@ -2,6 +2,7 @@ package com.aps.vitalpair.user.application.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
@@ -16,4 +17,6 @@ public record UpdateProfileCommand(
         BigDecimal weightKg,
         Goal goal,
         ActivityLevel activityLevel,
-        String avatarUrl) {}
+        String avatarUrl,
+        /** Null leaves the stored zone unchanged. */
+        ZoneId timeZone) {}

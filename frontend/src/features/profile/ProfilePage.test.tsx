@@ -10,7 +10,6 @@ import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 import type { UpdateProfilePayload } from '@/types/profile'
 
-
 function mount(profile = profileFixture) {
   server.use(
     http.get(path('/users/me'), () => ok(profile)),
@@ -126,6 +125,9 @@ describe('ProfilePage edit form', () => {
           weightKg: 78,
           goal: 'LOSE_WEIGHT',
           activityLevel: 'MODERATE',
+          // Sent back unchanged. The form carries it so that saving anything else cannot
+          // move the person's day boundary as a side effect.
+          timeZone: 'America/Sao_Paulo',
         },
       ]),
     )

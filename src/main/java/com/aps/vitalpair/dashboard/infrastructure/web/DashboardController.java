@@ -14,6 +14,7 @@ import com.aps.vitalpair.dashboard.domain.port.in.GetDashboardUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
+import com.aps.vitalpair.user.domain.port.in.UserDayUseCase;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +25,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class DashboardController {
 
     private final GetDashboardUseCase getDashboardUseCase;
+    private final UserDayUseCase userDayUseCase;
 
-    public DashboardController(GetDashboardUseCase getDashboardUseCase) {
+    public DashboardController(GetDashboardUseCase getDashboardUseCase, UserDayUseCase userDayUseCase) {
         this.getDashboardUseCase = getDashboardUseCase;
+        this.userDayUseCase = userDayUseCase;
     }
 
     @StandardApiResponses
@@ -39,7 +42,8 @@ public class DashboardController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate date) {
-        LocalDate target = date != null ? date : LocalDate.now();
+        // Today where the caller is, not where the server runs.
+        LocalDate target = date != null ? date : userDayUseCase.today(principal.userId());
         var view = getDashboardUseCase.getDashboard(principal.userId(), target);
         return ResponseEntity.ok(ApiResponse.ok(DashboardResponse.from(view)));
     }

@@ -2,6 +2,7 @@ package com.aps.vitalpair.progress.application.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import com.aps.vitalpair.progress.domain.port.out.NutritionMetricsPort;
 import com.aps.vitalpair.progress.domain.port.out.WeightLogRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
+import com.aps.vitalpair.user.domain.model.UserTimeZones;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
@@ -59,7 +61,9 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
     @Override
     @Transactional
     public void recordTodayWeight(UUID userId, BigDecimal weightKg) {
-        weightLogRepository.upsert(userId, LocalDate.now(), weightKg);
+        // Today where the person is. LocalDate.now() would file a weigh-in taken after 21:00
+        // in Brazil under tomorrow, and overwrite tomorrow's real entry when it arrives.
+        weightLogRepository.upsert(userId, LocalDate.now(zoneOf(userId)), weightKg);
     }
 
     @Override
@@ -67,14 +71,14 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
     public ProgressView getProgress(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(user.zone());
         LocalDate from = today.minusDays(WINDOW_DAYS - 1L);
 
         List<WeightPoint> weights = buildWeights(userId, user, today);
         Integer targetKcal = user.getDailyCalorieTarget();
 
         Map<LocalDate, DailyNutritionTotals> totalsByDate =
-                nutritionMetrics.findDailyTotals(userId, from, today).stream()
+                nutritionMetrics.findDailyTotals(userId, from, today, user.zone()).stream()
                         .collect(Collectors.toMap(DailyNutritionTotals::date, Function.identity()));
 
         List<CalorieDay> calories = buildCalorieDays(from, today, targetKcal, totalsByDate);
@@ -123,5 +127,14 @@ public class ProgressService implements GetProgressUseCase, RecordWeightUseCase 
 
     private static String initialOf(LocalDate date) {
         return WEEKDAY_INITIALS[date.getDayOfWeek().getValue() - 1];
+    }
+
+    /**
+     * The caller's zone. Falls back rather than throwing: the id is an authenticated caller's,
+     * so a miss means the account closed mid-request, and the weigh-in's own write reports that
+     * more honestly than a 404 about the date would.
+     */
+    private ZoneId zoneOf(UUID userId) {
+        return userRepository.findById(userId).map(User::zone).orElse(UserTimeZones.FALLBACK);
     }
 }
