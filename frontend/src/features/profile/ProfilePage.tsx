@@ -20,7 +20,6 @@ import { TextField } from '@/shared/ui/form/TextField'
 import type { ActivityLevel, Goal, UserProfile, Sex, Tdee } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
 
-
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
 const SEX_VALUES = ['MALE', 'FEMALE', 'OTHER'] as const satisfies readonly Sex[]
@@ -428,16 +427,18 @@ function EditForm({ profile, onSaved, t }: { profile: UserProfile; onSaved: () =
         <Field
           label={t('profile.birthDate')}
           error={errors.birthDate && t('profile.birthDateInvalid')}
+          labelsAGroup
         >
           {(field) => (
             <Controller
               name="birthDate"
               control={control}
               render={({ field: f }) => (
-                // aria-invalid is not allowed on a group, so the date field gets the id and
-                // the description only; the message linked through the description says it.
+                // aria-invalid is not allowed on a group, so the date field gets the name
+                // and the description only; the message linked through the description
+                // says what is wrong.
                 <DateField
-                  id={field.id}
+                  labelId={field.labelId}
                   aria-describedby={field['aria-describedby']}
                   value={f.value}
                   onChange={f.onChange}

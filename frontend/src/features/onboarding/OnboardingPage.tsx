@@ -1,4 +1,3 @@
-
 import type { TFunction } from 'i18next'
 import { useState, type ReactNode, useId } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -366,10 +365,15 @@ export function OnboardingPage() {
               </div>
 
               <div className="mb-4">
-                <label htmlFor={birthId} className="label">
+                {/*
+                  A span rather than a label: a label names a form control, and the three
+                  dropdowns below are a group, not one. The group reads this text through
+                  aria-labelledby, which is what actually names it.
+                */}
+                <span id={birthId} className="label block">
                   {t('onboarding.birthLabel')}
-                </label>
-                <DateField id={birthId} value={birthDate} onChange={setBirthDate} />
+                </span>
+                <DateField labelId={birthId} value={birthDate} onChange={setBirthDate} />
               </div>
 
               <div className="mb-5">
