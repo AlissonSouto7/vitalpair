@@ -18,6 +18,11 @@ export const errors = {
       requestId: 'Código do erro',
       retry: 'Tentar de novo',
     },
+    toast: {
+      serverError: 'Deu ruim do nosso lado',
+      offline: 'Sem conexão com o servidor',
+      requestId: 'Código: {{id}}',
+    },
   },
   en: {
     notFound: {
@@ -30,6 +35,11 @@ export const errors = {
       description: 'It was not you. Try again, and if it keeps happening, send us this code.',
       requestId: 'Error code',
       retry: 'Try again',
+    },
+    toast: {
+      serverError: 'Something went wrong on our side',
+      offline: 'No connection to the server',
+      requestId: 'Code: {{id}}',
     },
   },
   es: {
@@ -44,6 +54,11 @@ export const errors = {
       requestId: 'Código del error',
       retry: 'Intentar de nuevo',
     },
+    toast: {
+      serverError: 'Algo falló de nuestro lado',
+      offline: 'Sin conexión con el servidor',
+      requestId: 'Código: {{id}}',
+    },
   },
   fr: {
     notFound: {
@@ -56,6 +71,11 @@ export const errors = {
       description: "Ce n'est pas vous. Réessayez et, si cela persiste, envoyez-nous ce code.",
       requestId: "Code de l'erreur",
       retry: 'Réessayer',
+    },
+    toast: {
+      serverError: 'Quelque chose a cassé chez nous',
+      offline: 'Pas de connexion au serveur',
+      requestId: 'Code : {{id}}',
     },
   },
 }

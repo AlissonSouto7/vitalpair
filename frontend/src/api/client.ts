@@ -4,6 +4,8 @@ import { useAuthStore } from '../store/authStore'
 import type { ApiResponse } from '../types/api'
 import type { TokenResponse } from '../types/auth'
 
+import { notifyIfServerFailed } from '@/shared/api/notifyServerFailure'
+
 const baseURL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8081/api/v1'
 
 export const api = axios.create({
@@ -91,6 +93,7 @@ api.interceptors.response.use(
         )
       }
     }
+    notifyIfServerFailed(error)
     return Promise.reject(error)
   },
 )
