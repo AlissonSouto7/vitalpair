@@ -61,6 +61,15 @@ render throws.
   mirror the backend's request records, so the person hears about a slip here
   rather than after a round trip. The server validates regardless; the schema is
   about the message, not the guarantee.
+- **A translation key is a compile-time fact.** `src/i18next.d.ts` types every
+  `t()` against the `pt` bundle through i18next's `CustomTypeOptions`, so a key
+  that is misspelled, renamed or never added fails `tsc` in the file that uses it.
+  Before, it built, shipped, and showed the raw key on screen, and only a person
+  could notice. The parity test keeps its job: it proves `en`, `es` and `fr`
+  carry the same keys as `pt`. Together they mean a key that resolves in one
+  language resolves in all four. The lazily loaded `legal` namespace is in the
+  type even though its chunk arrives later, because the pages that use it are
+  written before it has.
 - **A form never sends a blank.** A zero step count, an empty weight, a workout
   with no measure and a whitespace invite code all used to reach the server, or
   vanish with no message. Now each is refused with a sentence next to the field.
@@ -183,6 +192,7 @@ enfrenta. Provado: removendo o `aria-label`, 2 dos 6 testes caem.
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/shared/api/errors.test.ts` (9)               | mensagem genérica do backend vazando para o usuário; violações de campo perdidas; id do erro não exibido; erro de rede tratado como erro de API                                 |
 | `src/locales/locales.test.ts` (89)                | chave de tradução faltando em um dos quatro idiomas                                                                                                                             |
+| `tsc` com `src/i18next.d.ts`                      | chave errada, renomeada ou nunca criada em qualquer `t()`: não compila. Provado com `onboarding.contiue` num componente e `closeConfirmm` num helper de teste, 2 erros          |
 | `src/features/progress/ProgressPage.test.tsx` (5) | peso vazio, zero ou 1000 enviado ao servidor (F-4, F-8); peso válido enviado como número e gráfico recarregado; falha do servidor invisível                                     |
 | `src/features/profile/ProfilePage.test.tsx` (6)   | falha ao salvar peso invisível (F-3); nome vazio, altura fora de 50 a 300 e sexo ausente enviados; mensagem do sexo longe do campo; corpo do PUT com números como números       |
 | `src/features/activity/ActivityPage.test.tsx` (7) | zero ou nenhum passo enviado sem mensagem (F-8); treino sem medida gravado (F-6); distância negativa enviada; botões rápidos somando errado; corrida enviada com só a distância |
@@ -330,6 +340,14 @@ requisições, e quatro toasts idênticos são ruído.
   Não é o formulário; ficou como estava.
 
 ## Histórico
+
+- **2026-09-09**: chaves de tradução tipadas. `CustomTypeOptions` derivado do
+  bundle `pt`, com o `legal` incluído. Expôs 68 lugares onde `t` aceitava
+  qualquer string: cinco `TFn` caseiros, três `t: (key: string)` inline, três
+  helpers de teste, um `progressLabelKey` devolvendo `string`, interpolação com
+  `null` no sino, e um `LegalSection` duplicado entre duas páginas que passou a
+  ser um só. Prova vermelha: um typo num componente e uma chave inexistente num
+  teste, 2 erros de `tsc`; restaurado, 0.
 
 - **2026-09-09**: fim da fase 10. As telas grandes foram divididas: nutrição
   649→424, perfil 623→257, atividade 602→270, dupla 588→118, temporada 458→200,

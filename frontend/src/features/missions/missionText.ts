@@ -31,7 +31,7 @@ export function formatRemaining(totalSeconds: number): string {
 }
 
 /** Which encouragement to show, by how close the person is. */
-export function progressLabelKey(current: number, target: number): string {
+export function progressLabelKey(current: number, target: number) {
   if (current >= target) return 'missions.progressDone'
   if (target - current === 1) return 'missions.progressAlmost'
   if (current === 0) return 'missions.progressStart'

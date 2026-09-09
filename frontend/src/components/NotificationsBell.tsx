@@ -74,9 +74,9 @@ export function NotificationsBell() {
 
   function bodyOf(n: AppNotification): string {
     if (n.type === 'PARTNER_MEAL')
-      return t('notifications.mealBody', { name: n.actorName, food: n.refText })
+      return t('notifications.mealBody', { name: n.actorName ?? '', food: n.refText ?? '' })
     if (n.type === 'PARTNER_ACTIVITY')
-      return t('notifications.activityBody', { name: n.actorName, kcal: n.amount })
+      return t('notifications.activityBody', { name: n.actorName ?? '', kcal: n.amount ?? 0 })
     if (n.type === 'RIVAL_OVERTOOK')
       return t('notifications.overtookBody', {
         name: n.actorName ?? t('notifications.overtookFallback'),

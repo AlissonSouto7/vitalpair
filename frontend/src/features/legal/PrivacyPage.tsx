@@ -14,13 +14,17 @@ interface LegalCallout {
   icon: 'info' | 'alert'
   text: string
 }
-interface LegalSection {
-  title: string
-  paragraphs?: string[]
-  bullets?: [string, string][]
-  callout?: LegalCallout
-  calloutFirst?: boolean
-  paragraphsAfter?: string[]
+/**
+ * One numbered block of a legal page. Readonly throughout, because it is read straight
+ * out of the translation bundle and the type checker now knows that bundle is constant.
+ */
+export interface LegalSection {
+  readonly title: string
+  readonly paragraphs?: readonly string[]
+  readonly bullets?: readonly (readonly [string, string])[]
+  readonly callout?: LegalCallout
+  readonly calloutFirst?: boolean
+  readonly paragraphsAfter?: readonly string[]
 }
 
 /**
@@ -33,7 +37,7 @@ export function PrivacyPage() {
   // would show raw translation keys.
   const legalReady = useLegalNamespace()
   const { t } = useTranslation()
-  const sections = t('legal.privacy.sections', { returnObjects: true }) as LegalSection[]
+  const sections: readonly LegalSection[] = t('legal.privacy.sections', { returnObjects: true })
 
   if (!legalReady) return <RouteFallback />
   return (
@@ -127,7 +131,7 @@ function Mail({ children }: { children: string }) {
   )
 }
 
-function BulletList({ items }: { items: [string, string][] }) {
+function BulletList({ items }: { items: readonly (readonly [string, string])[] }) {
   return (
     <ul className="flex flex-col gap-2.5">
       {items.map(([term, desc]) => (
