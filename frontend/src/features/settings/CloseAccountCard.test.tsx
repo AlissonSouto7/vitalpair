@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { CloseAccountCard } from './CloseAccountCard'
 
+import type { TranslationBundle } from '@/locales'
 import { useAuthStore } from '@/store/authStore'
 import { fail, ok, path } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
-
 
 /**
  * The gate in front of the only action in the product that cannot be undone.
@@ -25,7 +25,10 @@ function closeHandler(respond: () => Response = () => ok(null, 204)) {
   return { handler, calls }
 }
 
-const s = (key: string) => i18n.t(`settings.${key}`)
+/** The keys under a namespace whose value is a string, which is what a test asserts on. */
+type LeafKeys<T> = { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
+
+const s = (key: LeafKeys<TranslationBundle['settings']>) => i18n.t(`settings.${key}`)
 
 describe('CloseAccountCard', () => {
   beforeEach(() => {

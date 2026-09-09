@@ -1,6 +1,7 @@
+import type { TFunction } from 'i18next'
 import { useMemo } from 'react'
 
-type TFn = (key: string, opts?: Record<string, unknown>) => string
+type TFn = TFunction
 
 /** What the browser thinks the zone is, or null when it will not say. */
 function detectZone(): string | null {

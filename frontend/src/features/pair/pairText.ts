@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next'
+
 import type { RelationshipType } from '@/types/pair'
 
 /**
@@ -8,7 +10,8 @@ import type { RelationshipType } from '@/types/pair'
  * page instead of swapping the component.
  */
 
-export type TFn = (key: string, opts?: Record<string, unknown>) => string
+/** The translate function, typed against the pt bundle: a wrong key fails tsc. */
+export type TFn = TFunction
 
 export const RELATIONSHIP_VALUES: RelationshipType[] = [
   'PAIR',

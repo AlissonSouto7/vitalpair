@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { TFunction } from 'i18next'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -122,13 +123,7 @@ export function ActivityPage() {
 
 /* ---------- formulário de treino ---------- */
 
-function TodayList({
-  logs,
-  t,
-}: {
-  logs: ActivityLog[]
-  t: (k: string, o?: Record<string, unknown>) => string
-}) {
+function TodayList({ logs, t }: { logs: ActivityLog[]; t: TFunction }) {
   return (
     <div>
       <h2 className="mb-2.5 text-xs font-bold text-muted">{t('activity.todayLogs')}</h2>
@@ -167,7 +162,7 @@ function TodayList({
   )
 }
 
-function logDetail(log: ActivityLog, t: (k: string) => string): string {
+function logDetail(log: ActivityLog, t: TFunction): string {
   const parts: string[] = []
   if (log.steps != null)
     parts.push(`${log.steps.toLocaleString('pt-BR')} ${t('activity.steps').toLowerCase()}`)
@@ -188,7 +183,7 @@ function SourceRow({
   color: string
   name: string
   connected?: boolean
-  t: (k: string, o?: Record<string, unknown>) => string
+  t: TFunction
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-hair bg-surface px-4 py-3.5">

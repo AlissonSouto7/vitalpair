@@ -64,7 +64,7 @@ export function OnboardingPage() {
   const [joining, setJoining] = useState(false)
 
   // passo 5
-  const [bet, setBet] = useState(t('onboarding.betDefault'))
+  const [bet, setBet] = useState<string>(t('onboarding.betDefault'))
 
   const [error, setError] = useState<string | null>(null)
   const [finishing, setFinishing] = useState(false)
@@ -183,7 +183,7 @@ export function OnboardingPage() {
   const progress = `${(step / TOTAL_STEPS) * 100}%`
   const busy = calculating || joining || finishing
 
-  let nextLabel = t('onboarding.continue')
+  let nextLabel: string = t('onboarding.continue')
   if (step === 2) nextLabel = calculating ? t('onboarding.calculating') : t('onboarding.step2Next')
   else if (step === 3) nextLabel = t('onboarding.step3Next')
   else if (step === 4) nextLabel = joining ? t('onboarding.joining') : t('onboarding.continue')

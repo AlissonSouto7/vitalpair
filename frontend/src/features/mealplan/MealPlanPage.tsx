@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { TFunction } from 'i18next'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -211,13 +212,7 @@ export function MealPlanPage() {
   )
 }
 
-function TargetBadge({
-  diff,
-  t,
-}: {
-  diff: number
-  t: (k: string, o?: Record<string, unknown>) => string
-}) {
+function TargetBadge({ diff, t }: { diff: number; t: TFunction }) {
   return (
     <span
       className={`rounded-full px-3 py-1 text-xs font-extrabold ${

@@ -1,17 +1,9 @@
 import { useTranslation } from 'react-i18next'
 
-import { LegalHeader, LegalFooter, Section } from './PrivacyPage'
+import { LegalHeader, LegalFooter, Section, type LegalSection } from './PrivacyPage'
 
 import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
 import { RouteFallback } from '@/shared/ui/RouteFallback'
-
-interface LegalSection {
-  title: string
-  paragraphs?: string[]
-  bullets?: [string, string][]
-  callout?: { tone: 'brand' | 'rival' | 'danger'; icon: 'info' | 'alert'; text: string }
-  paragraphsAfter?: string[]
-}
 
 /**
  * Termos de Uso do VitalPair.
@@ -23,7 +15,7 @@ export function TermsPage() {
   // would show raw translation keys.
   const legalReady = useLegalNamespace()
   const { t } = useTranslation()
-  const sections = t('legal.terms.sections', { returnObjects: true }) as LegalSection[]
+  const sections: readonly LegalSection[] = t('legal.terms.sections', { returnObjects: true })
 
   if (!legalReady) return <RouteFallback />
   return (

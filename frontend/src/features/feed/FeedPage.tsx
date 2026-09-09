@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import type { TFunction } from 'i18next'
 import { useState, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -7,7 +8,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { useAuthStore } from '../../store/authStore'
 import type { FeedItem, ReactionType } from '../../types/feed'
 
-type TFn = (key: string, opts?: Record<string, unknown>) => string
+type TFn = TFunction
 
 /**
  * Reações do feed. Cada ícone é SVG preenchido (nunca emoji).
