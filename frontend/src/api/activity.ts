@@ -1,6 +1,7 @@
-import { api } from './client'
-import type { ApiResponse } from '../types/api'
 import type { ActivityLog, ActivitySummary, LogActivityPayload } from '../types/activity'
+import type { ApiResponse } from '../types/api'
+
+import { api } from './client'
 
 export async function logActivity(payload: LogActivityPayload): Promise<ActivityLog> {
   const res = await api.post<ApiResponse<ActivityLog>>('/activity/logs', payload)

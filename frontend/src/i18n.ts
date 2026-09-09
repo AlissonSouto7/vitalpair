@@ -1,6 +1,7 @@
 import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
+import { initReactI18next } from 'react-i18next'
+
 import { resources } from './locales'
 
 export const LANGUAGES = [
@@ -10,7 +11,11 @@ export const LANGUAGES = [
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
 ] as const
 
-i18n
+// init returns a promise that resolves once the bundles are loaded. They are bundled at
+// build time rather than fetched, so it settles synchronously in practice and nothing
+// waits on it. Marked rather than awaited: a top-level await here would delay the whole
+// module graph for a promise that is already resolved.
+void i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({

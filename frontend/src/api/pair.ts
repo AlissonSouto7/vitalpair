@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { InvitePreview, Pair, RelationshipType } from '../types/pair'
+
+import { api } from './client'
 
 export async function getPair(): Promise<Pair> {
   const res = await api.get<ApiResponse<Pair>>('/pair')

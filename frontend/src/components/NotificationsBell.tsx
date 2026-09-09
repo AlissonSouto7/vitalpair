@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { listNotifications, markNotificationsRead } from '../api/notifications'
 import type { AppNotification, NotificationFeed, NotificationType } from '../types/notification'
 

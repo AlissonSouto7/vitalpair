@@ -1,6 +1,7 @@
-import { api } from './client'
 import type { ApiResponse } from '../types/api'
 import type { Badge, Competition, EarnedBadge, Streak } from '../types/gamification'
+
+import { api } from './client'
 
 export async function getStreaks(): Promise<Streak[]> {
   const res = await api.get<ApiResponse<Streak[]>>('/gamification/streaks')

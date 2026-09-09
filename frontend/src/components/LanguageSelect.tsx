@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { LANGUAGES } from '../i18n'
 
 export function LanguageSelect() {
@@ -36,7 +37,7 @@ export function LanguageSelect() {
               <li key={lang.code}>
                 <button
                   onClick={() => {
-                    i18n.changeLanguage(lang.code)
+                    void i18n.changeLanguage(lang.code)
                     setOpen(false)
                   }}
                   className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${

@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useId, useMemo, useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useId, useMemo, useState, type ReactNode } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
+
+import { activityQueries } from './queries'
 
 import { logActivity } from '@/api/activity'
 import { Points } from '@/components/ui/Badge'
@@ -14,7 +16,6 @@ import { FormError } from '@/shared/ui/form/FormError'
 import { NumberField } from '@/shared/ui/form/NumberField'
 import type { ActivityLog, ActivitySource, ActivitySummary, ActivityType } from '@/types/activity'
 
-import { activityQueries } from './queries'
 
 const WORKOUT_TYPES = [
   'RUN',

@@ -2,11 +2,12 @@ import { useMutation } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CameraIcon, PlusIcon } from './icons'
+
 import { analyzePhoto } from '@/api/nutrition'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import type { DetectedFood } from '@/types/nutrition'
 
-import { CameraIcon, PlusIcon } from './icons'
 
 const round = (v: number) => Math.round(v * 10) / 10
 

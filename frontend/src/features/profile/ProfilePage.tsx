@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState, type ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
+
+import { profileQueries } from './queries'
 
 import { updateProfile } from '@/api/profile'
 import { Broto } from '@/components/brand/Broto'
@@ -18,7 +20,6 @@ import { TextField } from '@/shared/ui/form/TextField'
 import type { ActivityLevel, Goal, UserProfile, Sex, Tdee } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
 
-import { profileQueries } from './queries'
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string
 
@@ -224,7 +225,7 @@ export function ProfilePage() {
                 active={profile.goal === g}
                 label={goalLabel(t, g)}
                 hint={t(`profile.goalHint.${g}`)}
-                onClick={() => changeGoal(g)}
+                onClick={() => void changeGoal(g)}
                 icon={GOAL_ICON[g]}
               />
             ))}

@@ -1,13 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
-import { useTheme } from '../../hooks/useTheme'
-import { useAuth } from '../../hooks/useAuth'
-import { LanguageSelect } from '../../components/LanguageSelect'
-import { BrandMark } from '../../components/brand/BrandMark'
-import { getProfile } from '../../api/profile'
+
 import { getNotificationPrefs, updateNotificationPrefs } from '../../api/notifications'
+import { getProfile } from '../../api/profile'
+import { BrandMark } from '../../components/brand/BrandMark'
+import { LanguageSelect } from '../../components/LanguageSelect'
+import { useAuth } from '../../hooks/useAuth'
+import { useTheme } from '../../hooks/useTheme'
 import type { NotificationPrefs } from '../../types/notification'
+
 import { CloseAccountCard } from './CloseAccountCard'
 
 export function SettingsPage() {
@@ -56,7 +58,7 @@ export function SettingsPage() {
 
   async function handleLogout() {
     await logout()
-    navigate('/login')
+    void navigate('/login')
   }
 
   const initial = (name.trim().charAt(0) || 'A').toUpperCase()
@@ -177,7 +179,7 @@ export function SettingsPage() {
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={() => void handleLogout()}
             className="flex w-full items-center gap-2.5 px-[18px] py-4 text-left text-sm font-extrabold text-danger transition hover:bg-danger-soft/40"
           >
             <IconLogout className="h-[18px] w-[18px]" />

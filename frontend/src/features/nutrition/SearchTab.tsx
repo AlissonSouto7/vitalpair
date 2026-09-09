@@ -2,10 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { FoodProduct } from '@/types/nutrition'
 
 import { PlusIcon, SearchIcon } from './icons'
 import { nutritionQueries } from './queries'
+
+import type { FoodProduct } from '@/types/nutrition'
 
 /**
  * Searching Open Food Facts by name.

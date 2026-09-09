@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 
-import { Avatar } from './Avatar'
 import { Broto } from '../brand/Broto'
+
+import { Avatar } from './Avatar'
 
 /** Avatar do placar: Broto pro você/par, fantasma cinza no modo solo. */
 function SideAvatar({ tone, initial }: { tone: 'you' | 'rival' | 'ghost'; initial: string }) {

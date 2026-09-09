@@ -2,13 +2,14 @@ import { screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { PairPage } from './PairPage'
+
 import { useAuthStore } from '@/store/authStore'
 import { pairActiveFixture, pairPendingFixture } from '@/test/fixtures'
 import { fail, ok, path } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
-import { PairPage } from './PairPage'
 
 /** Records which code reached the server; the code travels in the URL, not the body. */
 function joinHandler(respond: () => Response = () => ok(pairPendingFixture)) {

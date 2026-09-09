@@ -102,7 +102,7 @@ export function PairPage() {
           pair={pair}
           me={me}
           partner={partner}
-          onChangeType={changeType}
+          onChangeType={(type) => void changeType(type)}
           onLeft={setPair}
           t={t}
         />
@@ -111,9 +111,9 @@ export function PairPage() {
           pair={pair}
           me={me}
           copied={copied}
-          onCopy={copyCode}
+          onCopy={() => void copyCode()}
           onJoined={setPair}
-          onChangeType={changeType}
+          onChangeType={(type) => void changeType(type)}
           t={t}
         />
       )}
@@ -457,7 +457,7 @@ function CopyLinkButton({ code, t }: { code: string; t: TFn }) {
   return (
     <button
       type="button"
-      onClick={copy}
+      onClick={() => void copy()}
       className="mt-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-rival-ink transition hover:underline"
     >
       {done ? <IconCheck /> : <IconLinkShare />}

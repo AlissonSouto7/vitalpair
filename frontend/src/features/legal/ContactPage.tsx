@@ -2,14 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { z } from 'zod'
+
+import { openMailClient } from './mailto'
+import { LegalHeader, LegalFooter } from './PrivacyPage'
 
 import { useLegalNamespace } from '@/shared/i18n/useLegalNamespace'
 import { RouteFallback } from '@/shared/ui/RouteFallback'
-import { openMailClient } from './mailto'
-import { LegalHeader, LegalFooter } from './PrivacyPage'
 
 const MAIL = 'contato@vitalpair.app'
 

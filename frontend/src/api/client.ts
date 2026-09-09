@@ -1,7 +1,10 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '../store/authStore'
 
-const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:8081/api/v1'
+import { useAuthStore } from '../store/authStore'
+import type { ApiResponse } from '../types/api'
+import type { TokenResponse } from '../types/auth'
+
+const baseURL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8081/api/v1'
 
 export const api = axios.create({
   baseURL,
@@ -31,10 +34,15 @@ let refreshing: Promise<string> | null = null
  * Uses bare axios so it does not recurse through this instance's 401 handler.
  */
 async function refreshAccessToken(): Promise<string> {
-  const response = await axios.post(`${baseURL}/auth/refresh`, null, { withCredentials: true })
+  // Typed rather than left as the response's default any: the two fields below are read
+  // straight into the session, so a rename on the backend should break the build here
+  // instead of producing an undefined token at runtime.
+  const response = await axios.post<ApiResponse<TokenResponse>>(`${baseURL}/auth/refresh`, null, {
+    withCredentials: true,
+  })
   const data = response.data.data
   useAuthStore.getState().setSession({ accessToken: data.accessToken, userId: data.userId })
-  return data.accessToken as string
+  return data.accessToken
 }
 
 /**
@@ -75,7 +83,12 @@ api.interceptors.response.use(
         return api(original)
       } catch (refreshError) {
         useAuthStore.getState().clear()
-        return Promise.reject(refreshError)
+        // Rejected with an Error rather than with whatever was caught: a caller doing
+        // `catch (e) { e.message }` on a rejected string gets undefined, and the reason
+        // the session ended disappears.
+        return Promise.reject(
+          refreshError instanceof Error ? refreshError : new Error(String(refreshError)),
+        )
       }
     }
     return Promise.reject(error)

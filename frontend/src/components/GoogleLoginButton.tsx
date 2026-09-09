@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import { googleLogin } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
 
@@ -25,7 +26,7 @@ export function GoogleLoginButton({ onError }: { onError?: (message: string) => 
   const containerRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const setSession = useAuthStore((s) => s.setSession)
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
   useEffect(() => {
     if (!clientId) return
@@ -38,14 +39,20 @@ export function GoogleLoginButton({ onError }: { onError?: (message: string) => 
       }
       window.google.accounts.id.initialize({
         client_id: clientId!,
-        callback: async (res) => {
-          try {
-            const token = await googleLogin(res.credential)
-            setSession({ accessToken: token.accessToken, userId: token.userId })
-            navigate('/dashboard')
-          } catch {
-            onError?.('Não foi possível entrar com o Google.')
-          }
+        // Google's callback signature returns void, so an async function here is a
+        // promise nobody can await. Safe because the body catches everything itself:
+        // there is no rejection to escape. Wrapped rather than left implicit so the
+        // guarantee is visible at the call site.
+        callback: (res) => {
+          void (async () => {
+            try {
+              const token = await googleLogin(res.credential)
+              setSession({ accessToken: token.accessToken, userId: token.userId })
+              void navigate('/dashboard')
+            } catch {
+              onError?.('Não foi possível entrar com o Google.')
+            }
+          })()
         },
       })
       window.google.accounts.id.renderButton(containerRef.current, {

@@ -1,15 +1,11 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { getApiErrorMessage } from '@/shared/api/errors'
-import { NumberField } from '@/shared/ui/form/NumberField'
 import { deleteLog, logMeal } from '../../api/nutrition'
-import { FavoritesTab } from './FavoritesTab'
-import { PhotoTab } from './PhotoTab'
-import { SearchTab } from './SearchTab'
-import { nutritionQueries } from './queries'
+import { Points } from '../../components/ui/Badge'
+import { CalorieRing } from '../../components/ui/CalorieRing'
 import type {
   DailySummary,
   DetectedFood,
@@ -19,9 +15,16 @@ import type {
   FoodSource,
   MealType,
 } from '../../types/nutrition'
-import { CalorieRing } from '../../components/ui/CalorieRing'
-import { Points } from '../../components/ui/Badge'
+
+import { FavoritesTab } from './FavoritesTab'
 import { MealDetailModal } from './MealDetailModal'
+import { PhotoTab } from './PhotoTab'
+import { nutritionQueries } from './queries'
+import { SearchTab } from './SearchTab'
+
+import { getApiErrorMessage } from '@/shared/api/errors'
+import { NumberField } from '@/shared/ui/form/NumberField'
+
 
 const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
 
@@ -319,7 +322,9 @@ export function NutritionPage() {
         {/* --- Aba Buscar --- */}
         {tab === 'buscar' && <SearchTab onPick={startFromProduct} onManual={startManual} />}
 
-        {tab === 'favoritos' && <FavoritesTab onAdd={addFavorite} addingName={addingFav} />}
+        {tab === 'favoritos' && (
+          <FavoritesTab onAdd={(food) => void addFavorite(food)} addingName={addingFav} />
+        )}
       </section>
 
       {/* Editor do item */}
@@ -420,7 +425,7 @@ export function NutritionPage() {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={save}
+                onClick={() => void save()}
                 disabled={saving || !draft.name}
                 className="btn-primary text-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -476,7 +481,7 @@ export function NutritionPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => removeLog(log.id)}
+                  onClick={() => void removeLog(log.id)}
                   aria-label={t('nutrition.removeAria', { name: log.foodName })}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-faint transition hover:bg-danger-soft hover:text-danger"
                 >
@@ -505,7 +510,7 @@ export function NutritionPage() {
             </div>
             <button
               type="button"
-              onClick={save}
+              onClick={() => void save()}
               disabled={saving || !draft.name}
               className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-extrabold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -517,7 +522,11 @@ export function NutritionPage() {
       )}
 
       {selected && (
-        <MealDetailModal meal={selected} onClose={() => setSelected(null)} onDelete={removeLog} />
+        <MealDetailModal
+          meal={selected}
+          onClose={() => setSelected(null)}
+          onDelete={(id) => void removeLog(id)}
+        />
       )}
     </div>
   )

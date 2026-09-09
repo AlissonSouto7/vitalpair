@@ -67,7 +67,7 @@ export function RegisterPage() {
         // Veio de um convite: entra na dupla antes de seguir pro onboarding.
         await joinPair(invite.trim().toUpperCase()).catch(() => undefined)
       }
-      navigate('/onboarding')
+      void navigate('/onboarding')
     } catch (err) {
       setError(getApiErrorMessage(err, t('auth.errorRegister')))
     }

@@ -2,6 +2,8 @@ import { screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
 import { describe, expect, it } from 'vitest'
 
+import { NutritionPage } from './NutritionPage'
+
 import {
   dailySummaryFixture,
   favoriteFoodsFixture,
@@ -12,7 +14,6 @@ import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
-import { NutritionPage } from './NutritionPage'
 
 const n = (key: string, vars?: Record<string, string>) => i18n.t(`nutrition.${key}`, vars ?? {})
 

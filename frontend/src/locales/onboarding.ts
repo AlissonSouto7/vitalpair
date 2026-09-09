@@ -88,7 +88,7 @@ export const onboarding = {
     modeSoloTitle: 'Só eu por enquanto',
     modeSoloHint: 'Compete contra você mesmo da semana passada',
     inviteLabel: 'Já tem um código de convite?',
-    invitePlaceholder: 'VITA-XXXX',
+    invitePlaceholder: 'ABCD2345',
     inviteHint:
       'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra mandar pra ela.',
     soloConfirm: 'Fechou. Você começa sozinho e pode chamar alguém quando bater vontade.',
@@ -185,7 +185,7 @@ export const onboarding = {
     modeSoloTitle: 'Just me for now',
     modeSoloHint: 'Compete against your own last week',
     inviteLabel: 'Got an invite code already?',
-    invitePlaceholder: 'VITA-XXXX',
+    invitePlaceholder: 'ABCD2345',
     inviteHint:
       'Got the code someone sent you? Paste it here. If not, just go on and we’ll give you one to send them.',
     soloConfirm: 'Done. You start solo and can bring someone in whenever you feel like it.',
@@ -283,7 +283,7 @@ export const onboarding = {
     modeSoloTitle: 'Solo yo por ahora',
     modeSoloHint: 'Compite contra tu propia semana pasada',
     inviteLabel: '¿Ya tienes un código de invitación?',
-    invitePlaceholder: 'VITA-XXXX',
+    invitePlaceholder: 'ABCD2345',
     inviteHint:
       '¿Tienes el código que te mandaron? Pégalo aquí. Si aún no, sigue sin él y te damos uno para enviarle.',
     soloConfirm: 'Hecho. Empiezas solo y puedes sumar a alguien cuando te den ganas.',
@@ -381,7 +381,7 @@ export const onboarding = {
     modeSoloTitle: 'Juste moi pour l’instant',
     modeSoloHint: 'Affronte ta propre semaine précédente',
     inviteLabel: 'Tu as déjà un code d’invitation ?',
-    invitePlaceholder: 'VITA-XXXX',
+    invitePlaceholder: 'ABCD2345',
     inviteHint:
       'Tu as le code qu’on t’a envoyé ? Colle-le ici. Sinon continue sans, on t’en donne un à envoyer.',
     soloConfirm:

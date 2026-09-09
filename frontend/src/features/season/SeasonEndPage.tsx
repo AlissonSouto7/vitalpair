@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+
 import { getSeason } from '../../api/season'
 import { Avatar } from '../../components/ui/Avatar'
 import type { SeasonHistoryItem, SeasonView } from '../../types/season'
