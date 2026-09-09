@@ -3,7 +3,6 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { deleteLog, logMeal } from '../../api/nutrition'
-import { Points } from '../../components/ui/Badge'
 import { CalorieRing } from '../../components/ui/CalorieRing'
 import type {
   DailySummary,
@@ -14,14 +13,16 @@ import type {
   MealType,
 } from '../../types/nutrition'
 
+import { DayList } from './DayList'
 import type { Draft } from './draft'
 import { FavoritesTab } from './FavoritesTab'
-import { CameraIcon, ForkIcon, SearchIcon, StarIcon, TrashIcon } from './icons'
+import { CameraIcon, SearchIcon, StarIcon } from './icons'
 import { MealDetailModal } from './MealDetailModal'
 import { MealEditor } from './MealEditor'
 import { Macro, TabButton } from './parts'
 import { PhotoTab } from './PhotoTab'
 import { nutritionQueries } from './queries'
+import { SaveBar } from './SaveBar'
 import { SearchTab } from './SearchTab'
 
 import { getApiErrorMessage } from '@/shared/api/errors'
@@ -331,85 +332,25 @@ export function NutritionPage() {
       )}
 
       {/* Refeições de hoje */}
-      <section>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ink">
-          {t('nutrition.todayMeals')}
-        </h2>
-        {logs.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-hair bg-surface px-6 py-10 text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft">
-              <ForkIcon />
-            </div>
-            <p className="font-display text-base font-semibold text-ink">
-              {t('nutrition.emptyPlateTitle')}
-            </p>
-            <p className="mt-1 text-sm font-semibold text-muted">{t('nutrition.emptyPlateText')}</p>
-          </div>
-        ) : (
-          <ul className="space-y-2">
-            {logs.map((log) => (
-              <li
-                key={log.id}
-                className="flex items-center gap-3 rounded-2xl border border-hair bg-surface px-4 py-3 transition hover:border-brand/40"
-              >
-                <button
-                  type="button"
-                  onClick={() => setSelected(log)}
-                  aria-label={t('nutrition.detailAria', { name: log.foodName })}
-                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                >
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
-                    <ForkIcon small />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-extrabold text-ink">
-                      {log.foodName}
-                    </span>
-                    <span className="block text-[11.5px] font-semibold text-muted">
-                      {mealLabel(log.mealType)} · {log.quantityG}g · {log.caloriesKcal} kcal
-                    </span>
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void removeLog(log.id)}
-                  aria-label={t('nutrition.removeAria', { name: log.foodName })}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-faint transition hover:bg-danger-soft hover:text-danger"
-                >
-                  <TrashIcon />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <DayList
+        t={t}
+        logs={logs}
+        mealLabel={mealLabel}
+        onOpen={setSelected}
+        onRemove={(id) => void removeLog(id)}
+      />
 
       {/* Barra fixa "vai entrar" */}
       {draft && computed && computed.calories > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-10 border-t border-arena-border bg-canvas/95 px-4 py-3 backdrop-blur md:left-64">
-          <div className="mx-auto flex max-w-4xl items-center gap-3 rounded-2xl bg-arena px-4 py-3 shadow-[0_10px_30px_rgba(70,45,20,0.12)] md:px-8">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-arena-muted">
-                {t('nutrition.willEnter')}
-              </p>
-              <p className="font-display text-xl font-semibold leading-tight text-arena-text">
-                {computed.calories} kcal{' '}
-                <span className="text-sm font-bold text-arena-muted">
-                  {t('nutrition.inMeal', { meal: mealLabel(draft.mealType).toLowerCase() })}
-                </span>
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void save()}
-              disabled={saving || !draft.name}
-              className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-extrabold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {saving ? t('common.saving') : t('nutrition.register')}
-              <Points value={10} />
-            </button>
-          </div>
-        </div>
+        <SaveBar
+          t={t}
+          calories={computed.calories}
+          mealType={draft.mealType}
+          mealLabel={mealLabel}
+          disabled={saving || !draft.name}
+          saving={saving}
+          onSave={() => void save()}
+        />
       )}
 
       {selected && (

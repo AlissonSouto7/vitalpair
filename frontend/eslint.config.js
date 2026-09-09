@@ -36,11 +36,17 @@ export default defineConfig([
       // open. warn and error stay allowed for genuine problems.
       'no-console': ['error', { allow: ['warn', 'error'] }],
 
-      // A file this long is a screen doing several jobs. A warning rather than an error:
-      // fourteen files are over it today, and failing the build on a number nobody can
-      // fix in one pass is how a rule gets deleted instead of obeyed. The count is in
-      // docs/features/frontend-foundation.md and comes down as screens are decomposed.
-      'max-lines': ['warn', { max: 300, skipBlankLines: true, skipComments: true }],
+      // A file this long is a screen doing several jobs. An error now that every file is
+      // under it: a warning nobody has to act on is not a limit, it is a note, and the
+      // count had been climbing back up between phases while the warning sat there.
+      //
+      // 325 rather than the 300 originally planned, because that is what the largest
+      // remaining file measures and it is one screen's flow: the nutrition page's tabs,
+      // draft, save and day's list read the same state, and splitting them would mean two
+      // files sharing it. A ceiling nobody can meet gets raised or deleted; this one is a
+      // real budget with 25 lines of room, and the next screen to outgrow it fails the
+      // build rather than earning another warning.
+      'max-lines': ['error', { max: 325, skipBlankLines: true, skipComments: true }],
 
       // Imports in a fixed order, so a diff shows what changed rather than where the
       // editor decided to put a line.
@@ -86,6 +92,17 @@ export default defineConfig([
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       'no-console': 'off',
+      'max-lines': 'off',
+    },
+  },
+
+  {
+    // Translation bundles are data, and their length is the content: legal.ts holds the
+    // privacy policy and the terms in four languages, and no decomposition makes a legal
+    // text shorter. Exempt rather than accommodated, because a ceiling high enough to
+    // admit 1400 lines of translations would no longer say anything about a screen.
+    files: ['src/locales/**'],
+    rules: {
       'max-lines': 'off',
     },
   },
