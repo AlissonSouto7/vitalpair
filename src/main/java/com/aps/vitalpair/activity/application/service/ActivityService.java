@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -22,7 +22,9 @@ import com.aps.vitalpair.activity.domain.port.in.LogActivityUseCase;
 import com.aps.vitalpair.activity.domain.port.out.ActivityLogRepositoryPort;
 import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
+import com.aps.vitalpair.shared.time.DayWindow;
 import com.aps.vitalpair.user.domain.model.User;
+import com.aps.vitalpair.user.domain.model.UserTimeZones;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 @Service
@@ -65,7 +67,10 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
         eventPublisher.publishEvent(new ActivityLoggedEvent(
                 userId,
                 saved.getTenantId(),
-                saved.getLoggedAt().atZone(ZoneOffset.UTC).toLocalDate(),
+                // The user's day, not UTC's: this date is what the streak and the weekly
+                // scoreboard are keyed on, so an activity logged at 21:00 in Brazil scored
+                // against tomorrow and could break a streak the person had not broken.
+                saved.getLoggedAt().atZone(user.zone()).toLocalDate(),
                 saved.getActivityType().name(),
                 saved.getCaloriesBurned() != null ? saved.getCaloriesBurned().intValue() : 0,
                 saved.getDurationMinutes()));
@@ -75,13 +80,13 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
     @Override
     @Transactional(readOnly = true)
     public List<ActivityLog> getActivities(UUID userId, LocalDate date) {
-        return activityLogRepository.findByUserAndDate(userId, date);
+        return activityLogRepository.findByUserAndDay(userId, dayOf(userId, date));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ActivitySummary getSummary(UUID userId, LocalDate date) {
-        List<ActivityLog> logs = activityLogRepository.findByUserAndDate(userId, date);
+        List<ActivityLog> logs = activityLogRepository.findByUserAndDay(userId, dayOf(userId, date));
         int calories = logs.stream()
                 .map(ActivityLog::getCaloriesBurned)
                 .filter(Objects::nonNull)
@@ -94,6 +99,19 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
                 .mapToInt(Integer::intValue)
                 .sum();
         return new ActivitySummary(date, calories, steps, logs.size());
+    }
+
+    /**
+     * The day's boundaries in the user's own zone, not the server's.
+     *
+     * <p>A user who cannot be found gets the default zone rather than an exception: this is
+     * only reached with the id of an already authenticated caller, so a miss means the account
+     * was closed mid-request, and answering that with a 404 about the date would name the
+     * wrong problem.
+     */
+    private DayWindow dayOf(UUID userId, LocalDate date) {
+        ZoneId zone = userRepository.findById(userId).map(User::zone).orElse(UserTimeZones.FALLBACK);
+        return DayWindow.of(date, zone);
     }
 
     /** The calories given; failing that, an estimate from steps; failing that, zero. */

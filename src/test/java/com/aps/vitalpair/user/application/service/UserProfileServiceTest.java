@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -66,6 +67,7 @@ class UserProfileServiceTest {
                 BigDecimal.valueOf(65),
                 Goal.LOSE_WEIGHT,
                 ActivityLevel.LIGHT,
+                null,
                 null);
 
         User result = service.updateProfile(USER_ID, command);
@@ -76,6 +78,58 @@ class UserProfileServiceTest {
         assertThat(result.getProteinTargetG()).isEqualTo(130);
         assertThat(result.getCarbTargetG()).isEqualTo(107);
         assertThat(result.getFatTargetG()).isEqualTo(52);
+    }
+
+    @Test
+    void updateProfileSemFusoMantemOFusoJaSalvo() {
+        User existing = User.builder()
+                .id(USER_ID)
+                .tenantId(TENANT_ID)
+                .email("ana@vitalpair.app")
+                .name("Ana")
+                .timeZone(ZoneId.of("Asia/Tokyo"))
+                .build();
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existing));
+        when(calculateTargets.calculate(any())).thenReturn(new TdeeResult(1395, 1918, 1418, 130, 107, 52));
+        when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // A client that does not send the field is one that does not know about it, not one
+        // asking for the zone to be cleared. Overwriting here would move the person's day
+        // boundary as a side effect of editing their weight.
+        User result = service.updateProfile(USER_ID, commandWithZone(null));
+
+        assertThat(result.getTimeZone()).isEqualTo(ZoneId.of("Asia/Tokyo"));
+    }
+
+    @Test
+    void updateProfileComFusoTrocaOFuso() {
+        User existing = User.builder()
+                .id(USER_ID)
+                .tenantId(TENANT_ID)
+                .email("ana@vitalpair.app")
+                .name("Ana")
+                .timeZone(ZoneId.of("Asia/Tokyo"))
+                .build();
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existing));
+        when(calculateTargets.calculate(any())).thenReturn(new TdeeResult(1395, 1918, 1418, 130, 107, 52));
+        when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = service.updateProfile(USER_ID, commandWithZone(ZoneId.of("Europe/Lisbon")));
+
+        assertThat(result.getTimeZone()).isEqualTo(ZoneId.of("Europe/Lisbon"));
+    }
+
+    private static UpdateProfileCommand commandWithZone(ZoneId zone) {
+        return new UpdateProfileCommand(
+                "Ana",
+                LocalDate.of(1999, 5, 20),
+                Sex.FEMALE,
+                BigDecimal.valueOf(165),
+                BigDecimal.valueOf(65),
+                Goal.LOSE_WEIGHT,
+                ActivityLevel.LIGHT,
+                null,
+                zone);
     }
 
     @Test

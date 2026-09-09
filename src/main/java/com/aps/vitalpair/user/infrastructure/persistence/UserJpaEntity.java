@@ -94,6 +94,14 @@ public class UserJpaEntity {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    /**
+     * IANA zone identifier. Stored as text rather than mapped to {@link java.time.ZoneId}, so
+     * a zone the JVM's tz database no longer knows loads as a string and is rejected where it
+     * is converted, instead of blowing up the row. See {@code V27}.
+     */
+    @Column(name = "time_zone", nullable = false)
+    private String timeZone;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

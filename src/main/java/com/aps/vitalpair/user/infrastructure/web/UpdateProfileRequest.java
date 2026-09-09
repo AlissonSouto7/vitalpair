@@ -30,4 +30,11 @@ public record UpdateProfileRequest(
          * by construction.
          */
         @Size(max = 500) @Pattern(regexp = "^$|^https://[^\\s\"'<>]+$", message = "avatarUrl deve ser uma URL https")
-                String avatarUrl) {}
+                String avatarUrl,
+        /*
+         * Optional: omitting it leaves the stored preference alone, so a client that does not
+         * know about the field cannot silently reset someone's zone. Validated against the JVM's
+         * time zone database rather than a regex, because the only thing that matters is whether
+         * the server can turn it into a day boundary.
+         */
+        @Size(max = 64) @ValidTimeZone String timeZone) {}

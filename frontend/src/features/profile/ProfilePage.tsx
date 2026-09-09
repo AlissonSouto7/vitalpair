@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 
 import { profileQueries } from './queries'
+import { TimeZoneField } from './TimeZoneField'
 
 import { updateProfile } from '@/api/profile'
 import { Broto } from '@/components/brand/Broto'
@@ -51,6 +52,7 @@ const editSchema = z.object({
   heightCm: z.number().min(50).max(300),
   weightKg: z.number().min(20).max(500),
   activityLevel: z.enum(LEVEL_VALUES),
+  timeZone: z.string().min(1),
 })
 
 type EditValues = z.infer<typeof editSchema>
@@ -397,6 +399,7 @@ function EditForm({ profile, onSaved, t }: { profile: UserProfile; onSaved: () =
       heightCm: profile.heightCm ?? undefined,
       weightKg: profile.weightKg ?? undefined,
       activityLevel: profile.activityLevel ?? undefined,
+      timeZone: profile.timeZone,
     },
   })
 
@@ -505,6 +508,11 @@ function EditForm({ profile, onSaved, t }: { profile: UserProfile; onSaved: () =
           />
         )}
       </Field>
+      <Controller
+        name="timeZone"
+        control={control}
+        render={({ field: f }) => <TimeZoneField value={f.value} onChange={f.onChange} t={t} />}
+      />
       <FormError message={error} />
       <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
         {isSubmitting ? t('profile.saving') : t('profile.saveData')}
