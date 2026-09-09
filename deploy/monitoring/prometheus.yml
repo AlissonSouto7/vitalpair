@@ -1,0 +1,28 @@
+# What Prometheus scrapes on the staging machine.
+#
+# The application's metrics live on the management port (9090), not the API port, and that
+# port is not published to the host. Prometheus reaches it over the `edge` network by the
+# alias the application stack registers, which is the whole reason both stacks share that
+# network.
+
+global:
+  # Fifteen seconds is fine for a single small instance: it is short enough to see a
+  # circuit breaker open and close, and long enough not to be a load of its own.
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: staging
+
+scrape_configs:
+  - job_name: vitalpair-backend
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # The alias comes from compose.app.yaml, where ENVIRONMENT is staging. Port 9090 is
+      # the management port set by MANAGEMENT_PORT in application.yaml.
+      - targets: ['backend-staging:9090']
+        labels:
+          application: vitalpair
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ['127.0.0.1:9090']

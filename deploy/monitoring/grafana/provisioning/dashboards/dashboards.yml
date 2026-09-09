@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: VitalPair
+    type: file
+    # Read-only in Grafana: a change made by clicking would be lost on the next deploy,
+    # which is worse than not being able to make it. Edits go to the JSON in git.
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

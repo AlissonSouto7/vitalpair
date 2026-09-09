@@ -1,0 +1,189 @@
+{
+  "title": "VitalPair",
+  "uid": "vitalpair-overview",
+  "tags": ["vitalpair"],
+  "timezone": "America/Sao_Paulo",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Is it up and answering",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests per second, by status",
+      "description": "A rise in 5xx is the first thing to look at. Grouped by status class rather than by route: a route breakdown is for finding which one, and this panel is for noticing at all.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "fillOpacity": 10 } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "5xx" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "4xx" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "2xx" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "sum by (outcome) (rate(http_server_requests_seconds_count{job=\"vitalpair-backend\"}[5m]))",
+          "legendFormat": "{{outcome}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Response time (p50, p95, p99)",
+      "description": "Percentiles, not an average: an average hides the tail, and the tail is what people feel.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"vitalpair-backend\"}[5m])))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"vitalpair-backend\"}[5m])))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"vitalpair-backend\"}[5m])))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "The parts that talk to someone else",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 }
+    },
+    {
+      "type": "stat",
+      "title": "Circuit breakers",
+      "description": "Phase 8 put a breaker on Anthropic and on Open Food Facts. Open means the app stopped calling out and is failing fast on purpose, which is the state worth seeing without digging through logs.",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 10 },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": { "text": "fechado", "color": "green" },
+                "1": { "text": "aberto", "color": "red" },
+                "2": { "text": "meio aberto", "color": "orange" }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": { "colorMode": "background", "graphMode": "none" },
+      "targets": [
+        {
+          "expr": "sum by (name) (resilience4j_circuitbreaker_state{job=\"vitalpair-backend\",state=\"open\"} * 1 + resilience4j_circuitbreaker_state{job=\"vitalpair-backend\",state=\"half_open\"} * 2)",
+          "legendFormat": "{{name}}",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "AI calls per minute, by outcome",
+      "description": "vitalpair.ai.requests, tagged kind and outcome. Each of these is a paid call, so a failure rate that climbs costs money as well as breaking a screen.",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 10 },
+      "fieldConfig": { "defaults": { "unit": "cpm" }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "sum by (kind, outcome) (rate(vitalpair_ai_requests_total{job=\"vitalpair-backend\"}[5m])) * 60",
+          "legendFormat": "{{kind}} {{outcome}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "AI latency (p95)",
+      "description": "vitalpair.ai.latency. Plan generation can legitimately take tens of seconds, so this is for spotting a change, not for judging the absolute number.",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 10 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, kind) (rate(vitalpair_ai_latency_seconds_bucket{job=\"vitalpair-backend\"}[5m])))",
+          "legendFormat": "{{kind}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "The machine underneath",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 }
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM heap used",
+      "description": "The container has a memory limit, so heap climbing without falling back is what precedes an OOM kill.",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 17 },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "sum(jvm_memory_used_bytes{job=\"vitalpair-backend\",area=\"heap\"})",
+          "legendFormat": "heap"
+        },
+        {
+          "expr": "sum(jvm_memory_committed_bytes{job=\"vitalpair-backend\",area=\"heap\"})",
+          "legendFormat": "committed"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Database connections",
+      "description": "Pending above zero means requests are queueing for a connection, which shows up to people as everything being slow at once.",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 17 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{job=\"vitalpair-backend\"}",
+          "legendFormat": "active"
+        },
+        { "expr": "hikaricp_connections_idle{job=\"vitalpair-backend\"}", "legendFormat": "idle" },
+        {
+          "expr": "hikaricp_connections_pending{job=\"vitalpair-backend\"}",
+          "legendFormat": "pending"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Is the scrape working",
+      "description": "Zero here means the graphs above are stale, not that the application is quiet. Without this panel an outage of Prometheus looks like an outage of nothing.",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 17 },
+      "fieldConfig": {
+        "defaults": {
+          "max": 1,
+          "min": 0,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": { "text": "sem resposta", "color": "red" },
+                "1": { "text": "ok", "color": "green" }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "targets": [{ "expr": "up{job=\"vitalpair-backend\"}", "legendFormat": "backend" }]
+    }
+  ]
+}

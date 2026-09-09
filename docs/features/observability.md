@@ -152,15 +152,70 @@ curl -s localhost:9090/actuator/prometheus | grep vitalpair_ai_requests_total
 SELECT name, locked_by, locked_at, lock_until FROM shedlock;
 ```
 
+## Prometheus e Grafana (staging)
+
+`deploy/compose.monitoring.yaml` sobe os dois. Não publica porta nenhuma no host:
+entra na rede `edge` e alcança a aplicação pelo alias `backend-staging`, que é a
+mesma razão de a porta 9090 não ser mapeada.
+
+```bash
+docker compose -f deploy/compose.monitoring.yaml --env-file deploy/env/staging.env up -d
+```
+
+| Arquivo                                               | O que é                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
+| `deploy/monitoring/prometheus.yml`                    | o que é coletado, a cada 15s                                 |
+| `deploy/monitoring/grafana/provisioning/`             | datasource e provider, pra uma máquina recriada voltar igual |
+| `deploy/monitoring/grafana/dashboards/vitalpair.json` | o painel, versionado em git                                  |
+
+O painel tem três blocos: se está no ar e respondendo (requisições por status,
+percentis de tempo de resposta), as partes que falam com terceiros (estado dos
+disjuntores, chamadas de IA por desfecho, latência p95 da IA) e a máquina embaixo
+(heap, pool de conexões, e um painel `up` que existe pra distinguir "aplicação
+quieta" de "coleta quebrada").
+
+**Só staging, de propósito.** Numa máquina só, um coletor e um painel disputando
+memória com a aplicação é troca pior do que não ter gráfico em produção. Sem Loki
+pelo mesmo motivo: com um nó, `docker compose logs` responde a mesma pergunta.
+
+Grafana recusa subir sem `GRAFANA_ADMIN_PASSWORD`. Um painel de monitoramento com
+`admin/admin` na internet é como a máquina é tomada, então não tem valor padrão.
+
+### Verificado
+
+Subi o stack de verdade contra o backend local, com um container no alias
+`backend-staging`:
+
+```
+prometheus        -> up
+vitalpair-backend -> up
+
+up{job="vitalpair-backend"}                                     1
+sum(jvm_memory_used_bytes{job="vitalpair-backend",area="heap"})  151204968
+count(resilience4j_circuitbreaker_state{job="vitalpair-backend"}) 12
+```
+
+Datasource e painel provisionados sozinhos (`/api/search` devolve
+`vitalpair-overview`), sem ninguém clicar.
+
 ## Dívida conhecida
 
 - A porta 9090 é aberta a quem alcança a rede; a fase 11 precisa garantir que o
   nginx não a mapeie, ou a proteção deixa de existir sem nenhum aviso.
+- **O proxy ainda não expõe `/grafana`.** O stack sobe e coleta, mas chegar no
+  painel de fora depende de uma rota com `auth_basic` no nginx de borda, que é
+  trabalho da fase 11. Hoje se alcança por túnel SSH.
+- **`vitalpair.auth.logins` não existe.** O plano da fase 8 previa, e só
+  `vitalpair.ai.requests` e `vitalpair.ai.latency` foram implementadas. O painel
+  não tem gráfico de login por isso, e não por esquecimento.
 - `AiMetrics.timed` envolve a chamada num `Supplier`, o que impede distinguir
   "falhou na chamada" de "falhou ao interpretar a resposta" nas métricas.
 
 ## Histórico
 
+- **2026-09-09**: o que faltava da fase 8. `deploy/compose.monitoring.yaml` com
+  Prometheus e Grafana provisionados, e o painel versionado. Verificado contra o
+  backend local, com alvo coletado e consultas devolvendo dado real.
 - **2026-09-06**: fase 8. Correlation id ponta a ponta, `ApiErrors` centralizada,
   entry point JSON, métricas de negócio e porta de management separada,
   disjuntores nas duas APIs externas com retentativa só onde faz sentido,
