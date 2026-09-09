@@ -29,6 +29,12 @@ export const onboarding = {
     errorCalc:
       'Algum dado ficou estranho. Confere a data de nascimento, o peso e a altura, e tenta de novo.',
     errorJoin: 'Esse código não colou. Confere com a pessoa e tenta de novo.',
+    nameRequired: 'Como a gente te chama? Escreve teu nome.',
+    weightInvalid: 'Peso entre 20 e 500 kg.',
+    heightInvalid: 'Altura entre 50 e 300 cm.',
+    birthDateInvalid: 'Escolhe dia, mês e ano.',
+    sexRequired: 'Escolhe o sexo.',
+    goalRequired: 'Escolhe qual é seu foco agora.',
 
     // passo 1
     step1Title: 'Bora te conhecer',
@@ -132,6 +138,12 @@ export const onboarding = {
     errorStep4: 'Choose whether you’ll play with someone or go solo.',
     errorCalc: 'Some value looks off. Check your birth date, weight and height, then try again.',
     errorJoin: 'That code didn’t work. Double-check it with the person and try again.',
+    nameRequired: 'What should we call you? Type your name.',
+    weightInvalid: 'Weight between 20 and 500 kg.',
+    heightInvalid: 'Height between 50 and 300 cm.',
+    birthDateInvalid: 'Pick the day, month and year.',
+    sexRequired: 'Pick your sex.',
+    goalRequired: 'Pick what your focus is right now.',
 
     step1Title: 'Let’s get to know you',
     step1Subtitle: 'This is just to nail your goal. Takes 30 seconds.',
@@ -230,6 +242,12 @@ export const onboarding = {
     errorCalc:
       'Algún dato quedó raro. Revisa la fecha de nacimiento, el peso y la altura, e inténtalo de nuevo.',
     errorJoin: 'Ese código no funcionó. Revísalo con la persona e inténtalo de nuevo.',
+    nameRequired: '¿Cómo te llamamos? Escribe tu nombre.',
+    weightInvalid: 'Peso entre 20 y 500 kg.',
+    heightInvalid: 'Altura entre 50 y 300 cm.',
+    birthDateInvalid: 'Elige día, mes y año.',
+    sexRequired: 'Elige el sexo.',
+    goalRequired: 'Elige cuál es tu enfoque ahora.',
 
     step1Title: 'Vamos a conocerte',
     step1Subtitle: 'Esto es solo para calcular bien tu meta. Tarda 30 segundos.',
@@ -328,6 +346,12 @@ export const onboarding = {
     errorCalc:
       'Une donnée semble bizarre. Vérifie ta date de naissance, ton poids et ta taille, puis réessaie.',
     errorJoin: 'Ce code n’a pas marché. Vérifie avec la personne et réessaie.',
+    nameRequired: 'Comment on t’appelle ? Écris ton nom.',
+    weightInvalid: 'Poids entre 20 et 500 kg.',
+    heightInvalid: 'Taille entre 50 et 300 cm.',
+    birthDateInvalid: 'Choisis le jour, le mois et l’année.',
+    sexRequired: 'Choisis le sexe.',
+    goalRequired: 'Choisis ton objectif du moment.',
 
     step1Title: 'On fait connaissance',
     step1Subtitle: 'C’est juste pour bien calculer ton objectif. Ça prend 30 secondes.',

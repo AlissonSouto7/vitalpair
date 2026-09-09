@@ -150,7 +150,7 @@ passando depois; reintroduzir o bug original derruba 2 dos 4.
 | `auth.spec.ts` (7)          | cadastro que não leva pra dentro; login quebrado; sessão perdida ao recarregar; erro sem mensagem; formulário inválido chamando o servidor; rota protegida aberta |
 | `navigation.spec.ts` (4)    | 404 redirecionando em silêncio; página legal mostrando chave de tradução; tela cujo pedaço de código não carrega; troca de idioma quebrada                        |
 | `accessibility.spec.ts` (2) | regressão do achado A-1: qualquer controle sem rótulo em 8 telas volta a quebrar o build                                                                          |
-| `onboarding.spec.ts` (2)    | os cinco passos que toda conta nova percorre uma vez; formulário que avança vazio. Achou A-4 e A-5                                                                |
+| `onboarding.spec.ts` (2)    | os cinco passos que toda conta nova percorre uma vez; formulário vazio recusado com a mensagem por campo e `aria-invalid`. Achou A-4 e A-5                        |
 | `nutrition.spec.ts` (1)     | refeição que salva e some da lista do dia. Achou o bug de fuso na virada do dia                                                                                   |
 | `pair.spec.ts` (1)          | o fluxo que define o produto: convite → aceite com os dois lados confirmando; código inexistente sem mensagem; link de convite morto falhando calado              |
 | `errors.spec.ts` (1)        | 5xx sem aviso na tela e sem o código da requisição                                                                                                                |
@@ -168,23 +168,37 @@ passando depois; reintroduzir o bug original derruba 2 dos 4.
 - **Só um caminho por fluxo.** O teste de dupla cobre convidar e aceitar; não
   cobre desfazer a dupla e refazer com outra pessoa, nem convite expirado.
 - **Sem teste de responsividade** nem de viewport móvel.
-- **Sem teste de componente** (Testing Library) ainda: os formulários migrados
-  são cobertos pelo navegador, não isoladamente.
+- ~~**Sem teste de componente** (Testing Library) ainda: os formulários migrados
+  são cobertos pelo navegador, não isoladamente.~~ Desde a fase 10a há testes de
+  componente com MSW (`frontend-foundation.md` lista cada um). Em 09/09 o
+  onboarding ganhou os dele, `OnboardingPage.test.tsx` (5), que escolhem a data
+  e o sexo nos dropdowns por dentro do teste.
 - **MSW não foi introduzido**: os testes usam o backend real, que é mais fiel e
   foi o que expôs o CORS e o limite de taxa.
 
 ## Dívida conhecida
 
-- **4 dos 9 formulários** usam react-hook-form + zod (login, cadastro, esqueci a
+- ~~**4 dos 9 formulários** usam react-hook-form + zod (login, cadastro, esqueci a
   senha, redefinir senha). Os outros cinco continuam com estado manual, embora os
-  rótulos já estejam corrigidos em todos.
-- **As páginas grandes não foram decompostas.** `NutritionPage` tem 960 linhas,
+  rótulos já estejam corrigidos em todos.~~ Fechado em 09/09: os 10 arquivos com
+  `<form>` usam react-hook-form + zod, os cinco da fase 10a e, por último, o
+  onboarding, que não tinha nem o elemento `<form>`. O editor de refeição fica
+  fora de propósito: é uma lista de itens em rascunho com quantidade, não um
+  formulário com envio, e tem os próprios testes em `NutritionPage.test.tsx`.
+- ~~**As páginas grandes não foram decompostas.** `NutritionPage` tem 960 linhas,
   `OnboardingPage` 781. O plano previa quebrar em componentes e ligar
-  `max-lines: 300` como erro; não foi feito.
-- **9 avisos de lint** continuam, nas telas que ainda buscam dados com
-  `useEffect`.
+  `max-lines: 300` como erro; não foi feito.~~ Feito em 09/09: 3 arquivos acima
+  de 300 linhas por `wc -l`, e `max-lines` é erro em 325. Detalhe em
+  `frontend-foundation.md`.
+- ~~**9 avisos de lint** continuam, nas telas que ainda buscam dados com
+  `useEffect`.~~ Zerados em 09/09, com as telas no TanStack Query.
 
 ## Histórico
+
+- **2026-09-09**: o passo 1 do onboarding em react-hook-form + zod, o último
+  formulário que faltava. `onboarding.spec.ts` passou a exigir, no navegador, a
+  mensagem ao lado do campo e o `aria-invalid` no campo vazio, além do resumo
+  que já pedia. 20 testes de navegador, 175 unitários.
 
 - **2026-09-09**: percurso de dupla. `pair.spec.ts`, duas pessoas em contextos
   separados, o convite lido da tela e os dois lados confirmando. Achou que a

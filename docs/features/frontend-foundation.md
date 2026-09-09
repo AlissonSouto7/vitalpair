@@ -188,16 +188,17 @@ enfrenta. Provado: removendo o `aria-label`, 2 dos 6 testes caem.
 
 ## Testes: o que cada um protege
 
-| Teste                                             | Risco que protege                                                                                                                                                               |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/shared/api/errors.test.ts` (9)               | mensagem genérica do backend vazando para o usuário; violações de campo perdidas; id do erro não exibido; erro de rede tratado como erro de API                                 |
-| `src/locales/locales.test.ts` (89)                | chave de tradução faltando em um dos quatro idiomas                                                                                                                             |
-| `tsc` com `src/i18next.d.ts`                      | chave errada, renomeada ou nunca criada em qualquer `t()`: não compila. Provado com `onboarding.contiue` num componente e `closeConfirmm` num helper de teste, 2 erros          |
-| `src/features/progress/ProgressPage.test.tsx` (5) | peso vazio, zero ou 1000 enviado ao servidor (F-4, F-8); peso válido enviado como número e gráfico recarregado; falha do servidor invisível                                     |
-| `src/features/profile/ProfilePage.test.tsx` (6)   | falha ao salvar peso invisível (F-3); nome vazio, altura fora de 50 a 300 e sexo ausente enviados; mensagem do sexo longe do campo; corpo do PUT com números como números       |
-| `src/features/activity/ActivityPage.test.tsx` (7) | zero ou nenhum passo enviado sem mensagem (F-8); treino sem medida gravado (F-6); distância negativa enviada; botões rápidos somando errado; corrida enviada com só a distância |
-| `src/features/pair/PairPage.test.tsx` (5)         | código em branco ou fora do formato enviado; código não normalizado; "Erro de validação" mostrado (F-7); mensagem específica do servidor perdida                                |
-| `src/features/legal/ContactPage.test.tsx` (3)     | mensagem descartada com confirmação falsa (F-2); campos vazios ou e-mail inválido aceitos; assunto e corpo do `mailto:` sem os dados                                            |
+| Teste                                                 | Risco que protege                                                                                                                                                                                                     |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/shared/api/errors.test.ts` (9)                   | mensagem genérica do backend vazando para o usuário; violações de campo perdidas; id do erro não exibido; erro de rede tratado como erro de API                                                                       |
+| `src/locales/locales.test.ts` (89)                    | chave de tradução faltando em um dos quatro idiomas                                                                                                                                                                   |
+| `tsc` com `src/i18next.d.ts`                          | chave errada, renomeada ou nunca criada em qualquer `t()`: não compila. Provado com `onboarding.contiue` num componente e `closeConfirmm` num helper de teste, 2 erros                                                |
+| `src/features/progress/ProgressPage.test.tsx` (5)     | peso vazio, zero ou 1000 enviado ao servidor (F-4, F-8); peso válido enviado como número e gráfico recarregado; falha do servidor invisível                                                                           |
+| `src/features/profile/ProfilePage.test.tsx` (6)       | falha ao salvar peso invisível (F-3); nome vazio, altura fora de 50 a 300 e sexo ausente enviados; mensagem do sexo longe do campo; corpo do PUT com números como números                                             |
+| `src/features/onboarding/OnboardingPage.test.tsx` (5) | passo 1 avançando vazio, sem dizer o que falta, ou com altura de 10 cm; passo 2 salvando sem o nível; o que foi digitado sumindo ao voltar; corpo do PUT com números como números e a data montada dos três dropdowns |
+| `src/features/activity/ActivityPage.test.tsx` (7)     | zero ou nenhum passo enviado sem mensagem (F-8); treino sem medida gravado (F-6); distância negativa enviada; botões rápidos somando errado; corrida enviada com só a distância                                       |
+| `src/features/pair/PairPage.test.tsx` (5)             | código em branco ou fora do formato enviado; código não normalizado; "Erro de validação" mostrado (F-7); mensagem específica do servidor perdida                                                                      |
+| `src/features/legal/ContactPage.test.tsx` (3)         | mensagem descartada com confirmação falsa (F-2); campos vazios ou e-mail inválido aceitos; assunto e corpo do `mailto:` sem os dados                                                                                  |
 
 Cada recusa é provada duas vezes: a mensagem está na tela e a requisição não
 saiu. Um handler do MSW grava cada corpo recebido e o teste afirma que a lista
@@ -218,12 +219,17 @@ deixada por outro.
 
 ### O que NÃO está coberto
 
-- **Os formulários de onboarding e de refeição** não foram migrados nem testados.
+- ~~**Os formulários de onboarding e de refeição** não foram migrados nem testados.
   São 5 e 4 inputs sem elemento `<form>`, dentro de arquivos de 817 e 942 linhas;
-  migrar antes de decompor seria tocar duas vezes. Fase 10b.
-- **Escolher uma opção no `Select` ou uma data no `DateField` por dentro de um
+  migrar antes de decompor seria tocar duas vezes. Fase 10b.~~ O onboarding foi
+  em 09/09, com 5 testes. O editor de refeição fica fora de propósito: é uma lista
+  de itens em rascunho com quantidade, não um formulário com envio, e tem os
+  próprios testes.
+- ~~**Escolher uma opção no `Select` ou uma data no `DateField` por dentro de um
   teste**: os testes do perfil usam um perfil já preenchido. O caminho
-  `Controller` → `Select` é exercido só pelo caso "sexo ausente".
+  `Controller` → `Select` é exercido só pelo caso "sexo ausente".~~ Feito em
+  09/09 no teste do onboarding: os três dropdowns da data e o do sexo são
+  escolhidos com `user-event`, e o corpo do PUT afirma a data montada deles.
 - ~~**`ProtectedRoute`, `NotificationsBell` e `CalorieRing`** continuam sem teste
   de componente.~~ Feitos em 09/09: 14 testes ao todo, cada grupo provado
   não-vacuoso quebrando o componente de propósito.
@@ -285,19 +291,20 @@ requisições, e quatro toasts idênticos são ruído.
   Sobraram três `useEffect` no `src/features`, e nenhum busca dado: trava de
   rolagem e tecla Esc no modal de refeição, o atraso de digitação da busca, e a
   contagem regressiva da missão relâmpago.
-- **4 arquivos acima de 300 linhas**, medidos em 09/09 na `main`, contra 15 no
+- **3 arquivos acima de 300 linhas**, medidos em 09/09 por `wc -l`, contra 15 no
   início da fase. Os que sobraram, e o porquê de cada um:
 
-  | Arquivo              | Linhas | Por quê                                         |
-  | -------------------- | ------ | ----------------------------------------------- |
-  | `NutritionPage.tsx`  | 424    | fluxo: abas, rascunho, salvar, lista do dia     |
-  | `OnboardingPage.tsx` | 403    | fluxo: cinco passos e o estado que compartilham |
-  | `MealPlanPage.tsx`   | 332    | fluxo: plano, dia escolhido, gerar e trocar     |
-  | `progress/parts.tsx` | 304    | os painéis, que são SVG longo                   |
+  | Arquivo              | Linhas | Por quê                                     |
+  | -------------------- | ------ | ------------------------------------------- |
+  | `NutritionPage.tsx`  | 365    | fluxo: abas, rascunho, salvar, lista do dia |
+  | `MealPlanPage.tsx`   | 327    | fluxo: plano, dia escolhido, gerar e trocar |
+  | `progress/parts.tsx` | 304    | os painéis, que são SVG longo               |
 
-  Os três primeiros são fluxo, não apresentação. Partir mais significaria dois
+  Os dois primeiros são fluxo, não apresentação. Partir mais significaria dois
   arquivos lendo o mesmo estado, o que deixa o número bonito e o código pior. Esta
-  é uma parada deliberada, não uma pendência.
+  é uma parada deliberada, não uma pendência. O `OnboardingPage` saiu da lista
+  (288 linhas) quando o passo 1 foi para o react-hook-form: os treze props que
+  levavam o estado até o passo viraram um contexto de formulário.
 
 - ~~**O `max-lines` continua como aviso, não erro.**~~ Virou erro em 09/09, em
   **325**. O plano pedia 300; o maior arquivo restante, `NutritionPage`, mede 321
@@ -320,7 +327,9 @@ requisições, e quatro toasts idênticos são ruído.
   tradução dos quatro idiomas. Foi a 480,88 kB com os formulários da fase 10a e
   encolheu de volta na 10b, porque cada tela migrada deixou de carregar o estado
   que mantinha à mão. Separar por idioma exigiria reestruturar os 22 arquivos de
-  tradução, porque hoje cada um exporta `{ pt, en, es, fr }` junto.
+  tradução, porque hoje cada um exporta `{ pt, en, es, fr }` junto. Medido de
+  novo em 09/09, ao fim da fase (`ls dist/assets`): `index` 257,97 kB, com React
+  (`jsx-runtime`, 185,53 kB) e zod (`schemas`, 117,16 kB) em chunks próprios.
 - ~~**`sonner` está montado e nenhuma página emite toast ainda.**~~ Pago em
   2026-09-09, ver abaixo.
 - **`lucide-react` foi removido na fase 15.** Ele tinha sido instalado para
@@ -340,6 +349,20 @@ requisições, e quatro toasts idênticos são ruído.
   Não é o formulário; ficou como estava.
 
 ## Histórico
+
+- **2026-09-09**: o passo 1 do onboarding, o último formulário fora do
+  react-hook-form, e o único sem elemento `<form>`. O schema é o do perfil
+  (`profileSchema`, que o `editSchema` estende), então o primeiro formulário que a
+  pessoa preenche e o que ela edita depois não podem discordar sobre o que é um
+  perfil válido; provado ao tirar o mínimo da altura de um lugar e ver os dois
+  testes caírem. Cada campo ganhou a própria mensagem, em 4 idiomas, no lugar de
+  um aviso só que dizia "preenche tudo" sem dizer o quê; o aviso ficou como
+  resumo. Os passos 1 e 2 são um formulário só, validado por `trigger` no passo 1
+  e por `handleSubmit` ao sair do 2, e ele vive na página para que voltar mostre
+  o que foi digitado. Sabotagens: mínimo da altura, mensagem do foco, passo 2
+  salvando sem validar e `Voltar` limpando o formulário derrubaram exatamente os
+  4 testes que guardam cada regra, com os outros verdes. Testes de frontend: 170
+  para 175.
 
 - **2026-09-09**: chaves de tradução tipadas. `CustomTypeOptions` derivado do
   bundle `pt`, com o `legal` incluído. Expôs 68 lugares onde `t` aceitava
