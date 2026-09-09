@@ -221,6 +221,33 @@ grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | sort
 grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | xargs grep -l useForm | sort
 ```
 
+## Aviso de falha do servidor
+
+`shared/api/notifyServerFailure.ts`, chamado pelo interceptor de resposta do
+axios, que é o único lugar por onde todo 5xx passa.
+
+Avisa **só** quando o servidor falhou: 5xx, ou nenhuma resposta (offline, DNS,
+servidor fora). Um 400 ou 422 é assunto da tela, que põe a mensagem do lado do
+campo; um toast por cima diria a mesma coisa duas vezes. Um 401 é tratado pela
+renovação e, quando ela também falha, pela ida pro login, que é mais alto que
+qualquer toast.
+
+**O código do erro é o motivo de existir.** Sem ele, alguém dizendo "quebrou"
+deixa a gente casando um horário aproximado com o log; com ele a linha aparece na
+hora. A mesma falha não empilha duas vezes: uma tela quebrada dispara várias
+requisições, e quatro toasts idênticos são ruído.
+
+### Verificado
+
+- `notifyServerFailure.test.ts` (6): mostra o código no 5xx; cala no 4xx e no
+  401; fala quando não houve resposta; não empilha repetida; ainda reporta uma
+  segunda falha diferente. Provado não-vacuoso trocando a condição por `true`,
+  que derruba 2 dos 6.
+- `e2e/errors.spec.ts` (1): o toast **aparece na tela de verdade**, com o código
+  visível. O teste unitário mocka o `sonner`, então sozinho ele não provaria nada
+  disso: um `Toaster` montado e nunca alimentado passaria nele, que era exatamente
+  o estado do app antes.
+
 ## Dívida conhecida
 
 - **9 telas ainda buscam com `useEffect`**, medidas por grep em 08/09:
@@ -243,8 +270,8 @@ grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | xargs grep -l u
   encolheu de volta na 10b, porque cada tela migrada deixou de carregar o estado
   que mantinha à mão. Separar por idioma exigiria reestruturar os 22 arquivos de
   tradução, porque hoje cada um exporta `{ pt, en, es, fr }` junto.
-- **`sonner` está montado e nenhuma página emite toast ainda.** O `Toaster` está
-  no lugar; falta usá-lo.
+- ~~**`sonner` está montado e nenhuma página emite toast ainda.**~~ Pago em
+  2026-09-09, ver abaixo.
 - **`lucide-react` foi removido na fase 15.** Ele tinha sido instalado para
   trocar os SVGs duplicados por ícones prontos, e nunca foi importado. A lei das
   cores do design pede ícone próprio, não biblioteca genérica, então os SVGs
@@ -263,6 +290,9 @@ grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | xargs grep -l u
 
 ## Histórico
 
+- **2026-09-09**: o que faltava da fase 9. O `sonner` estava montado sem ninguém
+  emitir toast; passou a avisar falha do servidor com o código da requisição, que
+  era o que o plano da fase pedia. 6 testes unitários e 1 de navegador.
 - **2026-09-08**: fase 10b (dados e decomposição). Sete telas mais o sino do
   cabeçalho saíram do `useEffect` para o TanStack Query, e os 8 avisos de lint
   foram a zero: eram o sintoma exato desse padrão. Cada migração corrigiu um
