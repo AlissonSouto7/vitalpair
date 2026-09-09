@@ -68,6 +68,10 @@ public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCa
                 .goal(command.goal())
                 .activityLevel(command.activityLevel())
                 .avatarUrl(command.avatarUrl())
+                // Absent means "leave it alone", not "clear it": every other field on this form
+                // is required, so a client that omits the zone is one that does not know about
+                // it yet, and it must not wipe a preference the person set elsewhere.
+                .timeZone(command.timeZone() != null ? command.timeZone() : user.getTimeZone())
                 .dailyCalorieTarget(targets.dailyCalorieTarget())
                 .proteinTargetG(targets.proteinTargetG())
                 .carbTargetG(targets.carbTargetG())

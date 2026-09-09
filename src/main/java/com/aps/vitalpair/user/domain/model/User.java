@@ -3,6 +3,7 @@ package com.aps.vitalpair.user.domain.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import com.aps.vitalpair.shared.security.Role;
@@ -36,8 +37,32 @@ public class User {
     private final Integer carbTargetG;
     private final Integer fatTargetG;
     private final String avatarUrl;
+
+    /**
+     * The zone the user's day is measured in, as an IANA identifier.
+     *
+     * <p>Everything the product calls "today" is a question about this user's day, not the
+     * server's: the meals on the day's list, the totals on the dashboard, the streak. The
+     * server's own zone is an accident of where it runs, so it can never answer that. An
+     * identifier rather than an offset, because an offset does not know about daylight
+     * saving and Brazil has had it before.
+     */
+    private final ZoneId timeZone;
+
     private final Instant createdAt;
     private final Instant updatedAt;
+
+    /**
+     * The zone to measure this user's day in, never null.
+     *
+     * <p>The column is NOT NULL, so this only fills in for a User built in memory without one:
+     * a mapper test, or a caller assembling one field at a time. Everything that asks about a
+     * day goes through here, so a missing zone degrades to the default instead of throwing on
+     * a screen that has nothing to do with the preference.
+     */
+    public ZoneId zone() {
+        return timeZone != null ? timeZone : UserTimeZones.FALLBACK;
+    }
 
     /**
      * When the account was closed, or null while it is live.

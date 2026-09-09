@@ -18,6 +18,8 @@ export interface UserProfile {
   carbTargetG: number | null
   fatTargetG: number | null
   avatarUrl: string | null
+  /** IANA identifier, e.g. "America/Sao_Paulo". Decides where this user's day starts. */
+  timeZone: string
   createdAt: string
   updatedAt: string
 }
@@ -31,6 +33,8 @@ export interface UpdateProfilePayload {
   goal: Goal
   activityLevel: ActivityLevel
   avatarUrl?: string | null
+  /** Omitted leaves the stored zone alone; the server never clears it. */
+  timeZone?: string
 }
 
 export interface Tdee {

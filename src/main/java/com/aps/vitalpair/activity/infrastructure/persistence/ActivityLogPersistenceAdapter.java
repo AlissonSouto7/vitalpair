@@ -1,8 +1,5 @@
 package com.aps.vitalpair.activity.infrastructure.persistence;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.aps.vitalpair.activity.domain.model.ActivityLog;
 import com.aps.vitalpair.activity.domain.port.out.ActivityLogRepositoryPort;
+import com.aps.vitalpair.shared.time.DayWindow;
 
 @Component
 public class ActivityLogPersistenceAdapter implements ActivityLogRepositoryPort {
@@ -28,11 +26,10 @@ public class ActivityLogPersistenceAdapter implements ActivityLogRepositoryPort 
     }
 
     @Override
-    public List<ActivityLog> findByUserAndDate(UUID userId, LocalDate date) {
-        Instant start = date.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant end = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    public List<ActivityLog> findByUserAndDay(UUID userId, DayWindow day) {
         return repository
-                .findByUserIdAndLoggedAtGreaterThanEqualAndLoggedAtLessThanOrderByLoggedAtAsc(userId, start, end)
+                .findByUserIdAndLoggedAtGreaterThanEqualAndLoggedAtLessThanOrderByLoggedAtAsc(
+                        userId, day.start(), day.end())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();

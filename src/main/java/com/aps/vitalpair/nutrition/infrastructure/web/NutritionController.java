@@ -30,6 +30,7 @@ import com.aps.vitalpair.nutrition.domain.port.in.SearchFoodUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
+import com.aps.vitalpair.user.domain.port.in.UserDayUseCase;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,6 +47,7 @@ public class NutritionController {
     private final GetDailyLogsUseCase getDailyLogsUseCase;
     private final GetDailySummaryUseCase getDailySummaryUseCase;
     private final GetFavoriteFoodsUseCase getFavoriteFoodsUseCase;
+    private final UserDayUseCase userDayUseCase;
 
     public NutritionController(
             SearchFoodUseCase searchFoodUseCase,
@@ -54,7 +56,8 @@ public class NutritionController {
             DeleteFoodLogUseCase deleteFoodLogUseCase,
             GetDailyLogsUseCase getDailyLogsUseCase,
             GetDailySummaryUseCase getDailySummaryUseCase,
-            GetFavoriteFoodsUseCase getFavoriteFoodsUseCase) {
+            GetFavoriteFoodsUseCase getFavoriteFoodsUseCase,
+            UserDayUseCase userDayUseCase) {
         this.searchFoodUseCase = searchFoodUseCase;
         this.findFoodByBarcodeUseCase = findFoodByBarcodeUseCase;
         this.logMealUseCase = logMealUseCase;
@@ -62,6 +65,7 @@ public class NutritionController {
         this.getDailyLogsUseCase = getDailyLogsUseCase;
         this.getDailySummaryUseCase = getDailySummaryUseCase;
         this.getFavoriteFoodsUseCase = getFavoriteFoodsUseCase;
+        this.userDayUseCase = userDayUseCase;
     }
 
     @StandardApiResponses
@@ -121,7 +125,7 @@ public class NutritionController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate date) {
-        List<FoodLogResponse> logs = getDailyLogsUseCase.getLogs(principal.userId(), orToday(date)).stream()
+        List<FoodLogResponse> logs = getDailyLogsUseCase.getLogs(principal.userId(), orToday(principal, date)).stream()
                 .map(FoodLogResponse::from)
                 .toList();
         return ResponseEntity.ok(ApiResponse.ok(logs));
@@ -148,7 +152,7 @@ public class NutritionController {
             @AuthenticationPrincipal AuthenticatedUser principal,
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate date) {
-        var summary = getDailySummaryUseCase.getSummary(principal.userId(), orToday(date));
+        var summary = getDailySummaryUseCase.getSummary(principal.userId(), orToday(principal, date));
         return ResponseEntity.ok(ApiResponse.ok(DailySummaryResponse.from(summary)));
     }
 
@@ -166,7 +170,14 @@ public class NutritionController {
         return ResponseEntity.ok(ApiResponse.ok(favorites));
     }
 
-    private static LocalDate orToday(LocalDate date) {
-        return date != null ? date : LocalDate.now();
+    /**
+     * The requested date, or today where the caller is.
+     *
+     * <p>Not {@code LocalDate.now()}: that is today where the server is, which used to
+     * disagree with the window the query ran over and made a meal logged late in the evening
+     * vanish from the day it belonged to.
+     */
+    private LocalDate orToday(AuthenticatedUser principal, LocalDate date) {
+        return date != null ? date : userDayUseCase.today(principal.userId());
     }
 }
