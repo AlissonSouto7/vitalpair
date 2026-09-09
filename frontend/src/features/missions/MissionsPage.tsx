@@ -1,13 +1,17 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { acceptFlashMission, getFlashMission, getWeeklyMissions } from '../../api/missions'
+import { acceptFlashMission } from '../../api/missions'
 import { Points } from '../../components/ui/Badge'
 import type {
   FlashMission as FlashMissionT,
   WeeklyMission,
   WeeklyMissionIcon,
 } from '../../types/missions'
+import { dashboardQueries } from '../dashboard/queries'
+
+import { missionQueries } from './queries'
 
 /**
  * Tela de Missões — dados reais.
@@ -18,24 +22,23 @@ import type {
  */
 export function MissionsPage() {
   const { t } = useTranslation()
-  const [flash, setFlash] = useState<FlashMissionT | null>(null)
-  const [weekly, setWeekly] = useState<WeeklyMission[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+  const flashQuery = useQuery(dashboardQueries.flashMission())
+  const weeklyQuery = useQuery(missionQueries.weekly())
 
-  useEffect(() => {
-    Promise.all([getFlashMission().catch(() => null), getWeeklyMissions().catch(() => [])])
-      .then(([f, w]) => {
-        setFlash(f)
-        setWeekly(w)
-      })
-      .catch(() => setError(t('missions.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
+  const flash: FlashMissionT | null = flashQuery.data ?? null
+  const weekly: WeeklyMission[] = weeklyQuery.data ?? []
 
-  if (loading) return <p className="font-bold text-muted">{t('common.loading')}</p>
-  if (error)
-    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  /** Writes the accepted mission back, so the dashboard's copy of the card agrees. */
+  function setFlash(updated: FlashMissionT) {
+    queryClient.setQueryData(dashboardQueries.flashMission().queryKey, updated)
+  }
+
+  if (flashQuery.isPending || weeklyQuery.isPending)
+    return <p className="font-bold text-muted">{t('common.loading')}</p>
+  // Each list stands on its own: the flash card failing is no reason to hide the weekly
+  // missions, and the empty states below already say when there is nothing to show. That
+  // was true before too, since both calls caught their own errors.
 
   const selfActive = weekly.filter((m) => m.scope === 'SELF' && !m.completed)
   const pair = weekly.filter((m) => m.scope === 'PAIR' && m.partnerName)

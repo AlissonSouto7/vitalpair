@@ -1,8 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getBadgeCatalog, getBadges, getStreaks } from '../../api/gamification'
 import type { Badge, BadgeCategory, EarnedBadge, Streak } from '../../types/gamification'
+
+import { gamificationQueries } from './queries'
 
 /**
  * Conquistas — medalhas e sequências (streaks), dados reais.
@@ -10,26 +12,24 @@ import type { Badge, BadgeCategory, EarnedBadge, Streak } from '../../types/gami
  */
 export function GamificationPage() {
   const { t } = useTranslation()
-  const [streaks, setStreaks] = useState<Streak[]>([])
-  const [earned, setEarned] = useState<EarnedBadge[]>([])
-  const [catalog, setCatalog] = useState<Badge[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const streaksQuery = useQuery(gamificationQueries.streaks())
+  const earnedQuery = useQuery(gamificationQueries.earned())
+  const catalogQuery = useQuery(gamificationQueries.catalog())
 
-  useEffect(() => {
-    Promise.all([getStreaks(), getBadges(), getBadgeCatalog()])
-      .then(([s, b, cat]) => {
-        setStreaks(s)
-        setEarned(b)
-        setCatalog(cat)
-      })
-      .catch(() => setError(t('gamification.loadError')))
-      .finally(() => setLoading(false))
-  }, [t])
+  const streaks: Streak[] = streaksQuery.data ?? []
+  const earned: EarnedBadge[] = earnedQuery.data ?? []
+  const catalog: Badge[] = catalogQuery.data ?? []
 
-  if (loading) return <p className="text-muted">{t('common.loading')}</p>
-  if (error)
-    return <p className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">{error}</p>
+  if (streaksQuery.isPending || earnedQuery.isPending || catalogQuery.isPending)
+    return <p className="text-muted">{t('common.loading')}</p>
+  // The screen is the three lists together, so any of them failing leaves a page that
+  // would quietly claim the person has no badges. Better to say it did not load.
+  if (streaksQuery.isError || earnedQuery.isError || catalogQuery.isError)
+    return (
+      <p role="alert" className="rounded-xl bg-danger-soft px-4 py-3 font-semibold text-danger">
+        {t('gamification.loadError')}
+      </p>
+    )
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
 

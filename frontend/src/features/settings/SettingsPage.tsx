@@ -1,16 +1,18 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { getNotificationPrefs, updateNotificationPrefs } from '../../api/notifications'
-import { getProfile } from '../../api/profile'
+import { updateNotificationPrefs } from '../../api/notifications'
 import { BrandMark } from '../../components/brand/BrandMark'
 import { LanguageSelect } from '../../components/LanguageSelect'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
 import type { NotificationPrefs } from '../../types/notification'
+import { profileQueries } from '../profile/queries'
 
 import { CloseAccountCard } from './CloseAccountCard'
+import { settingsQueries } from './queries'
 
 export function SettingsPage() {
   const { t } = useTranslation()
@@ -19,41 +21,38 @@ export function SettingsPage() {
   const navigate = useNavigate()
   const isDark = theme === 'dark'
 
-  const [email, setEmail] = useState<string | null>(null)
-  const [name, setName] = useState('')
+  const queryClient = useQueryClient()
+  const profileQuery = useQuery(profileQueries.profile())
+  const email: string | null = profileQuery.data?.email ?? null
+  const name: string = profileQuery.data?.name ?? ''
 
-  // notificações: preferências reais (persistidas no backend)
-  const [prefs, setPrefs] = useState<NotificationPrefs>({
+  // A failure to load leaves the defaults on screen rather than an error: the switches are
+  // still usable, and the person came here to change them.
+  const prefsKey = settingsQueries.notificationPrefs().queryKey
+  const prefsQuery = useQuery(settingsQueries.notificationPrefs())
+  const prefs: NotificationPrefs = prefsQuery.data ?? {
     notifyRival: true,
     notifyFlash: true,
     notifyReminder: false,
+  }
+
+  const savePrefs = useMutation({
+    mutationFn: updateNotificationPrefs,
+    // A switch has to move the moment it is tapped, so it flips before the request goes and
+    // the snapshot puts it back if the request fails. Refetching instead, as this used to,
+    // left the switch in the new position until the answer came back.
+    onMutate: (next: NotificationPrefs) => {
+      const previous = queryClient.getQueryData<NotificationPrefs>(prefsKey)
+      queryClient.setQueryData(prefsKey, next)
+      return { previous }
+    },
+    onError: (_err, _next, context) => {
+      if (context?.previous) queryClient.setQueryData(prefsKey, context.previous)
+    },
   })
 
-  useEffect(() => {
-    getProfile()
-      .then((profile) => {
-        setEmail(profile.email ?? null)
-        setName(profile.name ?? '')
-      })
-      .catch(() => {
-        // sem perfil carregado, a seção Conta mostra um fallback de boa
-      })
-    getNotificationPrefs()
-      .then(setPrefs)
-      .catch(() => {
-        // mantém os defaults se não rolar carregar
-      })
-  }, [])
-
   function savePref(patch: Partial<NotificationPrefs>) {
-    const next = { ...prefs, ...patch }
-    setPrefs(next) // otimista
-    updateNotificationPrefs(next).catch(() => {
-      // se falhar, recarrega o que tá salvo de verdade
-      getNotificationPrefs()
-        .then(setPrefs)
-        .catch(() => {})
-    })
+    savePrefs.mutate({ ...prefs, ...patch })
   }
 
   async function handleLogout() {

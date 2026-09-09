@@ -269,13 +269,12 @@ requisições, e quatro toasts idênticos são ruído.
 
 ## Dívida conhecida
 
-- **9 telas ainda buscam com `useEffect`**, medidas por grep em 08/09:
-  gamificação, plano alimentar, missões, convite, par, temporada, fim de
-  temporada, configurações e plano de treino. As sete migradas (dashboard,
-  progresso, nutrição, perfil, atividade, feed, verificação de e-mail) mais o sino
-  do cabeçalho cobrem o que a pessoa abre todo dia. Nenhuma das nove restantes
-  gera aviso de lint: elas atribuem estado dentro de um `.then`, não de forma
-  síncrona no efeito, que é o padrão que a regra acusa.
+- ~~**9 telas ainda buscam com `useEffect`**~~ Zerado em 09/09. As nove restantes
+  (gamificação, plano alimentar, missões, convite, par, temporada, fim de
+  temporada, configurações e plano de treino) foram para o TanStack Query.
+  Sobraram três `useEffect` no `src/features`, e nenhum busca dado: trava de
+  rolagem e tecla Esc no modal de refeição, o atraso de digitação da busca, e a
+  contagem regressiva da missão relâmpago.
 - **14 telas acima de 300 linhas**, contadas em 09/09. O número não mudou porque
   onboarding continua acima do limite, só que bem menor. Nutrição caiu de 944 para
   640 com as três abas extraídas; onboarding, que era a maior com 834, caiu para
@@ -314,6 +313,14 @@ requisições, e quatro toasts idênticos são ruído.
   Não é o formulário; ficou como estava.
 
 ## Histórico
+
+- **2026-09-09**: as nove telas que ainda buscavam com `useEffect` foram para o
+  TanStack Query. `season` e `missions.flash` passaram a ser lidas pela mesma
+  chave que o dashboard e o perfil já usavam, então as telas não podem mais
+  discordar sobre qual temporada está rolando. O botão de exercício e as chaves de
+  notificação mantiveram o comportamento otimista, agora com snapshot para
+  desfazer quando o pedido falha, no lugar de um segundo GET que engolia o próprio
+  erro.
 
 - **2026-09-09**: testes de componente que faltavam. `ProtectedRoute` (3),
   `NotificationsBell` (6) e `CalorieRing` (5). O do sino achou F-9. Testes de
