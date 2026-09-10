@@ -17,6 +17,9 @@ ENV_FILE="env/${ENVIRONMENT}.env"
 [ -f "${ENV_FILE}" ] || { echo "missing ${ENV_FILE}" >&2; exit 1; }
 
 STATE_FILE="env/.deployed-${ENVIRONMENT}"
+# The version the last good deploy replaced, kept so rollback.sh has somewhere to go back to
+# when a deploy passes the smoke test and turns out wrong anyway.
+PREVIOUS_FILE="env/.previous-${ENVIRONMENT}"
 compose() { docker compose -f compose.app.yaml --env-file "${ENV_FILE}" "$@"; }
 
 # shellcheck disable=SC1090
@@ -38,16 +41,24 @@ else
 fi
 
 echo "==> pulling images"
-# A pull failure is not fatal: an image built on this machine has no registry to pull from,
-# which is the normal case for a first deploy or a local test. A tag that genuinely does
-# not exist anywhere fails at the next step instead, where the error names the image.
-BACKEND_IMAGE="${BACKEND_IMAGE}" FRONTEND_IMAGE="${FRONTEND_IMAGE}" compose pull backend frontend ||   echo "    (could not pull; using the local images if they exist)"
+# A pull failure is not fatal on its own: an image built on this machine has no registry
+# to pull from, which is the normal case for a rehearsal. What is fatal is the image not
+# existing at all afterwards. Without this check compose would build one from whatever
+# source is on the machine, because the service declares how to, and a mistyped tag would
+# "deploy" successfully with code nobody chose. Found exactly that way, in a rehearsal.
+BACKEND_IMAGE="${BACKEND_IMAGE}" FRONTEND_IMAGE="${FRONTEND_IMAGE}" compose pull backend frontend \
+  || echo "    (could not pull; using the local images if they exist)"
+for image in "${BACKEND_IMAGE}" "${FRONTEND_IMAGE}"; do
+  docker image inspect "${image}" > /dev/null 2>&1 \
+    || { echo "image ${image} does not exist here or in the registry; refusing to build on a server" >&2; exit 1; }
+done
 
 echo "==> starting"
-BACKEND_IMAGE="${BACKEND_IMAGE}" FRONTEND_IMAGE="${FRONTEND_IMAGE}" compose up -d --wait --wait-timeout 180
+BACKEND_IMAGE="${BACKEND_IMAGE}" FRONTEND_IMAGE="${FRONTEND_IMAGE}" compose up -d --no-build --wait --wait-timeout 180
 
 echo "==> smoke test"
 if ./scripts/smoke.sh "${PUBLIC_URL}"; then
+  [ -f "${STATE_FILE}" ] && cp "${STATE_FILE}" "${PREVIOUS_FILE}"
   printf 'BACKEND_IMAGE=%s\nFRONTEND_IMAGE=%s\n' "${BACKEND_IMAGE}" "${FRONTEND_IMAGE}" > "${STATE_FILE}"
   echo "==> deployed ${ENVIRONMENT}"
   exit 0
@@ -65,7 +76,7 @@ fi
 
 echo "==> rolling back to ${previous_backend}" >&2
 BACKEND_IMAGE="${previous_backend}" FRONTEND_IMAGE="${previous_frontend}" \
-  compose up -d --wait --wait-timeout 180
+  compose up -d --no-build --wait --wait-timeout 180
 
 if ./scripts/smoke.sh "${PUBLIC_URL}"; then
   echo "==> rolled back; ${ENVIRONMENT} is serving the previous version" >&2

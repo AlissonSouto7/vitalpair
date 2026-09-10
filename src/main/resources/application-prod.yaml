@@ -19,11 +19,15 @@ server:
 # The interactive API browser is a complete map of every endpoint and payload shape. Useful
 # while developing, an invitation in production. Disabled rather than merely unlinked,
 # because an unlinked page is still a page.
+#
+# Staging runs this same profile and turns it on through SWAGGER_ENABLED, with the edge
+# proxy putting basic auth in front of the pages. Production never sets the flag, and the
+# edge answers 404 on those paths there regardless.
 springdoc:
   api-docs:
-    enabled: false
+    enabled: ${SWAGGER_ENABLED:false}
   swagger-ui:
-    enabled: false
+    enabled: ${SWAGGER_ENABLED:false}
 
 logging:
   # One JSON object per line, in the Elastic Common Schema. A log aggregator can then filter

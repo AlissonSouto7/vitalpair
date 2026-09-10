@@ -1,0 +1,15 @@
+# What every site shares. Rendered once by the image's own envsubst, which replaces only
+# the variables compose.edge.yaml lists; ${DOLLAR} is how an nginx variable survives it.
+# The sites themselves are rendered by docker-entrypoint.d/15-render-sites.sh, one per
+# environment this machine serves.
+
+# Docker's own DNS, asked again every ten seconds. The sites keep their upstreams in
+# variables so that nginx resolves them per request through this, rather than once at
+# startup; site.conf.template says what goes wrong otherwise.
+resolver 127.0.0.11 valid=10s ipv6=off;
+
+# Limits how fast anyone can hammer the authentication endpoints. The application has its
+# own rate limiter, which is the one that counts per user and survives a restart; this one
+# is cruder and sits in front, so a flood is dropped before it costs a thread and a
+# database connection. Ten megabytes holds roughly 160 thousand addresses.
+limit_req_zone ${DOLLAR}binary_remote_addr zone=auth:10m rate=10r/m;

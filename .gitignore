@@ -63,3 +63,6 @@ node_modules/
 deploy/env/*.env
 !deploy/env/*.env.example
 deploy/env/.deployed-*
+deploy/env/.previous-*
+# Basic-auth credentials for the staging extras, written by deploy/scripts/htpasswd.sh.
+deploy/env/htpasswd
