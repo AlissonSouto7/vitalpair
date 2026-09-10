@@ -5,6 +5,8 @@
 # It owns ports 80 and 443 and the certificates. The application stacks stay unpublished
 # and are reached over the shared network by their alias, which is what allows staging and
 # production to coexist here without either being reachable except through this proxy.
+# Which of the two this machine serves is decided by which *_SERVER_NAME is set in edge.env:
+# nginx/docker-entrypoint.d/15-render-sites.sh writes one site per name at startup.
 
 name: 'vitalpair-edge'
 
@@ -12,25 +14,34 @@ services:
   nginx:
     image: 'nginx:1.29-alpine'
     ports:
-      - '80:80'
-      - '443:443'
+      # Only a rehearsal on a developer machine, where 80 and 443 are usually taken, changes
+      # these. A server answers on the real ports.
+      - '${EDGE_HTTP_PORT:-80}:80'
+      - '${EDGE_HTTPS_PORT:-443}:443'
     environment:
+      STAGING_SERVER_NAME: '${STAGING_SERVER_NAME:-}'
+      PRODUCTION_SERVER_NAME: '${PRODUCTION_SERVER_NAME:-}'
       # The image renders every file in templates/ through envsubst at startup, replacing
       # only the names listed here. DOLLAR is how an nginx variable survives that pass.
-      SERVER_NAME: '${SERVER_NAME:?set SERVER_NAME (the domain)}'
-      ENVIRONMENT: '${ENVIRONMENT:?set ENVIRONMENT (staging or production)}'
       NGINX_ENVSUBST_TEMPLATE_SUFFIX: '.template'
       DOLLAR: '$$'
     volumes:
       - './nginx/templates:/etc/nginx/templates:ro'
+      - './nginx/site.conf.template:/etc/nginx/site.conf.template:ro'
+      - './nginx/docker-entrypoint.d/15-render-sites.sh:/docker-entrypoint.d/15-render-sites.sh:ro'
+      - './nginx/extras:/etc/nginx/extras:ro'
       - './nginx/proxy_params.conf:/etc/nginx/proxy_params.conf:ro'
+      # Basic-auth users for the staging extras, written by scripts/htpasswd.sh before the
+      # first start: a file that does not exist yet would be mounted as an empty directory.
+      - './env/htpasswd:/etc/nginx/htpasswd:ro'
       - 'certs:/etc/letsencrypt:ro'
       - 'acme:/var/www/certbot:ro'
     healthcheck:
-      # -k because the certificate is for the public name, not for localhost. What is being
-      # checked is that nginx answers at all, not that TLS validates from inside.
-      test:
-        ['CMD-SHELL', 'wget -qO- --no-check-certificate https://localhost/ > /dev/null || exit 1']
+      # Whether nginx answers at all. Whether the sites behind it work is the smoke test's
+      # question: a proxy is not unhealthy because a stack it fronts is down. BusyBox's
+      # wget follows the 301 into a certificate it cannot verify and exits non-zero, which
+      # is why the status line is what is looked at rather than the exit code.
+      test: ['CMD-SHELL', 'wget -S --spider -T 5 http://127.0.0.1/ 2>&1 | grep -q "HTTP/"']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -44,14 +55,11 @@ services:
         max-file: '3'
     networks: [edge]
 
-  # Renews the certificate long before it expires. Let's Encrypt issues for ninety days and
-  # renews at thirty left, so twice a day is generous and costs nothing: certbot exits
-  # immediately when there is nothing to do.
   # nginx reads a certificate once, at startup, so a renewal would sit on disk unused until
   # something restarted the container and the site would serve an expired certificate.
   # This asks nginx to re-read its files once a day. It is a separate container on purpose:
-  # replacing nginx's own command would bypass the entrypoint that renders the templates,
-  # which is exactly the mistake that left the stock configuration in place here.
+  # replacing nginx's own command would bypass the entrypoint that renders the sites,
+  # which is exactly the mistake that left the stock configuration in place here once.
   nginx-reloader:
     image: 'docker:cli'
     volumes:
@@ -66,6 +74,9 @@ services:
     depends_on: [nginx]
     logging: *logging
 
+  # Renews the certificates long before they expire. Let's Encrypt issues for ninety days and
+  # renews at thirty left, so twice a day is generous and costs nothing: certbot exits
+  # immediately when there is nothing to do.
   certbot:
     image: 'certbot/certbot:latest'
     volumes:

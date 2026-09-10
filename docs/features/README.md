@@ -56,8 +56,8 @@ Every backend feature package has a document. Counts measured on 2026-09-06.
 `config`, `shared` and `tenant` are infrastructure packages, not features. The
 cross-cutting documents are [testing.md](testing.md),
 [observability.md](observability.md),
-[frontend-foundation.md](frontend-foundation.md) and
-[browser-tests.md](browser-tests.md).
+[frontend-foundation.md](frontend-foundation.md),
+[browser-tests.md](browser-tests.md) and [deployment.md](deployment.md).
 
 [account-closure.md](account-closure.md) has no package of its own. Closing an
 account reaches across `user`, `pair` and `auth`, and it is the implementation
