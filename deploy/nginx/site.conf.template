@@ -1,14 +1,8 @@
-# The edge: the only thing on this machine the internet can reach.
+# One environment's site: the redirect on 80, the application on 443.
 #
-# Rendered by the nginx image's own envsubst at startup, so one file serves staging and
-# production by environment variable. ${DOLLAR} is used wherever an nginx variable must
-# survive that substitution.
-
-# Limits how fast anyone can hammer the authentication endpoints. The application has its
-# own rate limiter, which is the one that counts per user and survives a restart; this one
-# is cruder and sits in front, so a flood is dropped before it costs a thread and a
-# database connection. Ten megabytes holds roughly 160 thousand addresses.
-limit_req_zone ${DOLLAR}binary_remote_addr zone=auth:10m rate=10r/m;
+# Rendered by docker-entrypoint.d/15-render-sites.sh once per environment this machine
+# serves, with only ${SERVER_NAME} and ${ENVIRONMENT} substituted. Every other $ below is
+# nginx's own. What all sites share (the resolver, the rate-limit zone) is in templates/.
 
 server {
     listen 80;
@@ -21,7 +15,7 @@ server {
     }
 
     location / {
-        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+        return 301 https://$host$request_uri;
     }
 }
 
@@ -65,6 +59,14 @@ server {
     gzip_min_length 1024;
     gzip_types text/plain text/css application/javascript application/json image/svg+xml;
 
+    # Resolved per request, not once at startup. With a literal host in proxy_pass nginx
+    # looks the address up when it starts and keeps it: a backend recreated by a deploy
+    # comes back on another address and the proxy answers 502 until someone reloads it.
+    # A variable is what makes nginx ask the resolver again, and it also lets nginx start
+    # while a stack is down, which is every first boot of a machine serving one environment.
+    set $backend backend-${ENVIRONMENT};
+    set $frontend frontend-${ENVIRONMENT};
+
     # Phase 8 moved health and metrics to their own port so that publishing the API would
     # not publish a live readout of the system. Refusing the path outright, rather than
     # simply not routing it, matters: without this the single-page application's catch-all
@@ -77,7 +79,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://backend-${ENVIRONMENT}:8080;
+        proxy_pass http://$backend:8080;
         include /etc/nginx/proxy_params.conf;
 
         # Generating a week of meals is a paid call that can take a minute. The default of
@@ -92,12 +94,15 @@ server {
         limit_req zone=auth burst=20 nodelay;
         limit_req_status 429;
 
-        proxy_pass http://backend-${ENVIRONMENT}:8080;
+        proxy_pass http://$backend:8080;
         include /etc/nginx/proxy_params.conf;
     }
 
+    # What only staging serves, and production refuses: the API documentation and Grafana.
+    include /etc/nginx/extras/${ENVIRONMENT}.conf;
+
     location / {
-        proxy_pass http://frontend-${ENVIRONMENT}:8080;
+        proxy_pass http://$frontend:8080;
         include /etc/nginx/proxy_params.conf;
     }
 }

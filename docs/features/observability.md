@@ -201,10 +201,17 @@ Datasource e painel provisionados sozinhos (`/api/search` devolve
 ## Dívida conhecida
 
 - A porta 9090 é aberta a quem alcança a rede; a fase 11 precisa garantir que o
-  nginx não a mapeie, ou a proteção deixa de existir sem nenhum aviso.
-- **O proxy ainda não expõe `/grafana`.** O stack sobe e coleta, mas chegar no
+  nginx não a mapeie, ou a proteção deixa de existir sem nenhum aviso. Verificado
+  em 10/09 no ensaio do `deploy/`: o edge só encaminha para `:8080`, `/actuator`
+  devolve 404 nos dois sites (o `smoke.sh` confere), e a 9090 não é publicada por
+  nenhum compose. Ver `deployment.md`.
+- ~~**O proxy ainda não expõe `/grafana`.** O stack sobe e coleta, mas chegar no
   painel de fora depende de uma rota com `auth_basic` no nginx de borda, que é
-  trabalho da fase 11. Hoje se alcança por túnel SSH.
+  trabalho da fase 11. Hoje se alcança por túnel SSH.~~ Feito em 10/09:
+  `deploy/nginx/extras/staging.conf` serve `/grafana/` atrás de basic auth
+  (usuários em `deploy/env/htpasswd`, via `scripts/htpasswd.sh`), com o header
+  `Authorization` retirado antes de chegar no Grafana, que o leria como login
+  dele. Em produção o mesmo caminho devolve 404.
 - **`vitalpair.auth.logins` não existe.** O plano da fase 8 previa, e só
   `vitalpair.ai.requests` e `vitalpair.ai.latency` foram implementadas. O painel
   não tem gráfico de login por isso, e não por esquecimento.
@@ -213,6 +220,9 @@ Datasource e painel provisionados sozinhos (`/api/search` devolve
 
 ## Histórico
 
+- **2026-09-10**: Grafana alcançável pelo edge em staging, atrás de basic auth, e
+  o alvo `backend-staging:9090` confirmado `up` no Prometheus subindo os três
+  stacks juntos no ensaio da fase 11.
 - **2026-09-09**: o que faltava da fase 8. `deploy/compose.monitoring.yaml` com
   Prometheus e Grafana provisionados, e o painel versionado. Verificado contra o
   backend local, com alvo coletado e consultas devolvendo dado real.

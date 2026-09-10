@@ -52,8 +52,9 @@ check "metrics are NOT public" 404 "$(status "${BASE}/actuator/prometheus")"
 check "health is NOT public" 404 "$(status "${BASE}/actuator/health")"
 
 # HTTP must not serve the site; it exists only to redirect and to answer the certificate
-# challenge.
-plain="${BASE/https:/http:}"
+# challenge. On a server the plain address is the same name with the scheme swapped; a
+# rehearsal on a developer machine answers on two odd ports and says so with SMOKE_HTTP_URL.
+plain="${SMOKE_HTTP_URL:-${BASE/https:/http:}}"
 check "plain HTTP redirects" 301 "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${plain}/")"
 
 # The header that stops a browser from ever using plain HTTP for this domain again.

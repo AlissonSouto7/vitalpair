@@ -106,6 +106,9 @@ services:
       ANTHROPIC_MODEL: '${ANTHROPIC_MODEL:-claude-opus-4-8}'
       SCHEDULING_ZONE: '${SCHEDULING_ZONE:-America/Sao_Paulo}'
       OPEN_FOOD_FACTS_USER_AGENT: '${OPEN_FOOD_FACTS_USER_AGENT:-VitalPair/1.0 (contact@vitalpair.app)}'
+      # Off unless the env file says otherwise. Staging turns it on and the edge puts basic
+      # auth in front; production never does, and the edge answers 404 on those paths anyway.
+      SWAGGER_ENABLED: '${SWAGGER_ENABLED:-false}'
     restart: unless-stopped
     mem_limit: '${BACKEND_MEM_LIMIT:-768m}'
     cpus: '${BACKEND_CPUS:-1.0}'
