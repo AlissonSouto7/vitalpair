@@ -34,6 +34,22 @@ if ! curl -sf -o /dev/null --max-time 10 "http://${DOMAIN}/.well-known/acme-chal
   exit 1
 fi
 
+# A placeholder may be in the way. nginx refuses to start without a certificate file, so a
+# new machine boots the edge with the self-signed one from selfsigned.sh and replaces it
+# here; certbot will not write into a live/ directory it did not create, so the placeholder
+# goes first. A certificate certbot issued has a renewal file and is left alone, except when
+# it came from the staging service and a real one is being asked for now: certbot would
+# keep the untrusted one as "not yet due", so that lineage is deleted.
+docker compose -f compose.edge.yaml run --rm --entrypoint sh certbot -c "
+  renewal=/etc/letsencrypt/renewal/${DOMAIN}.conf
+  if [ -f \"\$renewal\" ] && [ '${STAGING}' = '0' ] && grep -q acme-staging \"\$renewal\"; then
+    certbot delete --cert-name '${DOMAIN}' --non-interactive
+    echo 'removed the staging certificate for ${DOMAIN}'
+  elif [ ! -f \"\$renewal\" ] && [ -d /etc/letsencrypt/live/${DOMAIN} ]; then
+    rm -rf /etc/letsencrypt/live/${DOMAIN}
+    echo 'removed the placeholder certificate for ${DOMAIN}'
+  fi"
+
 docker compose -f compose.edge.yaml run --rm --entrypoint certbot certbot \
   certonly --webroot -w /var/www/certbot \
   ${staging_flag} \

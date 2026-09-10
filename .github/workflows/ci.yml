@@ -47,6 +47,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # The server is ARM, and every base image has to exist for it. One did not: Temurin's
+      # Alpine JRE is published for amd64 only, which the amd64 build below never noticed
+      # and the first real build did. Building for arm64 under emulation here would take
+      # most of an hour; asking the registry takes seconds and catches the same mistake.
+      - name: Every base image exists for arm64
+        run: |
+          for image in $(grep -hE '^FROM ' Dockerfile frontend/Dockerfile | awk '{print $2}' | sort -u); do
+            if docker manifest inspect "$image" | grep -q '"architecture": "arm64"'; then
+              echo "ok   $image"
+            else
+              echo "FAIL $image has no arm64 build"
+              exit 1
+            fi
+          done
+
       - name: Build the backend image
         run: docker build -t vitalpair-backend:ci .
 

@@ -48,27 +48,32 @@ git clone https://github.com/AlissonSouto7/vitalpair.git && cd vitalpair
 #    mounted as an empty directory.
 deploy/scripts/htpasswd.sh alisson
 
-# 2. The edge, which creates the shared network the stacks join.
+# 2. A placeholder certificate for each name the edge will serve. nginx refuses to
+#    start without a certificate file, and certbot needs nginx running to answer
+#    the challenge; the placeholder breaks that circle and is replaced in step 4.
+deploy/scripts/selfsigned.sh staging.your.domain
+
+# 3. The edge, which creates the shared network the stacks join.
 cp deploy/env/edge.env.example deploy/env/edge.env    # set STAGING_SERVER_NAME (and PRODUCTION_SERVER_NAME later)
 docker compose -f deploy/compose.edge.yaml --env-file deploy/env/edge.env up -d
 
-# 3. The certificate, one per name. Point DNS at this machine first, or the
+# 4. The real certificate, one per name. Point DNS at this machine first, or the
 #    challenge fails. Leave STAGING=1 for the first attempt: Let's Encrypt allows
 #    five failures an hour for a domain, and a DNS record that has not propagated
 #    burns them fast.
 deploy/scripts/certbot-init.sh staging.your.domain you@example.com
 STAGING=0 deploy/scripts/certbot-init.sh staging.your.domain you@example.com
 
-# 4. An application stack.
+# 5. An application stack.
 cp deploy/env/staging.env.example deploy/env/staging.env
 #    Generate each secret rather than inventing one:
 openssl rand -base64 48
 docker compose -f deploy/compose.app.yaml --env-file deploy/env/staging.env up -d --wait
 
-# 5. Monitoring, staging only.
+# 6. Monitoring, staging only.
 docker compose -f deploy/compose.monitoring.yaml --env-file deploy/env/staging.env up -d --wait
 
-# 6. Prove it works before telling anyone about it.
+# 7. Prove it works before telling anyone about it.
 deploy/scripts/smoke.sh https://staging.your.domain
 ```
 
@@ -82,6 +87,10 @@ The first stack start needs images. Either build them on the machine
 or point `BACKEND_IMAGE` and `FRONTEND_IMAGE` at a registry; phase 12 is what
 makes CI publish them. Building on the machine is the right answer on an ARM
 server (Oracle's A1 shape), because the images CI builds today are `amd64`.
+Every base image has to exist for `arm64`, and one did not: Temurin's Alpine JRE
+is amd64 only, which the first real build found. CI now asks the registry about
+every `FROM` line, so the next such mistake fails the pull request rather than
+the server.
 
 ## Deploying a new version
 
