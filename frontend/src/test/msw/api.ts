@@ -3,10 +3,10 @@ import { http, HttpResponse, type DefaultBodyType } from 'msw'
 /**
  * Handler helpers that speak the backend's envelope.
  *
- * The base URL differs between a developer machine (`/api/v1`, proxied by Vite) and CI
- * (`http://localhost:8081/api/v1`, the axios default when VITE_API_URL is unset). A
- * leading `*` lets one handler match both, so a test does not pass locally and fail on
- * the server for a reason that has nothing to do with the code under test.
+ * The base URL is `/api/v1`, resolved against whatever origin the page is on: jsdom's
+ * `localhost:3000` here, the real domain in a browser. A leading `*` matches any origin,
+ * so a test does not pass locally and fail on the server for a reason that has nothing to
+ * do with the code under test.
  */
 export const path = (route: string) => `*/api/v1${route}`
 
