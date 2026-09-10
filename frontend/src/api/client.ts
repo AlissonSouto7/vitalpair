@@ -6,7 +6,21 @@ import type { TokenResponse } from '../types/auth'
 
 import { notifyIfServerFailed } from '@/shared/api/notifyServerFailure'
 
-const baseURL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8081/api/v1'
+/**
+ * Where the API is, from the browser's point of view.
+ *
+ * A relative path by default, because on a server the interface and the API answer on the
+ * same name: the edge proxy sends /api/ to the backend and everything else to these files.
+ * That makes one built image correct for staging and for production, with no rebuild and
+ * nothing to configure.
+ *
+ * The absolute default this used to carry was `http://localhost:8081/api/v1`, which is the
+ * developer machine and, in any other browser, that person's own computer. It shipped to
+ * the server that way and every call failed with "no connection to the server", because the
+ * page really was asking the visitor's laptop for the API. Development still overrides it
+ * through VITE_API_URL when the two run on different ports.
+ */
+const baseURL: string = import.meta.env.VITE_API_URL ?? '/api/v1'
 
 export const api = axios.create({
   baseURL,
