@@ -19,16 +19,22 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests clean package
 RUN java -Djarmode=tools -jar target/vitalpair-*.jar extract --destination extracted  && mv extracted/vitalpair-*.jar extracted/app.jar
 
 # ---- runtime ----
-FROM eclipse-temurin:17-jre-alpine
+# Jammy rather than Alpine: Temurin publishes the Alpine JRE for amd64 only, and the server
+# is ARM. Found on the first real build ("no match for platform in manifest"), which the
+# amd64 build in CI never noticed; CI now asks the registry about every base image.
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
-# curl for the healthcheck below. Alpine ships none, and a healthcheck that cannot run is
+# curl for the healthcheck below. The image ships none, and a healthcheck that cannot run is
 # a container that never reports unhealthy.
-RUN apk add --no-cache curl
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/*
 
 # Never root: a process that is compromised should not be able to write outside its own
 # directory, let alone alter the image.
-RUN addgroup -S app && adduser -S app -G app
+RUN groupadd --system app \
+  && useradd --system --gid app --no-create-home --shell /usr/sbin/nologin app
 
 # Dependencies first: they change only when the pom does, so this layer is reused by
 # every build that only touched source.
