@@ -125,6 +125,11 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+      args:
+        # Baked into the bundle, because the browser needs it and Vite resolves VITE_*
+        # at build time. Empty means the Google button does not render, which is right
+        # for an environment where sign-in with Google is not configured.
+        VITE_GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID:-}'
     restart: unless-stopped
     mem_limit: '${FRONTEND_MEM_LIMIT:-128m}'
     cpus: '${FRONTEND_CPUS:-0.5}'
