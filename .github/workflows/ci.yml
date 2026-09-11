@@ -53,8 +53,27 @@ jobs:
       # most of an hour; asking the registry takes seconds and catches the same mistake.
       - name: Every base image exists for arm64
         run: |
+          # The registry not answering is not the same as the image not existing for arm64,
+          # and the first version of this check said the second whenever the first happened:
+          # Docker Hub limits anonymous requests per IP, GitHub's runners share addresses, and
+          # a pull request was refused for a base image that had been built on an ARM server
+          # an hour earlier. So the request is retried, and a registry that stays silent
+          # fails with its own message rather than blaming the image.
+          inspect() {
+            local attempt
+            for attempt in 1 2 3; do
+              docker manifest inspect "$1" 2> /dev/null && return 0
+              echo "     registry did not answer for $1 (attempt ${attempt})" >&2
+              sleep $((attempt * 15))
+            done
+            return 1
+          }
           for image in $(grep -hE '^FROM ' Dockerfile frontend/Dockerfile | awk '{print $2}' | sort -u); do
-            if docker manifest inspect "$image" | grep -q '"architecture": "arm64"'; then
+            if ! manifest="$(inspect "$image")"; then
+              echo "ERROR the registry did not answer for $image after three attempts; rerun the job"
+              exit 1
+            fi
+            if echo "$manifest" | grep -q '"architecture": "arm64"'; then
               echo "ok   $image"
             else
               echo "FAIL $image has no arm64 build"
