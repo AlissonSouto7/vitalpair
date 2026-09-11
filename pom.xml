@@ -488,9 +488,31 @@
 				append to the same execution file, so the coverage report and the ratchet
 				below see unit and integration coverage together.
 			-->
+			<!--
+				Both test JVMs run in the product's home zone, the one UserTimeZones falls back
+				to, because the application does in production (TZ in deploy/compose.app.yaml).
+				Meals and activities are bucketed in the user's own zone; the season, the weekly
+				competition, the missions and the plans still take "today" from the JVM. With
+				the JVM in UTC, as GitHub's runners are, a pair formed between 21:00 and midnight
+				in Brasília starts its season "tomorrow" and the points logged that night fall
+				before it: four integration tests failed at 02:39 UTC on 2026-09-11 for exactly
+				that, having passed all day. Recorded as S-7 in docs/features/season.md; pinning
+				the zone is what makes the test run mean the same thing at any hour.
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -Duser.timezone=America/Sao_Paulo</argLine>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -Duser.timezone=America/Sao_Paulo</argLine>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>

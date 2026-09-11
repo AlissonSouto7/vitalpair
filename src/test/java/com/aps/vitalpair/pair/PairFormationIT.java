@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.aps.vitalpair.support.AbstractIntegrationTest;
+import com.aps.vitalpair.user.domain.model.UserTimeZones;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -76,7 +77,9 @@ class PairFormationIT extends AbstractIntegrationTest {
         // would be invisible to every tenant-scoped query, which is data loss that no error
         // message announces.
         Session renewed = login(joiner.email(), PASSWORD);
-        ResponseEntity<String> logs = httpGet("/api/v1/nutrition/logs?date=" + java.time.LocalDate.now(), renewed);
+        // Today in the person's zone, which is how the API buckets the day; see LeavePairIT.
+        ResponseEntity<String> logs =
+                httpGet("/api/v1/nutrition/logs?date=" + java.time.LocalDate.now(UserTimeZones.FALLBACK), renewed);
         assertThat(logs.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(data(logs))
                 .as("the meal logged before pairing: %s", logs.getBody())
