@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Called by cd.yml, so a deploy runs the same checks a pull request does rather than a
+  # copy of them that drifts. One run, one set of results, visible in one place.
+  workflow_call:
 
 # Read-only by default. A job that needs more asks for it explicitly.
 permissions:

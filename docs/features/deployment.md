@@ -4,9 +4,9 @@
 > afterwards. Written for the person who arrives later and needs to understand
 > this feature without reading every file.
 
-- **Status**: shipped, rehearsed on a developer machine; not yet run on a server
+- **Status**: shipped; staging runs on the server and deploys itself, production not started
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-10
+- **Last updated**: 2026-09-11
 
 ## What it is and where it lives
 
@@ -37,6 +37,8 @@ This document holds what was verified, what was found, and what is not covered.
 | Configuration          | `deploy/env/{edge,staging,production}.env.example`; the filled-in files and `htpasswd` never leave the machine                 |
 | Scripts                | `deploy/scripts/{deploy,rollback,backup,restore,smoke,certbot-init,selfsigned,htpasswd}.sh`                                    |
 | CI                     | `.github/workflows/ci.yml`, job `Container images`: builds both images and boots the backend one against a real database       |
+| CD                     | `.github/workflows/cd.yml` (main deploys staging, a `v*` tag deploys production after approval), `.github/actions/deploy`      |
+| Runbook                | [docs/runbooks/deploy.md](../runbooks/deploy.md): how to watch a deploy, what each failure means, how to go back               |
 
 ### What the edge does with each path
 
@@ -66,6 +68,10 @@ This document holds what was verified, what was found, and what is not covered.
 | R-9  | The basic-auth header is stripped before proxying to the extras                               | Grafana reads `Authorization: Basic` as one of its own logins and refuses every request                                                                                                                                               |
 | R-10 | A restore waits for the application to be healthy before saying it is done                    | `docker compose start` returns as soon as the process exists; the first request after "restored" answered 502 while the backend was still booting (D-3)                                                                               |
 | R-11 | The edge's health is whether nginx answers, not whether a stack behind it does                | A proxy is not unhealthy because an environment it fronts is down; the previous check fetched `/` over TLS and would have flagged the proxy for someone else's outage                                                                 |
+| R-12 | The images are built once, on arm64, and tagged with the commit                               | A tag deploy and the main deploy before it are the same commit, so production runs the bytes staging proved rather than a rebuild that could differ. Native arm64 because the server is; the same build under emulation takes an hour |
+| R-13 | Production waits for a person; staging does not                                               | Every merge should reach staging without ceremony, or nobody trusts it. Production is a decision, taken once the build is tested and waiting                                                                                          |
+| R-14 | The server authenticates to the registry with the run's own token, for that run only          | A long-lived registry credential on the machine is one more thing to rotate and one more thing to leak, for a registry only the pipeline writes to                                                                                    |
+| R-15 | The deploy scripts come from the commit being deployed                                        | A change to `deploy.sh` takes effect with the release that contains it, so the script and the code it deploys are never a version apart                                                                                               |
 
 ## Security findings
 
@@ -77,6 +83,7 @@ This document holds what was verified, what was found, and what is not covered.
 | D-2 | Medium   | `deploy/scripts/deploy.sh`                            | `compose pull` failed for a tag that did not exist, the script carried on "using the local images", and `compose up` **built** one from the source on the machine because the service declares `build:`. The deploy passed its smoke test             | A tag that does not exist anywhere was deployed successfully as a fresh build of whatever the checkout held. Found in the rehearsal: `vitalpair-frontend:broken` came up as the real frontend | Both images are checked with `docker image inspect` after the pull, and `up` runs with `--no-build`; `rollback.sh` the same. Verified: `vitalpair-frontend:does-not-exist` refused, stack untouched, no state written |
 | D-3 | Low      | `deploy/scripts/restore.sh`                           | "restored" was printed as soon as the backend process was started                                                                                                                                                                                     | The first request after a restore answered 502; the person doing the restore, on a bad day already, would read that as the restore having broken the site                                     | Waits up to three minutes for the container's own healthcheck, and fails with the log command if it never comes                                                                                                       |
 | D-4 | Low      | `deploy/env/production.env.example`                   | A botched edit had left the e-mail comment interleaved with `MAIL_ENABLED=true` in the middle of a sentence                                                                                                                                           | Whoever copied the example would have had to guess which line was the setting                                                                                                                 | Rewritten                                                                                                                                                                                                             |
+| D-8 | Low      | `deploy/README.md`                                    | The first real `deploy.sh` on the server stopped at its first step: `mkdir: cannot create directory '/var/backups/vitalpair': Permission denied`. The script backs up before touching anything and runs as an ordinary user                           | The deploy stopped before starting anything, so nothing broke, but the first production deploy would have stopped the same way at the worst moment                                            | The first-run instructions create the directory and give it to the deploying user (step 0b). Verified on the server: the directory was created, the deploy ran, and a dump was written before the containers changed  |
 
 ### Open
 
@@ -128,18 +135,17 @@ from the dump (1 user, the right e-mail); seven dumps kept.
 
 ### What is not covered
 
-- **Issuing and renewing a real certificate.** `certbot-init.sh` was not run:
-  it needs a domain pointing at a machine on the internet.
-- **Two application stacks running at once.** The production site was probed with
-  its stack absent. The rehearsal machine gives Docker 3.98 GB, and staging with
-  monitoring already uses most of it.
+- **A real renewal.** `certbot renew --dry-run` succeeds for the live lineage,
+  but no certificate has actually renewed yet; the first one is due in December.
+- **Two application stacks running at once.** Production has never been started;
+  the server runs staging and monitoring, on 24 GB.
 - **The daily `nginx -s reload`** by the `nginx-reloader` container, and the
-  twice-daily `certbot renew`, both of which only matter with a real certificate.
+  twice-daily `certbot renew`.
 - **The nginx rate limit answering 429.** The application's own limiter answers
   first on the login route, so telling the two apart needs a route only nginx
   limits.
-- **An ARM build.** The images were built and run on `amd64`; Oracle's free A1
-  shape is `arm64`, where the same Dockerfiles must be built on the machine.
+- **A production deploy through the pipeline.** The staging path has run; the
+  production job has never executed, because there is no production.
 - **The JVM heap following the container limit**, which Docker Desktop for
   Windows does not expose to the JVM.
 
@@ -165,20 +171,23 @@ ls -lt /var/backups/vitalpair/staging | head
 
 ## Known debt
 
-| Item                                       | Impact                                                      | When it is meant to be addressed                        |
-| ------------------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------- |
-| Not run on a server                        | Certificate issue and renewal unverified                    | The first real deploy, which needs the VM and a domain  |
-| Images are built on the machine            | A deploy depends on the checkout and on the machine's CPU   | Phase 12: CI publishes the images it already builds     |
-| Deploys are manual                         | A person runs `deploy.sh` over SSH                          | Phase 12                                                |
-| D-5, D-6, D-7                              | See "Open"                                                  | When there is a server; D-7 needs object storage        |
-| The rehearsal is a checklist, not a script | Verifying a change to `deploy/` takes a person half an hour | A `rehearse.sh` that runs the sequence above end to end |
+| Item                                       | Impact                                                               | When it is meant to be addressed                        |
+| ------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------- |
+| No renewal has happened yet                | The certificate renews itself in December or it does not             | December 2026, when the first one runs on its own       |
+| No staged rollout                          | One container stops and another starts, so there is a gap of seconds | Zero downtime needs two of everything                   |
+| D-5, D-6, D-7                              | See "Open"                                                           | D-7 needs object storage                                |
+| The rehearsal is a checklist, not a script | Verifying a change to `deploy/` takes a person half an hour          | A `rehearse.sh` that runs the sequence above end to end |
 
 ## History
 
-| Date       | Change                                                                                                                                                                                                                                                                                                                                                                                         | Pull request         |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| 2026-09-06 | The deployment stack built, replacing the inherited one that forwarded `/actuator` to the internet. Rehearsed locally with a self-signed certificate                                                                                                                                                                                                                                           | `49f6443`            |
-| 2026-09-08 | Scripts marked executable in git                                                                                                                                                                                                                                                                                                                                                               | #62                  |
-| 2026-09-09 | Prometheus and Grafana stack                                                                                                                                                                                                                                                                                                                                                                   | #68                  |
-| 2026-09-11 | The backend JVM runs in the product's home zone (`TZ` in `compose.app.yaml`), after four integration tests failed on the UTC runners every night from 21:00 to midnight in Brasília: the season took "today" from the JVM while meals took it from the person (S-7 in `season.md`). The test JVMs are pinned to the same zone in `pom.xml`                                                     | `fix/season-zone`    |
-| 2026-09-10 | Phase 11 closed as far as a machine without a domain allows: one site per environment on one edge, upstreams resolved per request (D-1), a deploy that never builds (D-2), Swagger on staging behind basic auth and 404 in production, `/grafana/` through the edge, `rollback.sh`, `selfsigned.sh` and `htpasswd.sh`, a restore that waits (D-3). Rehearsed end to end, this document created | `infra/staging-prod` |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                                                                                                       | Pull request           |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 2026-09-06 | The deployment stack built, replacing the inherited one that forwarded `/actuator` to the internet. Rehearsed locally with a self-signed certificate                                                                                                                                                                                                                                                                                         | `49f6443`              |
+| 2026-09-08 | Scripts marked executable in git                                                                                                                                                                                                                                                                                                                                                                                                             | #62                    |
+| 2026-09-09 | Prometheus and Grafana stack                                                                                                                                                                                                                                                                                                                                                                                                                 | #68                    |
+| 2026-09-11 | The backend JVM runs in the product's home zone (`TZ` in `compose.app.yaml`), after four integration tests failed on the UTC runners every night from 21:00 to midnight in Brasília: the season took "today" from the JVM while meals took it from the person (S-7 in `season.md`). The test JVMs are pinned to the same zone in `pom.xml`                                                                                                   | `fix/season-zone`      |
+| 2026-09-10 | Phase 11 closed as far as a machine without a domain allows: one site per environment on one edge, upstreams resolved per request (D-1), a deploy that never builds (D-2), Swagger on staging behind basic auth and 404 in production, `/grafana/` through the edge, `rollback.sh`, `selfsigned.sh` and `htpasswd.sh`, a restore that waits (D-3). Rehearsed end to end, this document created                                               | `infra/staging-prod`   |
+| 2026-09-11 | First deploy run by `deploy.sh` on the real server (`686d97d`, the paid-plan gate): backup, pull, `up --no-build --wait`, smoke 8 of 8, both records written. It stopped once on D-8, a backup directory an ordinary user cannot create, now part of the first-run instructions                                                                                                                                                              | `docs/deploy-findings` |
+| 2026-09-11 | Staging moved onto its own domain, `staging.vitalpair.app`, with a trusted certificate. The order matters and is now written down: the certificate path carries the server name, so a placeholder has to exist before the name changes or nginx will not start. `PUBLIC_URL` and Grafana's root URL follow the name; the latter is easy to miss and breaks links inside the dashboards only                                                  | (server configuration) |
+| 2026-09-11 | Mail turned on: the environment file gained the five SMTP variables and `deploy/README.md` gained the section explaining them, including why a second SPF record breaks sending and receiving together                                                                                                                                                                                                                                       | (server configuration) |
+| 2026-09-11 | Phase 12: deploys stopped being a person on SSH. `ci.yml` became callable and `cd.yml` runs it, builds both images natively on arm64 and tags them with the commit, then deploys. A merge to `main` reaches staging on its own; a `v*` tag reaches production only after someone approves it. The server pulls with the run's own token rather than holding a credential, and `docs/runbooks/deploy.md` says what to do when any of it fails | `ci/deploy-pipeline`   |
