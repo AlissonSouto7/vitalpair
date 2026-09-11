@@ -105,6 +105,12 @@ services:
       ANTHROPIC_API_KEY: '${ANTHROPIC_API_KEY:-}'
       ANTHROPIC_MODEL: '${ANTHROPIC_MODEL:-claude-opus-4-8}'
       SCHEDULING_ZONE: '${SCHEDULING_ZONE:-America/Sao_Paulo}'
+      # The JVM's own zone, which is what the season, the weekly competition, the missions
+      # and the plans mean by "today". Meals and activities already use the person's zone;
+      # with the JVM left in UTC the two disagreed every night from 21:00 to midnight in
+      # Brasília, and the points logged then fell outside a season that had just started.
+      # The same value the tests pin (pom.xml) and UserTimeZones falls back to.
+      TZ: '${SCHEDULING_ZONE:-America/Sao_Paulo}'
       OPEN_FOOD_FACTS_USER_AGENT: '${OPEN_FOOD_FACTS_USER_AGENT:-VitalPair/1.0 (contact@vitalpair.app)}'
       # Off unless the env file says otherwise. Staging turns it on and the edge puts basic
       # auth in front; production never does, and the edge answers 404 on those paths anyway.

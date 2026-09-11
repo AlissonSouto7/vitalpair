@@ -188,7 +188,12 @@ ORDER BY f.logged_at DESC LIMIT 20;
   Quem quiser um fuso que não é o do aparelho não consegue escolher pela tela.
 - **O fuso do par não é considerado em nada compartilhado.** `SeasonService:48`,
   `WeeklyMissionService:52` e `MissionService:96` usam `ZoneId.systemDefault()`,
-  herdado das fases anteriores. Com os dois no Brasil dá no mesmo; com um par
+  herdado das fases anteriores. Em 11/09 isso deixou de ser teórico: com a JVM em
+  UTC (o runner da CI), quatro testes de integração caíram entre 21h e meia-noite
+  de Brasília, porque a temporada começava "amanhã" e os pontos da noite ficavam
+  antes dela. Registrado como S-7 em `season.md`; a JVM do backend e a dos testes
+  passaram a rodar no fuso da casa (`America/Sao_Paulo`), o que resolve para quem
+  está no Brasil e não resolve a pergunta de produto. Com os dois no Brasil dá no mesmo; com um par
   internacional, a semana de um não é a do outro. Fica registrado como dívida, não
   corrigido aqui, porque "de quem é a semana de um par" é uma decisão de produto e
   não de código. Note que `systemDefault()` é o fuso do servidor, ou seja, UTC em
