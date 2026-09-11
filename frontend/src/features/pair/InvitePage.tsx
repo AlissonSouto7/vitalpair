@@ -34,7 +34,7 @@ export function InvitePage() {
   async function accept() {
     // Deslogado: manda pro cadastro segurando o código (entra na dupla depois do cadastro).
     if (!accessToken) {
-      void navigate(`/register?convite=${encodeURIComponent(code)}`)
+      void navigate(`/register?invite=${encodeURIComponent(code)}`)
       return
     }
     setJoining(true)
@@ -143,7 +143,7 @@ export function InvitePage() {
               <p className="mt-4 text-center text-xs font-semibold text-muted">
                 {t('pair.alreadyHaveAccount')}{' '}
                 <Link
-                  to={`/login?convite=${encodeURIComponent(code)}`}
+                  to={`/login?invite=${encodeURIComponent(code)}`}
                   className="font-extrabold text-brand-ink hover:underline"
                 >
                   {t('pair.loginAndAccept')}

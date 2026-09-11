@@ -99,7 +99,7 @@ test.describe('forming a pair', () => {
 
     // The link someone pastes out of a message. A dead one is worth checking because the
     // page fetches on mount and used to have nowhere to put a failure.
-    await inviter.goto('/convite/ZZZZ9999')
+    await inviter.goto('/invite/ZZZZ9999')
     await expect(inviter.getByText(/convite não encontrado|não colou/i).first()).toBeVisible({
       timeout: 15000,
     })
