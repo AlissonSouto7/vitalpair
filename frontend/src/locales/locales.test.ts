@@ -1,27 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { activity } from './activity'
-import { auth } from './auth'
-import { common } from './common'
-import { dashboard } from './dashboard'
-import { feed } from './feed'
-import { gamification } from './gamification'
-import { header } from './header'
-import { landing } from './landing'
 import { legal } from './legal'
-import { mealplan } from './mealplan'
-import { missions } from './missions'
-import { nav } from './nav'
-import { notifications } from './notifications'
-import { nutrition } from './nutrition'
-import { onboarding } from './onboarding'
-import { pair } from './pair'
-import { profile } from './profile'
-import { progress } from './progress'
-import { season } from './season'
-import { seasonEnd } from './seasonEnd'
-import { settings } from './settings'
-import { workoutplan } from './workoutplan'
+
+import { modules } from './index'
 
 /**
  * Guards translation completeness across the four supported languages.
@@ -33,32 +14,16 @@ import { workoutplan } from './workoutplan'
  *
  * Portuguese is the reference: it is the product's primary language and the bundle every
  * new key is written in first.
+ *
+ * The list of namespaces comes from `index.ts` rather than being repeated here. It was
+ * repeated, and the copy fell behind: `errors` and `premium` shipped to users while this
+ * test believed there were 22 namespaces and asserted `>= 22`, so the guard against
+ * exactly that mistake passed while the mistake was live. Importing the real list makes
+ * the omission impossible instead of detectable.
  */
 
-const namespaces = {
-  common,
-  nav,
-  header,
-  notifications,
-  auth,
-  onboarding,
-  landing,
-  legal,
-  mealplan,
-  workoutplan,
-  seasonEnd,
-  nutrition,
-  activity,
-  feed,
-  missions,
-  season,
-  progress,
-  gamification,
-  dashboard,
-  profile,
-  settings,
-  pair,
-}
+/** The on-demand namespace, which is not in `modules` but ships to users all the same. */
+const namespaces = { ...modules, legal }
 
 const translated = ['en', 'es', 'fr'] as const
 
@@ -73,10 +38,18 @@ function keyPaths(value: unknown, prefix = ''): string[] {
 }
 
 describe('translation bundles', () => {
-  it('covers every namespace the app imports', () => {
-    // Guards against a namespace being added to index.ts and forgotten here, which would
-    // leave it untested while looking covered.
-    expect(Object.keys(namespaces).length).toBeGreaterThanOrEqual(22)
+  it('carries every language for every namespace', () => {
+    // Not a count: the names themselves. A namespace added to index.ts arrives here on its
+    // own, and one whose bundle is missing a language fails by name rather than by arithmetic.
+    const incomplete = Object.entries(namespaces)
+      .filter(([, bundle]) =>
+        (['pt', ...translated] as const).some(
+          (lang) => (bundle as Record<string, unknown>)[lang] === undefined,
+        ),
+      )
+      .map(([name]) => name)
+
+    expect(incomplete, 'namespaces missing at least one language').toEqual([])
   })
 
   describe.each(Object.entries(namespaces))('%s', (name, bundle) => {
