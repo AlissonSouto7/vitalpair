@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.aps.vitalpair.support.AbstractIntegrationTest;
+import com.aps.vitalpair.user.domain.model.UserTimeZones;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -117,7 +118,10 @@ class LeavePairIT extends AbstractIntegrationTest {
         assertThat(feedActors(joinerAlone)).as("and so did the joiner's").containsExactly("Joiner");
 
         // The meals themselves are still there, read by user id rather than by tenant.
-        JsonNode logs = data(httpGet("/api/v1/nutrition/logs?date=" + LocalDate.now(), inviterAlone));
+        // Today as the API counts it, in the person's zone. LocalDate.now() is today where the
+        // JVM is, which on a UTC runner is already tomorrow every night from 21:00 in Brasília.
+        JsonNode logs =
+                data(httpGet("/api/v1/nutrition/logs?date=" + LocalDate.now(UserTimeZones.FALLBACK), inviterAlone));
         assertThat(logs).hasSize(1);
         assertThat(logs.get(0).path("foodName").asText()).isEqualTo("Banana");
     }
