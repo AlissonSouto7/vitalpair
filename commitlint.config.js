@@ -13,9 +13,9 @@ export default {
       1,
       'always',
       [
-        'activity', 'ai', 'auth', 'dashboard', 'feed', 'gamification', 'mealvision',
-        'mission', 'notification', 'nutrition', 'pair', 'progress', 'season', 'tdee',
-        'user', 'shared',
+        'activity', 'ai', 'auth', 'dashboard', 'entitlement', 'feed', 'gamification',
+        'mealvision', 'mission', 'notification', 'nutrition', 'pair', 'progress', 'season',
+        'tdee', 'user', 'shared',
         'frontend', 'infra', 'ci', 'docs', 'deps', 'repo', 'security',
       ],
     ],
