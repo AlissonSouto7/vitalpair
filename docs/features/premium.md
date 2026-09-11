@@ -135,14 +135,15 @@ UPDATE users SET plan = 'PREMIUM', plan_expires_at = NULL WHERE email = 'someone
 
 ## Known debt
 
-| Item                                   | Impact                                                           | When it is meant to be addressed                                           |
-| -------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| No way to buy the plan                 | The notice says "not on sale yet", and it is not                 | Billing, after the launch                                                  |
-| P-9, grants by SQL                     | No audit trail of who was given what                             | With billing                                                               |
-| The Anthropic key is not on the server | The AI features are closed to everyone, plan or not, until it is | Right after this ships: the gate is what made it safe to put the key there |
+| Item                                    | Impact                                           | When it is meant to be addressed        |
+| --------------------------------------- | ------------------------------------------------ | --------------------------------------- |
+| No way to buy the plan                  | The notice says "not on sale yet", and it is not | Billing, after the launch               |
+| P-9, grants by SQL                      | No audit trail of who was given what             | With billing                            |
+| The key on staging is a development key | Staging spends the owner's own Anthropic credit  | It is rotated when production is set up |
 
 ## History
 
-| Date       | Change                                                                                                                                                                                                        | Pull request        |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| 2026-09-11 | Created: the plan on the user (V28), the entitlement feature, the four endpoints behind 402, the notice in the three screens, and the rule that the plan follows the payer and is shared while the pair lasts | `feat/ai-paid-plan` |
+| Date       | Change                                                                                                                                                                                                                                                                                                             | Pull request           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| 2026-09-11 | Created: the plan on the user (V28), the entitlement feature, the four endpoints behind 402, the notice in the three screens, and the rule that the plan follows the payer and is shared while the pair lasts                                                                                                      | #95                    |
+| 2026-09-11 | Live on staging: V28 applied, the two test accounts granted a lifetime plan, the Anthropic key put on the server. Proved from outside: a free account gets 402 on all three AI endpoints, a premium account generated a real workout in 15s, and the notice renders on the three screens for the free account only | `docs/deploy-findings` |

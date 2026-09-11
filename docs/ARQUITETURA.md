@@ -7,6 +7,7 @@
 VitalPair é um app web de saúde e fitness para **casais/duplas** com objetivos opostos ou complementares (ex: ela quer perder peso, ele quer ganhar massa). Gerencia ambos de forma independente mas conectada, com competição, compartilhamento e gamificação.
 
 ### 1.1 Proposta de valor
+
 - Planos alimentares e de treino gerados por IA com base no perfil/objetivo individual
 - Contas separadas no mesmo sistema, cada uma com meta e dashboard próprios
 - Feed compartilhado: cada um vê o que o parceiro comeu, treinou e quantos passos deu
@@ -15,9 +16,11 @@ VitalPair é um app web de saúde e fitness para **casais/duplas** com objetivos
 - Registro de refeições via Open Food Facts (gratuita, cobre produtos BR)
 
 ### 1.2 Usuários iniciais
+
 Um casal: ela quer perder peso, ele quer ganhar massa. Ambos usam WeWard. Sistema calcula TDEE de cada um e define metas opostas (déficit para ela, superávit para ele).
 
 ### 1.3 Roadmap SaaS
+
 - **MVP**: dois usuários (o casal), custo zero com Oracle Free Tier
 - **Beta**: abrir para outros casais, multi-tenancy pronto desde o início
 - **SaaS**: freemium (1 par grátis) + premium (IA avançada, múltiplos pares, histórico ilimitado)
@@ -26,23 +29,24 @@ Um casal: ela quer perder peso, ele quer ganhar massa. Ambos usam WeWard. Sistem
 
 ## 2. Stack Técnica
 
-| Camada | Tecnologia |
-|---|---|
-| Frontend | React + TypeScript + Tailwind CSS |
-| Backend | Java 17 + Spring Boot 3.5.15 |
-| ORM | Spring Data JPA + Hibernate |
-| Banco principal | PostgreSQL 15+ |
-| Cache/Sessões | Redis (sessões JWT, cache TDEE, streaks, rate limiting) |
-| Auth | Spring Security + JWT + OAuth2 (Google/Apple) |
-| API de alimentos | Open Food Facts |
-| Infra | Oracle Free Tier VPS + DuckDNS (2 OCPUs, 12GB RAM, 200GB) |
-| Reverse proxy | Nginx (SSL, servir frontend estático) |
-| Containers | Docker + Docker Compose |
-| CI/CD | GitHub Actions |
+| Camada           | Tecnologia                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| Frontend         | React + TypeScript + Tailwind CSS                                                          |
+| Backend          | Java 17 + Spring Boot 3.5.15                                                               |
+| ORM              | Spring Data JPA + Hibernate                                                                |
+| Banco principal  | PostgreSQL 15+                                                                             |
+| Cache/Sessões    | Redis (sessões JWT, cache TDEE, streaks, rate limiting)                                    |
+| Auth             | Spring Security + JWT + OAuth2 (Google/Apple)                                              |
+| API de alimentos | Open Food Facts                                                                            |
+| Infra            | Oracle Free Tier VPS + domínio `vitalpair.app` na Cloudflare (4 OCPUs ARM, 24GB RAM, 45GB) |
+| Reverse proxy    | Nginx (SSL, servir frontend estático)                                                      |
+| Containers       | Docker + Docker Compose                                                                    |
+| CI/CD            | GitHub Actions                                                                             |
 
 **Por que não Vercel para backend:** não suporta Spring Boot nativo, cobrança por invocação imprevisível, sem controle do servidor (Redis/workers/jobs), multi-tenancy complexo. Decisão: Oracle Free Tier no MVP, migração planejada para Hetzner/DigitalOcean.
 
 ### 2.3 Plano de migração de infra
+
 - MVP/Dev: Oracle Free Tier + DuckDNS — R$0 — até ~100 usuários
 - SaaS inicial: Oracle + domínio próprio (.app) — ~R$50/ano — primeiro pagante
 - Crescimento: Hetzner CX21 (4GB) + Cloudflare Free — ~R$50/mês — acima de 500 usuários
@@ -59,6 +63,7 @@ Monólito modular no backend, separação por feature/domínio (não por camada 
 Arquitetura **hexagonal (Ports & Adapters) por feature**. Regras completas em `docs/adr/0001-arquitetura-hexagonal.md`. Base package real: `com.aps.vitalpair` (groupId `com.aps`).
 
 Blocos transversais:
+
 ```
 com.aps.vitalpair
 ├── VitalpairApplication.java
@@ -68,6 +73,7 @@ com.aps.vitalpair
 ```
 
 Cada feature segue a mesma divisão em três camadas:
+
 ```
 <feature>/
 ├── domain/                 # núcleo puro, sem Spring/JPA
@@ -91,6 +97,7 @@ Features: `auth`, `user`, `pair`, `nutrition`, `workout`, `tdee` (serviço de do
 `src/main/resources/`: application.yaml, application-dev.yaml, application-prod.yaml, db/migration (Flyway).
 
 ### 3.3 Estrutura do Frontend (React)
+
 ```
 src/
   api/           # axios instance, interceptors, endpoints por feature
@@ -112,6 +119,7 @@ src/
 ## 4. Modelagem do Banco
 
 ### 4.1 Multi-tenancy
+
 - Abordagem: **shared database, shared schema** com coluna `tenant_id` em todas as tabelas de negócio
 - Cada **par de usuários = um tenant** (a tabela `pairs` é o tenant; `pairs.id` é o `tenant_id`)
 - `TenantFilter` (OncePerRequestFilter) extrai `tenant_id` do JWT e injeta em ThreadLocal
@@ -134,6 +142,7 @@ src/
 **workout_sessions**: id, tenant_id, user_id, plan_id, calories_burned, notes, completed_at
 
 **Gamificação:**
+
 - badges: id, code, name, description, icon_url, category (catálogo)
 - user_badges: id, tenant_id, user_id, badge_id, earned_at
 - user_streaks: id, tenant_id, user_id, type, current_count, longest_count, last_activity_date
@@ -160,6 +169,7 @@ src/
 **/activity**: POST /logs, GET /logs?date=, GET /summary?date=, POST /wearable/sync
 
 ### 6.2 Open Food Facts
+
 - Produto: `https://world.openfoodfacts.org/api/v2/product/:barcode.json`
 - Busca: `https://world.openfoodfacts.org/cgi/search.pl?search_terms=:query&json=true`
 - Sem autenticação, gratuita
@@ -169,6 +179,7 @@ src/
 - **User-Agent obrigatório**: `VitalPair/1.0 (contact@vitalpair.app)`
 
 ### 6.3 Cálculo de TDEE (Mifflin-St Jeor)
+
 - Homem: BMR = (10 × peso_kg) + (6.25 × altura_cm) − (5 × idade) + 5
 - Mulher: BMR = (10 × peso_kg) + (6.25 × altura_cm) − (5 × idade) − 161
 - TDEE = BMR × multiplicador de atividade
@@ -179,6 +190,7 @@ src/
 ## 7. Segurança
 
 ### 7.1 Auth
+
 - JWT curto: access_token 15min, refresh_token 30 dias
 - Refresh tokens no Redis com revogação imediata (logout real)
 - Spring Security: rotas públicas `/auth/**`, resto protegido
@@ -187,12 +199,14 @@ src/
 - Senhas: BCrypt strength 12
 
 ### 7.2 Multi-tenancy/isolamento
+
 - TenantFilter extrai tenant_id do JWT → ThreadLocal
 - TenantContext em qualquer camada
 - Repositórios filtram por tenant_id automaticamente
 - Teste: garantir que /nutrition/logs nunca vaze outro tenant
 
 ### 7.3 Outras práticas
+
 - HTTPS obrigatório (Let's Encrypt + certbot)
 - CORS explícito (só domínio do frontend)
 - Rate limiting Redis (100 req/min por usuário)
@@ -203,7 +217,7 @@ src/
 
 ## 8. Infra e Deploy
 
-- Oracle: VM.Standard.A1.Flex (ARM), 2 OCPUs, 12GB RAM, 200GB; Ubuntu 22.04 LTS; DNS DuckDNS (vitalpair.duckdns.org); firewall só 22/80/443.
+- Oracle: VM.Standard.A1.Flex (ARM), 4 OCPUs, 24GB RAM, 45GB; Ubuntu 24.04 LTS; domínio `vitalpair.app` na Cloudflare (`staging.vitalpair.app` no ar, `app.vitalpair.app` reservado para produção); firewall só 22/80/443.
 - Docker Compose: postgres (15-alpine), redis (7-alpine, requirepass), backend (build ./vitalpair-backend, porta 8080), frontend (build ./vitalpair-frontend, 3000:80), nginx (80/443, proxy).
 - CI/CD GitHub Actions: push main → checkout → build Maven → testes → build Docker → push GHCR → SSH Oracle → docker-compose pull+up. Secrets: ORACLE_SSH_KEY, ORACLE_HOST, GHCR_TOKEN. Zero-downtime e rollback (2 últimas imagens).
 - Nginx: location `/` → frontend:80; location `/api/` → backend:8080 (repassa header Authorization); SSL via /certs/live/...
@@ -211,6 +225,7 @@ src/
 ## 9. Instruções de código (CRÍTICO)
 
 ### 9.2 Princípios
+
 - Clean Code, SOLID (Single Responsibility, Dependency Inversion)
 - Não sobre-engenheirar (monólito modular agora)
 - Testes: JUnit 5 + Mockito (serviços), MockMvc (controllers)
@@ -220,6 +235,7 @@ src/
 - GlobalExceptionHandler com @ControllerAdvice, respostas padronizadas
 
 ### 9.3 Convenções
+
 - Java: camelCase métodos/vars, PascalCase classes, UPPER_SNAKE constantes
 - Pacotes: `com.vitalpair.<feature>`
 - Endpoints: plural para coleções (/foods, /logs), snake_case em query params
@@ -229,6 +245,7 @@ src/
 - CSS: Tailwind utility classes, evitar CSS custom (exceto animações complexas)
 
 ### 9.4 Ordem sugerida de implementação
+
 1. Setup (Git, pastas, Docker Compose Postgres+Redis)
 2. Backend base (Spring config, Security, JWT, GlobalExceptionHandler, ApiResponse)
 3. Migrations Flyway (todas as tabelas da Seção 4)
@@ -244,6 +261,7 @@ src/
 13. CI/CD (GitHub Actions → Oracle)
 
 ### 9.5 Variáveis de ambiente
+
 DATABASE_URL (jdbc:postgresql://postgres:5432/vitalpair), DATABASE_USER, DATABASE_PASSWORD, REDIS_HOST, REDIS_PASSWORD, JWT_SECRET (min 256 bits base64), JWT_ACCESS_EXPIRATION_MS (900000), JWT_REFRESH_EXPIRATION_MS (2592000000), GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ANTHROPIC_API_KEY, FRONTEND_URL, OPEN_FOOD_FACTS_USER_AGENT
 
 ## 10. Roadmap

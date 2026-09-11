@@ -45,17 +45,17 @@ of service to see the login form.
 Everything in this table is a claim about the real world. It is here so the next
 person can check it rather than trust it.
 
-| Claim                   | Value                                                   | Where it comes from                                                                                                   |
-| ----------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Data controller         | Alisson Pinheiro Souto, MEI, CNPJ 65.088.337/0001-48    | The owner's company registration. LGPD art. 9 requires the controller to be identified                                |
-| Data protection officer | The same person                                         | LGPD art. 41 requires one to be named. The law lets the controller take the role, which is normal for a sole trader   |
-| Contact address         | `contato@vitalpair.app`                                 | **Does not exist yet.** See the debt table                                                                            |
-| Response time           | Three business days                                     | The owner's choice, stated on both the privacy page and the contact page                                              |
-| Hosting                 | Oracle Cloud Infrastructure, São Paulo region           | Accepting Oracle's terms includes their data processing agreement, which is what makes the confidentiality claim true |
-| Data residency          | Brazil, except the plate photo                          | Follows from the hosting choice                                                                                       |
-| International transfer  | The plate photo goes to Anthropic, in the United States | LGPD art. 33 requires disclosing it. It was missing entirely before                                                   |
-| Free tier               | Everything is free today; seasons stay free             | The owner's decision. Seasons are what makes the product work, so charging for them is off the table                  |
-| Jurisdiction            | The user's own domicile, per the Consumer Code          | Already correct before this pass. CDC art. 101 I                                                                      |
+| Claim                   | Value                                                   | Where it comes from                                                                                                     |
+| ----------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Data controller         | Alisson Pinheiro Souto, MEI, CNPJ 65.088.337/0001-48    | The owner's company registration. LGPD art. 9 requires the controller to be identified                                  |
+| Data protection officer | The same person                                         | LGPD art. 41 requires one to be named. The law lets the controller take the role, which is normal for a sole trader     |
+| Contact address         | `contato@vitalpair.app`                                 | Live since 2026-09-11: forwarded to the owner's mailbox by Cloudflare Email Routing, and the address the app sends from |
+| Response time           | Three business days                                     | The owner's choice, stated on both the privacy page and the contact page                                                |
+| Hosting                 | Oracle Cloud Infrastructure, São Paulo region           | Accepting Oracle's terms includes their data processing agreement, which is what makes the confidentiality claim true   |
+| Data residency          | Brazil, except the plate photo                          | Follows from the hosting choice                                                                                         |
+| International transfer  | The plate photo goes to Anthropic, in the United States | LGPD art. 33 requires disclosing it. It was missing entirely before                                                     |
+| Free tier               | Everything is free today; seasons stay free             | The owner's decision. Seasons are what makes the product work, so charging for them is off the table                    |
+| Jurisdiction            | The user's own domicile, per the Consumer Code          | Already correct before this pass. CDC art. 101 I                                                                        |
 
 **The owner's CPF is deliberately absent.** The MEI's business name already
 contains their civil name, which is unavoidable and public. The CPF number adds
@@ -135,19 +135,20 @@ grep -c "—" frontend/src/locales/legal.ts                                     
 grep -c "65.088.337/0001-48" frontend/src/locales/legal.ts                                             # 4
 grep -cE "Fora do Brasil|Outside Brazil|Fuera de Brasil|Hors du Brésil" frontend/src/locales/legal.ts  # 4
 
-# And never the owner's CPF:
-grep -c "048.585" frontend/src/locales/legal.ts                                                        # 0
+# And never the owner's CPF. The number is deliberately not written here either: a check
+# for its absence that quotes it in full defeats itself in a public repository. Run it with
+# the real value, which the owner has:
+grep -c "<the owner's CPF>" frontend/src/locales/legal.ts                                              # 0
 ```
 
 ## Known debt
 
-| Item                                         | Impact                                                                   | When it is meant to be addressed                     |
-| -------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
-| `contato@vitalpair.app` does not exist yet   | Every address on these pages bounces, including the officer's contact    | The owner creates the mailbox                        |
-| The domain `vitalpair.app` is not registered | Today the app answers on `vitalpair.duckdns.org`                         | When the product goes public                         |
-| No data export before closing an account     | LGPD art. 18 II gives a right to portability, and the policy mentions it | A separate feature; recorded in `account-closure.md` |
-| The pages are not versioned in the database  | If the text changes, nobody can tell which version a person accepted     | Only matters once there are users                    |
-| Backend error messages are still Portuguese  | An English-speaking user gets Portuguese error text from the API         | The error-code work, backlogged across every feature |
+| Item                                        | Impact                                                                                                                                                 | When it is meant to be addressed                     |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| ~~`contato@vitalpair.app` does not exist~~  | Resolved on 2026-09-11: the address forwards to the owner's mailbox, and mail sent to any other address on the domain is refused rather than forwarded | Done                                                 |
+| No data export before closing an account    | LGPD art. 18 II gives a right to portability, and the policy mentions it                                                                               | A separate feature; recorded in `account-closure.md` |
+| The pages are not versioned in the database | If the text changes, nobody can tell which version a person accepted                                                                                   | Only matters once there are users                    |
+| Backend error messages are still Portuguese | An English-speaking user gets Portuguese error text from the API                                                                                       | The error-code work, backlogged across every feature |
 
 ## History
 

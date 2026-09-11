@@ -103,7 +103,7 @@ services:
       MAIL_FROM: '${MAIL_FROM:-VitalPair <no-reply@vitalpair.app>}'
       GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID:-}'
       ANTHROPIC_API_KEY: '${ANTHROPIC_API_KEY:-}'
-      ANTHROPIC_MODEL: '${ANTHROPIC_MODEL:-claude-opus-4-8}'
+      ANTHROPIC_MODEL: '${ANTHROPIC_MODEL:-claude-sonnet-5}'
       SCHEDULING_ZONE: '${SCHEDULING_ZONE:-America/Sao_Paulo}'
       # The JVM's own zone, which is what the season, the weekly competition, the missions
       # and the plans mean by "today". Meals and activities already use the person's zone;
