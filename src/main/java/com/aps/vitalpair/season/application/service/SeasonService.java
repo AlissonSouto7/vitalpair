@@ -1,5 +1,6 @@
 package com.aps.vitalpair.season.application.service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +47,6 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
 
     private static final int SEASON_DAYS = 30;
     private static final String DEFAULT_STAKE = "Quem perder paga o jantar";
-    private static final ZoneId ZONE = ZoneId.systemDefault();
     private static final DateTimeFormatter DAY_MONTH = DateTimeFormatter.ofPattern("dd/MM");
 
     private final SeasonRepositoryPort seasonRepository;
@@ -53,15 +54,39 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
     private final PairRepositoryPort pairRepository;
     private final UserRepositoryPort userRepository;
 
+    /**
+     * Where and when the season's day begins.
+     *
+     * <p>This used to be {@code ZoneId.systemDefault()} in a static field, which is how S-7
+     * happened: the season took its day from the JVM while meals took theirs from the person,
+     * and four integration tests failed every night between 21:00 and midnight in Brazil. The
+     * deploy pins the container's zone, which stops the bleeding; a clock the caller provides
+     * is what makes the rule testable at all, because a static default cannot be moved to
+     * the last second of a season to see what the code does there.
+     */
+    private final Clock clock;
+
     public SeasonService(
             SeasonRepositoryPort seasonRepository,
             PointEventRepositoryPort pointEventRepository,
             PairRepositoryPort pairRepository,
-            UserRepositoryPort userRepository) {
+            UserRepositoryPort userRepository,
+            Clock clock,
+            @Value("${vitalpair.scheduling.zone}") String zone) {
         this.seasonRepository = seasonRepository;
         this.pointEventRepository = pointEventRepository;
         this.pairRepository = pairRepository;
         this.userRepository = userRepository;
+        // The shared clock is UTC, because an instant has no zone. A season counts days, so
+        // it reads that clock in the product's own zone, the same one the schedulers use.
+        // Taking the bean as-is would move every season boundary three hours and bring S-7
+        // back; taking the JVM default is what caused S-7 in the first place.
+        this.clock = clock.withZone(ZoneId.of(zone));
+    }
+
+    /** The zone the season counts its days in, taken from the clock. */
+    private ZoneId zone() {
+        return clock.getZone();
     }
 
     // ------------------------------------------------------------------ ledger
@@ -72,7 +97,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         pointEventRepository.save(PointEvent.builder()
                 .tenantId(tenantId)
                 .userId(userId)
-                .occurredAt(date.atStartOfDay(ZONE).toInstant())
+                .occurredAt(date.atStartOfDay(zone()).toInstant())
                 .source(source)
                 .points(points)
                 .build());
@@ -92,9 +117,9 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         UUID rivalId = partnerId(pair, userId);
         boolean hasPartner = rivalId != null;
 
-        LocalDate today = LocalDate.now(ZONE);
-        Instant winStart = season.getStartDate().atStartOfDay(ZONE).toInstant();
-        Instant winEnd = today.plusDays(1).atStartOfDay(ZONE).toInstant();
+        LocalDate today = LocalDate.now(clock);
+        Instant winStart = season.getStartDate().atStartOfDay(zone()).toInstant();
+        Instant winEnd = today.plusDays(1).atStartOfDay(zone()).toInstant();
 
         // Totals per user from the ledger over the active season's window.
         Map<UUID, Long> totals = pointEventRepository.sumByUser(pair.getId(), winStart, winEnd).stream()
@@ -151,8 +176,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         Season active = seasonRepository.findActiveByTenant(pair.getId()).orElse(null);
         if (active == null) {
             LocalDate start = pair.getCreatedAt() != null
-                    ? pair.getCreatedAt().atZone(ZONE).toLocalDate()
-                    : LocalDate.now(ZONE);
+                    ? pair.getCreatedAt().atZone(zone()).toLocalDate()
+                    : LocalDate.now(clock);
             active = seasonRepository.save(Season.builder()
                     .tenantId(pair.getId())
                     .number(1)
@@ -163,7 +188,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
                     .build());
         }
 
-        LocalDate today = LocalDate.now(ZONE);
+        LocalDate today = LocalDate.now(clock);
         // end_date is exclusive: a season covers [start, end). Expired when today >= end.
         while (!today.isBefore(active.getEndDate())) {
             active = rollOver(active);
@@ -173,8 +198,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
 
     /** Closes the expired season (the winner comes from the ledger) and opens the next. */
     private Season rollOver(Season ended) {
-        Instant winStart = ended.getStartDate().atStartOfDay(ZONE).toInstant();
-        Instant winEnd = ended.getEndDate().atStartOfDay(ZONE).toInstant();
+        Instant winStart = ended.getStartDate().atStartOfDay(zone()).toInstant();
+        Instant winEnd = ended.getEndDate().atStartOfDay(zone()).toInstant();
         UUID winner = winnerByLedger(ended.getTenantId(), winStart, winEnd);
 
         seasonRepository.save(ended.toBuilder()
@@ -248,8 +273,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         List<Season> closed = seasonRepository.findByTenantAndStatusOrderByNumberDesc(tenantId, SeasonStatus.CLOSED);
         List<SeasonView.HistoryRow> history = new ArrayList<>();
         for (Season s : closed) {
-            Instant winStart = s.getStartDate().atStartOfDay(ZONE).toInstant();
-            Instant winEnd = s.getEndDate().atStartOfDay(ZONE).toInstant();
+            Instant winStart = s.getStartDate().atStartOfDay(zone()).toInstant();
+            Instant winEnd = s.getEndDate().atStartOfDay(zone()).toInstant();
             Map<UUID, Long> totals = pointEventRepository.sumByUser(tenantId, winStart, winEnd).stream()
                     .collect(Collectors.toMap(UserPoints::userId, UserPoints::points));
             int you = points(totals, youId);
