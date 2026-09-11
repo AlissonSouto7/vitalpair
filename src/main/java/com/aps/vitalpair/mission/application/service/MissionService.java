@@ -1,5 +1,6 @@
 package com.aps.vitalpair.mission.application.service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -7,6 +8,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,20 +31,33 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
     private final PairMissionRepositoryPort pairMissionRepository;
     private final UserRepositoryPort userRepository;
 
+    /**
+     * Which day the flash mission belongs to, and when it expires.
+     *
+     * <p>Was {@code LocalDate.now()} with no zone at all, which is the JVM's default: the same
+     * mismatch as S-7, one feature over. A mission chosen by day of the year changes at
+     * midnight somewhere, and that somewhere has to be the product's zone rather than
+     * whatever the machine was configured with.
+     */
+    private final Clock clock;
+
     public MissionService(
             MissionCatalogRepositoryPort catalogRepository,
             PairMissionRepositoryPort pairMissionRepository,
-            UserRepositoryPort userRepository) {
+            UserRepositoryPort userRepository,
+            Clock clock,
+            @Value("${vitalpair.scheduling.zone}") String zone) {
         this.catalogRepository = catalogRepository;
         this.pairMissionRepository = pairMissionRepository;
         this.userRepository = userRepository;
+        this.clock = clock.withZone(ZoneId.of(zone));
     }
 
     @Override
     @Transactional(readOnly = true)
     public FlashMissionView getToday(UUID userId) {
         UUID tenantId = resolveTenant(userId);
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         Mission mission = missionOfDay(today);
         boolean accepted = pairMissionRepository
                 .find(tenantId, today)
@@ -55,21 +70,21 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
     @Transactional
     public FlashMissionView acceptToday(UUID userId) {
         UUID tenantId = resolveTenant(userId);
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         Mission mission = missionOfDay(today);
 
         PairMissionState state = pairMissionRepository
                 .find(tenantId, today)
                 .map(existing -> existing.toBuilder()
                         .accepted(true)
-                        .acceptedAt(Instant.now())
+                        .acceptedAt(clock.instant())
                         .build())
                 .orElseGet(() -> PairMissionState.builder()
                         .tenantId(tenantId)
                         .missionCode(mission.getCode())
                         .date(today)
                         .accepted(true)
-                        .acceptedAt(Instant.now())
+                        .acceptedAt(clock.instant())
                         .build());
 
         PairMissionState saved = pairMissionRepository.save(state);
@@ -92,9 +107,8 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
     }
 
     private FlashMissionView view(Mission mission, LocalDate date, boolean accepted) {
-        Instant expiresAt = date.atTime(LocalTime.of(23, 59, 59))
-                .atZone(ZoneId.systemDefault())
-                .toInstant();
+        Instant expiresAt =
+                date.atTime(LocalTime.of(23, 59, 59)).atZone(clock.getZone()).toInstant();
         return FlashMissionView.builder()
                 .mission(mission)
                 .date(date)
