@@ -1,6 +1,7 @@
 export const common = {
   pt: {
     tagline: 'Treinem juntos. Compitam. Evoluam.',
+    brandTagline: 'Saúde é melhor em dupla',
     loading: 'Carregando...',
     save: 'Salvar',
     saving: 'Salvando...',
@@ -38,6 +39,7 @@ export const common = {
   },
   en: {
     tagline: 'Train together. Compete. Level up.',
+    brandTagline: 'Health is better in pairs',
     loading: 'Loading...',
     save: 'Save',
     saving: 'Saving...',
@@ -75,6 +77,7 @@ export const common = {
   },
   es: {
     tagline: 'Entrenen juntos. Compitan. Evolucionen.',
+    brandTagline: 'La salud es mejor en pareja',
     loading: 'Cargando...',
     save: 'Guardar',
     saving: 'Guardando...',
@@ -112,6 +115,7 @@ export const common = {
   },
   fr: {
     tagline: 'Entraînez-vous ensemble. Rivalisez. Progressez.',
+    brandTagline: 'La santé, c’est mieux à deux',
     loading: 'Chargement...',
     save: 'Enregistrer',
     saving: 'Enregistrement...',

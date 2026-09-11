@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { googleLogin } from '../api/auth'
@@ -23,6 +24,7 @@ declare global {
 }
 
 export function GoogleLoginButton({ onError }: { onError?: (message: string) => void }) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const setSession = useAuthStore((s) => s.setSession)
@@ -50,7 +52,7 @@ export function GoogleLoginButton({ onError }: { onError?: (message: string) => 
               setSession({ accessToken: token.accessToken, userId: token.userId })
               void navigate('/dashboard')
             } catch {
-              onError?.('Não foi possível entrar com o Google.')
+              onError?.(t('auth.errorGoogle'))
             }
           })()
         },
