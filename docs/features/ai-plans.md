@@ -202,8 +202,9 @@ curl -s localhost:9090/actuator/prometheus | grep 'resilience4j_circuitbreaker_s
 
 ## History
 
-| Date       | Change                                                            | Pull request                    |
-| ---------- | ----------------------------------------------------------------- | ------------------------------- |
-| 2026-09-05 | A-1 and A-2 fixed, integration tests and fixtures added (phase 7) | `test/integration-infra`        |
-| 2026-09-05 | A-3 fixed, circuit breaker and metrics (phase 8)                  | `feat/observability-resilience` |
-| 2026-09-06 | Document created (phase 13)                                       | `docs/professional-docs`        |
+| Date       | Change                                                                                                                                                                                                                                                                              | Pull request                    |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| 2026-09-05 | A-1 and A-2 fixed, integration tests and fixtures added (phase 7)                                                                                                                                                                                                                   | `test/integration-infra`        |
+| 2026-09-05 | A-3 fixed, circuit breaker and metrics (phase 8)                                                                                                                                                                                                                                    | `feat/observability-resilience` |
+| 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                                                         | `docs/professional-docs`        |
+| 2026-09-11 | Generating and swapping are behind the paid plan: `MealPlanService.generate`/`swap` and `WorkoutPlanService.generate` ask `AiEntitlementUseCase` first and answer 402 without it. Reading a plan, ticking exercises and finishing a workout stay open. See [premium.md](premium.md) | `feat/ai-paid-plan`             |

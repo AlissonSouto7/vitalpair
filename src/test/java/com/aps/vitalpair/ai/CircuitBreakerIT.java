@@ -71,10 +71,12 @@ class CircuitBreakerIT extends AbstractIntegrationTest {
         // hit the rate limiter first and the test would prove nothing about the breaker.
         for (int attempt = 1; attempt <= 5; attempt++) {
             Session caller = registerBeyondTheSignupLimit("Bruna" + attempt);
+            grantPremium(caller);
             ResponseEntity<String> response = httpPost("/api/v1/meal-plan/generate", null, caller);
             assertThat(response.getStatusCode()).as("attempt %d", attempt).isEqualTo(HttpStatus.BAD_GATEWAY);
         }
         Session session = registerBeyondTheSignupLimit("BrunaLast");
+        grantPremium(session);
 
         CircuitBreaker breaker = registry.circuitBreaker("anthropic");
         assertThat(breaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
@@ -92,6 +94,7 @@ class CircuitBreakerIT extends AbstractIntegrationTest {
     void aClosedBreakerLetsTheCallThrough() {
         Session session = register("Caio");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(MESSAGES))
                         .willReturn(aResponse()
@@ -123,6 +126,7 @@ class CircuitBreakerIT extends AbstractIntegrationTest {
 
         for (int attempt = 1; attempt <= 5; attempt++) {
             Session caller = registerBeyondTheSignupLimit("Dora" + attempt);
+            grantPremium(caller);
             assertThat(httpPost("/api/v1/meal-plan/generate", null, caller).getStatusCode())
                     .isEqualTo(HttpStatus.BAD_GATEWAY);
         }

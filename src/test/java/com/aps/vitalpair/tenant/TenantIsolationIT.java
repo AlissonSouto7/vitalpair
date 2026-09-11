@@ -83,6 +83,8 @@ class TenantIsolationIT extends AbstractIntegrationTest {
         logActivity(owner, 45);
         httpPost("/api/v1/progress/weight", Map.of("weightKg", 80), owner);
         httpPut("/api/v1/season/stake", Map.of("stake", label + " stake"), owner);
+        // The plan is behind the paid plan; the owner pays so the fixture can have one.
+        grantPremium(owner);
         generateMealPlan(owner, label);
 
         return new Pair(owner, joined, label);
@@ -112,7 +114,8 @@ class TenantIsolationIT extends AbstractIntegrationTest {
                 "/api/v1/notifications",
                 "/api/v1/me/notification-prefs",
                 "/api/v1/meal-plan",
-                "/api/v1/workout-plan/today");
+                "/api/v1/workout-plan/today",
+                "/api/v1/entitlements/me");
     }
 
     @ParameterizedTest(name = "{0} never leaks the other pair")

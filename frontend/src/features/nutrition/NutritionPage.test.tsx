@@ -10,10 +10,13 @@ import {
   favoriteFoodsFixture,
   foodLogsFixture,
   foodProductsFixture,
+  freeEntitlementFixture,
+  premiumEntitlementFixture,
 } from '@/test/fixtures'
 import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
+import type { Entitlement } from '@/types/entitlement'
 
 /** The keys under a namespace whose value is a string, which is what a test asserts on. */
 type LeafKeys<T> = { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
@@ -22,14 +25,34 @@ const loose = i18n.t as unknown as (key: string, vars?: Record<string, string>) 
 const n = (key: LeafKeys<TranslationBundle['nutrition']>, vars?: Record<string, string>) =>
   loose(`nutrition.${key}`, vars)
 
-/** The two reads the screen always makes. Tabs add their own on top. */
-function mount() {
+/**
+ * The reads the screen always makes: the day, and the entitlement the photo tab (the
+ * default tab) asks before offering the camera. Tabs add their own on top.
+ */
+function mount(entitlement: Entitlement = premiumEntitlementFixture) {
   server.use(
     http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
     http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
+    http.get(path('/entitlements/me'), () => ok(entitlement)),
   )
   return renderWithProviders(<NutritionPage />)
 }
+
+describe('NutritionPage photo tab and the paid plan', () => {
+  it('shows the paid-plan notice instead of the camera to a free account', async () => {
+    mount(freeEntitlementFixture)
+
+    expect(await screen.findByTestId('premium-callout')).toBeInTheDocument()
+    expect(screen.queryByText(n('photoDropTitle'))).not.toBeInTheDocument()
+  })
+
+  it('offers the camera to an account with access', async () => {
+    mount(premiumEntitlementFixture)
+
+    expect(await screen.findByText(n('photoDropTitle'))).toBeInTheDocument()
+    expect(screen.queryByTestId('premium-callout')).not.toBeInTheDocument()
+  })
+})
 
 describe('NutritionPage', () => {
   it('shows the day and its meals', async () => {
@@ -43,6 +66,7 @@ describe('NutritionPage', () => {
     server.use(
       http.get(path('/nutrition/logs'), () => fail(500, 'Erro interno')),
       http.get(path('/nutrition/summary'), () => fail(500, 'Erro interno')),
+      http.get(path('/entitlements/me'), () => ok(premiumEntitlementFixture)),
     )
     renderWithProviders(<NutritionPage />)
 
@@ -56,6 +80,7 @@ describe('NutritionPage', () => {
       http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
       http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
       http.delete(path('/nutrition/logs/:id'), () => fail(500, 'Erro interno')),
+      http.get(path('/entitlements/me'), () => ok(premiumEntitlementFixture)),
     )
     const { user } = renderWithProviders(<NutritionPage />)
 

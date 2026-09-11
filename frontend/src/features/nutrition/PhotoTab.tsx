@@ -1,13 +1,15 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { PremiumCallout } from '../premium/PremiumCallout'
+import { premiumQueries } from '../premium/queries'
 
 import { CameraIcon, PlusIcon } from './icons'
 
 import { analyzePhoto } from '@/api/nutrition'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import type { DetectedFood } from '@/types/nutrition'
-
 
 const round = (v: number) => Math.round(v * 10) / 10
 
@@ -48,6 +50,11 @@ export function PhotoTab({ onPick }: { onPick: (food: DetectedFood) => void }) {
       analyzePhoto(base64, mediaType),
   })
 
+  // The photo is the paid feature itself, so the whole tab is the notice when it is closed.
+  // Read only once this tab is opened: the other two tabs owe nothing to the plan.
+  const entitlement = useQuery(premiumQueries.entitlement())
+  const locked = entitlement.data ? !entitlement.data.aiAccess : false
+
   async function pickPhoto(file: File | undefined) {
     if (!file) return
     setError(null)
@@ -83,6 +90,8 @@ export function PhotoTab({ onPick }: { onPick: (food: DetectedFood) => void }) {
       setError(getApiErrorMessage(err, t('nutrition.photoAiError')))
     }
   }
+
+  if (locked) return <PremiumCallout />
 
   return (
     <div className="space-y-3">

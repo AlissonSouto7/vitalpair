@@ -49,8 +49,31 @@ public class User {
      */
     private final ZoneId timeZone;
 
+    /**
+     * What this person pays for. FREE unless set, so a User assembled anywhere without a plan
+     * is a free one rather than a null the database would refuse.
+     */
+    @Builder.Default
+    private final Plan plan = Plan.FREE;
+
+    /**
+     * When a PREMIUM plan stops, or null for one that does not: a lifetime plan, or the two
+     * test accounts. Ignored for FREE.
+     */
+    private final Instant planExpiresAt;
+
     private final Instant createdAt;
     private final Instant updatedAt;
+
+    /**
+     * Whether this person's own plan includes the paid features at the given moment.
+     *
+     * <p>Their own: a partner's plan is the entitlement feature's business, because it
+     * depends on the pair. An expiry exactly now counts as expired.
+     */
+    public boolean hasPremium(Instant now) {
+        return plan == Plan.PREMIUM && (planExpiresAt == null || planExpiresAt.isAfter(now));
+    }
 
     /**
      * The zone to measure this user's day in, never null.

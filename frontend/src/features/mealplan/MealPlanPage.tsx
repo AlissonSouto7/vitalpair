@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 
 import { generateMealPlan, swapMeal } from '../../api/aiplan'
 import type { MealPlan, PlanMeal, PlanMealType } from '../../types/aiplan'
+import { PremiumCallout } from '../premium/PremiumCallout'
+import { premiumQueries } from '../premium/queries'
 
 import { mealPlanQueries } from './queries'
 
@@ -30,6 +32,12 @@ export function MealPlanPage() {
   const planQuery = useQuery(mealPlanQueries.plan())
   const plan = planQuery.data ?? null
   const selected = picked ?? (plan ? todayIndex(plan) : 0)
+
+  // Whether generating and swapping are open to this person. Until the answer arrives, or
+  // if it never does, the screen behaves as if they were: a refused call then shows the
+  // server's reason, which is better than a screen that locks itself over a network error.
+  const entitlement = useQuery(premiumQueries.entitlement())
+  const locked = entitlement.data ? !entitlement.data.aiAccess : false
 
   const generateMutation = useMutation({
     mutationFn: generateMealPlan,
@@ -100,7 +108,7 @@ export function MealPlanPage() {
           <p className="mt-1 text-sm font-semibold text-muted">{t('mealplan.subtitle')}</p>
         </div>
 
-        {plan && (
+        {plan && !locked && (
           <button
             type="button"
             onClick={() => void generate()}
@@ -119,7 +127,10 @@ export function MealPlanPage() {
         </p>
       )}
 
-      {!plan ? (
+      {!plan && locked ? (
+        /* Sem plano pago: o que a feature é, e onde ela entra */
+        <PremiumCallout />
+      ) : !plan ? (
         /* Estado vazio: ainda sem cardápio */
         <section className="card flex flex-col items-center gap-4 py-12 text-center">
           <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-soft">
@@ -182,7 +193,9 @@ export function MealPlanPage() {
                 key={m.mealType}
                 meal={m}
                 swapping={swapping === m.mealType}
-                onSwap={() => void swap(m.mealType)}
+                // A plan generated while the person had access stays readable after they
+                // lose it (a pair that ended); only asking the model again is closed.
+                onSwap={locked ? null : () => void swap(m.mealType)}
               />
             ))}
           </div>
@@ -239,7 +252,8 @@ function MealCard({
 }: {
   meal: PlanMeal
   swapping: boolean
-  onSwap: () => void
+  /** Null when swapping is closed to this person: the button is then not rendered. */
+  onSwap: (() => void) | null
 }) {
   const { t } = useTranslation()
   return (
@@ -249,15 +263,17 @@ function MealCard({
           {t(`mealplan.mealLabel.${meal.mealType}`)}
         </span>
 
-        <button
-          type="button"
-          onClick={onSwap}
-          disabled={swapping}
-          className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-rival-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <SwapIcon className={`h-[13px] w-[13px] ${swapping ? 'animate-spin' : ''}`} />
-          {swapping ? t('mealplan.swapping') : t('mealplan.swap')}
-        </button>
+        {onSwap && (
+          <button
+            type="button"
+            onClick={onSwap}
+            disabled={swapping}
+            className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-rival-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <SwapIcon className={`h-[13px] w-[13px] ${swapping ? 'animate-spin' : ''}`} />
+            {swapping ? t('mealplan.swapping') : t('mealplan.swap')}
+          </button>
+        )}
       </div>
 
       <p className="text-[15px] font-extrabold text-ink">{meal.name}</p>

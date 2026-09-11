@@ -25,6 +25,7 @@ import com.aps.vitalpair.ai.domain.port.in.GetTodayWorkoutUseCase;
 import com.aps.vitalpair.ai.domain.port.in.ToggleWorkoutExerciseUseCase;
 import com.aps.vitalpair.ai.domain.port.out.WorkoutPlanGeneratorPort;
 import com.aps.vitalpair.ai.domain.port.out.WorkoutPlanRepositoryPort;
+import com.aps.vitalpair.entitlement.domain.port.in.AiEntitlementUseCase;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
@@ -46,16 +47,19 @@ public class WorkoutPlanService
     private final WorkoutPlanGeneratorPort generator;
     private final UserRepositoryPort userRepository;
     private final LogActivityUseCase logActivityUseCase;
+    private final AiEntitlementUseCase aiEntitlement;
 
     public WorkoutPlanService(
             WorkoutPlanRepositoryPort workoutPlanRepository,
             WorkoutPlanGeneratorPort generator,
             UserRepositoryPort userRepository,
-            LogActivityUseCase logActivityUseCase) {
+            LogActivityUseCase logActivityUseCase,
+            AiEntitlementUseCase aiEntitlement) {
         this.workoutPlanRepository = workoutPlanRepository;
         this.generator = generator;
         this.userRepository = userRepository;
         this.logActivityUseCase = logActivityUseCase;
+        this.aiEntitlement = aiEntitlement;
     }
 
     @Override
@@ -69,6 +73,9 @@ public class WorkoutPlanService
     @Override
     @Transactional
     public WorkoutToday generate(UUID userId, UUID tenantId) {
+        // First, for the same reason as the meal plan: the plan notice comes before any other
+        // refusal, and no paid call is made for a person who has not paid.
+        aiEntitlement.requireAiAccess(userId);
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         if (user.getGoal() == null) {
             throw new BusinessRuleException("Escolhe teu objetivo no perfil primeiro.");

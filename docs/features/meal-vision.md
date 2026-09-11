@@ -168,7 +168,8 @@ There is no query for this feature: it stores nothing.
 
 ## History
 
-| Date       | Change                                                               | Pull request                                              |
-| ---------- | -------------------------------------------------------------------- | --------------------------------------------------------- |
-| 2026-09-05 | M-2 (rate limit) and M-3 (breaker) (phases 5 and 8)                  | `fix/security-hardening`, `feat/observability-resilience` |
-| 2026-09-06 | M-1 fixed, first tests for the endpoint, document created (phase 13) | `docs/professional-docs`                                  |
+| Date       | Change                                                                                                                                                                                                                           | Pull request                                              |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| 2026-09-05 | M-2 (rate limit) and M-3 (breaker) (phases 5 and 8)                                                                                                                                                                              | `fix/security-hardening`, `feat/observability-resilience` |
+| 2026-09-06 | M-1 fixed, first tests for the endpoint, document created (phase 13)                                                                                                                                                             | `docs/professional-docs`                                  |
+| 2026-09-11 | The photo is behind the paid plan: `AnalyzeMealPhotoUseCase.Command` carries the caller's id and `MealVisionService.analyze` asks `AiEntitlementUseCase` before decoding the image; 402 without it. See [premium.md](premium.md) | `feat/ai-paid-plan`                                       |
