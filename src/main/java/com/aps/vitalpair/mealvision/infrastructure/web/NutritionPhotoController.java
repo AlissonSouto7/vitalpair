@@ -42,7 +42,7 @@ public class NutritionPhotoController {
     public ResponseEntity<ApiResponse<PhotoAnalysisResponse>> analyzePhoto(
             @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody PhotoAnalysisRequest request) {
         MealPhotoAnalysis analysis = analyzeMealPhotoUseCase.analyze(
-                new AnalyzeMealPhotoUseCase.Command(request.imageBase64(), request.mediaType()));
+                new AnalyzeMealPhotoUseCase.Command(principal.userId(), request.imageBase64(), request.mediaType()));
         return ResponseEntity.ok(ApiResponse.ok(PhotoAnalysisResponse.from(analysis)));
     }
 }

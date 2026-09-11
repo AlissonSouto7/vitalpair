@@ -51,6 +51,7 @@ Every backend feature package has a document. Counts measured on 2026-09-06.
 | `user`         | 19      | [user-profile.md](user-profile.md)                             |
 | `dashboard`    | 9       | [dashboard.md](dashboard.md)                                   |
 | `tdee`         | 5       | [user-profile.md](user-profile.md), with the feature it serves |
+| `entitlement`  | 6       | [premium.md](premium.md)                                       |
 | `admin`        | 1       | [admin.md](admin.md)                                           |
 
 `config`, `shared` and `tenant` are infrastructure packages, not features. The

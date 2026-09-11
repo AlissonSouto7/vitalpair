@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 
 import { completeWorkout, generateWorkoutPlan, toggleExercise } from '../../api/aiplan'
 import type { WorkoutToday } from '../../types/aiplan'
+import { PremiumCallout } from '../premium/PremiumCallout'
+import { premiumQueries } from '../premium/queries'
 
 import { IconCheck, IconFlame, IconRest, IconSpark } from './parts'
 import { workoutPlanQueries } from './queries'
@@ -23,6 +25,11 @@ export function WorkoutPlanPage() {
   const key = workoutPlanQueries.today().queryKey
   const todayQuery = useQuery(workoutPlanQueries.today())
   const today = todayQuery.data ?? null
+
+  // Generating is the paid part; ticking exercises off and finishing a workout that exists
+  // are not. Same fallback as the meal plan: unknown means open, and the server decides.
+  const entitlement = useQuery(premiumQueries.entitlement())
+  const locked = entitlement.data ? !entitlement.data.aiAccess : false
 
   /** Writes the server's answer straight into the cache: it is the whole screen's state. */
   function replace(next: WorkoutToday | null) {
@@ -114,7 +121,7 @@ export function WorkoutPlanPage() {
           )}
         </div>
 
-        {today && (
+        {today && !locked && (
           <button
             type="button"
             onClick={() => void generate()}
@@ -133,7 +140,10 @@ export function WorkoutPlanPage() {
         </p>
       )}
 
-      {!today ? (
+      {!today && locked ? (
+        /* Sem plano pago: o que a feature é, e onde ela entra */
+        <PremiumCallout />
+      ) : !today ? (
         /* Sem plano: estado vazio + gerar */
         <section className="card flex flex-col items-center gap-4 py-12 text-center">
           <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-soft">

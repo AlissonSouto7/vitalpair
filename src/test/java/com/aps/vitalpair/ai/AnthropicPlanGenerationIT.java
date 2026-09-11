@@ -52,6 +52,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void generatesAndStoresTheWeeklyMealPlan() {
         Session session = register("Nina");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         stubJson("anthropic/meal-week.json");
 
         ResponseEntity<String> response = httpPost(MEAL_PLAN + "/generate", null, session);
@@ -87,6 +88,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void generatingAgainReplacesTheWeekInsteadOfDuplicatingIt() {
         Session session = register("Otto");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         stubJson("anthropic/meal-week.json");
 
         httpPost(MEAL_PLAN + "/generate", null, session);
@@ -110,6 +112,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void swappingAMealKeepsTheRestOfTheWeekUntouched() {
         Session session = register("Paula");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         stubJson("anthropic/meal-week.json");
         httpPost(MEAL_PLAN + "/generate", null, session);
         JsonNode before = data(httpGet(MEAL_PLAN, session));
@@ -135,6 +138,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void generatesTheWeeklyWorkoutAndShowsToday() {
         Session session = register("Quela");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         stubJson("anthropic/workout-week.json");
 
         ResponseEntity<String> response = httpPost(WORKOUT_PLAN + "/generate", null, session);
@@ -159,6 +163,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void anOverloadedApiBecomesA502NotA500() {
         Session session = register("Rui");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(MESSAGES))
                         .willReturn(aResponse()
@@ -180,6 +185,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void aRefusalBecomesA502WithItsOwnMessage() {
         Session session = register("Sara");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(MESSAGES))
                         .willReturn(aResponse()
@@ -198,6 +204,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void aResponseThatNeverArrivesTimesOutAsA502() {
         Session session = register("Tina");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         // The read timeout is 3s under the test profile, against 60s in production.
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(MESSAGES))
@@ -221,6 +228,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void aDroppedConnectionBecomesA502() {
         Session session = register("Ugo");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(MESSAGES))
                         .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
@@ -234,6 +242,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void malformedJsonFromTheModelBecomesA502() {
         Session session = register("Vera");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         WireMockSupport.server()
                 .stubFor(
                         post(urlPathEqualTo(MESSAGES))
@@ -254,6 +263,9 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     @Test
     void anIncompleteProfileIsRejectedBeforeSpendingMoney() {
         Session session = register("Wanda");
+        // Past the paid-plan door on purpose: the door answers first, and this test is about
+        // the refusal that comes right after it.
+        grantPremium(session);
         stubJson("anthropic/meal-week.json");
 
         ResponseEntity<String> response = httpPost(MEAL_PLAN + "/generate", null, session);
@@ -270,6 +282,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void swappingWithoutAPlanIsA404AndSwappingAnInvalidDayIsA400() {
         Session session = register("Xico");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
 
         ResponseEntity<String> noPlan =
                 httpPost(MEAL_PLAN + "/swap", Map.of("dayIndex", 0, "mealType", "LUNCH"), session);
@@ -295,6 +308,7 @@ class AnthropicPlanGenerationIT extends AbstractIntegrationTest {
     void aGeneratedPlanIsStoredWithItsTenant() {
         Session session = register("Yuri");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         stubJson("anthropic/meal-week.json");
         httpPost(MEAL_PLAN + "/generate", null, session);
         stubJson("anthropic/workout-week.json");

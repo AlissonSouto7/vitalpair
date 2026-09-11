@@ -2,6 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { premiumQueries } from '../premium/queries'
+
 import { InvitePanel } from './InvitePanel'
 import { PairFormed } from './PairFormed'
 import { pairQueries } from './queries'
@@ -29,6 +31,9 @@ export function PairPage() {
    */
   function setPair(next: Pair) {
     queryClient.setQueryData(pairQueries.current().queryKey, next)
+    // A pair forming or ending changes who borrows whose plan, so the AI screens have to
+    // ask again rather than trust an answer given before this.
+    void queryClient.invalidateQueries({ queryKey: premiumQueries.entitlement().queryKey })
   }
 
   async function changeType(type: RelationshipType) {

@@ -62,6 +62,9 @@ class RateLimitIT extends AbstractIntegrationTest {
         // counts before that, which is the point: a caller cannot burn the budget for free.
         Session ana = register("Ana");
         Session beto = register("Beto");
+        // Both past the paid-plan door, so the limiter is what answers and not the plan.
+        grantPremium(ana);
+        grantPremium(beto);
 
         for (int call = 1; call <= 5; call++) {
             ResponseEntity<String> response = httpPost(GENERATE, null, ana);
