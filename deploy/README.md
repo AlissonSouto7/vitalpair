@@ -43,6 +43,11 @@ internet → :443 edge nginx ─┬─ staging.<domain>  ─┬─ /api/       �
 # 0. Docker, and the repository. The scripts run from it.
 git clone https://github.com/AlissonSouto7/vitalpair.git && cd vitalpair
 
+# 0b. Somewhere to put the dumps. `deploy.sh` backs up before touching anything and
+#     runs as an ordinary user, who cannot create a directory under /var/backups.
+#     Without this the first deploy stops before it starts anything.
+sudo mkdir -p /var/backups/vitalpair && sudo chown "$(id -un):$(id -gn)" /var/backups/vitalpair
+
 # 1. Who may open the staging extras (Swagger, Grafana). Before the edge starts:
 #    the file is mounted into it, and a file that does not exist yet would be
 #    mounted as an empty directory.
@@ -91,6 +96,42 @@ Every base image has to exist for `arm64`, and one did not: Temurin's Alpine JRE
 is amd64 only, which the first real build found. CI now asks the registry about
 every `FROM` line, so the next such mistake fails the pull request rather than
 the server.
+
+## Sending e-mail
+
+The application sends two e-mails, both part of authentication: the password
+reset link and the address verification link. With `MAIL_ENABLED=false` neither
+is sent and the flow cannot be completed, which is the right default for a stack
+that has no provider yet.
+
+To turn it on, fill in five variables in the environment file and restart the
+backend:
+
+```
+MAIL_ENABLED=true
+MAIL_FROM=VitalPair <contato@your.domain>
+SPRING_MAIL_HOST=smtp-relay.brevo.com
+SPRING_MAIL_PORT=587
+SPRING_MAIL_USERNAME=<the provider's login>
+SPRING_MAIL_PASSWORD=<the provider's key, never in git>
+```
+
+The link inside the e-mail is built from `PUBLIC_URL`, which the compose file
+passes as `FRONTEND_URL`. A stack whose `PUBLIC_URL` is wrong sends links that
+lead nowhere, and nothing in the logs says so.
+
+Two things the provider needs before it will deliver anything:
+
+- **The domain has to be authenticated**, by DKIM, DMARC, or both. Mail sent as
+  a domain that has not proven it owns the sender lands in spam when it is not
+  refused outright.
+- **Never add a second SPF record.** Two of them on one domain invalidate each
+  other and break sending and receiving together. If a provider asks for an SPF
+  include and one already exists, merge them into the single existing line.
+
+Verify it by asking for a password reset and reading the log: the adapter writes
+the address it sent to and never the link, because the link carries a token that
+takes over the account.
 
 ## Deploying a new version
 

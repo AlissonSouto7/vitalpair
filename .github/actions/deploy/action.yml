@@ -1,0 +1,114 @@
+name: Deploy over SSH
+description: >
+  Puts a pair of images on the server and proves the site still works. One action for both
+  environments, so production runs the path staging has already exercised.
+
+inputs:
+  environment:
+    description: staging or production
+    required: true
+  backend-image:
+    description: Fully qualified backend image, including its tag
+    required: true
+  frontend-image:
+    description: Fully qualified frontend image, including its tag
+    required: true
+  ssh-key:
+    description: Private key of the deploy-only account
+    required: true
+  ssh-host:
+    description: Server address
+    required: true
+  ssh-user:
+    description: Server user
+    required: true
+  ssh-known-hosts:
+    description: >
+      The server's public host key. Without it the client either refuses to connect or,
+      worse, accepts whatever answers, which is the whole of what host verification prevents.
+    required: true
+  registry-token:
+    description: >
+      A token the server uses to pull the images, for the length of this deploy only. The
+      run's own GITHUB_TOKEN, which expires when the run ends, so nothing long-lived has to
+      be stored on the machine for a registry that only the pipeline writes to.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up the SSH client
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh-key }}
+        KNOWN_HOSTS: ${{ inputs.ssh-known-hosts }}
+      run: |
+        mkdir -p ~/.ssh && chmod 700 ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy.key
+        chmod 600 ~/.ssh/deploy.key
+        printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+        chmod 600 ~/.ssh/known_hosts
+
+    # The server pulls from the registry rather than building, which is what makes this a
+    # deploy of a known artefact instead of a build that happens to run on a server.
+    - name: Deploy
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        BACKEND_IMAGE: ${{ inputs.backend-image }}
+        FRONTEND_IMAGE: ${{ inputs.frontend-image }}
+        SSH_HOST: ${{ inputs.ssh-host }}
+        SSH_USER: ${{ inputs.ssh-user }}
+        REGISTRY_TOKEN: ${{ inputs.registry-token }}
+        REGISTRY_USER: ${{ github.actor }}
+      run: |
+        set -euo pipefail
+        # The token goes over the pipe rather than the command line: an argument is visible
+        # to anyone running ps on the server for as long as the command lasts.
+        printf '%s' "$REGISTRY_TOKEN" | ssh -i ~/.ssh/deploy.key -o BatchMode=yes "${SSH_USER}@${SSH_HOST}" \
+          "set -euo pipefail
+           docker login ghcr.io -u '${REGISTRY_USER}' --password-stdin > /dev/null
+           trap 'docker logout ghcr.io > /dev/null 2>&1 || true' EXIT
+           cd ~/vitalpair
+           git fetch --quiet origin
+           # The scripts that run the deploy come from the commit being deployed, so a
+           # change to deploy.sh takes effect with the release that contains it. Plain
+           # checkout, not --force: the environment files are gitignored and so untouched,
+           # and anything else modified by hand is a surprise worth stopping for.
+           git checkout --quiet '${GITHUB_SHA}'
+           echo 'scripts at' \$(git rev-parse --short HEAD)
+           deploy/scripts/deploy.sh '${ENVIRONMENT}' '${BACKEND_IMAGE}' '${FRONTEND_IMAGE}'"
+
+    # deploy.sh already rolls back on a failed smoke test; this records what happened in a
+    # place a person reads without opening the run's logs.
+    - name: Report
+      if: always()
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        BACKEND_IMAGE: ${{ inputs.backend-image }}
+        FRONTEND_IMAGE: ${{ inputs.frontend-image }}
+        SSH_HOST: ${{ inputs.ssh-host }}
+        SSH_USER: ${{ inputs.ssh-user }}
+      run: |
+        {
+          echo "### ${ENVIRONMENT}"
+          echo
+          echo "| | |"
+          echo "|---|---|"
+          echo "| commit | \`${GITHUB_SHA:0:7}\` |"
+          echo "| backend | \`${BACKEND_IMAGE}\` |"
+          echo "| frontend | \`${FRONTEND_IMAGE}\` |"
+          echo
+          echo "What the server reports it is running:"
+          echo
+          echo '```'
+          ssh -i ~/.ssh/deploy.key -o BatchMode=yes "${SSH_USER}@${SSH_HOST}" \
+            "cat ~/vitalpair/deploy/env/.deployed-${ENVIRONMENT} 2>/dev/null || echo 'nothing recorded'" || true
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Remove the key
+      if: always()
+      shell: bash
+      run: rm -f ~/.ssh/deploy.key
