@@ -11,16 +11,9 @@
       href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <!-- anti-flash: aplica o tema antes do React montar -->
-    <script>
-      (function () {
-        try {
-          var s = localStorage.getItem('vitalpair-theme');
-          var dark = s ? s === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          document.documentElement.classList.toggle('dark', dark);
-        } catch (e) {}
-      })();
-    </script>
+    <!-- anti-flash: applies the theme before React mounts. A file, not inline, because the
+         deployed site's content security policy allows same-origin scripts only. -->
+    <script src="/theme-init.js"></script>
     <script src="https://accounts.google.com/gsi/client" async></script>
   </head>
   <body>
