@@ -19,6 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.Plan;
 import com.aps.vitalpair.user.domain.model.Sex;
 
 import lombok.AllArgsConstructor;
@@ -56,6 +57,13 @@ public class UserJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Plan plan;
+
+    @Column(name = "plan_expires_at")
+    private Instant planExpiresAt;
 
     @Column(nullable = false)
     private String name;

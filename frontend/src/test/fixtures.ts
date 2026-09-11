@@ -1,4 +1,5 @@
 import type { ActivityLog, ActivitySummary } from '@/types/activity'
+import type { Entitlement } from '@/types/entitlement'
 import type { DailySummary, FavoriteFood, FoodLog, FoodProduct } from '@/types/nutrition'
 import type { Pair } from '@/types/pair'
 import type { Tdee, UserProfile } from '@/types/profile'
@@ -152,3 +153,9 @@ export const activitySummaryFixture: ActivitySummary = {
 }
 
 export const activityLogsFixture: ActivityLog[] = []
+
+/** A free account, which is every account until someone pays: the AI features are closed. */
+export const freeEntitlementFixture: Entitlement = { plan: 'FREE', aiAccess: false }
+
+/** An account with the AI features open, through its own plan or a partner's. */
+export const premiumEntitlementFixture: Entitlement = { plan: 'PREMIUM', aiAccess: true }

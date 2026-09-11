@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -51,6 +52,17 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String PASSWORD = "Test@12345";
 
+    /**
+     * Gives the account a lifetime PREMIUM plan, straight in the database.
+     *
+     * <p>There is no endpoint for it on purpose: nobody has paid yet, and the day billing
+     * exists it will write this column, not a test helper. Every test that reaches an AI
+     * feature needs it, because a new account is FREE and the door is closed to FREE.
+     */
+    protected void grantPremium(Session session) {
+        jdbcTemplate.update("update users set plan = 'PREMIUM', plan_expires_at = null where id = ?", session.userId());
+    }
+
     @Autowired
     protected TestRestTemplate http;
 
@@ -59,6 +71,9 @@ public abstract class AbstractIntegrationTest {
 
     @Autowired
     protected StringRedisTemplate redis;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @DynamicPropertySource
     static void externalSystems(DynamicPropertyRegistry registry) {

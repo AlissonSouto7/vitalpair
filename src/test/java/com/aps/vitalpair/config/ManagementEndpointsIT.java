@@ -73,6 +73,7 @@ class ManagementEndpointsIT extends AbstractIntegrationTest {
     void aiCallsAreCountedAndTimed() {
         Session session = register("Nara");
         completeProfile(session, Goal.GAIN_MUSCLE);
+        grantPremium(session);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(WireMockSupport.ANTHROPIC_PREFIX + "/v1/messages"))
                         .willReturn(aResponse()

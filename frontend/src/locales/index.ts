@@ -18,6 +18,7 @@ import { notifications } from './notifications'
 import { nutrition } from './nutrition'
 import { onboarding } from './onboarding'
 import { pair } from './pair'
+import { premium } from './premium'
 import { profile } from './profile'
 import { progress } from './progress'
 import { season } from './season'
@@ -62,6 +63,7 @@ const modules = {
   profile,
   settings,
   pair,
+  premium,
 }
 
 /**

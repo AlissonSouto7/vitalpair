@@ -20,6 +20,7 @@ import com.aps.vitalpair.ai.domain.port.in.GetMealPlanUseCase;
 import com.aps.vitalpair.ai.domain.port.in.SwapMealUseCase;
 import com.aps.vitalpair.ai.domain.port.out.MealPlanGeneratorPort;
 import com.aps.vitalpair.ai.domain.port.out.MealPlanRepositoryPort;
+import com.aps.vitalpair.entitlement.domain.port.in.AiEntitlementUseCase;
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
@@ -38,14 +39,17 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
     private final MealPlanRepositoryPort mealPlanRepository;
     private final MealPlanGeneratorPort generator;
     private final UserRepositoryPort userRepository;
+    private final AiEntitlementUseCase aiEntitlement;
 
     public MealPlanService(
             MealPlanRepositoryPort mealPlanRepository,
             MealPlanGeneratorPort generator,
-            UserRepositoryPort userRepository) {
+            UserRepositoryPort userRepository,
+            AiEntitlementUseCase aiEntitlement) {
         this.mealPlanRepository = mealPlanRepository;
         this.generator = generator;
         this.userRepository = userRepository;
+        this.aiEntitlement = aiEntitlement;
     }
 
     @Override
@@ -59,6 +63,9 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
     @Override
     @Transactional
     public MealPlanView generate(UUID userId, UUID tenantId) {
+        // Before anything else: a person without the plan hears about the plan, not about
+        // their profile, and no paid call is made on their behalf.
+        aiEntitlement.requireAiAccess(userId);
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
         if (user.getDailyCalorieTarget() == null) {
             throw new BusinessRuleException("Termina teu perfil primeiro que eu monto o cardápio na tua meta.");
@@ -80,6 +87,7 @@ public class MealPlanService implements GetMealPlanUseCase, GenerateMealPlanUseC
     @Override
     @Transactional
     public MealPlanView swap(UUID userId, UUID tenantId, SwapMealCommand command) {
+        aiEntitlement.requireAiAccess(userId);
         LocalDate weekStart = currentWeekStart();
         MealPlan plan = mealPlanRepository
                 .findByUserAndWeek(userId, tenantId, weekStart)

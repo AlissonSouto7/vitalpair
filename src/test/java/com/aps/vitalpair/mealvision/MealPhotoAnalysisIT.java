@@ -41,6 +41,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void analysingAPhotoReturnsTheFoodsTheModelIdentified() {
         Session user = register("Photographer");
+        grantPremium(user);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(PHOTO_PATH))
                         .willReturn(aResponse()
@@ -80,6 +81,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void anOversizedPhotoIsRejectedWithoutSpendingAnything() {
         Session user = register("Photographer");
+        grantPremium(user);
         String tooBig = "A".repeat(PhotoAnalysisRequest.MAX_BASE64_LENGTH + 1);
 
         ResponseEntity<String> response =
@@ -95,6 +97,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void anImageJustUnderTheLimitIsAccepted() {
         Session user = register("Photographer");
+        grantPremium(user);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(PHOTO_PATH))
                         .willReturn(aResponse()
@@ -114,6 +117,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void anUnsupportedImageTypeIsRejectedWithoutSpendingAnything() {
         Session user = register("Photographer");
+        grantPremium(user);
 
         ResponseEntity<String> response =
                 httpPost("/api/v1/nutrition/photo", Map.of("imageBase64", TINY_IMAGE, "mediaType", "image/gif"), user);
@@ -126,6 +130,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void aRefusalBecomesA502WithItsOwnMessage() {
         Session user = register("Photographer");
+        grantPremium(user);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(PHOTO_PATH))
                         .willReturn(aResponse()
@@ -143,6 +148,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void anOverloadedApiBecomesA502NotA500() {
         Session user = register("Photographer");
+        grantPremium(user);
         WireMockSupport.server()
                 .stubFor(post(urlPathEqualTo(PHOTO_PATH)).willReturn(aResponse().withStatus(529)));
 
@@ -156,6 +162,7 @@ class MealPhotoAnalysisIT extends AbstractIntegrationTest {
     @Test
     void aPlateWithNoFoodIsAnEmptyListNotAnError() {
         Session user = register("Photographer");
+        grantPremium(user);
         WireMockSupport.server()
                 .stubFor(
                         post(urlPathEqualTo(PHOTO_PATH))
