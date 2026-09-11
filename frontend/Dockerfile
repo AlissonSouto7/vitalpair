@@ -9,6 +9,21 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+# Vite bakes VITE_* variables into the bundle at build time, so anything the browser needs
+# has to be here rather than in the container's environment: setting it at run time changes
+# nothing, because the JavaScript was already written.
+#
+# This is the Google sign-in client id, which is public by design (it travels in the page
+# to every visitor) and is what the Google console ties to the allowed origins. Empty is a
+# valid value: the button then does not render at all, which is the correct behaviour for
+# an environment where Google sign-in is not set up.
+#
+# The API URL is deliberately not here. It is a relative path resolved against whatever
+# origin serves the page, so one image is correct for staging and production alike.
+ARG VITE_GOOGLE_CLIENT_ID=""
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
 RUN npm run build
 
 # ---- runtime ----
