@@ -1,0 +1,136 @@
+name: CD
+
+# What reaches a server, and when.
+#
+#   push to main  -> tests, images, staging
+#   push of a tag -> tests, images, production, but only after a person approves it
+#
+# The two paths build the same way and deploy with the same script, so production is not a
+# path that runs for the first time on the day it matters.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: read
+  packages: write
+
+# Deploys are not cancelled halfway. A run interrupted between "the containers are down" and
+# "the new ones are up" leaves an environment in neither state, so a second push waits for
+# the first to finish instead of racing it.
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # The same checks a pull request gets. Reused rather than repeated: a copy would drift,
+  # and the first thing to drift is always the one that would have caught the bug.
+  ci:
+    name: Tests
+    uses: ./.github/workflows/ci.yml
+
+  # Built on arm64 because the server is arm64 (Oracle's A1 shape). These runners are free
+  # for public repositories and native, which matters: the same build under QEMU emulation
+  # takes most of an hour. Until this existed the images were built on the server itself,
+  # which made every deploy depend on the checkout that happened to be there.
+  images:
+    name: Build images
+    needs: ci
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    outputs:
+      backend: ${{ steps.tags.outputs.backend }}
+      frontend: ${{ steps.tags.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Log in to the registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The commit, not the branch. A tag deploy and the main deploy that preceded it are
+      # the same commit and so the same image: production runs the bytes staging proved,
+      # not a rebuild of the same source that could differ.
+      - name: Work out the tags
+        id: tags
+        run: |
+          sha="$(git rev-parse --short HEAD)"
+          repo="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "backend=${repo}-backend:${sha}" >> "$GITHUB_OUTPUT"
+          echo "frontend=${repo}-frontend:${sha}" >> "$GITHUB_OUTPUT"
+          echo "Building ${repo}-{backend,frontend}:${sha}"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Backend
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.tags.outputs.backend }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # The client id is baked in at build time, because a static bundle has no environment
+      # to read at runtime. It is not a secret: it is in every page the browser loads.
+      - name: Frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          build-args: |
+            VITE_GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}
+          tags: ${{ steps.tags.outputs.frontend }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  staging:
+    name: Deploy staging
+    needs: images
+    if: startsWith(github.ref, 'refs/heads/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: staging
+      url: https://staging.vitalpair.app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/deploy
+        with:
+          environment: staging
+          backend-image: ${{ needs.images.outputs.backend }}
+          frontend-image: ${{ needs.images.outputs.frontend }}
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-user: ${{ secrets.SSH_USER }}
+          ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Guarded by the environment's required reviewer, which GitHub enforces before the job
+  # starts. Everything above has already run by then, so the approval is a decision about
+  # a build that is tested and waiting, not a promise about one that might work.
+  production:
+    name: Deploy production
+    needs: images
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://app.vitalpair.app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/deploy
+        with:
+          environment: production
+          backend-image: ${{ needs.images.outputs.backend }}
+          frontend-image: ${{ needs.images.outputs.frontend }}
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ secrets.SSH_HOST }}
+          ssh-user: ${{ secrets.SSH_USER }}
+          ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
