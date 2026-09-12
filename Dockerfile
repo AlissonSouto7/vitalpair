@@ -1,5 +1,5 @@
 # ---- build ----
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3-eclipse-temurin-26 AS build
 WORKDIR /app
 
 # The pom alone first: dependencies change far less often than source, so this layer is
