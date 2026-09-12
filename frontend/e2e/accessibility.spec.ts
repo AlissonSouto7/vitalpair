@@ -36,11 +36,9 @@ async function waitForForm(page: import('@playwright/test').Page) {
   // panel, and a hidden control still needs its label. What matters is that the route's
   // code has arrived, so the placeholder is gone and the DOM is the real page.
   //
-  // Thirty seconds rather than the default ten. This test walks five routes in one case,
-  // each of them a separate chunk fetched on arrival, and the default was enough on a
-  // developer machine (the whole file runs in eleven seconds) while failing on a shared
-  // CI runner that had just built the bundle and started a JVM. The wait is not the thing
-  // being measured here, so it should not be the thing that fails.
+  // Thirty seconds rather than the default ten: five routes in one case, each a separate
+  // chunk fetched on arrival, on a runner that has just built the bundle and started a JVM.
+  // The wait is not what this test measures, so it should not be what fails it.
   await expect(page.locator('input, select, textarea').first()).toBeAttached({ timeout: 30_000 })
 }
 
@@ -79,6 +77,17 @@ test.describe('form controls are labelled', () => {
 
     for (const route of ['/profile', '/activity', '/nutrition', '/progress', '/pair']) {
       await page.goto(route)
+
+      // The nutrition screen opens on the photo tab, and a free account sees the paid-plan
+      // notice there instead of the camera, so the route genuinely has no form control until
+      // another tab is open. The search tab is the one every account can use, and it is the
+      // one with the input worth checking. The account this suite creates is free, like any
+      // sign-up, which is how this was found: the walk waited thirty seconds on a screen
+      // that was rendering correctly.
+      if (route === '/nutrition') {
+        await page.getByRole('button', { name: /^buscar$/i }).click()
+      }
+
       await waitForForm(page)
       expect(await unlabelledControls(page), `${route} has controls without a label`).toEqual([])
     }

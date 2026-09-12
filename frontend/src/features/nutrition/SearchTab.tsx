@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-
 import { PlusIcon, SearchIcon } from './icons'
 import { nutritionQueries } from './queries'
 
@@ -43,12 +42,19 @@ export function SearchTab({
     <div className="space-y-3">
       <div className="flex items-center gap-2.5 rounded-xl border border-brand bg-canvas px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-brand/30">
         <SearchIcon />
+        {/*
+          type="search" and an aria-label, not a placeholder alone: a placeholder disappears
+          the moment somebody types, and a screen reader announces a control with no label as
+          an unnamed edit box. The visible design is unchanged; what changes is that the field
+          says what it is for.
+        */}
         <input
-          type="text"
+          type="search"
+          aria-label={t('nutrition.searchInputPlaceholder')}
           placeholder={t('nutrition.searchInputPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="min-w-0 flex-1 border-none bg-transparent font-bold text-ink placeholder-faint outline-none"
+          className="min-w-0 flex-1 border-none bg-transparent font-bold text-ink placeholder-faint outline-none [&::-webkit-search-cancel-button]:appearance-none"
         />
       </div>
 
