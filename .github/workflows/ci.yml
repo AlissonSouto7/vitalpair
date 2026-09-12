@@ -293,6 +293,10 @@ jobs:
           MAIL_ENABLED: 'true'
           SPRING_MAIL_HOST: localhost
           SPRING_MAIL_PORT: '1025'
+          # Mailpit asks for neither, and both are on by default because a real provider
+          # requires them. Left on, the connection never completes and no message arrives.
+          SPRING_MAIL_AUTH: 'false'
+          SPRING_MAIL_STARTTLS: 'false'
           # The suite runs serially from one address and renews the session on every screen
           # it opens, so it competes with itself for allowances sized for one person. Refresh
           # is the one it exhausts first, at roughly one per page load. Raised only here:
