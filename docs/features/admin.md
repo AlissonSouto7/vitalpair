@@ -1,9 +1,5 @@
 # Feature: admin
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -120,7 +116,7 @@ UPDATE users SET role = 'ADMIN' WHERE email = 'you@example.com';
 
 ## History
 
-| Date       | Change                                             | Pull request             |
-| ---------- | -------------------------------------------------- | ------------------------ |
-| 2026-09-05 | Roles, method security and this endpoint (phase 6) | `feat/auth-hardening`    |
-| 2026-09-06 | Document created (phase 13)                        | `docs/professional-docs` |
+| Date       | Change                                   | Pull request          |
+| ---------- | ---------------------------------------- | --------------------- |
+| 2026-09-05 | Roles, method security and this endpoint | `feat/auth-hardening` |
+| 2026-09-06 | Document created                         | #32                   |

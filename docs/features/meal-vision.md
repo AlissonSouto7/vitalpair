@@ -1,9 +1,5 @@
 # Feature: meal vision (photo analysis)
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -110,7 +106,7 @@ None. The feature owns no table and no migration.
 
 ## Tests
 
-Until phase 13 this endpoint had **no test of any kind**, which mattered more than
+This endpoint once had **no test of any kind**, which mattered more than
 the count suggests: it is a paid path, it takes a large body from the client, and it
 goes out through a Feign proxy of the same shape that once failed at runtime with an
 `IllegalAccessError` no unit test could see.
@@ -171,5 +167,5 @@ There is no query for this feature: it stores nothing.
 | Date       | Change                                                                                                                                                                                                                           | Pull request                                              |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | 2026-09-05 | M-2 (rate limit) and M-3 (breaker) (phases 5 and 8)                                                                                                                                                                              | `fix/security-hardening`, `feat/observability-resilience` |
-| 2026-09-06 | M-1 fixed, first tests for the endpoint, document created (phase 13)                                                                                                                                                             | `docs/professional-docs`                                  |
+| 2026-09-06 | M-1 fixed, first tests for the endpoint, document created                                                                                                                                                                        | #32                                                       |
 | 2026-09-11 | The photo is behind the paid plan: `AnalyzeMealPhotoUseCase.Command` carries the caller's id and `MealVisionService.analyze` asks `AiEntitlementUseCase` before decoding the image; 402 without it. See [premium.md](premium.md) | `feat/ai-paid-plan`                                       |

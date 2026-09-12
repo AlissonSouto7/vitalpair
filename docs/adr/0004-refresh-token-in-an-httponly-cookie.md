@@ -10,7 +10,7 @@
 
 Authentication issues two tokens: a signed JWT access token valid for fifteen
 minutes and an opaque refresh token valid for thirty days, stored in Redis.
-Until phase 6 both travelled in the login response body and the frontend kept
+Both used to travel in the login response body and the frontend kept
 both in `localStorage`.
 
 Anything in `localStorage` is readable by any script running on the page. A

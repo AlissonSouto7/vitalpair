@@ -9,7 +9,7 @@
 ## Context
 
 A pair is a tenant. `pairs.id` is the `tenant_id` carried by every business
-table, and two pairs must never see each other's data. Before phase 6 the AI
+table, and two pairs must never see each other's data. The AI once
 plan tables had no `tenant_id` at all, and a `package-info.java` claimed that
 "the persistence layer applies the tenant filter from `TenantContext`", which
 was false: no such filter existed. Isolation rested on every query remembering
@@ -67,7 +67,7 @@ no benefit at this scale.
 
 Every query is readable on its own: what it filters by is in the method name.
 The isolation guarantee is a test anyone can run and extend, and it has already
-paid for itself: phase 7 found the AI plans scoped by user alone, and the first
+paid for itself: a security pass found the AI plans scoped by user alone, and the first
 version of the test passed while the filter was sabotaged, because both pairs
 had identical fixture data. The test was made distinguishable and the sabotage
 then failed.
@@ -99,4 +99,4 @@ isolation is not automatic.
 
 - `src/test/java/com/aps/vitalpair/tenant/TenantIsolationIT.java`
 - `docs/features/pair.md`, `docs/features/testing.md`
-- Phase 7 pull request.
+- An earlier pass pull request.

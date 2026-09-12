@@ -9,7 +9,7 @@
 ## Context
 
 ADR 0001 states the dependency rule `infrastructure -> application -> domain`
-and that features do not import each other's internals. Until phase 3 these
+and that features do not import each other's internals. Earlier these
 were sentences in a document. When the rules became ArchUnit tests, the code
 did not fully satisfy them, and it still does not:
 
@@ -62,7 +62,7 @@ tests exist to end.
 
 ### Option C: keep the rules as documentation only
 
-Rejected. It is what existed before phase 3, and the "zero violations" the
+Rejected. It is what existed earlier, and the "zero violations" the
 original audit reported was wrong on both counts.
 
 ### Option D: exclude the violating packages from the rule
@@ -74,7 +74,7 @@ Rejected. An exclusion is a freeze with no count, no date and no path back.
 ### What this makes easier
 
 The build says exactly what the architecture is, including its debt. The rule
-has already caught real regressions: a cycle introduced in phase 6 (a role type
+has already caught real regressions: a cycle once introduced (a role type
 placed in `user`, creating `user <-> shared`) failed the build and was moved;
 a probe violation planted on 2026-09-07 was caught as the 29th.
 

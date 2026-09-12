@@ -43,7 +43,7 @@ COPY --from=build --chown=app:app /app/extracted/app.jar ./app.jar
 
 USER app
 
-# The API and the management port from phase 8. Only the first is ever mapped by the proxy.
+# The API and the management port. Only the first is ever mapped by the proxy.
 EXPOSE 8080 9090
 
 # Asks the application itself whether it is ready, not merely whether the process exists.

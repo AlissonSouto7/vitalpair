@@ -76,8 +76,8 @@ public/               static files served as-is (favicon, theme bootstrap)
 
 ## Tests
 
-178 unit and component tests (`npm run test`) and 20 browser tests
-(`npm run e2e`) at the time of writing; the numbers in
+194 unit and component tests (`npm run test`) and 18 browser tests
+(`npm run e2e`), counted on 2026-09-12; the numbers in
 [docs/features/frontend-foundation.md](../docs/features/frontend-foundation.md)
 are the ones kept up to date. The browser tests need the backend, Postgres and
 Redis running; CI starts all three.

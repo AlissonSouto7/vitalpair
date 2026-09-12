@@ -1,9 +1,5 @@
 # Feature: feed
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -140,7 +136,7 @@ SELECT feed_item_id, user_id, type, count(*) FROM feed_reactions GROUP BY 1,2,3 
 
 ## History
 
-| Date       | Change                                                                                                                                                  | Pull request             |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| 2026-09-11 | `FeedService` got its first test: seven cases over the reaction counts, which reactions are the caller's own, and the single query the whole page costs | `fix/audit-loose-ends`   |
-| 2026-09-06 | `MealPrivacyIT` added, document created (phase 13)                                                                                                      | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                  | Pull request           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 2026-09-11 | `FeedService` got its first test: seven cases over the reaction counts, which reactions are the caller's own, and the single query the whole page costs | `fix/audit-loose-ends` |
+| 2026-09-06 | `MealPrivacyIT` added, document created                                                                                                                 | #32                    |

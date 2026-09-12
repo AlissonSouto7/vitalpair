@@ -1,9 +1,5 @@
 # Feature: dashboard
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -141,6 +137,6 @@ curl -s -o /dev/null -w '%{time_total}s\n' -H "Authorization: Bearer $TOKEN" loc
 
 ## History
 
-| Date       | Change                                         | Pull request             |
-| ---------- | ---------------------------------------------- | ------------------------ |
-| 2026-09-06 | D-1 and D-2 fixed, document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                              | Pull request |
+| ---------- | ----------------------------------- | ------------ |
+| 2026-09-06 | D-1 and D-2 fixed, document created | #32          |

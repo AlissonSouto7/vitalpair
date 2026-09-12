@@ -113,7 +113,7 @@ class OpenApiDocumentIT {
         // A summary names the operation; the description carries the rule a caller cannot
         // guess from the path: what is refused, what is limited, what a null means. An
         // endpoint with neither is one the reader has to open the code for, which is what
-        // the document exists to spare them. Started with the auth endpoints in phase 13
+        // the document exists to spare them. Started with the auth endpoints
         // and widened to all of them once every controller carried both.
         assertThat(undocumented).as("these endpoints have no summary").isEmpty();
         assertThat(terse)

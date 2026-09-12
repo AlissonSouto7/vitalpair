@@ -1,12 +1,8 @@
 # Feature: the user's day
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-09
+- **Last updated**: 2026-09-12
 
 ## What it is and where it lives
 
@@ -33,7 +29,7 @@ The answer is a per-user preference, stored as an IANA time zone identifier.
 | Port        | `user/domain/port/in/UserDayUseCase.java`                                           |
 | Service     | `user/application/service/UserDayService.java`                                      |
 | Validation  | `user/infrastructure/web/ValidTimeZone.java`                                        |
-| Persistence | `user/infrastructure/persistence/UserPersistenceMapper.java` (String ↔ ZoneId)      |
+| Persistence | `user/infrastructure/persistence/UserPersistenceMapper.java` (String to ZoneId)     |
 | Frontend    | `frontend/src/features/profile/TimeZoneField.tsx`                                   |
 
 | Endpoint           | Method | What it does                                    | Who       |
@@ -53,155 +49,156 @@ Every endpoint that takes an optional `date` (`/nutrition/logs`,
 npm --prefix frontend test                     # TimeZoneField
 ```
 
-## Regras de negócio
+## Business rules
 
-- **O dia é do usuário, não do servidor.** O fuso do servidor é um acidente de
-  onde ele roda. Nada no código pergunta que horas são "aqui".
-- **Identificador da IANA, não deslocamento.** Deslocamento não sabe horário de
-  verão, e o Brasil já teve e pode voltar a ter.
-- **Janela meio aberta**: início incluído, fim excluído. Fim fechado precisaria
-  de 23:59:59.999999999, que ou perde a última fração de segundo ou conta ela
-  duas vezes, dependendo da precisão da coluna.
-- **Ausente significa "não mexe".** O `timeZone` é o único campo opcional do
-  formulário de perfil: um cliente que não conhece o campo não pode zerar a
-  preferência de ninguém como efeito colateral de salvar o peso.
-- **A sugestão do navegador nunca é aplicada sozinha.** Quem viaja uma semana
-  não pode ter a virada do dia movida sem dizer nada; o app oferece, a pessoa
-  decide.
-- **O dia é derivado, nunca gravado.** Trocar o fuso muda a que dia pertencem as
-  refeições já registradas. É o comportamento honesto: o instante é o fato, o dia
-  é uma leitura dele.
-- **Fuso desconhecido na leitura cai no padrão e é logado.** Identificadores são
-  aposentados de vez em quando, e uma atualização de JDK basta pra órfã um. Falhar
-  ali deixaria a conta ilegível, derrubando o login e todas as telas, por causa de
-  uma preferência.
+- **The day belongs to the user, not the server.** The server's zone is an
+  accident of where it runs. Nothing in the code asks what time it is "here".
+- **An IANA identifier, not an offset.** An offset does not know about daylight
+  saving, and Brazil has had it before and may have it again.
+- **A half-open window**: the start is included, the end is not. A closed end
+  would need 23:59:59.999999999, which either loses the last fraction of a second
+  or counts it twice, depending on the column's precision.
+- **Absent means "leave it alone".** `timeZone` is the only optional field in the
+  profile form: a client that does not know about it cannot clear someone's
+  preference as a side effect of saving their weight.
+- **The browser's suggestion is never applied on its own.** Someone travelling
+  for a week must not have their day boundary moved silently: the app offers and
+  the person decides.
+- **The day is derived, never stored.** Changing the zone changes which day
+  already-logged meals belong to. The instant is the fact and the day is a
+  reading of it.
+- **An unknown zone on read falls back to the default and is logged.**
+  Identifiers are retired from time to time, and a JDK update is enough to orphan
+  one. Failing there would make the account unreadable, taking down login and
+  every screen, because of a preference.
 
-## Achados de segurança
+## Security findings
 
-### Corrigidos nesta fase
+### Fixed
 
-**D-1 (alto, corrigido): a refeição sumia da lista do dia.** O controller
-perguntava `LocalDate.now()` no fuso da JVM, e o adaptador transformava essa data
-numa janela fixa em UTC. As duas pontas só concordavam quando os dois fusos
-concordavam.
+**D-1 (high, fixed): the meal vanished from the day's list.** The controller
+asked `LocalDate.now()` in the JVM's zone while the adapter turned that date into
+a window fixed in UTC. The two ends agreed only when the two zones did.
 
-Medido em UTC-3, com o teste de navegador: a refeição salvava com `201` e a lista
-recarregada voltava vazia.
+Measured at UTC-3 with the browser test: the meal saved with a `201` and the
+reloaded list came back empty.
 
 ```
-POST 201 /api/v1/nutrition/logs {"foodName":"Arroz com feijão","caloriesKcal":260,...}
+POST 201 /api/v1/nutrition/logs {"foodName":"Arroz com feijao","caloriesKcal":260,...}
 GET  200 /api/v1/nutrition/logs {"data":[]}
 ```
 
-Na prática, das 21:00 à meia-noite, todo dia, no horário do Brasil, a refeição
-registrada desaparecia da lista na hora. Três horas por dia, no horário do jantar.
+From 21:00 to midnight, every day, in Brazilian time, a logged meal disappeared
+from the list immediately: three hours a day, at dinner time.
 
-Em produção a JVM roda em UTC e as duas pontas voltam a concordar, então o
-sintoma some e o erro troca de forma: o "dia" vira o dia UTC e quem janta às
-21:00 tem a refeição contada no dia seguinte. O prato continua no lugar errado e
-ninguém vê.
+In production the JVM runs in UTC and the two ends agree again, so the symptom
+disappears and the error changes shape. The "day" becomes the UTC day, and
+someone eating at 21:00 has the meal counted on the following day, with nothing
+on screen to show it.
 
-**D-2 (médio, corrigido): o mesmo par em outras três features.** `activity`,
-`progress` e `dashboard` tinham exatamente a mesma combinação. Encontrados por
-grep de `LocalDate.now()` sem fuso e de `ZoneOffset.UTC`, depois que D-1 apontou o
-padrão.
+**D-2 (medium, fixed): the same pairing in three other features.** `activity`,
+`progress` and `dashboard` had exactly the same combination. Found by grepping
+for `LocalDate.now()` without a zone and for `ZoneOffset.UTC`, once D-1 had shown
+the pattern.
 
-**D-3 (médio, corrigido): o evento de pontuação carregava o dia errado.**
-`MealLoggedEvent` e `ActivityLoggedEvent` derivavam a data com
-`atZone(ZoneOffset.UTC)`. Essa data é a chave da sequência (streak), das missões e
-do placar semanal, então uma refeição das 21:00 pontuava no dia seguinte e podia
-quebrar uma sequência que a pessoa não quebrou.
+**D-3 (medium, fixed): the scoring event carried the wrong day.**
+`MealLoggedEvent` and `ActivityLoggedEvent` derived the date with
+`atZone(ZoneOffset.UTC)`. That date is the key for the streak, the missions and
+the weekly scoreboard, so a meal at 21:00 scored on the next day and could break
+a streak the person had not broken.
 
-**D-4 (baixo, corrigido): o gráfico de progresso agrupava no fuso do banco.** O
-agrupamento por dia acontecia dentro do SQL com `CAST(loggedAt AS LocalDate)`, que
-usa o fuso da sessão do banco. Passou a ser `AT TIME ZONE :zone`, com o fuso
-ligado como parâmetro.
+**D-4 (low, fixed): the progress chart grouped in the database's zone.** The
+per-day grouping happened inside SQL with `CAST(loggedAt AS LocalDate)`, which
+uses the database session's zone. It is now `AT TIME ZONE :zone`, with the zone
+bound as a parameter.
 
-### Verificados e OK
+### Verified and fine
 
-- **O fuso é validado no servidor**, com `ZoneId.of` via `@ValidTimeZone`, não com
-  regex nem com lista fixa: o que importa é se o servidor consegue resolver o
-  nome. Um fuso inventado responde 400.
-- **O parâmetro `:zone` da query nativa é ligado, não interpolado**, então não
-  carrega SQL. Testado com `Mars/Olympus_Mons`, que é recusado antes de chegar no
-  banco.
-- **Escopo por dono mantido**: `findByUserAndDay` continua recebendo o `userId`
-  explícito. A janela não carrega dono, e trocar a assinatura por só a janela teria
-  perdido o filtro.
-- **Ninguém lê o fuso de outra pessoa**: o `UserDayUseCase` só é chamado com o id
-  do próprio autenticado, e `TenantIsolationIT` (30 testes) continua verde.
-- **Preferência não é dado sensível**: fuso não identifica ninguém sozinho e não
-  vai pra log a não ser quando é inválido, caso em que o valor recusado é o
-  próprio problema.
+- **The zone is validated on the server**, with `ZoneId.of` through
+  `@ValidTimeZone`, not with a regex or a fixed list: what matters is whether the
+  server can resolve the name. An invented zone answers 400.
+- **The `:zone` parameter of the native query is bound, not interpolated**, so it
+  carries no SQL. Tested with `Mars/Olympus_Mons`, which is refused before it
+  reaches the database.
+- **Owner scoping is kept**: `findByUserAndDay` still takes an explicit `userId`.
+  The window carries no owner, and changing the signature to the window alone
+  would have dropped the filter.
+- **Nobody reads another person's zone**: `UserDayUseCase` is only ever called
+  with the authenticated caller's own id, and `TenantIsolationIT` (30 tests) stays
+  green.
+- **The preference is not sensitive data**: a zone does not identify anyone on its
+  own, and it only reaches the log when it is invalid, in which case the rejected
+  value is the problem itself.
 
-### Abertos
+### Open
 
-- **O fuso não entra no JWT**, então cada endpoint que resolve "hoje" faz uma
-  leitura do usuário. Onde o serviço já carregava o usuário (nutrition, progress)
-  não custa nada; onde não carregava (activity, dashboard) é uma consulta a mais
-  por request. Colocar no token traria o problema oposto: o valor ficaria velho
-  por até 15 minutos depois de a pessoa trocar.
+- **The zone is not in the JWT**, so every endpoint that resolves "today" reads
+  the user. Where the service already loaded the user (nutrition, progress) it
+  costs nothing; where it did not (activity, dashboard) it is one extra query per
+  request. Putting it in the token brings the opposite problem: the value would be
+  stale for up to fifteen minutes after someone changed it.
 
-## Testes: o que cada um protege
+## Tests: what each one protects
 
-| Teste                                | Risco que protege                                                                                                                                                                                                                       |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DayBoundaryIT` (9)                  | refeição da noite sumindo da lista; total do dia divergindo da lista; duas pessoas em fusos diferentes; troca de fuso; sem data; fuso inválido; fuso ausente zerando a preferência; conta nova sem fuso; barra do gráfico no dia errado |
-| `UserProfileServiceTest` (+2)        | salvar o peso mexendo no fuso sem querer                                                                                                                                                                                                |
-| `TimeZoneField.test.tsx` (3)         | aviso que não aparece; aviso aplicado sozinho; navegador que não informa o fuso                                                                                                                                                         |
-| `nutrition.spec.ts` (1)              | o percurso completo no navegador: registrar e ver na lista                                                                                                                                                                              |
-| `TenantIsolationIT` (30, já existia) | a query nativa nova vazando dado de outro par                                                                                                                                                                                           |
+| Test                                   | Risk it protects against                                                                                                                                                                                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DayBoundaryIT` (9)                    | an evening meal vanishing from the list; the day's total disagreeing with the list; two people in different zones; changing zone; no date given; an invalid zone; an absent zone clearing the preference; a new account with no zone; a chart bar on the wrong day |
+| `UserProfileServiceTest` (+2)          | saving the weight changing the zone by accident                                                                                                                                                                                                                    |
+| `TimeZoneField.test.tsx` (3)           | the notice not appearing; the notice applied on its own; a browser that does not report a zone                                                                                                                                                                     |
+| `nutrition.spec.ts` (1)                | the whole path in a browser: log a meal and see it in the list                                                                                                                                                                                                     |
+| `TenantIsolationIT` (30, pre-existing) | the new native query leaking another pair's data                                                                                                                                                                                                                   |
 
-Prova vermelho para verde: com o bug original reintroduzido (`DayWindow.of(date,
-ZoneOffset.UTC)` e `LocalDate.now()` no controller), `DayBoundaryIT` falha 5 de 8.
-Com a correção, 9 de 9 passam. O teste do gráfico foi provado não-vacuoso à parte,
-fixando `"UTC"` na query: falha só ele.
+With the original bug reintroduced (`DayWindow.of(date, ZoneOffset.UTC)` and
+`LocalDate.now()` in the controller), `DayBoundaryIT` fails 5 of 8; with the fix,
+9 of 9 pass. The chart test was checked separately by pinning `"UTC"` in the
+query, which fails that test alone.
 
-### O que NÃO está coberto
+### What is not covered
 
-- **Horário de verão**: `DayWindow.of` usa `atStartOfDay(zone)`, que já lida com o
-  dia em que a meia-noite não existe, mas nenhum teste exercita uma data assim.
-  O Brasil não tem horário de verão hoje, então o risco é de quem estiver em
-  outro país.
-- **Fuso órfão na leitura**: o `catch` que cai no padrão não tem teste, porque
-  forjar um identificador que o JDK conhecia e não conhece mais exigiria mexer na
-  base de fusos da JVM.
-- **Sequência e missões**: D-3 corrigiu a data que o evento carrega, mas os testes
-  de sequência continuam usando datas fixas e não exercitam a virada.
+- **Daylight saving**: `DayWindow.of` uses `atStartOfDay(zone)`, which already
+  handles the day on which midnight does not exist, but no test exercises such a
+  date. Brazil has no daylight saving today, so the risk belongs to people in
+  other countries.
+- **An orphaned zone on read**: the `catch` that falls back to the default has no
+  test, because forging an identifier the JDK used to know and no longer does
+  would mean altering the JVM's time zone database.
+- **Streaks and missions**: D-3 fixed the date the event carries, but the streak
+  tests still use fixed dates and do not exercise the boundary.
 
-## Como verificar em produção
+## How to verify in production
 
 ```sql
--- distribuição de fusos, pra saber se o padrão ainda serve
+-- zone distribution, to know whether the default still serves
 SELECT time_zone, count(*) FROM users WHERE deleted_at IS NULL GROUP BY 1 ORDER BY 2 DESC;
 
--- refeições nas três horas que costumavam sumir, no fuso de quem registrou
-SELECT u.email, f.logged_at, (f.logged_at AT TIME ZONE u.time_zone)::date AS dia
+-- meals in the three hours that used to vanish, in the logger's own zone
+SELECT u.email, f.logged_at, (f.logged_at AT TIME ZONE u.time_zone)::date AS day
 FROM food_logs f JOIN users u ON u.id = f.user_id
 WHERE (f.logged_at AT TIME ZONE u.time_zone)::time >= '21:00'
 ORDER BY f.logged_at DESC LIMIT 20;
 ```
 
-## Dívida conhecida
+## Known debt
 
-- **Não há seletor de fuso completo**, só o valor atual e a sugestão do navegador.
-  Quem quiser um fuso que não é o do aparelho não consegue escolher pela tela.
-- **O fuso do par não é considerado em nada compartilhado.** `SeasonService:48`,
-  `WeeklyMissionService:52` e `MissionService:96` usam `ZoneId.systemDefault()`,
-  herdado das fases anteriores. Em 11/09 isso deixou de ser teórico: com a JVM em
-  UTC (o runner da CI), quatro testes de integração caíram entre 21h e meia-noite
-  de Brasília, porque a temporada começava "amanhã" e os pontos da noite ficavam
-  antes dela. Registrado como S-7 em `season.md`; a JVM do backend e a dos testes
-  passaram a rodar no fuso da casa (`America/Sao_Paulo`), o que resolve para quem
-  está no Brasil e não resolve a pergunta de produto. Com os dois no Brasil dá no mesmo; com um par
-  internacional, a semana de um não é a do outro. Fica registrado como dívida, não
-  corrigido aqui, porque "de quem é a semana de um par" é uma decisão de produto e
-  não de código. Note que `systemDefault()` é o fuso do servidor, ou seja, UTC em
-  produção: são os mesmos três lugares que precisam de decisão antes de haver
-  usuário fora do Brasil.
+- **There is no full zone picker**, only the current value and the browser's
+  suggestion. Anyone wanting a zone other than their device's cannot choose it
+  from the screen.
+- **The partner's zone is not considered in anything shared.** `SeasonService:48`,
+  `WeeklyMissionService:52` and `MissionService:96` use `ZoneId.systemDefault()`.
+  On 2026-09-11 this stopped being theoretical: with the JVM in UTC (the CI
+  runner), four integration tests failed between 21:00 and midnight in Brasilia,
+  because the season started "tomorrow" and the evening's points fell before it.
+  Recorded as S-7 in `season.md`. The backend JVM and the test JVM now run in the
+  product's home zone (`America/Sao_Paulo`), which resolves it for anyone in
+  Brazil and leaves the product question open: with both people in Brazil it makes
+  no difference, and with an international pair one person's week is not the
+  other's. Deciding whose week a pair's week is belongs to the product, not to
+  the code. Note that `systemDefault()` is the server's zone, UTC in production,
+  so these are the same three places that need a decision before there is a user
+  outside Brazil.
 
-## Histórico
+## History
 
-- **2026-09-09**: fuso por usuário. `V27`, `UserDayUseCase`, `DayWindow`, campo no
-  perfil. Achados D-1 a D-4 corrigidos, com prova vermelho para verde.
-  Descoberto pelo teste de navegador de registrar refeição, escrito na fase 10.
+| Date       | Change                                                                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-09 | Per-user time zone: `V27`, `UserDayUseCase`, `DayWindow`, the profile field. D-1 to D-4 fixed with red-to-green proof, found by the meal-logging browser test |

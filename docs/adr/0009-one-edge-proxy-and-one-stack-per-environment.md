@@ -12,7 +12,7 @@ Nothing is deployed and there is no server or domain yet, so the topology could
 be designed from scratch. The inherited files were audited first and had ten
 problems, one serious: the nginx configuration forwarded **everything** to the
 backend, including `/actuator`, which would have exposed on the internet the
-metrics that phase 8 moved to a separate port precisely to keep them private.
+metrics that live on a separate port precisely to keep them private.
 The rest: Postgres on a different major than the tests, no memory limits, no
 log rotation, no health checks, no frontend image, HTTPS commented out, no
 backup.
@@ -108,4 +108,4 @@ Not verified: a real certificate issue and renewal, which needs a domain.
 ## References
 
 - `deploy/README.md`
-- Phase 11 pull request.
+- An earlier pass pull request.

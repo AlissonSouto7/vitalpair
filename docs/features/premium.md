@@ -1,9 +1,5 @@
 # Feature: premium (the paid plan)
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped; nobody can buy it yet
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-11

@@ -1,9 +1,5 @@
 # Feature: authentication
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-08
@@ -237,8 +233,8 @@ grep 'Refresh token replay detected' /var/log/vitalpair/app.log
 
 | Date       | Change                                                                                                                                                                                                                                                                                                                                       | Pull request                |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| 2026-09-05 | Refresh cookie, token families, reuse detection, roles (phase 6)                                                                                                                                                                                                                                                                             | `feat/auth-hardening`       |
-| 2026-09-05 | Token logging, dev secret, rate limiting (phase 5)                                                                                                                                                                                                                                                                                           | `fix/security-hardening`    |
-| 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                                                                                                                  | `docs/professional-docs`    |
+| 2026-09-05 | Refresh cookie, token families, reuse detection, roles                                                                                                                                                                                                                                                                                       | `feat/auth-hardening`       |
+| 2026-09-05 | Token logging, dev secret, rate limiting                                                                                                                                                                                                                                                                                                     | `fix/security-hardening`    |
+| 2026-09-06 | Document created                                                                                                                                                                                                                                                                                                                             | #32                         |
 | 2026-09-08 | A-10 fixed: resetting the password now ends every session that existed before it. Needed a reverse index, `refresh:user:<userId>`, because a family could previously only be reached by presenting one of its tokens. `revokeAllForUser` on the port; `revokeFamily` cleans its own entry so repeated logins do not accumulate dead families | `feat/revoke-user-sessions` |
 | 2026-09-11 | Mail turned on for the first time outside a test: staging sends through Brevo's SMTP as `contato@vitalpair.app`, with the domain authenticated by DKIM and a DMARC record. `POST /auth/forgot-password` answered 200, the adapter logged the address and no token, and the message reached an inbox rather than a spam folder                | (server configuration)      |

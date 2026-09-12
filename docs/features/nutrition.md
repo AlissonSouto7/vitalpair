@@ -1,9 +1,5 @@
 # Feature: nutrition
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -36,7 +32,7 @@ comes up, the answer is whatever `nutrition` does.
 | Output ports    | `FoodLogRepositoryPort`, `OpenFoodFactsPort`                                                                                                                          |
 | Persistence     | `FoodLogJpaEntity`, `FoodLogJpaRepository`, `FoodLogPersistenceAdapter`, `FoodLogPersistenceMapper` (MapStruct)                                                       |
 | External client | `OpenFoodFactsHttpClient` (RestClient), `OpenFoodFactsAdapter`, `OffResponses`                                                                                        |
-| Frontend page   | `frontend/src/features/nutrition/NutritionPage.tsx` (942 lines) and `MealDetailModal.tsx`                                                                             |
+| Frontend page   | `frontend/src/features/nutrition/NutritionPage.tsx` (368 lines) and `MealDetailModal.tsx`                                                                             |
 | i18n namespace  | `nutrition`                                                                                                                                                           |
 
 ### Endpoints
@@ -169,19 +165,19 @@ curl -s localhost:9090/actuator/prometheus | grep 'resilience4j_circuitbreaker_s
 
 ## Known debt
 
-| Item                                                               | Impact                                                                                             | When it is meant to be addressed                                                                                                                                          |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| N-3, UTC day boundary                                              | Evening meals in Brazil count towards the next day                                                 | Needs a user timezone; backlogged                                                                                                                                         |
-| N-5, photo logs indistinguishable from manual                      | The AI path cannot be measured                                                                     | Before the AI feature is charged for                                                                                                                                      |
-| No pagination on `GET /logs`                                       | A day with hundreds of logs is one large response                                                  | Backlog: pagination across all list endpoints                                                                                                                             |
-| `NutritionServiceTest` method names are Portuguese                 | Predates the English rule                                                                          | Next time the file is touched                                                                                                                                             |
-| `NutritionPage.tsx` is 942 lines, the largest file in the frontend | Hard to change safely, and every change touches search, photo, favourites and the log list at once | Phase 10 planned decomposing it into `PhotoTab`/`SearchTab`/`FavoritesTab`/`MealList`/`DailySummary`; only `MealDetailModal` (230 lines) was extracted. Still outstanding |
+| Item                                               | Impact                                                                                                                                 | When it is meant to be addressed              |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| N-3, UTC day boundary                              | Evening meals in Brazil count towards the next day                                                                                     | Needs a user timezone; backlogged             |
+| N-5, photo logs indistinguishable from manual      | The AI path cannot be measured                                                                                                         | Before the AI feature is charged for          |
+| No pagination on `GET /logs`                       | A day with hundreds of logs is one large response                                                                                      | Backlog: pagination across all list endpoints |
+| `NutritionServiceTest` method names are Portuguese | Predates the English rule                                                                                                              | Next time the file is touched                 |
+| `NutritionPage.tsx` was 942 lines and is now 368   | It was decomposed into `DayList`, `SearchTab`, `FavoritesTab`, `PhotoTab`, `MealEditor`, `SaveBar` and `parts`, each with its own file | Done                                          |
 
 ## History
 
 | Date       | Change                                                                                                                                                                                                                                          | Pull request                    |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
 | 2026-09-11 | N-6: the food search field got an accessible name. The paid-plan gate closed the photo tab for free accounts, which made the accessibility walk fail a deploy, and opening the search tab instead revealed a control that had never had a label | #99                             |
-| 2026-09-05 | Timeouts, rate limit on the photo path (phase 5)                                                                                                                                                                                                | `fix/security-hardening`        |
-| 2026-09-05 | Circuit breaker and narrowed retry (phase 8)                                                                                                                                                                                                    | `feat/observability-resilience` |
-| 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                     | `docs/professional-docs`        |
+| 2026-09-05 | Timeouts, rate limit on the photo path                                                                                                                                                                                                          | `fix/security-hardening`        |
+| 2026-09-05 | Circuit breaker and narrowed retry                                                                                                                                                                                                              | `feat/observability-resilience` |
+| 2026-09-06 | Document created                                                                                                                                                                                                                                | #32                             |

@@ -1,9 +1,5 @@
 # Feature: gamification
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -175,4 +171,4 @@ SELECT count(*) FROM point_events WHERE points < 0;
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
 | 2026-09-11 | Future-dated logs refused (`@NotInFuture`), closing the streak/score exploit; `BackdatedScoringIT` added                                                                | `fix/security-findings-v2` |
 | 2026-09-11 | The event listener got the test this document called the highest-value one left to write: twelve cases over the whole points economy, including the overtake transition | `fix/audit-loose-ends`     |
-| 2026-09-06 | `ConcurrentScoringIT` added, document created (phase 13)                                                                                                                | `docs/professional-docs`   |
+| 2026-09-06 | `ConcurrentScoringIT` added, document created                                                                                                                           | #32                        |

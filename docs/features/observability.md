@@ -1,12 +1,8 @@
 # Feature: observability and resilience
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-12
 
 ## What it is and where it lives
 
@@ -42,9 +38,9 @@ is doing without asking it, and surviving a partner API that is down.
 
 Nothing under `/actuator` is served on 8080/8081 any more. The management port is
 bound inside the container network and never mapped by the reverse proxy, which
-is where access control for it lives; see the note under "Achados de segurança".
+is where access control for it lives; see the note under "Security findings".
 
-## Regras de negócio
+## Business rules
 
 - **Every request has an id, and the user sees it.** `X-Request-Id` is generated
   when absent, echoed in the response, put in the MDC so every log line carries
@@ -78,156 +74,133 @@ is where access control for it lives; see the note under "Achados de segurança"
   fire the 09:00 flash mission at 06:00 local and shift the reminder's idea of
   "today" into the middle of the night.
 
-## Achados de segurança
+## Security findings
 
-### Corrigidos nesta fase
+### Fixed
 
-**O-1 (médio, corrigido): 401 devolvia página HTML do container.** O entry point
-usava `sendError`, então um cliente que analisa `{success, message, data}` em
-todo lugar recebia marcação HTML exatamente quando a sessão expirava, sem id para
-relatar. Agora responde no mesmo envelope, com `requestId`. Provado por
+**O-1 (medium, fixed): a 401 returned the container's HTML page.** The entry
+point used `sendError`, so a client that parses the standard envelope everywhere
+received HTML markup exactly when the session expired, with no id to report. It
+now answers in the same envelope, with `requestId`. Proved by
 `CorrelationIdIT.anUnauthenticatedRequestAnswersTheStandardEnvelopeWithAnId`.
 
-### Verificados e OK
+### Verified and fine
 
-- **Métricas fora da porta pública.** `/actuator/prometheus` responde 404 na
-  porta da API e 200 na 9090 (medido na aplicação rodando). Uma leitura ao vivo
-  do sistema não fica exposta junto com a API.
-- **`show-details: never` no health.** O detalhe nomeia banco, Redis e qual
-  componente falhou, que é um mapa do sistema para quem estiver sondando.
-- **Id do chamador validado.** Só letras, dígitos, hífen e sublinhado, no máximo
-  64 caracteres; qualquer outra coisa é substituída, o que fecha injeção de log
-  e de cabeçalho por esse caminho.
-- **Sem dado pessoal no MDC.** Só ids de usuário e de par, nunca nome ou e-mail,
-  porque log é arquivo que circula.
+- **Metrics are off the public port.** `/actuator/prometheus` answers 404 on the
+  API's port and 200 on 9090, measured against the running application. A live
+  readout of the system is not exposed alongside the API.
+- **`show-details: never` on health.** The detail names the database, Redis and
+  which component failed, which is a map of the system for anyone probing.
+- **The caller's id is validated.** Letters, digits, hyphen and underscore only,
+  at most 64 characters; anything else is replaced, which closes log and header
+  injection through that path.
+- **No personal data in the MDC.** User and pair ids only, never a name or an
+  e-mail, because a log is a file that travels.
 
-### Abertos
+### Open
 
-- **A porta de management não tem autenticação própria.** A proteção é de rede:
-  a porta fica dentro do compose e o nginx nunca a mapeia. Isso vira uma
-  configuração real na fase 11; até lá, não há servidor no ar.
-- **Ciclos de arquitetura subiram de 3 para 6.** O `config` importa
-  `auth.infrastructure.security` (o filtro JWT) enquanto `auth` importa
-  `config.JwtProperties`; o ciclo já existia e ficou visível por mais caminhos
-  quando `config` passou a importar `shared.web`. Movi o entry point para
-  `shared.web`, o que reduziu o acoplamento mas não desfez o ciclo. Desfazer
-  exige mover as `@ConfigurationProperties` para perto de quem as usa, que é um
-  refactor por si só.
+- **The management port has no authentication of its own.** The protection is the
+  network: the port stays inside the compose stack and nginx never maps it.
+  Verified on the deployed staging machine, where the edge forwards only to
+  `:8080` and `/actuator` answers 404.
+- **Architecture cycles went from 3 to 6.** `config` imports
+  `auth.infrastructure.security` (the JWT filter) while `auth` imports
+  `config.JwtProperties`. The cycle already existed and became visible along more
+  paths when `config` started importing `shared.web`. Moving the entry point to
+  `shared.web` reduced the coupling without undoing the cycle. Undoing it means
+  moving the `@ConfigurationProperties` next to their users, which is a refactor
+  of its own.
 
-## Testes: o que cada um protege
+## Tests: what each one protects
 
-| Teste                       | Risco que protege                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------------ |
-| `CorrelationIdIT` (7)       | falha impossível de rastrear; id forjado no log; contexto vazando entre requisições; 401 em HTML |
-| `ManagementEndpointsIT` (5) | métricas na porta pública; métricas em lugar nenhum; chamada paga sem contador                   |
-| `CircuitBreakerIT` (3)      | parceiro fora do ar segurando threads; recusa do modelo derrubando a feature para todos          |
-| `SchedulerLockIT` (3)       | notificação duplicada por instância; job no fuso errado                                          |
+| Test                        | Risk it protects against                                                                            |
+| --------------------------- | --------------------------------------------------------------------------------------------------- |
+| `CorrelationIdIT` (7)       | a failure nobody can trace; a forged id in the log; context leaking between requests; HTML on a 401 |
+| `ManagementEndpointsIT` (5) | metrics on the public port; metrics nowhere at all; a paid call with no counter                     |
+| `CircuitBreakerIT` (3)      | a partner outage holding threads; a model refusal taking the feature down for everyone              |
+| `SchedulerLockIT` (3)       | a duplicated notification per instance; a job in the wrong zone                                     |
 
-### O que NÃO está coberto
+### What is not covered
 
-- **Logs em JSON no perfil prod**: a configuração existe e o perfil sobe em
-  `SwaggerDisabledInProdIT`, mas nenhum teste lê uma linha de log e confirma que
-  é JSON válido com `requestId` dentro.
-- **Meio-aberto do disjuntor**: o teste cobre fechado e aberto, não a transição
-  de volta depois dos 60 segundos.
-- **Duas instâncias de verdade disputando o lock**: o teste prova que o lock é
-  tomado e continua válido, não que uma segunda JVM é barrada.
-- **Métricas do Open Food Facts**: só as chamadas de IA são contadas.
+- **JSON logs under the prod profile**: the configuration exists and the profile
+  starts in `SwaggerDisabledInProdIT`, but no test reads a log line and confirms
+  it is valid JSON with `requestId` inside.
+- **The breaker's half-open state**: the test covers closed and open, not the
+  transition back after sixty seconds.
+- **Two real instances competing for the lock**: the test proves the lock is
+  taken and stays valid, not that a second JVM is turned away.
+- **Open Food Facts metrics**: only the AI calls are counted.
 
-## Como verificar em produção
+## How to verify in production
 
 ```bash
-# O id que o usuário relatou aparece no log:
-grep '"requestId":"<id-do-usuario>"' /var/log/vitalpair/app.log
+# The id the user reported appears in the log
+grep requestId /var/log/vitalpair/app.log | grep <reported-id>
 
-# Estado dos disjuntores (1 = está nesse estado):
+# Circuit breaker states (1 means the breaker is in that state)
 curl -s localhost:9090/actuator/prometheus | grep resilience4j_circuitbreaker_state
 
-# Chamadas de IA por tipo e resultado:
+# AI calls by kind and outcome
 curl -s localhost:9090/actuator/prometheus | grep vitalpair_ai_requests_total
 ```
 
 ```sql
--- Quem está segurando o lock de cada job agendado:
+-- Who holds the lock for each scheduled job
 SELECT name, locked_by, locked_at, lock_until FROM shedlock;
 ```
 
-## Prometheus e Grafana (staging)
+## Prometheus and Grafana (staging)
 
-`deploy/compose.monitoring.yaml` sobe os dois. Não publica porta nenhuma no host:
-entra na rede `edge` e alcança a aplicação pelo alias `backend-staging`, que é a
-mesma razão de a porta 9090 não ser mapeada.
+`deploy/compose.monitoring.yaml` starts both. It publishes no port on the host:
+it joins the `edge` network and reaches the application through the
+`backend-staging` alias, which is the same reason port 9090 is not mapped.
 
 ```bash
 docker compose -f deploy/compose.monitoring.yaml --env-file deploy/env/staging.env up -d
 ```
 
-| Arquivo                                               | O que é                                                      |
-| ----------------------------------------------------- | ------------------------------------------------------------ |
-| `deploy/monitoring/prometheus.yml`                    | o que é coletado, a cada 15s                                 |
-| `deploy/monitoring/grafana/provisioning/`             | datasource e provider, pra uma máquina recriada voltar igual |
-| `deploy/monitoring/grafana/dashboards/vitalpair.json` | o painel, versionado em git                                  |
+| File                                                  | What it is                                                       |
+| ----------------------------------------------------- | ---------------------------------------------------------------- |
+| `deploy/monitoring/prometheus.yml`                    | what is scraped, every 15s                                       |
+| `deploy/monitoring/grafana/provisioning/`             | datasource and provider, so a recreated machine comes back alike |
+| `deploy/monitoring/grafana/dashboards/vitalpair.json` | the dashboard, versioned in git                                  |
 
-O painel tem três blocos: se está no ar e respondendo (requisições por status,
-percentis de tempo de resposta), as partes que falam com terceiros (estado dos
-disjuntores, chamadas de IA por desfecho, latência p95 da IA) e a máquina embaixo
-(heap, pool de conexões, e um painel `up` que existe pra distinguir "aplicação
-quieta" de "coleta quebrada").
+The dashboard has three blocks: whether the application is up and answering
+(requests by status, response time percentiles), the parts that talk to third
+parties (breaker states, AI calls by outcome, AI p95 latency), and the machine
+underneath (heap, connection pool, and an `up` panel that exists to tell a quiet
+application apart from a broken scrape).
 
-**Só staging, de propósito.** Numa máquina só, um coletor e um painel disputando
-memória com a aplicação é troca pior do que não ter gráfico em produção. Sem Loki
-pelo mesmo motivo: com um nó, `docker compose logs` responde a mesma pergunta.
+**Staging only, deliberately.** On a single machine, a scraper and a dashboard
+competing for memory with the application is a worse trade than having no graphs
+in production. No Loki for the same reason: with one node, `docker compose logs`
+answers the same question.
 
-Grafana recusa subir sem `GRAFANA_ADMIN_PASSWORD`. Um painel de monitoramento com
-`admin/admin` na internet é como a máquina é tomada, então não tem valor padrão.
+Grafana refuses to start without `GRAFANA_ADMIN_PASSWORD`. A monitoring
+dashboard with default credentials on the internet is how a machine gets taken,
+so there is no default value.
 
-### Verificado
+The stack was checked against a local backend registered under the
+`backend-staging` alias: Prometheus reported the target up, heap and breaker
+queries returned real values, and the datasource and dashboard provisioned
+themselves with nobody clicking.
 
-Subi o stack de verdade contra o backend local, com um container no alias
-`backend-staging`:
+## Known debt
 
-```
-prometheus        -> up
-vitalpair-backend -> up
+- Port 9090 is open to anyone who reaches the network, so the edge must never map
+  it. Verified on the deployed machine: the edge forwards only to `:8080`,
+  `/actuator` answers 404 on both sites (`smoke.sh` checks it), and no compose
+  file publishes 9090. See [deployment.md](deployment.md).
+- **`vitalpair.auth.logins` does not exist.** Only `vitalpair.ai.requests` and
+  `vitalpair.ai.latency` were implemented, which is why the dashboard has no
+  login graph.
+- `AiMetrics.timed` wraps the call in a `Supplier`, which makes it impossible to
+  tell a failed call from a failure to parse the answer in the metrics.
 
-up{job="vitalpair-backend"}                                     1
-sum(jvm_memory_used_bytes{job="vitalpair-backend",area="heap"})  151204968
-count(resilience4j_circuitbreaker_state{job="vitalpair-backend"}) 12
-```
+## History
 
-Datasource e painel provisionados sozinhos (`/api/search` devolve
-`vitalpair-overview`), sem ninguém clicar.
-
-## Dívida conhecida
-
-- A porta 9090 é aberta a quem alcança a rede; a fase 11 precisa garantir que o
-  nginx não a mapeie, ou a proteção deixa de existir sem nenhum aviso. Verificado
-  em 10/09 no ensaio do `deploy/`: o edge só encaminha para `:8080`, `/actuator`
-  devolve 404 nos dois sites (o `smoke.sh` confere), e a 9090 não é publicada por
-  nenhum compose. Ver `deployment.md`.
-- ~~**O proxy ainda não expõe `/grafana`.** O stack sobe e coleta, mas chegar no
-  painel de fora depende de uma rota com `auth_basic` no nginx de borda, que é
-  trabalho da fase 11. Hoje se alcança por túnel SSH.~~ Feito em 10/09:
-  `deploy/nginx/extras/staging.conf` serve `/grafana/` atrás de basic auth
-  (usuários em `deploy/env/htpasswd`, via `scripts/htpasswd.sh`), com o header
-  `Authorization` retirado antes de chegar no Grafana, que o leria como login
-  dele. Em produção o mesmo caminho devolve 404.
-- **`vitalpair.auth.logins` não existe.** O plano da fase 8 previa, e só
-  `vitalpair.ai.requests` e `vitalpair.ai.latency` foram implementadas. O painel
-  não tem gráfico de login por isso, e não por esquecimento.
-- `AiMetrics.timed` envolve a chamada num `Supplier`, o que impede distinguir
-  "falhou na chamada" de "falhou ao interpretar a resposta" nas métricas.
-
-## Histórico
-
-- **2026-09-10**: Grafana alcançável pelo edge em staging, atrás de basic auth, e
-  o alvo `backend-staging:9090` confirmado `up` no Prometheus subindo os três
-  stacks juntos no ensaio da fase 11.
-- **2026-09-09**: o que faltava da fase 8. `deploy/compose.monitoring.yaml` com
-  Prometheus e Grafana provisionados, e o painel versionado. Verificado contra o
-  backend local, com alvo coletado e consultas devolvendo dado real.
-- **2026-09-06**: fase 8. Correlation id ponta a ponta, `ApiErrors` centralizada,
-  entry point JSON, métricas de negócio e porta de management separada,
-  disjuntores nas duas APIs externas com retentativa só onde faz sentido,
-  ShedLock nos dois jobs e fuso fixo. 18 testes de integração novos (73 para 91);
-  cobertura de linha 82,5% para 82,8%, ramo 53,4% para 54,3%.
+| Date       | Change                                                                                                                                                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-10 | Grafana reachable through the edge on staging behind basic auth (`deploy/nginx/extras/staging.conf`, users in `deploy/env/htpasswd`, `Authorization` stripped before Grafana); production answers 404 on the same path |
+| 2026-09-09 | `deploy/compose.monitoring.yaml` with Prometheus and Grafana provisioned, and the dashboard versioned. Verified against the local backend, with the target scraped and queries returning real data                     |
+| 2026-09-06 | Correlation id end to end, `ApiErrors` centralised, JSON entry point, business metrics and a separate management port, breakers on both external APIs with retry only where it helps, ShedLock on both jobs            |

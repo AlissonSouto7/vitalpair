@@ -1,9 +1,5 @@
 # Feature: missions
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped, with a gap that matters (see M-1)
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -151,7 +147,7 @@ SELECT tenant_id, mission_date, mission_code FROM pair_missions WHERE mission_da
 
 ## History
 
-| Date       | Change                                                                                                                                                                                                       | Pull request             |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
-| 2026-09-11 | Both services took an injected clock, replacing `LocalDate.now()` with no zone at all, and got their first tests: fourteen cases over the rotation, the expiry, the Monday boundary and the both-halves rule | `fix/audit-loose-ends`   |
-| 2026-09-06 | Document created, M-1 found and reported (phase 13)                                                                                                                                                          | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                       | Pull request           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| 2026-09-11 | Both services took an injected clock, replacing `LocalDate.now()` with no zone at all, and got their first tests: fourteen cases over the rotation, the expiry, the Monday boundary and the both-halves rule | `fix/audit-loose-ends` |
+| 2026-09-06 | Document created, M-1 found and reported                                                                                                                                                                     | #32                    |

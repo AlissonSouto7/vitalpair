@@ -13,7 +13,7 @@ workout plans and analyses meal photos: each call is paid, and a plan takes
 around twenty seconds and up to a minute. Open Food Facts answers food searches
 and barcode lookups: free, unauthenticated, and occasionally slow.
 
-Before phase 8 a struggling partner made every request wait out the full
+A struggling partner used to made every request wait out the full
 timeout, and a burst of failures had no effect on subsequent calls. The
 question was what to retry, what to short-circuit, and what counts as a
 failure.

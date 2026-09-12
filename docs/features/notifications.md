@@ -1,9 +1,5 @@
 # Feature: notifications
 
-> Living document. It is updated in the same pull request as the code, never
-> afterwards. Written for the person who arrives later and needs to understand
-> this feature without reading every file.
-
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
 - **Last updated**: 2026-09-06
@@ -165,5 +161,5 @@ psql -c "SELECT name, locked_at, lock_until, locked_by FROM shedlock;"
 | Date       | Change                                                                                                                                                           | Pull request                    |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
 | 2026-09-11 | The preference gate and the listener got the tests this document called the highest-value ones to add: nineteen cases, including the private meal telling nobody | `fix/audit-loose-ends`          |
-| 2026-09-05 | ShedLock and the scheduling zone (phase 8)                                                                                                                       | `feat/observability-resilience` |
-| 2026-09-06 | Document created (phase 13)                                                                                                                                      | `docs/professional-docs`        |
+| 2026-09-05 | ShedLock and the scheduling zone                                                                                                                                 | `feat/observability-resilience` |
+| 2026-09-06 | Document created                                                                                                                                                 | #32                             |

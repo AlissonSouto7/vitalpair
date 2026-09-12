@@ -6,7 +6,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
  *
  * No screen uses it yet: there are 65 hand-written `<button>` elements across 20 files,
  * 38 of them repeating the primary style. It stays because it is where that design
- * decision lives, and the standardisation belongs to phase 10, which already opens every
+ * decision lives, and standardising the screens on it is still to do; it already opens every
  * page. Listed in `knip.json` so the dead-code check does not ask for its removal daily.
  */
 type Variant = 'primary' | 'secondary' | 'success' | 'ghost'

@@ -1,7 +1,7 @@
-# VitalPair — guia do projeto
+# VitalPair: guia do projeto
 
 ## Tom de voz (vale pra TODAS as telas, sem exceção)
-Falar como **gente de verdade**, brasileiro e informal — nunca como marketing ou IA.
+Falar como **gente de verdade**, brasileiro e informal, nunca como marketing.
 
 **Faça:** frases curtas e diretas, jeito de papo ("bora", "na real", "vacilou", "de boa", "toma um empurrão"), uma pitada de provocação carinhosa (rivalidade do par). Pode ter humor.
 
@@ -15,7 +15,7 @@ Falar como **gente de verdade**, brasileiro e informal — nunca como marketing 
 
 **Exemplos do tom certo:** "Ninguém cuida da saúde sozinho por muito tempo." · "Vacilou dois dias? Ela passa na sua frente." · "É mais rápido que postar no story." · "Então, bora?"
 
-## Lei das cores (psicologia — cada cor tem UM papel)
+## Lei das cores (cada cor tem UM papel)
 - **Laranja** = VOCÊ + energia + marca (logo, nav ativa, seu avatar, CTAs, streak, seu lado do placar)
 - **Roxo** = o par-rival, e só isso (avatar, lado e eventos do par no feed)
 - **Verde** = saúde, meta batida, quem está ganhando (anel de calorias, "você lidera", missão)
@@ -27,7 +27,7 @@ Cor fora do papel é bug. Trocar paleta = editar só os tokens.
 Dois anéis entrelaçados: laranja (você) + roxo (o par), interseção verde (a saúde que constroem juntos). Ecoa o anel de calorias. Slogan: **"Saúde é melhor em dupla."**
 
 ## Stack-alvo
-Web app. React + TypeScript + Tailwind. Layout de desktop (sidebar + conteúdo), NUNCA cara de app mobile. Modo claro E escuro obrigatórios — claro = creme quente; escuro = carvão-âmbar aconchegante (nunca navy/clínico).
+Web app. React + TypeScript + Tailwind. Layout de desktop (sidebar e conteúdo), NUNCA cara de app mobile. Modo claro E escuro obrigatórios: claro = creme quente; escuro = carvão-âmbar aconchegante (nunca navy/clínico).
 
 ## Tipografia
-Fredoka (display/números/títulos) + Nunito (corpo/UI). Arredondada com personalidade, sem ser infantil. Ícones SVG preenchidos — nada de emoji como ícone.
+Fredoka (display/números/títulos) + Nunito (corpo/UI). Arredondada com personalidade, sem ser infantil. Ícones SVG preenchidos, nada de emoji como ícone.

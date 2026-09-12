@@ -8,11 +8,11 @@
 
 ## Context
 
-Before phase 8 a failure produced a log line with a timestamp and a message,
+A failure used to produce a log line with a timestamp and a message,
 and the person hitting the error saw "Erro interno inesperado". Matching one to
 the other meant guessing by time. Nine log statements passed only
 `ex.getMessage()` and dropped the stack trace, which is how the Feign proxy
-failure in phase 0 took hours to diagnose.
+failure once took hours to diagnose.
 
 There is one service and one instance today. Distributed tracing would be
 machinery for a topology that does not exist yet, but the property it provides,

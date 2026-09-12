@@ -152,14 +152,15 @@ e-mails go to Mailpit instead of the internet. AI features answer 503 until
 
 | Command                      | What runs                                                                                                                                          | Needs               |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `./mvnw test`                | 169 unit tests                                                                                                                                     | nothing             |
-| `./mvnw verify`              | everything: unit, 165 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
+| `./mvnw test`                | 174 unit tests                                                                                                                                     | nothing             |
+| `./mvnw verify`              | everything: unit, 173 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
 | `cd frontend && npm test`    | 194 frontend tests, including translation parity across the four languages                                                                         | nothing             |
-| `cd frontend && npm run e2e` | 20 browser tests in a real Chromium against the production build                                                                                   | the backend running |
+| `cd frontend && npm run e2e` | 18 browser tests in a real Chromium against the production build                                                                                   | the backend running |
 
-Measured on 2026-09-11: line coverage 90.59%, branch coverage 68.72%, with a
-build floor of 88 / 65 that only moves up. Every test added since phase 7 was
-proved non-vacuous by breaking the code on purpose and watching it fail.
+Measured on 2026-09-12: line coverage 90.66%, branch coverage 69.17%, with a
+build floor of 88 / 65 that only moves up. A test is added only once it has been
+shown to fail against deliberately broken code, so a green suite means the tests
+are load-bearing.
 
 External APIs are never called in tests. Anthropic and Open Food Facts are
 replayed by WireMock from responses captured from the real services, so a

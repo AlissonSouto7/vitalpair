@@ -89,7 +89,7 @@ production name simply does not exist on the machine.
 
 The first stack start needs images. Either build them on the machine
 (`docker compose -f deploy/compose.app.yaml --env-file deploy/env/staging.env build`)
-or point `BACKEND_IMAGE` and `FRONTEND_IMAGE` at a registry; phase 12 is what
+or point `BACKEND_IMAGE` and `FRONTEND_IMAGE` at a registry; the pipeline is what
 makes CI publish them. Building on the machine is the right answer on an ARM
 server (Oracle's A1 shape), because the images CI builds today are `amd64`.
 Every base image has to exist for `arm64`, and one did not: Temurin's Alpine JRE
@@ -240,7 +240,7 @@ backend healthy. The sites keep their upstreams in variables and use Docker's
 resolver, so nginx asks again; the same change lets it start while a stack is
 down.
 
-**`/actuator` returns 404 at the edge.** Phase 8 moved health and metrics to
+**`/actuator` returns 404 at the edge.** An earlier pass moved health and metrics to
 their own port so that publishing the API would not publish a live readout of the
 system. Refusing the path outright matters, rather than merely not routing it:
 the single-page application's catch-all otherwise answers `/actuator/prometheus`
@@ -288,5 +288,5 @@ frontend as `nginx`.
   a lost machine.
 - **Grafana's live updates fall back to polling** through the proxy, which does
   not forward the WebSocket upgrade. Dashboards still refresh on their interval.
-- **Deploys are manual.** Phase 12 turns `deploy.sh` into a pipeline and makes CI
+- **Deploys are manual.** An earlier pass turns `deploy.sh` into a pipeline and makes CI
   publish the images it already builds.

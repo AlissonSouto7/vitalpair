@@ -6,8 +6,8 @@ needs the shape of it before reading any single file.
 For what the product is, see the [README](../README.md). This document is about
 the code.
 
-Measured on 2026-09-06: 467 backend classes across 19 feature packages, 14,742
-lines of Java, 24 migrations, 23 mapped tables, 118 frontend modules.
+Measured on 2026-09-12: 495 backend classes across 20 feature packages, 16,647
+lines of Java, 28 migrations, 23 mapped tables, 189 frontend modules.
 
 ## The shape
 
@@ -98,7 +98,7 @@ from a lazy-loading decision made three layers away.
 **Every row carries `tenant_id`.** A pair is a tenant. Every query that reads
 user-owned data filters by it, and `TenantIsolationIT` builds two pairs with real
 data and checks that no endpoint leaks one into the other. The check exists
-because this is a promise no compiler makes: phase 7 found meal plans that were
+because this is a promise no compiler makes: a security pass found meal plans that were
 scoped by user alone, which the migration adding the column had been meant to fix.
 
 **Migrations are immutable and expand/contract.** A migration that has run
@@ -170,17 +170,21 @@ from any of the four.
 
 ## Testing
 
+Counted on 2026-09-12 from the surefire and failsafe reports of a full
+`./mvnw verify`, and from `npx vitest run` in `frontend/`.
+
 | Layer                | What it proves                                                                            | Count |
 | -------------------- | ----------------------------------------------------------------------------------------- | ----- |
-| Unit (`*Test`)       | A class behaves, collaborators mocked                                                     | 79    |
-| Integration (`*IT`)  | The whole application against real Postgres, Redis, SMTP, with WireMock for external APIs | 95    |
-| Browser (Playwright) | The built application, driven as a person drives it                                       | 14    |
-| Frontend unit        | i18n parity, error handling                                                               | 98    |
+| Unit (`*Test`)       | A class behaves, collaborators mocked                                                     | 174   |
+| Integration (`*IT`)  | The whole application against real Postgres, Redis, SMTP, with WireMock for external APIs | 173   |
+| Browser (Playwright) | The built application, driven as a person drives it                                       | 18    |
+| Frontend unit        | i18n parity, error handling, component behaviour                                          | 194   |
 
-The split is not ceremony. The three worst defects found in this codebase were
-all invisible to unit tests: a Feign proxy that could not reach a package-private
-type, a servlet filter registered twice, and a migration adding a NOT NULL column
-no adapter wrote to. Each needed a request crossing the real stack.
+Each layer catches what the one below cannot. The three worst defects found in
+this codebase were all invisible to unit tests: a Feign proxy that could not
+reach a package-private type, a servlet filter registered twice, and a migration
+adding a NOT NULL column no adapter wrote to. Each needed a request crossing the
+real stack.
 
 ## Decisions recorded elsewhere
 

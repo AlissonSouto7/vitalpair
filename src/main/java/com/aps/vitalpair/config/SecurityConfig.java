@@ -51,7 +51,7 @@ public class SecurityConfig {
         // header, which a cross-site request cannot set. There is no ambient credential
         // to abuse, so the protection has nothing to protect and only breaks clients.
         //
-        // The refresh token IS in a cookie, since phase 6, and this comment used to talk
+        // The refresh token IS in a cookie, and this comment used to talk
         // about that as a future thing to worry about. The defences it named came with it
         // and are what keep this decision sound: SameSite=Strict (so no cross-site request
         // carries the cookie at all), Secure, HttpOnly, and a path scoped to

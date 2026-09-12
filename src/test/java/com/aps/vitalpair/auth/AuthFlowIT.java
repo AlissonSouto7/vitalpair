@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * <p>Everything here crosses the real HTTP stack, the real Redis and a real SMTP server. The
  * unit tests in {@code AuthServiceTest} already cover the rotation and replay logic with
- * mocks; this class proves the wiring around it, which is where phase 6 introduced the
+ * mocks; this class proves the wiring around it, which is where the cookie rework introduced the
  * cookie and where a mistake would let a browser session silently stop working.
  */
 class AuthFlowIT extends AbstractIntegrationTest {

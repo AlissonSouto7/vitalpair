@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Analysing a photo of a plate.
  *
- * <p>The endpoint had no test of any kind until phase 13, which mattered more than the count
+ * <p>The endpoint had no test of any kind for a long time, which mattered more than the count
  * suggests: it is one of the two paid paths, it takes an unbounded body from the client, and
  * it goes out through a Feign proxy of the same shape that once failed at runtime with an
  * {@code IllegalAccessError} the unit tests could not see.

@@ -69,7 +69,7 @@ leaves the screen usable. Errors read the same on every screen.
 
 ### What this makes harder
 
-Two of 27 screens use the new data layer; the rest were left for phase 10,
+Two of 27 screens use the new data layer; the rest were left for a later pass,
 which is also incomplete on that point (10 lint warnings remain). A screen that
 mixes both patterns is possible during the transition. Lazy routes add a
 loading flash on first visit to each screen.
@@ -91,4 +91,4 @@ high-severity advisory found by `npm audit` during the work.
 ## References
 
 - `docs/features/frontend-foundation.md`
-- Phase 9 pull request.
+- An earlier pass pull request.

@@ -86,7 +86,7 @@ bisectable. A release is `git tag`, nothing more.
 
 Long-running work has to be split into mergeable pieces, or it sits on a branch
 that drifts. Stacked branches need a rebase after each merge. Both were felt
-during the professionalisation work, where six phases waited on one review.
+during a stretch where six pull requests waited on one review.
 
 ### What has to change
 
@@ -106,4 +106,4 @@ fast-forward into `main`. The CI workflow runs on every pull request to `main`.
 ## References
 
 - `CONTRIBUTING.md`, branching and pull request sections.
-- Phase 0 and phase 1 pull requests, #1 to #4.
+- An earlier pass and an earlier pass pull requests, #1 to #4.
