@@ -41,6 +41,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
+    /** The barcode lookup carries its code in the path, so it is matched by this prefix. */
+    private static final String BARCODE_PREFIX = "/api/v1/nutrition/foods/barcode/";
+
+    private static final RateLimitPolicy BARCODE_POLICY =
+            RateLimitPolicy.perUser("foodbarcode", 60, Duration.ofMinutes(1));
+
     private final Map<String, RateLimitPolicy> policies;
     private final RateLimiter rateLimiter;
     private final ObjectMapper objectMapper;
@@ -70,25 +76,44 @@ public class RateLimitFilter extends OncePerRequestFilter {
             @Value("${vitalpair.ratelimit.refresh-per-minute:30}") int refreshPerMinute) {
         this.rateLimiter = rateLimiter;
         this.objectMapper = objectMapper;
-        this.policies = Map.of(
-                "POST /api/v1/auth/login", RateLimitPolicy.perIp("login", loginPerMinute, Duration.ofMinutes(1)),
-                "POST /api/v1/auth/register",
-                        RateLimitPolicy.perIp("register", registerPerMinute, Duration.ofMinutes(1)),
-                "POST /api/v1/auth/oauth2/google", RateLimitPolicy.perIp("google", 10, Duration.ofMinutes(1)),
-                "POST /api/v1/auth/refresh", RateLimitPolicy.perIp("refresh", refreshPerMinute, Duration.ofMinutes(1)),
-                "POST /api/v1/auth/forgot-password", RateLimitPolicy.perIp("forgot", 3, Duration.ofMinutes(10)),
-                "POST /api/v1/auth/resend-verification", RateLimitPolicy.perIp("resend", 3, Duration.ofMinutes(10)),
-                "POST /api/v1/nutrition/photo", RateLimitPolicy.perUser("photo", 20, Duration.ofHours(1)),
-                "POST /api/v1/meal-plan/generate", RateLimitPolicy.perUser("mealplan", 5, Duration.ofHours(1)),
-                "POST /api/v1/workout-plan/generate", RateLimitPolicy.perUser("workoutplan", 5, Duration.ofHours(1)),
-                "POST /api/v1/meal-plan/swap", RateLimitPolicy.perUser("mealswap", 20, Duration.ofHours(1)));
+        this.policies = Map.ofEntries(
+                Map.entry(
+                        "POST /api/v1/auth/login",
+                        RateLimitPolicy.perIp("login", loginPerMinute, Duration.ofMinutes(1))),
+                Map.entry(
+                        "POST /api/v1/auth/register",
+                        RateLimitPolicy.perIp("register", registerPerMinute, Duration.ofMinutes(1))),
+                Map.entry(
+                        "POST /api/v1/auth/oauth2/google", RateLimitPolicy.perIp("google", 10, Duration.ofMinutes(1))),
+                Map.entry(
+                        "POST /api/v1/auth/refresh",
+                        RateLimitPolicy.perIp("refresh", refreshPerMinute, Duration.ofMinutes(1))),
+                Map.entry(
+                        "POST /api/v1/auth/forgot-password",
+                        RateLimitPolicy.perIp("forgot", 3, Duration.ofMinutes(10))),
+                Map.entry(
+                        "POST /api/v1/auth/resend-verification",
+                        RateLimitPolicy.perIp("resend", 3, Duration.ofMinutes(10))),
+                Map.entry("POST /api/v1/nutrition/photo", RateLimitPolicy.perUser("photo", 20, Duration.ofHours(1))),
+                // Each search and barcode lookup is an outbound call to Open Food Facts. Counting
+                // per user keeps one account from turning the API into an unmetered proxy, which is
+                // the only cost here: the calls are free and answer from a cache when they repeat.
+                Map.entry(
+                        "GET /api/v1/nutrition/foods/search",
+                        RateLimitPolicy.perUser("foodsearch", 60, Duration.ofMinutes(1))),
+                Map.entry(
+                        "POST /api/v1/meal-plan/generate", RateLimitPolicy.perUser("mealplan", 5, Duration.ofHours(1))),
+                Map.entry(
+                        "POST /api/v1/workout-plan/generate",
+                        RateLimitPolicy.perUser("workoutplan", 5, Duration.ofHours(1))),
+                Map.entry("POST /api/v1/meal-plan/swap", RateLimitPolicy.perUser("mealswap", 20, Duration.ofHours(1))));
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        RateLimitPolicy policy = policies.get(request.getMethod() + " " + request.getRequestURI());
+        RateLimitPolicy policy = resolvePolicy(request);
         if (policy == null) {
             chain.doFilter(request, response);
             return;
@@ -106,6 +131,42 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         writeTooManyRequests(request, response, result.retryAfter());
+    }
+
+    /**
+     * Finds the policy for a request, matching on a normalised path rather than the raw URI.
+     *
+     * <p>The raw {@code getRequestURI()} let a caller slip a limited endpoint: a trailing slash
+     * or a doubled separator produced a string that no key matched, and the request went through
+     * unlimited. The auth routes keep a coarser guard at the edge either way, but the AI and
+     * search endpoints have only this one, so the normalisation is what closes the gap for them.
+     *
+     * <p>The barcode lookup is matched by prefix: its code is part of the path, so no fixed key
+     * can name it. Every other endpoint is matched exactly.
+     */
+    private RateLimitPolicy resolvePolicy(HttpServletRequest request) {
+        String path = normalizePath(request.getRequestURI());
+        if ("GET".equals(request.getMethod()) && path.startsWith(BARCODE_PREFIX)) {
+            return BARCODE_POLICY;
+        }
+        return policies.get(request.getMethod() + " " + path);
+    }
+
+    /**
+     * Collapses the path to the one form a policy key is written in: no trailing slash (except
+     * the root), and no empty segments from doubled or dangling separators.
+     */
+    static String normalizePath(String uri) {
+        String path = uri;
+        int query = path.indexOf('?');
+        if (query >= 0) {
+            path = path.substring(0, query);
+        }
+        path = path.replaceAll("/{2,}", "/");
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
     }
 
     /**

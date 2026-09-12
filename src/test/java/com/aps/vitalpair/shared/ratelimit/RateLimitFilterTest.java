@@ -80,4 +80,48 @@ class RateLimitFilterTest {
     void aRouteWithNoPolicyCarriesNoLimitHeaders() throws Exception {
         assertThat(limitFor("/api/v1/dashboard", 10, 5)).isNull();
     }
+
+    /** The limit reported for a method and path, or null when no policy matched. */
+    private String limitFor(String method, String uri) throws Exception {
+        when(rateLimiter.check(any(), anyString())).thenReturn(new RateLimitResult(true, 1, null));
+        RateLimitFilter filter = new RateLimitFilter(rateLimiter, new ObjectMapper(), 10, 5, 30);
+
+        MockHttpServletRequest request = new MockHttpServletRequest(method, uri);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        return response.getHeader("X-RateLimit-Limit");
+    }
+
+    @Test
+    @DisplayName("a trailing slash no longer slips past the limit")
+    void aTrailingSlashNoLongerSlipsPastTheLimit() throws Exception {
+        // The bug: "/api/v1/auth/login/" matched no key and went through unlimited. It must be
+        // read as the same route as "/api/v1/auth/login".
+        assertThat(limitFor("POST", "/api/v1/auth/login/")).isEqualTo("10");
+    }
+
+    @Test
+    @DisplayName("a doubled separator no longer slips past the limit")
+    void aDoubledSeparatorNoLongerSlipsPastTheLimit() throws Exception {
+        assertThat(limitFor("POST", "/api/v1//meal-plan/generate")).isEqualTo("5");
+    }
+
+    @Test
+    @DisplayName("the barcode lookup is limited despite the code in its path")
+    void theBarcodeLookupIsLimitedDespiteTheCodeInItsPath() throws Exception {
+        // No fixed key can name a path that ends in an arbitrary code, so this one is matched by
+        // prefix. Without it the outbound lookup had no ceiling at all.
+        assertThat(limitFor("GET", "/api/v1/nutrition/foods/barcode/7891000100103"))
+                .isEqualTo("60");
+    }
+
+    @Test
+    @DisplayName("normalizePath collapses the forms a policy key is not written in")
+    void normalizePathCollapsesTheFormsAPolicyKeyIsNotWrittenIn() {
+        assertThat(RateLimitFilter.normalizePath("/api/v1/auth/login/")).isEqualTo("/api/v1/auth/login");
+        assertThat(RateLimitFilter.normalizePath("/api/v1//auth/login")).isEqualTo("/api/v1/auth/login");
+        assertThat(RateLimitFilter.normalizePath("/api/v1/auth/login?x=1")).isEqualTo("/api/v1/auth/login");
+        assertThat(RateLimitFilter.normalizePath("/")).isEqualTo("/");
+    }
 }
