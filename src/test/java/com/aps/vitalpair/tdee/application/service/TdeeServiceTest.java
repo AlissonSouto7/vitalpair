@@ -17,7 +17,7 @@ class TdeeServiceTest {
     private final TdeeService service = new TdeeService();
 
     @Test
-    void homemGanhoDeMassa() {
+    void amanBulking() {
         // BMR = 10*80 + 6.25*180 - 5*30 + 5 = 1780; TDEE = 1780*1.55 = 2759; meta = +300 = 3059
         TdeeResult r = service.calculate(
                 new TdeeInput(Sex.MALE, 30, bd(180), bd(80), ActivityLevel.MODERATE, Goal.GAIN_MUSCLE));
@@ -31,7 +31,7 @@ class TdeeServiceTest {
     }
 
     @Test
-    void mulherPerdaDePeso() {
+    void awomanCutting() {
         // BMR = 10*65 + 6.25*165 - 5*25 - 161 = 1395.25; TDEE = *1.375 = 1918; meta = -500 = 1418
         TdeeResult r = service.calculate(
                 new TdeeInput(Sex.FEMALE, 25, bd(165), bd(65), ActivityLevel.LIGHT, Goal.LOSE_WEIGHT));
@@ -45,7 +45,7 @@ class TdeeServiceTest {
     }
 
     @Test
-    void manterPesoNaoAjustaCalorias() {
+    void maintainingWeightAdjustsNothing() {
         TdeeResult r =
                 service.calculate(new TdeeInput(Sex.MALE, 40, bd(175), bd(75), ActivityLevel.SEDENTARY, Goal.MAINTAIN));
 

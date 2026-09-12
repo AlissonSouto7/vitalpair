@@ -52,7 +52,7 @@ class PairServiceTest {
     private PairService service;
 
     @Test
-    void joinFormaParAtivoEMoveTenantDoConvidado() {
+    void joiningFormsAnActivePairAndMovesTheGuestsTenant() {
         when(pairRepository.findByInviteCode(CODE)).thenReturn(Optional.of(pendingPair(TENANT_A, USER_A)));
         when(userRepository.findById(USER_B)).thenReturn(Optional.of(user(USER_B, TENANT_B, "Bob")));
         when(userRepository.findById(USER_A)).thenReturn(Optional.of(user(USER_A, TENANT_A, "Ana")));
@@ -90,14 +90,14 @@ class PairServiceTest {
     }
 
     @Test
-    void joinNoProprioParRejeitado() {
+    void joiningYourOwnPairIsRejected() {
         when(pairRepository.findByInviteCode(CODE)).thenReturn(Optional.of(pendingPair(TENANT_A, USER_A)));
 
         assertThatThrownBy(() -> service.joinPair(USER_A, CODE)).isInstanceOf(BusinessRuleException.class);
     }
 
     @Test
-    void joinComCodigoIndisponivelRejeitado() {
+    void joiningWithAcodeThatIsNoLongerAvailableIsRejected() {
         Pair active = pendingPair(TENANT_A, USER_A).toBuilder()
                 .status(PairStatus.ACTIVE)
                 .user2Id(USER_B)
@@ -108,14 +108,14 @@ class PairServiceTest {
     }
 
     @Test
-    void joinComCodigoInvalidoRetornaNotFound() {
+    void joiningWithAcodeThatDoesNotExistIsNotFound() {
         when(pairRepository.findByInviteCode(CODE)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.joinPair(USER_B, CODE)).isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
-    void joinQuandoConvidadoJaTemParceiroRejeitado() {
+    void joiningWhenTheGuestAlreadyHasApartnerIsRejected() {
         when(pairRepository.findByInviteCode(CODE)).thenReturn(Optional.of(pendingPair(TENANT_A, USER_A)));
         when(userRepository.findById(USER_B)).thenReturn(Optional.of(user(USER_B, TENANT_B, "Bob")));
         Pair alreadyActive = pendingPair(TENANT_B, USER_B).toBuilder()
@@ -127,7 +127,7 @@ class PairServiceTest {
     }
 
     @Test
-    void generateInviteComParAtivoRejeitado() {
+    void invitingWhileAlreadyPairedIsRejected() {
         when(userRepository.findById(USER_A)).thenReturn(Optional.of(user(USER_A, TENANT_A, "Ana")));
         Pair active = pendingPair(TENANT_A, USER_A).toBuilder()
                 .status(PairStatus.ACTIVE)
@@ -138,7 +138,7 @@ class PairServiceTest {
     }
 
     @Test
-    void getCurrentPairRetornaConvite() {
+    void readingTheCurrentPairReturnsTheInvite() {
         when(userRepository.findById(USER_A)).thenReturn(Optional.of(user(USER_A, TENANT_A, "Ana")));
         when(pairRepository.findById(TENANT_A)).thenReturn(Optional.of(pendingPair(TENANT_A, USER_A)));
 

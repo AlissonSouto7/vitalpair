@@ -41,7 +41,7 @@ class BadgeServiceTest {
     private BadgeService service;
 
     @Test
-    void awardConcedeQuandoAindaNaoTem() {
+    void awardsAbadgeNobodyHasYet() {
         when(badgeRepository.findByCode("FIRST_MEAL")).thenReturn(Optional.of(badge()));
         when(userBadgeRepository.existsByUserAndBadge(USER, BADGE_ID)).thenReturn(false);
 
@@ -51,7 +51,7 @@ class BadgeServiceTest {
     }
 
     @Test
-    void awardNaoDuplicaQuandoJaTem() {
+    void doesNotAwardAbadgeTwice() {
         when(badgeRepository.findByCode("FIRST_MEAL")).thenReturn(Optional.of(badge()));
         when(userBadgeRepository.existsByUserAndBadge(USER, BADGE_ID)).thenReturn(true);
 
@@ -61,7 +61,7 @@ class BadgeServiceTest {
     }
 
     @Test
-    void awardIgnoraCodigoDesconhecido() {
+    void ignoresAbadgeCodeTheCatalogueDoesNotHave() {
         when(badgeRepository.findByCode("XXX")).thenReturn(Optional.empty());
 
         service.awardByCode(USER, TENANT, "XXX");
@@ -70,7 +70,7 @@ class BadgeServiceTest {
     }
 
     @Test
-    void getUserBadgesJuntaDetalhesDoCatalogo() {
+    void joinsEarnedBadgesWithTheirCatalogueDetails() {
         when(badgeRepository.findAll()).thenReturn(List.of(badge()));
         when(userBadgeRepository.findByUser(USER))
                 .thenReturn(List.of(UserBadge.builder()

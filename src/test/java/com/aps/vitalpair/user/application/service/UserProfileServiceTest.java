@@ -48,7 +48,7 @@ class UserProfileServiceTest {
     private UserProfileService service;
 
     @Test
-    void updateProfileAplicaMetasCalculadasESalva() {
+    void updatingTheProfileAppliesTheComputedTargetsAndSaves() {
         User existing = User.builder()
                 .id(USER_ID)
                 .tenantId(TENANT_ID)
@@ -81,7 +81,7 @@ class UserProfileServiceTest {
     }
 
     @Test
-    void updateProfileSemFusoMantemOFusoJaSalvo() {
+    void aprofileUpdateWithNoZoneKeepsTheStoredOne() {
         User existing = User.builder()
                 .id(USER_ID)
                 .tenantId(TENANT_ID)
@@ -102,7 +102,7 @@ class UserProfileServiceTest {
     }
 
     @Test
-    void updateProfileComFusoTrocaOFuso() {
+    void aprofileUpdateCarryingAzoneReplacesIt() {
         User existing = User.builder()
                 .id(USER_ID)
                 .tenantId(TENANT_ID)
@@ -133,7 +133,7 @@ class UserProfileServiceTest {
     }
 
     @Test
-    void getTdeeComPerfilIncompletoLancaErro() {
+    void askingForTheTdeeOfAnIncompleteProfileIsRejected() {
         User incompleto = User.builder()
                 .id(USER_ID)
                 .email("ana@vitalpair.app")
@@ -145,7 +145,7 @@ class UserProfileServiceTest {
     }
 
     @Test
-    void getProfileInexistenteLancaNotFound() {
+    void aprofileNobodyHasIsNotFound() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getProfile(USER_ID)).isInstanceOf(ResourceNotFoundException.class);
