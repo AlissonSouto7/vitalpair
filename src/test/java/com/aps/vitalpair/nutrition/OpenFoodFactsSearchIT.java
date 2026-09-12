@@ -160,4 +160,40 @@ class OpenFoodFactsSearchIT extends AbstractIntegrationTest {
                 .as("an unauthenticated request must not reach the upstream API")
                 .isEmpty();
     }
+
+    @Test
+    void aTooShortQueryIsRejectedWithoutReachingTheUpstream() {
+        Session session = register("Otavio");
+
+        // A single character, and the empty string, are not a search anyone means to run. They
+        // were the free ride into the outbound call before the bound existed.
+        ResponseEntity<String> single = httpGet("/api/v1/nutrition/foods/search?q=a", session);
+        ResponseEntity<String> empty = httpGet("/api/v1/nutrition/foods/search?q=", session);
+
+        assertThat(single.getStatusCode()).as(single.getBody()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(empty.getStatusCode()).as(empty.getBody()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(WireMockSupport.server().getAllServeEvents())
+                .as("a query the server rejects must never spend an outbound call")
+                .isEmpty();
+    }
+
+    @Test
+    void searchIsCappedPerUser() {
+        Session session = register("Paula");
+        WireMockSupport.server()
+                .stubFor(get(urlPathEqualTo(SEARCH_UPSTREAM))
+                        .willReturn(aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", "application/json")
+                                .withBody("{\"hits\":[]}")));
+
+        // The limit is 60 a minute. The sixty-first from the same user is refused, so one account
+        // cannot turn the search box into an unmetered proxy to Open Food Facts.
+        HttpStatus last = null;
+        for (int i = 1; i <= 61; i++) {
+            last = HttpStatus.valueOf(httpGet(SEARCH, session).getStatusCode().value());
+        }
+
+        assertThat(last).as("the 61st search in a minute must be throttled").isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+    }
 }

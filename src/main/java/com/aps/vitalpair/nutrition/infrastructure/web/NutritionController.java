@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +40,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Nutrition", description = "Searching foods, logging meals and reading the day's totals.")
 @RestController
+@Validated
 @RequestMapping("/api/v1/nutrition")
 public class NutritionController {
 
@@ -74,7 +78,8 @@ public class NutritionController {
             description =
                     "Queries Open Food Facts. An upstream failure returns an empty list rather than an error, so a partner outage degrades the search box instead of breaking the screen.")
     @GetMapping("/foods/search")
-    public ResponseEntity<ApiResponse<List<FoodProductResponse>>> search(@RequestParam("q") String query) {
+    public ResponseEntity<ApiResponse<List<FoodProductResponse>>> search(
+            @RequestParam("q") @NotBlank @Size(min = 2, max = 100) String query) {
         List<FoodProductResponse> products = searchFoodUseCase.search(query).stream()
                 .map(FoodProductResponse::from)
                 .toList();
