@@ -30,7 +30,7 @@
 		<spotless.version>2.44.0</spotless.version>
 		<palantir.version>2.50.0</palantir.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
-		<checkstyle.version>10.21.0</checkstyle.version>
+		<checkstyle.version>14.1.0</checkstyle.version>
 		<jacoco.version>0.8.15</jacoco.version>
 		<enforcer.version>3.5.0</enforcer.version>
 	</properties>
