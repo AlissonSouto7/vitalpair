@@ -5,7 +5,13 @@ import org.springframework.stereotype.Component;
 
 import com.aps.vitalpair.auth.domain.port.out.PasswordHasherPort;
 
-/** Implementa {@link PasswordHasherPort} com BCrypt (strength 12, conforme §7.1 da arquitetura). */
+/**
+ * BCrypt behind {@link PasswordHasherPort}, at strength 12.
+ *
+ * <p>Twelve rather than Spring's default of ten, as agreed in section 7.1 of the architecture
+ * document: each step doubles the work, so the two extra steps cost one login four times as
+ * much and cost the same to anyone working through a stolen dump.
+ */
 @Component
 public class PasswordEncoderAdapter implements PasswordHasherPort {
 

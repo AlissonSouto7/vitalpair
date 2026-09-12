@@ -40,11 +40,17 @@ public class TdeeService implements CalculateTargetsUseCase {
                 (int) Math.round(bmr), (int) Math.round(tdee), (int) Math.round(dailyCalories), proteinG, carbG, fatG);
     }
 
+    /**
+     * The sex constant of Mifflin-St Jeor.
+     *
+     * <p>The formula defines only two, so OTHER takes their midpoint: the honest answer for
+     * somebody it was not written for, rather than quietly filing them under one.
+     */
     private double sexConstant(Sex sex) {
         return switch (sex) {
             case MALE -> 5;
             case FEMALE -> -161;
-            case OTHER -> -78; // média entre as constantes masculina e feminina
+            case OTHER -> -78;
         };
     }
 
