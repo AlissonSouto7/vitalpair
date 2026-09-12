@@ -38,6 +38,18 @@ jobs:
       - name: Build and test
         run: ./mvnw -B -ntp verify
 
+      # The API document as the build produced it, so a reviewer can download it and diff it
+      # against the previous run. An accidental change to the public shape of an endpoint is
+      # invisible in a Java diff and obvious in this one.
+      - name: Upload the API document
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: openapi
+          path: target/openapi.json
+          if-no-files-found: warn
+          retention-days: 30
+
   # Nothing built the Dockerfiles before this job existed, which meant a pull request
   # changing a base image passed every check without anything having compiled it. Two of
   # them did exactly that: a bump of the build JDK to 26 and of the runtime JRE to 25 both

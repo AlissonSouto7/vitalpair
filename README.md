@@ -81,6 +81,47 @@ endpoint leaks one into the other. These rules are enforced by ArchUnit, not by
 convention. The full picture is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md);
 the reasons behind the decisions are in [docs/adr/](docs/adr/).
 
+```mermaid
+flowchart TB
+    person([Person]) -->|HTTPS| edge
+
+    subgraph machine["One machine, one edge proxy"]
+        direction TB
+        edge["nginx&nbsp;&nbsp;TLS, rate limit"]
+        prometheus["Prometheus + Grafana"]
+
+        subgraph stack["A stack per environment"]
+            direction LR
+            frontend["frontend&nbsp;&nbsp;static bundle"]
+            backend["backend&nbsp;&nbsp;Spring Boot"]
+            postgres[("PostgreSQL")]
+            redis[("Redis&nbsp;&nbsp;tokens, limits")]
+        end
+    end
+
+    subgraph outside["Outside"]
+        direction TB
+        anthropic["Anthropic"]
+        off["Open Food Facts"]
+        smtp["SMTP"]
+    end
+
+    edge -->|"/"| frontend
+    edge -->|"/api/"| backend
+    backend --> postgres
+    backend --> redis
+    prometheus -.->|"scrapes :9090"| backend
+
+    backend -->|"photos, plans"| anthropic
+    backend -->|"food search"| off
+    backend -->|"reset, verification"| smtp
+```
+
+The management port the metrics live on is never published: Prometheus reaches it
+across the shared network, which is the whole reason both stacks join one. The
+same edge serves staging and production side by side, each with its own stack,
+its own database and its own certificate.
+
 ## Running it locally
 
 Requires JDK 17, Node 22 or newer, and Docker.

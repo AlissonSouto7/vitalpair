@@ -50,7 +50,9 @@ public class StreakService implements GetStreaksUseCase {
 
         LocalDate last = existing.getLastActivityDate();
         if (last != null && !date.isAfter(last)) {
-            return Optional.empty(); // mesmo dia (já contou) ou data anterior
+            // Same day (already counted) or an older one. Empty is how this tells the caller
+            // not to award anything: logging a second meal today is not a second day.
+            return Optional.empty();
         }
 
         int current = (last != null && last.equals(date.minusDays(1))) ? existing.getCurrentCount() + 1 : 1;

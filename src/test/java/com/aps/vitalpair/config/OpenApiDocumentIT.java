@@ -2,6 +2,8 @@ package com.aps.vitalpair.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,5 +136,24 @@ class OpenApiDocumentIT {
                 .as("the id a person quotes when reporting a failure")
                 .isTrue();
         assertThat(properties.has("violations")).isTrue();
+    }
+
+    /**
+     * Writes the document to {@code target/openapi.json}, which CI publishes as an artefact.
+     *
+     * <p>Here rather than in the workflow because the application is already running with a
+     * real database behind it: generating it in CI would mean starting all of that a second
+     * time to produce a file this test already has in hand. A reviewer can then download the
+     * document for a pull request and diff it against the previous one, which is how an
+     * accidental change to the public API gets noticed before somebody's client breaks.
+     */
+    @Test
+    void theDocumentIsWrittenWhereCiCanPublishIt() throws Exception {
+        Path target = Path.of("target", "openapi.json");
+        Files.createDirectories(target.getParent());
+        Files.writeString(target, document().toPrettyString());
+
+        assertThat(target).exists();
+        assertThat(Files.readString(target)).contains("VitalPair API");
     }
 }
