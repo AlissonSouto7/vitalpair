@@ -66,14 +66,20 @@ working proof of concept.
 Hardening is scheduled work, not an oversight. These are tracked and being
 addressed:
 
-- Password reset and email verification tokens are written to the application
-  log in full.
-- The development profile ships a hardcoded JWT secret and default database
-  credentials.
-- There is no rate limiting on authentication endpoints.
-- The OpenAPI UI is not disabled in the production profile.
-- There is no role model yet: every authenticated user has the same
+- There is no fine-grained role model yet: apart from the single ADMIN flag,
+  granted only by a database update, every authenticated user has the same
   permissions.
+- Registration answers differently for an address that already has an account
+  (422) and a new one (201), so the endpoint can be used to tell which e-mails
+  are registered. Rate limiting slows a scan but does not prevent it; moving to
+  a verify-first flow that always answers the same is the fix.
+
+Earlier releases listed unauthenticated endpoints with no rate limiting, a
+hardcoded development JWT secret, reset tokens written to the log, and OpenAPI
+served in production. All four are closed: authentication and the paid
+endpoints are rate limited (`RateLimitFilter`), the development secret is
+generated per run (`DevJwtSecretGenerator`), the mail adapter never logs the
+link, and OpenAPI is disabled in production and refused at the edge.
 
 ## Secrets
 
