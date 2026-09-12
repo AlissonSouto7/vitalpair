@@ -38,7 +38,7 @@ This document holds what was verified, what was found, and what is not covered.
 | Scripts                | `deploy/scripts/{deploy,rollback,backup,restore,smoke,certbot-init,selfsigned,htpasswd}.sh`                                    |
 | CI                     | `.github/workflows/ci.yml`, job `Container images`: builds both images and boots the backend one against a real database       |
 | CD                     | `.github/workflows/cd.yml` (main deploys staging, a `v*` tag deploys production after approval), `.github/actions/deploy`      |
-| Runbook                | [docs/runbooks/deploy.md](../runbooks/deploy.md): how to watch a deploy, what each failure means, how to go back               |
+| Runbooks               | [docs/runbooks/](../runbooks/): deploying, rolling back, backups and restores, and a broken site                               |
 
 ### What the edge does with each path
 
