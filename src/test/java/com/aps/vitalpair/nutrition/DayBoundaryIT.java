@@ -133,9 +133,13 @@ class DayBoundaryIT extends AbstractIntegrationTest {
         Session session = register("Grafico");
         setZone(session, TOKYO);
 
-        // Late enough in Tokyo that the same instant is still the previous day in UTC. The chart
+        // Early in Tokyo (08:30) that the same instant is still the previous day in UTC. The chart
         // groups per day inside SQL, so this is the only place that bucketing is exercised.
-        ZonedDateTime lateNight = ZonedDateTime.now(TOKYO).withHour(8).withMinute(30);
+        // Anchored to yesterday so the instant is always in the past: logging in the future is
+        // now refused, and "today at 08:30" would be a future instant whenever the suite runs
+        // before 08:30 Tokyo time.
+        ZonedDateTime lateNight =
+                ZonedDateTime.now(TOKYO).minusDays(1).withHour(8).withMinute(30);
         logMeal(session, "Cafe da manha", 400, lateNight.toInstant());
 
         JsonNode progress = data(httpGet("/api/v1/progress", session));

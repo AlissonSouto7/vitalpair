@@ -99,14 +99,15 @@ and a ledger write.
 
 ### Verified and fine
 
-| Check                                         | How it was verified                                                                                                                                                               | Date       |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Points cannot be farmed by logging repeatedly | `StreakServiceTest.naoContaDuasVezesNoMesmoDia` (unit) and `ConcurrentScoringIT.severalMealsLoggedAtOnceScoreOnlyOnce` (six overlapping requests, exactly 10 points)              | 2026-09-06 |
-| The ledger agrees with the scoreboard         | `ConcurrentScoringIT.theLedgerStillAgreesWithTheScoreboardAfterConcurrentScoring`                                                                                                 | 2026-09-06 |
-| Awarding a badge twice does nothing           | `BadgeServiceTest.awardNaoDuplicaQuandoJaTem` verifies `save` is never called                                                                                                     | 2026-09-06 |
-| A listener failure cannot roll back the meal  | Every handler is `AFTER_COMMIT` + `REQUIRES_NEW`; read and confirmed                                                                                                              | 2026-09-06 |
-| No cross-tenant read                          | `TenantIsolationIT` covers all four endpoints via the controller's base path                                                                                                      | 2026-09-06 |
-| Reads are scoped                              | Streak and badge queries filter by `user_id`, which is strictly narrower than `tenant_id`; the scoreboard filters by `tenant_id` taken from the principal, never from the request | 2026-09-06 |
+| Check                                              | How it was verified                                                                                                                                                                                                                                                                       | Date       |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Points cannot be farmed by logging repeatedly      | `StreakServiceTest.naoContaDuasVezesNoMesmoDia` (unit) and `ConcurrentScoringIT.severalMealsLoggedAtOnceScoreOnlyOnce` (six overlapping requests, exactly 10 points)                                                                                                                      | 2026-09-06 |
+| The ledger agrees with the scoreboard              | `ConcurrentScoringIT.theLedgerStillAgreesWithTheScoreboardAfterConcurrentScoring`                                                                                                                                                                                                         | 2026-09-06 |
+| Awarding a badge twice does nothing                | `BadgeServiceTest.awardNaoDuplicaQuandoJaTem` verifies `save` is never called                                                                                                                                                                                                             | 2026-09-06 |
+| A listener failure cannot roll back the meal       | Every handler is `AFTER_COMMIT` + `REQUIRES_NEW`; read and confirmed                                                                                                                                                                                                                      | 2026-09-06 |
+| No cross-tenant read                               | `TenantIsolationIT` covers all four endpoints via the controller's base path                                                                                                                                                                                                              | 2026-09-06 |
+| Reads are scoped                                   | Streak and badge queries filter by `user_id`, which is strictly narrower than `tenant_id`; the scoreboard filters by `tenant_id` taken from the principal, never from the request                                                                                                         | 2026-09-06 |
+| A future date cannot fabricate a streak or a score | Was G-6: `loggedAt` had no upper bound, and a burst of future-dated logs built a seven-day streak, its bonus and a winning score in seconds. `@NotInFuture` on both log DTOs now refuses it; `BackdatedScoringIT` proves the exploit scores zero and an honest backdated entry still logs | 2026-09-11 |
 
 ## Tests
 
@@ -170,7 +171,8 @@ SELECT count(*) FROM point_events WHERE points < 0;
 
 ## History
 
-| Date       | Change                                                                                                                                                                  | Pull request             |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| 2026-09-11 | The event listener got the test this document called the highest-value one left to write: twelve cases over the whole points economy, including the overtake transition | `fix/audit-loose-ends`   |
-| 2026-09-06 | `ConcurrentScoringIT` added, document created (phase 13)                                                                                                                | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                  | Pull request               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-09-11 | Future-dated logs refused (`@NotInFuture`), closing the streak/score exploit; `BackdatedScoringIT` added                                                                | `fix/security-findings-v2` |
+| 2026-09-11 | The event listener got the test this document called the highest-value one left to write: twelve cases over the whole points economy, including the overtake transition | `fix/audit-loose-ends`     |
+| 2026-09-06 | `ConcurrentScoringIT` added, document created (phase 13)                                                                                                                | `docs/professional-docs`   |

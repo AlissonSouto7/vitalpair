@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 
 import com.aps.vitalpair.nutrition.domain.model.FoodSource;
 import com.aps.vitalpair.nutrition.domain.model.MealType;
+import com.aps.vitalpair.shared.time.NotInFuture;
 
 public record LogMealRequest(
         @NotBlank @Size(max = 255) String foodName,
@@ -22,4 +23,4 @@ public record LogMealRequest(
         @NotNull MealType mealType,
         @NotNull FoodSource source,
         boolean isPrivate,
-        Instant loggedAt) {}
+        @NotInFuture Instant loggedAt) {}

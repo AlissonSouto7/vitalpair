@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 
 import com.aps.vitalpair.activity.domain.model.ActivitySource;
 import com.aps.vitalpair.activity.domain.model.ActivityType;
+import com.aps.vitalpair.shared.time.NotInFuture;
 
 public record LogActivityRequest(
         @NotNull ActivityType activityType,
@@ -18,4 +19,4 @@ public record LogActivityRequest(
         @PositiveOrZero Integer durationMinutes,
         @NotNull ActivitySource source,
         @Size(max = 255) String externalId,
-        Instant loggedAt) {}
+        @NotInFuture Instant loggedAt) {}
