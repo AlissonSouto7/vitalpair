@@ -188,10 +188,7 @@ class NotificationEventListenerTest {
                 .thenReturn(Optional.of(
                         User.builder().id(YOU).tenantId(TENANT).name("Alisson").build()));
         when(userRepository.findById(PARTNER))
-                .thenReturn(Optional.of(User.builder()
-                        .id(PARTNER)
-                        .tenantId(TENANT)
-                        .name("Bia")
-                        .build()));
+                .thenReturn(Optional.of(
+                        User.builder().id(PARTNER).tenantId(TENANT).name("Bia").build()));
     }
 }

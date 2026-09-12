@@ -136,7 +136,7 @@ export function MissionCard({ mission }: { mission: WeeklyMission }) {
 }
 
 /* ============================================================
-   Missão do par — roxo (a Bia). Dois lados.
+   Missão do par — roxo (o par). Dois lados.
    ============================================================ */
 
 export function PairMissionCard({ mission }: { mission: WeeklyMission }) {

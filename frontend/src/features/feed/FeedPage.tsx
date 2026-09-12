@@ -7,6 +7,7 @@ import { getFeed, reactToItem, removeReaction } from '../../api/feed'
 import { Avatar } from '../../components/ui/Avatar'
 import { useAuthStore } from '../../store/authStore'
 import type { FeedItem, ReactionType } from '../../types/feed'
+import { usePartnerName } from '../pair/usePartnerName'
 
 type TFn = TFunction
 
@@ -58,6 +59,7 @@ export function FeedPage() {
   const myId = useAuthStore((s) => s.userId)
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
+  const partnerName = usePartnerName()
 
   /**
    * The pair's timeline, one page at a time.
@@ -114,7 +116,7 @@ export function FeedPage() {
       )}
 
       {items.length === 0 ? (
-        <EmptyState t={t} />
+        <EmptyState t={t} partnerName={partnerName} />
       ) : (
         <div className="flex flex-col gap-3">
           {items.map((item) => (
@@ -250,7 +252,7 @@ function TypeTag({
   )
 }
 
-function EmptyState({ t }: { t: TFn }) {
+function EmptyState({ t, partnerName }: { t: TFn; partnerName: string }) {
   return (
     <div className="card flex flex-col items-center gap-3 py-12 text-center">
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft">
@@ -260,7 +262,9 @@ function EmptyState({ t }: { t: TFn }) {
       </span>
       <div>
         <p className="font-display text-lg font-semibold text-ink">{t('feed.emptyTitle')}</p>
-        <p className="mt-1 text-sm font-semibold text-muted">{t('feed.emptyText')}</p>
+        <p className="mt-1 text-sm font-semibold text-muted">
+          {t('feed.emptyText', { partner: partnerName })}
+        </p>
       </div>
     </div>
   )

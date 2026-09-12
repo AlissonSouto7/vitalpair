@@ -12,6 +12,7 @@ import type {
   FoodProduct,
   MealType,
 } from '../../types/nutrition'
+import { usePartnerName } from '../pair/usePartnerName'
 
 import { DayList } from './DayList'
 import type { Draft } from './draft'
@@ -53,6 +54,7 @@ export function NutritionPage() {
 
   const logsQuery = useQuery(nutritionQueries.logs())
   const summaryQuery = useQuery(nutritionQueries.summary())
+  const partnerName = usePartnerName()
   const logs: FoodLog[] = logsQuery.data ?? []
   const summary: DailySummary | null = summaryQuery.data ?? null
   const loadError = logsQuery.isError || summaryQuery.isError ? t('nutrition.loadError') : null
@@ -336,6 +338,7 @@ export function NutritionPage() {
         t={t}
         logs={logs}
         mealLabel={mealLabel}
+        partnerName={partnerName}
         onOpen={setSelected}
         onRemove={(id) => void removeLog(id)}
       />

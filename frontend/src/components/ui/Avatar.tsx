@@ -1,7 +1,7 @@
 /**
  * Avatar em tile arredondado. Cor por papel:
  *   tone="you"   → laranja (você)
- *   tone="rival" → roxo (a Bia / o par)
+ *   tone="rival" → roxo (o par)
  *   tone="ghost" → cinza neutro (sua versão da semana passada, no modo solo)
  * O personagem evolutivo entra aqui depois como ilustração real (prop `art`).
  */

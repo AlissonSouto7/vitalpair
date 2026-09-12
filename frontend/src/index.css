@@ -1,12 +1,12 @@
 /* ============================================================
    VitalPair — design tokens · Tailwind CSS v4 (CSS-first)
-   Fonte da verdade: docs/Redesign VitalPair Frontend/handoff.
+   Fonte da verdade: docs/design (README.md e mockups/).
    A PALETA inteira vive em :root (claro) e .dark (escuro).
    Trocar de paleta = mexer só aqui.
 
    LEI DAS CORES (cada cor tem UM papel — cor fora do papel é bug):
      laranja (brand)  = VOCÊ + energia + marca
-     roxo  (rival)    = a Bia / o par-rival, e só isso
+     roxo  (rival)    = o par-rival, e só isso
      verde (success)  = saúde, meta batida, quem está ganhando
      dourado (carb)   = macro de carboidrato
      neutros quentes  = estrutura/chrome
@@ -30,7 +30,7 @@
   --color-brand-ink:  var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
 
-  --color-rival:      var(--rival);       /* roxo = a Bia */
+  --color-rival:      var(--rival);       /* roxo = o par */
   --color-rival-ink:  var(--rival-ink);
   --color-rival-soft: var(--rival-soft);
 

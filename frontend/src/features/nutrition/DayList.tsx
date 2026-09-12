@@ -15,12 +15,15 @@ export function DayList({
   t,
   logs,
   mealLabel,
+  partnerName,
   onOpen,
   onRemove,
 }: {
   t: TFunction
   logs: FoodLog[]
   mealLabel: (meal: MealType) => string
+  /** Who the empty state teases the person about; the generic word when there is no pair. */
+  partnerName: string
   onOpen: (log: FoodLog) => void
   onRemove: (id: string) => void
 }) {
@@ -37,7 +40,9 @@ export function DayList({
           <p className="font-display text-base font-semibold text-ink">
             {t('nutrition.emptyPlateTitle')}
           </p>
-          <p className="mt-1 text-sm font-semibold text-muted">{t('nutrition.emptyPlateText')}</p>
+          <p className="mt-1 text-sm font-semibold text-muted">
+            {t('nutrition.emptyPlateText', { partner: partnerName })}
+          </p>
         </div>
       ) : (
         <ul className="space-y-2">

@@ -11,6 +11,7 @@ import {
   foodLogsFixture,
   foodProductsFixture,
   freeEntitlementFixture,
+  pairActiveFixture,
   premiumEntitlementFixture,
 } from '@/test/fixtures'
 import { fail, ok, path, recording } from '@/test/msw/api'
@@ -26,13 +27,15 @@ const n = (key: LeafKeys<TranslationBundle['nutrition']>, vars?: Record<string, 
   loose(`nutrition.${key}`, vars)
 
 /**
- * The reads the screen always makes: the day, and the entitlement the photo tab (the
- * default tab) asks before offering the camera. Tabs add their own on top.
+ * The reads the screen always makes: the day, the pair (the empty plate names the partner),
+ * and the entitlement the photo tab (the default tab) asks before offering the camera. Tabs
+ * add their own on top.
  */
 function mount(entitlement: Entitlement = premiumEntitlementFixture) {
   server.use(
     http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
     http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
+    http.get(path('/pair'), () => ok(pairActiveFixture)),
     http.get(path('/entitlements/me'), () => ok(entitlement)),
   )
   return renderWithProviders(<NutritionPage />)
@@ -66,6 +69,7 @@ describe('NutritionPage', () => {
     server.use(
       http.get(path('/nutrition/logs'), () => fail(500, 'Erro interno')),
       http.get(path('/nutrition/summary'), () => fail(500, 'Erro interno')),
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
       http.get(path('/entitlements/me'), () => ok(premiumEntitlementFixture)),
     )
     renderWithProviders(<NutritionPage />)
@@ -79,6 +83,7 @@ describe('NutritionPage', () => {
     server.use(
       http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
       http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
       http.delete(path('/nutrition/logs/:id'), () => fail(500, 'Erro interno')),
       http.get(path('/entitlements/me'), () => ok(premiumEntitlementFixture)),
     )
@@ -122,6 +127,7 @@ describe('NutritionPage favourites tab', () => {
         summaryReads++
         return ok(dailySummaryFixture)
       }),
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
       http.get(path('/nutrition/favorites'), () => ok(favoriteFoodsFixture)),
       handler,
     )
@@ -140,6 +146,7 @@ describe('NutritionPage favourites tab', () => {
     server.use(
       http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
       http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
       http.get(path('/nutrition/favorites'), () => fail(500, 'Erro interno')),
     )
     const { user } = renderWithProviders(<NutritionPage />)

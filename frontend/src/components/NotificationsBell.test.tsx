@@ -14,7 +14,7 @@ function notification(over: Partial<AppNotification> = {}): AppNotification {
   return {
     id: 'n1',
     type: 'PARTNER_MEAL',
-    actorName: 'Bia',
+    actorName: 'Bel',
     refText: 'feijoada',
     amount: null,
     read: false,
@@ -76,8 +76,8 @@ describe('NotificationsBell', () => {
     server.use(
       feedIs(
         feedOf(0, [
-          notification({ id: 'a', type: 'PARTNER_MEAL', actorName: 'Bia', refText: 'feijoada' }),
-          notification({ id: 'b', type: 'RIVAL_OVERTOOK', actorName: 'Bia' }),
+          notification({ id: 'a', type: 'PARTNER_MEAL', actorName: 'Bel', refText: 'feijoada' }),
+          notification({ id: 'b', type: 'RIVAL_OVERTOOK', actorName: 'Bel' }),
           notification({ id: 'c', type: 'FLASH_MISSION' }),
         ]),
       ),

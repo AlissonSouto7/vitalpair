@@ -11,7 +11,7 @@ import { missionQueries } from './queries'
  * Tela de Missões — dados reais.
  *   relâmpago (laranja) = backend de missão relâmpago
  *   semanais (verde)    = progresso calculado dos logs
- *   do par (roxo)       = você + a Bia
+ *   do par (roxo)       = você + o par
  *   concluídas (verde)  = missões batidas
  */
 export function MissionsPage() {

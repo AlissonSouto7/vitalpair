@@ -2,7 +2,7 @@ import React from 'react'
 
 /**
  * Broto — mascote do VitalPair, como componente React.
- * who: 'you' (laranja) | 'partner' (roxo/Bia)
+ * who: 'you' (laranja) | 'partner' (roxo)
  * expr: 'happy' | 'smug' | 'sad' | 'strong'
  * level: 1..8 (o broto na cabeça cresce; nível 8 floresce numa flor bordô)
  * size: altura em px
