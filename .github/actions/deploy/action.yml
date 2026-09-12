@@ -72,9 +72,22 @@ runs:
            cd ~/vitalpair
            git fetch --quiet origin
            # The scripts that run the deploy come from the commit being deployed, so a
-           # change to deploy.sh takes effect with the release that contains it. Plain
-           # checkout, not --force: the environment files are gitignored and so untouched,
-           # and anything else modified by hand is a surprise worth stopping for.
+           # change to deploy.sh takes effect with the release that contains it.
+           #
+           # Still not --force: a file edited on the server by hand is worth stopping for,
+           # because overwriting it destroys the only copy. But git's own refusal is three
+           # lines of 'would be overwritten by checkout' with no hint of what to do, and it
+           # cost a deploy to work out. So the check is explicit and says both things: what
+           # is dirty, and the two ways out.
+           if ! git diff --quiet HEAD || [ -n \"\$(git status --porcelain)\" ]; then
+             echo 'The checkout on the server has local changes, so this deploy stopped'
+             echo 'rather than overwriting them:'
+             git status --short | sed 's/^/  /'
+             echo
+             echo 'Either keep them (commit and push, then deploy again) or discard them:'
+             echo '  ssh <deploy-host>; cd ~/vitalpair && git reset --hard && git clean -fd'
+             exit 1
+           fi
            git checkout --quiet '${GITHUB_SHA}'
            echo 'scripts at' \$(git rev-parse --short HEAD)
            deploy/scripts/deploy.sh '${ENVIRONMENT}' '${BACKEND_IMAGE}' '${FRONTEND_IMAGE}'"
