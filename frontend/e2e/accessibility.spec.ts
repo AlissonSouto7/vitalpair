@@ -35,7 +35,13 @@ async function waitForForm(page: import('@playwright/test').Page) {
   // Attached rather than visible: some screens keep a control behind a tab or a collapsed
   // panel, and a hidden control still needs its label. What matters is that the route's
   // code has arrived, so the placeholder is gone and the DOM is the real page.
-  await expect(page.locator('input, select, textarea').first()).toBeAttached()
+  //
+  // Thirty seconds rather than the default ten. This test walks five routes in one case,
+  // each of them a separate chunk fetched on arrival, and the default was enough on a
+  // developer machine (the whole file runs in eleven seconds) while failing on a shared
+  // CI runner that had just built the bundle and started a JVM. The wait is not the thing
+  // being measured here, so it should not be the thing that fails.
+  await expect(page.locator('input, select, textarea').first()).toBeAttached({ timeout: 30_000 })
 }
 
 async function unlabelledControls(page: import('@playwright/test').Page) {
