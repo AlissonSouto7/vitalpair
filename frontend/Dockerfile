@@ -29,7 +29,7 @@ RUN npm run build
 # ---- runtime ----
 # The unprivileged image runs as an ordinary user and listens on 8080 rather than 80,
 # because binding a port below 1024 is what forces the stock nginx image to start as root.
-FROM nginxinc/nginx-unprivileged:1.29-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 WORKDIR /usr/share/nginx/html
 
 # Only the built assets. The sources, node_modules and the toolchain stay behind: they are
