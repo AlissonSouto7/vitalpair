@@ -135,11 +135,10 @@ UPDATE users SET plan = 'PREMIUM', plan_expires_at = NULL WHERE email = 'someone
 
 ## Known debt
 
-| Item                                    | Impact                                           | When it is meant to be addressed        |
-| --------------------------------------- | ------------------------------------------------ | --------------------------------------- |
-| No way to buy the plan                  | The notice says "not on sale yet", and it is not | Billing, after the launch               |
-| P-9, grants by SQL                      | No audit trail of who was given what             | With billing                            |
-| The key on staging is a development key | Staging spends the owner's own Anthropic credit  | It is rotated when production is set up |
+| Item                   | Impact                                           | When it is meant to be addressed |
+| ---------------------- | ------------------------------------------------ | -------------------------------- |
+| No way to buy the plan | The notice says "not on sale yet", and it is not | Billing, after the launch        |
+| P-9, grants by SQL     | No audit trail of who was given what             | With billing                     |
 
 ## History
 

@@ -25,11 +25,13 @@ For a bug fix, both runs are required.
 **Before**
 
 ```
+
 ```
 
 **After**
 
 ```
+
 ```
 
 <!-- Screenshots for UI changes, before and after. -->
@@ -50,7 +52,7 @@ For a bug fix, both runs are required.
 - [ ] New behaviour is covered by tests
 - [ ] A bug fix has a test that failed before the fix and passes after it, with both outputs above
 - [ ] A test that passed on the first run was verified as non-vacuous by breaking the code on purpose
-- [ ] Comments and documentation are in English, with no assistant voice and no emoji
+- [ ] Comments and documentation are in English, with no narration and no emoji
 - [ ] `docs/features/<name>.md` created or updated, or no feature changed
 - [ ] An ADR was added, or no architectural decision was made
 
@@ -69,7 +71,7 @@ If there is a migration:
 
 <!--
 Report the result even when nothing is wrong. Say what you checked.
-Full checklist: CLAUDE.md section 8.
+Full checklist: docs/ENGINEERING.md, section 8.
 -->
 
 - [ ] Input is validated on the server, not only in the browser

@@ -8,9 +8,7 @@ mockup here decides what it looks like, not improvisation.
 | Folder | Contents |
 |---|---|
 | `mockups/` | 21 interactive mockups, one `.dc.html` per screen. Open them in a browser; light and dark themes are both included. |
-| `screenshots/` | 50 rendered captures of those screens, for quick reference without opening a browser. |
-| `handoff/` | The implementation brief and the reference components it describes. Start with `IMPLEMENTATION-GUIDE.md`. |
-| `reference/` | The original architecture PDF and the notes it came from. |
+| `screenshots/app/` | The four captures of the running application that the README embeds. |
 
 ## Rules that are not negotiable
 
@@ -47,14 +45,5 @@ decorative em-dashes, medical jargon.
 
 The Broto is a plant that grows with the user, from a seedling at level 1 to a
 flowering plant at level 8, with expressions that react to the routine. It is
-the emotional core of the product, not decoration. `Broto.dc.html` holds the
-artwork; `handoff/src/components/Broto.tsx` is the reference implementation and
-`frontend/src/components/brand/Broto.tsx` is the one the app actually renders.
-
-## History
-
-These files used to live in three near-identical copies across
-`docs/Redesign VitalPair Frontend/`, its own `handoff/reference/`, and a
-`Redesign Brand/` folder at the repository root, which also carried Blade
-templates from an unrelated Laravel project. That was consolidated here: 71
-files removed, no unique content lost.
+the emotional core of the product, not decoration. `mockups/broto.dc.html` holds
+the artwork and `frontend/src/components/brand/Broto.tsx` renders it.

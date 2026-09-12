@@ -87,7 +87,7 @@ body{margin:0}
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;position:relative">
               <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:100%">
                 <div style="flex:1;background:var(--orange);border-radius:3px 3px 0 0;height:{{ d.you }}"></div>
-                <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:{{ d.ana }}"></div>
+                <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:{{ d.partner }}"></div>
               </div>
               <span style="position:absolute;bottom:-20px;font-size:9.5px;font-weight:800;color:var(--muted)">{{ d.label }}</span>
             </div>
@@ -142,7 +142,7 @@ class Component extends DCLogic {
     const navStyle = `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:700;color:${t.muted};text-decoration:none;cursor:pointer`;
     const navActiveStyle = `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:800;color:${t['orange-ink']};background:${t.navActiveBg};text-decoration:none;cursor:pointer`;
     const pairs = [[55,40],[30,60],[70,50],[45,45],[80,35],[35,70],[60,55],[50,40],[75,60],[40,80],[65,45],[85,50]];
-    const days = pairs.map((p,i) => ({ you:`${p[0]}%`, ana:`${p[1]}%`, label: `${i+1}` }));
+    const days = pairs.map((p,i) => ({ you:`${p[0]}%`, partner:`${p[1]}%`, label: `${i+1}` }));
     return {
       rootStyle, navStyle, navActiveStyle, days,
       isLight: light, isDark: !light,

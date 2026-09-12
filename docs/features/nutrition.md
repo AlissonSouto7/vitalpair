@@ -56,7 +56,7 @@ All under `/api/v1/nutrition`, all requiring a valid access token.
 The photo endpoint, `POST /api/v1/nutrition/photo`, is served by
 `mealvision`'s `NutritionPhotoController` under the same URL prefix. It analyses
 an image and returns candidate foods; it does not write a log. See
-[mealvision.md](mealvision.md).
+[meal-vision.md](meal-vision.md).
 
 ### Data
 

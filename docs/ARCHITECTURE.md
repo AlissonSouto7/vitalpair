@@ -3,9 +3,8 @@
 How VitalPair is built and why. Written for someone arriving at the codebase who
 needs the shape of it before reading any single file.
 
-For what the product is and where it is going, see
-[ARQUITETURA.md](ARQUITETURA.md), which is the product document and stays in
-Portuguese. This one is about the code.
+For what the product is, see the [README](../README.md). This document is about
+the code.
 
 Measured on 2026-09-06: 467 backend classes across 19 feature packages, 14,742
 lines of Java, 24 migrations, 23 mapped tables, 118 frontend modules.

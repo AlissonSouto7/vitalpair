@@ -11,7 +11,7 @@ import com.aps.vitalpair.user.domain.model.Sex;
 
 /**
  * TDEE by the Mifflin-St Jeor formula, and the calorie target and macro split by goal (see
- * ARQUITETURA.md, section 6.3, and docs/features/user-profile.md for the constants).
+ * docs/features/user-profile.md for the constants).
  */
 @Service
 public class TdeeService implements CalculateTargetsUseCase {

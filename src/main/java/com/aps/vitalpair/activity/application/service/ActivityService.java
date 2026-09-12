@@ -30,7 +30,7 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 @Service
 public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUseCase, GetActivitySummaryUseCase {
 
-    /** kcal per step for an average person (see ARQUITETURA.md, section 5.4). */
+    /** kcal per step for an average person; the product's own estimate, see docs/features/activity.md. */
     private static final BigDecimal KCAL_PER_STEP = new BigDecimal("0.04");
 
     private final ActivityLogRepositoryPort activityLogRepository;

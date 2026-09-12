@@ -2,7 +2,7 @@
 
 - **Status:** Aceito
 - **Data:** 2025-06-21
-- **Contexto do projeto:** VitalPair (ver `docs/ARQUITETURA.md`)
+- **Contexto do projeto:** VitalPair (ver `docs/ARCHITECTURE.md`)
 
 ## Contexto
 
@@ -30,18 +30,24 @@ infrastructure  ──>  application  ──>  domain
 ### Camadas
 
 #### `domain/`
+
 Núcleo puro. Sem anotações de framework.
-- `model/` — entidades de domínio e *value objects*. Modelam regra de negócio, **não** são entidades JPA.
+
+- `model/` — entidades de domínio e _value objects_. Modelam regra de negócio, **não** são entidades JPA.
 - `port/in/` — interfaces dos **casos de uso** (entrada do hexágono). Ex: `LogMealUseCase`.
 - `port/out/` — interfaces de **gateways** (saída do hexágono): persistência e serviços externos. Ex: `FoodLogRepositoryPort`, `OpenFoodFactsPort`.
 
 #### `application/`
+
 Orquestra o caso de uso. Depende só de `domain`.
+
 - `service/` — implementações das portas de entrada (`@Service`, `@Transactional`). Recebem as portas de saída por construtor.
-- `dto/` — *commands*, *queries* e *results* da camada de aplicação (objetos de entrada/saída dos casos de uso, independentes do HTTP).
+- `dto/` — _commands_, _queries_ e _results_ da camada de aplicação (objetos de entrada/saída dos casos de uso, independentes do HTTP).
 
 #### `infrastructure/`
+
 Adaptadores que conectam o mundo externo aos casos de uso.
+
 - `web/` — controllers REST. Convertem request HTTP → command, chamam o caso de uso, convertem result → response. Aqui ficam os DTOs de request/response e os mappers web.
 - `persistence/` — `JpaEntity` (entidade Hibernate), repositório Spring Data e um **adapter** que implementa a porta de saída de persistência, convertendo `domain.model` ↔ `JpaEntity`.
 - `client/` — clientes de APIs externas (OpenFeign) e adapters que implementam as portas de saída correspondentes (Open Food Facts, Anthropic).
@@ -53,6 +59,7 @@ Adaptadores que conectam o mundo externo aos casos de uso.
 3. **Web DTO** (`infrastructure/web`) — contrato da API (request/response).
 
 Conversões com **MapStruct** (já configurado no pom, `componentModel=spring`):
+
 - web DTO ↔ application DTO/command
 - domain model ↔ JPA entity
 
@@ -84,25 +91,25 @@ nutrition/
 
 ## Convenções de nomenclatura
 
-| Tipo | Sufixo / padrão | Camada |
-|---|---|---|
-| Caso de uso (interface) | `...UseCase` | domain.port.in |
-| Gateway (interface) | `...Port` | domain.port.out |
-| Serviço de aplicação | `...Service` | application.service |
-| Command/Query/Result | `...Command`, `...Query`, `...Result` | application.dto |
-| Controller | `...Controller` | infrastructure.web |
-| Request/Response da API | `...Request`, `...Response` | infrastructure.web |
-| Entidade JPA | `...JpaEntity` | infrastructure.persistence |
-| Repositório Spring Data | `...JpaRepository` | infrastructure.persistence |
-| Adapter de porta | `...PersistenceAdapter`, `...Adapter` | infrastructure.* |
-| Cliente Feign | `...Client` | infrastructure.client |
+| Tipo                    | Sufixo / padrão                       | Camada                     |
+| ----------------------- | ------------------------------------- | -------------------------- |
+| Caso de uso (interface) | `...UseCase`                          | domain.port.in             |
+| Gateway (interface)     | `...Port`                             | domain.port.out            |
+| Serviço de aplicação    | `...Service`                          | application.service        |
+| Command/Query/Result    | `...Command`, `...Query`, `...Result` | application.dto            |
+| Controller              | `...Controller`                       | infrastructure.web         |
+| Request/Response da API | `...Request`, `...Response`           | infrastructure.web         |
+| Entidade JPA            | `...JpaEntity`                        | infrastructure.persistence |
+| Repositório Spring Data | `...JpaRepository`                    | infrastructure.persistence |
+| Adapter de porta        | `...PersistenceAdapter`, `...Adapter` | infrastructure.*           |
+| Cliente Feign           | `...Client`                           | infrastructure.client      |
 
 ## Testes
 
 - `domain` e `application`: testes unitários puros (JUnit 5 + Mockito nas portas). Rápidos, sem Spring.
 - `infrastructure.web`: `@WebMvcTest` + MockMvc.
 - `infrastructure.persistence`: `@DataJpaTest` (Testcontainers/PostgreSQL quando necessário).
-- Teste de isolamento multi-tenant é obrigatório (ver `docs/ARQUITETURA.md` §7.2).
+- Teste de isolamento multi-tenant é obrigatório (ver `docs/ARCHITECTURE.md`).
 
 ## Consequências
 

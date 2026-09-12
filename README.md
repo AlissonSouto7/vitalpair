@@ -174,7 +174,7 @@ single-use, rotated in families, and delivered only as an `HttpOnly`
 authentication and AI endpoint is rate limited in Redis. Secrets have no
 defaults: production refuses to start without a real `JWT_SECRET`. Every
 response error carries a `requestId` that finds its log lines. The full
-checklist that every change goes through is in [CLAUDE.md](CLAUDE.md); the
+checklist that every change goes through is in [docs/ENGINEERING.md](docs/ENGINEERING.md); the
 findings per feature, fixed and open, are in [docs/features/](docs/features/).
 
 ## Documentation
@@ -184,7 +184,7 @@ findings per feature, fixed and open, are in [docs/features/](docs/features/).
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organised and why                                                     |
 | [docs/features/](docs/features/)             | One living document per feature: rules, security findings, tests, what is not covered |
 | [docs/adr/](docs/adr/)                       | Architecture decision records                                                         |
-| [CLAUDE.md](CLAUDE.md)                       | Engineering rules and the definition of done                                          |
+| [docs/ENGINEERING.md](docs/ENGINEERING.md)   | Engineering rules and the definition of done                                          |
 | [CONTRIBUTING.md](CONTRIBUTING.md)           | Branching, commits, pull requests, migrations, i18n                                   |
 | [SECURITY.md](SECURITY.md)                   | How to report a vulnerability                                                         |
 | [deploy/README.md](deploy/README.md)         | Running it on a server: TLS, backups, deploy with rollback                            |

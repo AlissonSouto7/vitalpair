@@ -5,7 +5,7 @@ workflow: how branches, commits and pull requests are expected to look, and the
 rules that apply to database migrations and translations.
 
 Engineering rules (architecture, comment style, security checklist, definition
-of done) live in [CLAUDE.md](CLAUDE.md). Read that one too before writing code.
+of done) live in [docs/ENGINEERING.md](docs/ENGINEERING.md). Read that one too before writing code.
 
 VitalPair is licensed under the Business Source License 1.1, which is
 source-available rather than open source. By contributing you agree that your
@@ -31,8 +31,7 @@ openssl rand -base64 48
 ```
 
 `ANTHROPIC_API_KEY` is only needed if you are working on meal photo analysis or
-plan generation. `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are only needed
-for Google sign-in.
+plan generation. `GOOGLE_CLIENT_ID` is only needed for Google sign-in.
 
 Then:
 
@@ -144,7 +143,7 @@ Do not credit tooling as an author. Commits carry the human contributor only.
    passing after, with both outputs pasted. A UI change shows a screenshot.
    Numbers come from command output.
 5. State the result of the security checklist from
-   [CLAUDE.md](CLAUDE.md#8-security-checklist), even when nothing is wrong.
+   [docs/ENGINEERING.md](docs/ENGINEERING.md#8-security-checklist), even when nothing is wrong.
 6. Update `docs/features/<name>.md` in the same pull request if a feature
    changed. Add an ADR under `docs/adr/` if an architectural decision was made.
 7. Merge is **squash only**. The branch is deleted afterwards.
@@ -257,9 +256,9 @@ as they are until they are replaced by error codes translated on the frontend.
   UTF-8 and LF everywhere. `.editorconfig` enforces this; use an editor that
   reads it.
 - Code, comments and documentation in English. See
-  [CLAUDE.md](CLAUDE.md#2-language-policy).
+  [docs/ENGINEERING.md](docs/ENGINEERING.md#2-language-policy).
 - Respect the hexagonal boundaries described in
-  [CLAUDE.md](CLAUDE.md#5-architecture-rules). A cross-layer import is a
+  [docs/ENGINEERING.md](docs/ENGINEERING.md#5-architecture-rules). A cross-layer import is a
   rejected pull request, not a nitpick.
 
 ## Reporting bugs and proposing features

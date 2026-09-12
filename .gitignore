@@ -66,3 +66,6 @@ deploy/env/.deployed-*
 deploy/env/.previous-*
 # Basic-auth credentials for the staging extras, written by deploy/scripts/htpasswd.sh.
 deploy/env/htpasswd
+
+# Local AI session pointer; the rules it points to are versioned in docs/ENGINEERING.md.
+CLAUDE.md

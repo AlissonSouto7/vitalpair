@@ -17,14 +17,14 @@ Falar como **gente de verdade**, brasileiro e informal — nunca como marketing 
 
 ## Lei das cores (psicologia — cada cor tem UM papel)
 - **Laranja** = VOCÊ + energia + marca (logo, nav ativa, seu avatar, CTAs, streak, seu lado do placar)
-- **Roxo** = a BIA / o par-rival, e só isso (avatar dela, lado dela, eventos dela no feed)
+- **Roxo** = o par-rival, e só isso (avatar, lado e eventos do par no feed)
 - **Verde** = saúde, meta batida, quem está ganhando (anel de calorias, "você lidera", missão)
 - **Dourado** = macro de carboidrato (família quente, não rouba o roxo)
 - Neutros quentes = estrutura/chrome
 Cor fora do papel é bug. Trocar paleta = editar só os tokens.
 
 ## Marca
-Dois anéis entrelaçados: laranja (você) + roxo (Bia), interseção verde (a saúde que constroem juntos). Ecoa o anel de calorias. Slogan: **"Saúde é melhor em dupla."**
+Dois anéis entrelaçados: laranja (você) + roxo (o par), interseção verde (a saúde que constroem juntos). Ecoa o anel de calorias. Slogan: **"Saúde é melhor em dupla."**
 
 ## Stack-alvo
 Web app. React + TypeScript + Tailwind. Layout de desktop (sidebar + conteúdo), NUNCA cara de app mobile. Modo claro E escuro obrigatórios — claro = creme quente; escuro = carvão-âmbar aconchegante (nunca navy/clínico).
