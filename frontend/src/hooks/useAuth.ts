@@ -13,9 +13,13 @@ export function useAuth() {
     setSession({ accessToken: token.accessToken, userId: token.userId })
   }
 
+  /**
+   * Starts a registration. No session follows: the account is created unverified and the
+   * link in the e-mail is what activates it, so that registration can answer the same way
+   * for an address that already has an account.
+   */
   async function register(payload: RegisterPayload) {
-    const token = await authApi.register(payload)
-    setSession({ accessToken: token.accessToken, userId: token.userId })
+    await authApi.register(payload)
   }
 
   async function logout() {

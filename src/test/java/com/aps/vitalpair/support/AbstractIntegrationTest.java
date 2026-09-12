@@ -2,6 +2,8 @@ package com.aps.vitalpair.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -84,6 +86,16 @@ public abstract class AbstractIntegrationTest {
     @BeforeEach
     void isolateFromPreviousTests() {
         WireMockSupport.server().resetAll();
+        clearRateLimitCounters();
+    }
+
+    /**
+     * Forgets every rate-limit count.
+     *
+     * <p>Also useful mid-test: registering an account ends with a sign-in, which spends one of
+     * the allowance a test about the login limit is trying to count.
+     */
+    protected void clearRateLimitCounters() {
         Set<String> counters = redis.keys("ratelimit:*");
         if (counters != null && !counters.isEmpty()) {
             redis.delete(counters);
@@ -161,8 +173,26 @@ public abstract class AbstractIntegrationTest {
                 HttpMethod.POST, "/api/v1/auth/register", Map.of("name", name, "email", email, "password", PASSWORD));
         assertThat(response.getStatusCode())
                 .as("register %s: %s", email, response.getBody())
-                .isEqualTo(HttpStatus.CREATED);
-        return sessionFrom(response, email, name);
+                .isEqualTo(HttpStatus.ACCEPTED);
+
+        // Registration no longer issues a session: it answers the same thing whether or not
+        // the address already has an account, and the activation link is what turns the
+        // account into one that can sign in. Going through the mailbox is what a person
+        // does, so every test that needs an account exercises the real path.
+        activate(email);
+        Session session = login(email, PASSWORD);
+        return new Session(session.userId(), email, name, session.accessToken(), session.refreshToken());
+    }
+
+    /** Opens the activation link the registration e-mail carries. */
+    protected void activate(String email) {
+        MailpitSupport.Mail mail = MailpitSupport.latestTo(email)
+                .orElseThrow(() -> new AssertionError("no activation e-mail for " + email));
+        String token = URLDecoder.decode(mail.token(), StandardCharsets.UTF_8);
+        ResponseEntity<String> verify = anonymous(HttpMethod.POST, "/api/v1/auth/verify-email", Map.of("token", token));
+        assertThat(verify.getStatusCode())
+                .as("activate %s: %s", email, verify.getBody())
+                .isEqualTo(HttpStatus.OK);
     }
 
     protected Session login(String email, String password) {

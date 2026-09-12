@@ -30,6 +30,8 @@ class RateLimitIT extends AbstractIntegrationTest {
     @Test
     void theEleventhLoginAttemptFromOneAddressIsThrottledEvenWithTheRightPassword() {
         Session session = register("Rita");
+        // Registering now ends with a sign-in, which spends one of the ten this test counts.
+        clearRateLimitCounters();
 
         for (int attempt = 1; attempt <= 10; attempt++) {
             ResponseEntity<String> response =
@@ -80,6 +82,8 @@ class RateLimitIT extends AbstractIntegrationTest {
     @Test
     void countersAreKeyedByPolicyAndCallerInRedis() {
         Session session = register("Sofia");
+        // Registering ends with a sign-in, so the count starts at one before this test's own.
+        clearRateLimitCounters();
         anonymous(HttpMethod.POST, LOGIN, Map.of("email", session.email(), "password", PASSWORD));
 
         Set<String> loginKeys = redis.keys("ratelimit:login:ip:*");

@@ -4,9 +4,13 @@ import type { LoginPayload, RegisterPayload, TokenResponse } from '../types/auth
 
 import { api } from './client'
 
-export async function register(payload: RegisterPayload): Promise<TokenResponse> {
-  const res = await api.post<ApiResponse<TokenResponse>>('/auth/register', payload)
-  return res.data.data
+/**
+ * Starts a registration. Returns nothing: the server answers the same way whether or not
+ * the address already has an account, so that the endpoint cannot be used to find out who
+ * is registered. What happens next arrives by e-mail.
+ */
+export async function register(payload: RegisterPayload): Promise<void> {
+  await api.post<ApiResponse<void>>('/auth/register', payload)
 }
 
 export async function login(payload: LoginPayload): Promise<TokenResponse> {
