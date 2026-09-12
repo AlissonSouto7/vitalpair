@@ -1,5 +1,5 @@
 # ---- build ----
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 
 # The lockfile alone first, so a source change does not reinstall every dependency.
