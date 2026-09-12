@@ -22,6 +22,19 @@ bulking, each measured against their own targets.
   <img src="docs/design/screenshots/app/progress.png" width="49%" alt="Weight progress">
 </p>
 
+## Seeing it run
+
+There is a staging environment at **<https://staging.vitalpair.app>**, on a
+single Oracle free-tier ARM machine: the application, Postgres, Redis, an nginx
+edge with a real certificate, and Prometheus with Grafana beside it. Signing up
+works, and so does everything above except the AI features, which belong to a
+paid plan that nobody can buy yet.
+
+It is staging rather than production on purpose. The product has no users, and
+the version that goes live is a decision rather than a consequence of a merge:
+a push to `main` deploys there on its own, while production waits for somebody
+to approve a tagged release.
+
 ## What it does
 
 - **Log meals** by photo (a vision model identifies the foods and estimates

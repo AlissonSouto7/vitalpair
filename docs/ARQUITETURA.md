@@ -1,6 +1,13 @@
-# VitalPair — Documento de Arquitetura e Contexto de Projeto
+# VitalPair: documento de produto e contexto do projeto
 
-> Versão 1.1. Transcrição do PDF oficial (`VitalPair_Arquitetura.pdf`). Documento de referência permanente: consultar antes de implementar qualquer feature.
+> Versão 1.1. Transcrição do PDF oficial (`VitalPair_Arquitetura.pdf`).
+>
+> **Este é o documento de produto**: o que o VitalPair é, para quem, o modelo de dados e o
+> roadmap. Fica em português porque é assim que o produto é pensado.
+>
+> Como o **código** está construído hoje é outro documento: [ARCHITECTURE.md](ARCHITECTURE.md),
+> em inglês. Os dois são complementares, não duas versões do mesmo texto, e quando divergem
+> sobre o estado atual do código quem vale é o inglês, que acompanha as fases.
 
 ## 1. Visão Geral do Produto
 
