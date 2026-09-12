@@ -187,7 +187,7 @@ function CopyLinkButton({ code, t }: { code: string; t: TFn }) {
   const [done, setDone] = useState(false)
   async function copy() {
     if (!code) return
-    const link = `${window.location.origin}/convite/${code}`
+    const link = `${window.location.origin}/invite/${code}`
     await navigator.clipboard.writeText(link)
     setDone(true)
     setTimeout(() => setDone(false), 2000)

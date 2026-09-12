@@ -25,7 +25,10 @@ function fileToImage(file: File): Promise<{ base64: string; mediaType: string; d
         dataUrl: result,
       })
     }
-    reader.onerror = () => reject(new Error('Não rolou ler a foto.'))
+    // Never shown: the caller catches this and displays the translated message. The text is
+    // for whoever reads a stack trace, so it is English like the rest of the code and says
+    // which of the two failures happened.
+    reader.onerror = () => reject(new Error('FileReader could not read the selected image'))
     reader.readAsDataURL(file)
   })
 }

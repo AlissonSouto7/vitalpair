@@ -40,7 +40,15 @@ export type TranslationBundle = { [K in keyof typeof modules]: (typeof modules)[
   legal: (typeof import('./legal'))['legal']['pt']
 }
 
-const modules = {
+/**
+ * Every eagerly loaded namespace, and the single list of them.
+ *
+ * Exported so the parity test compares exactly what the application ships. It used to keep
+ * its own copy of this list, which drifted the moment a namespace was added: two of them
+ * (`errors` and `premium`) were live and untested, and the guard meant to catch that was a
+ * hand-maintained count somebody had to remember to raise.
+ */
+export const modules = {
   common,
   errors,
   nav,

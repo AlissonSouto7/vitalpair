@@ -13,6 +13,10 @@ global:
   external_labels:
     environment: staging
 
+# The alerting rules. Prometheus evaluates these on evaluation_interval above.
+rule_files:
+  - /etc/prometheus/alerts.yml
+
 scrape_configs:
   - job_name: vitalpair-backend
     metrics_path: /actuator/prometheus

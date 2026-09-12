@@ -33,7 +33,7 @@ export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const invite = params.get('convite')
+  const invite = params.get('invite')
   const [error, setError] = useState<string | null>(null)
 
   const {

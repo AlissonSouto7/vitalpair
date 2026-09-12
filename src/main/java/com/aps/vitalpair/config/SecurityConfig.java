@@ -51,13 +51,18 @@ public class SecurityConfig {
         // header, which a cross-site request cannot set. There is no ambient credential
         // to abuse, so the protection has nothing to protect and only breaks clients.
         //
-        // This must be revisited if authentication ever moves to a cookie. Phase 6 of the
-        // professionalization plan proposes exactly that for the refresh token, and CSRF
-        // defences have to come back with it: SameSite=Strict, a path-scoped cookie, and
-        // JSON-only endpoints.
+        // The refresh token IS in a cookie, since phase 6, and this comment used to talk
+        // about that as a future thing to worry about. The defences it named came with it
+        // and are what keep this decision sound: SameSite=Strict (so no cross-site request
+        // carries the cookie at all), Secure, HttpOnly, and a path scoped to
+        // /api/v1/auth, which is the only place it is ever read. See RefreshTokenCookie.
         //
-        // CodeQL reports this as java/spring-disabled-csrf-protection. Dismissed as a
-        // false positive for a stateless API; see the pull request that added this comment.
+        // What would change this: widening that cookie's path, dropping SameSite, or
+        // authenticating an ordinary endpoint from a cookie rather than the header. Any of
+        // those brings the ambient credential back and CSRF tokens with it.
+        //
+        // CodeQL reports this as java/spring-disabled-csrf-protection and it is dismissed
+        // as a false positive on the alert itself, with the same reasoning.
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

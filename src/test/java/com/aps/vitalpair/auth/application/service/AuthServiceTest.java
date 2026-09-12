@@ -85,7 +85,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void registerCriaTenantUsuarioEEmiteTokens() {
+    void registeringCreatesAtenantAuserAndIssuesTokens() {
         when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(false);
         when(pairRepository.save(any())).thenReturn(pairWithId());
         when(passwordHasher.hash("senha1234")).thenReturn("hashed");
@@ -98,7 +98,7 @@ class AuthServiceTest {
         assertThat(result.accessToken()).isEqualTo("access");
         assertThat(result.refreshToken()).isNotBlank();
         assertThat(result.userId()).isEqualTo(USER_ID);
-        // pair salvo duas vezes: criação + associação do user1
+        // The pair is saved twice: once created, once associated with user1.
         verify(pairRepository, times(2)).save(any());
         verify(refreshTokenStore).save(anyString(), eq(USER_ID), any(UUID.class), eq(REFRESH_TTL));
     }
@@ -125,7 +125,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void registerFalhaQuandoEmailJaExiste() {
+    void registeringAnEmailThatExistsIsRejected() {
         when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana")))
@@ -136,7 +136,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void loginComCredenciaisValidasEmiteTokens() {
+    void validCredentialsIssueTokens() {
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
         when(passwordHasher.matches("senha1234", "hashed")).thenReturn(true);
         when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
@@ -149,7 +149,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void loginFalhaComSenhaIncorreta() {
+    void awrongPasswordIsRejected() {
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
         when(passwordHasher.matches("errada", "hashed")).thenReturn(false);
 
@@ -158,7 +158,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void loginFalhaQuandoUsuarioNaoExiste() {
+    void anEmailNobodyRegisteredIsRejected() {
         when(userRepository.findByEmail("ninguem@vitalpair.app")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(new LoginCommand("ninguem@vitalpair.app", "x")))
@@ -166,7 +166,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshRotacionaTokenEReemite() {
+    void refreshingRotatesTheTokenAndReissues() {
         UUID familyId = UUID.randomUUID();
         when(refreshTokenStore.find("old-refresh"))
                 .thenReturn(Optional.of(new RefreshTokenStorePort.StoredRefreshToken(USER_ID, familyId)));
@@ -220,7 +220,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void refreshFalhaComTokenInvalido() {
+    void refreshingWithAtokenThatIsNotValidIsRejected() {
         when(refreshTokenStore.find("invalid")).thenReturn(Optional.empty());
         when(refreshTokenStore.findSpentFamily("invalid")).thenReturn(Optional.empty());
 
@@ -228,7 +228,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void googleLoginCriaUsuarioQuandoNaoExiste() {
+    void googleSignInCreatesTheUserOnFirstUse() {
         when(googleTokenVerifier.verify("google-id-token"))
                 .thenReturn(new GoogleUserInfo("bob@gmail.com", "Bob", true));
         when(userRepository.findByEmail("bob@gmail.com")).thenReturn(Optional.empty());
@@ -251,7 +251,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void googleLoginUsaUsuarioExistenteSemCriarTenant() {
+    void googleSignInReusesAnExistingUserWithoutAnewTenant() {
         when(googleTokenVerifier.verify("google-id-token"))
                 .thenReturn(new GoogleUserInfo("ana@vitalpair.app", "Ana", true));
         when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
@@ -266,7 +266,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void googleLoginFalhaQuandoEmailNaoVerificado() {
+    void googleSignInRefusesAnUnverifiedEmail() {
         when(googleTokenVerifier.verify("google-id-token"))
                 .thenReturn(new GoogleUserInfo("bob@gmail.com", "Bob", false));
 

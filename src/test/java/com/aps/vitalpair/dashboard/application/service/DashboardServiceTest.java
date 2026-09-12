@@ -46,7 +46,7 @@ class DashboardServiceTest {
     private DashboardService service;
 
     @Test
-    void agregaConsumoGastoEParceiro() {
+    void aggregatesIntakeBurnAndThePartner() {
         when(nutritionSummary.getSummary(eq(ME), any())).thenReturn(nutrition(2000, 1800));
         when(activitySummary.getSummary(eq(ME), any())).thenReturn(activity(500, 8000));
         when(currentPair.getCurrentPair(ME))
@@ -67,7 +67,7 @@ class DashboardServiceTest {
     }
 
     @Test
-    void semParceiroQuandoParPendente() {
+    void noPartnerWhileThePairIsStillPending() {
         when(nutritionSummary.getSummary(eq(ME), any())).thenReturn(nutrition(1000, 1800));
         when(activitySummary.getSummary(eq(ME), any())).thenReturn(activity(0, 0));
         when(currentPair.getCurrentPair(ME)).thenReturn(pair(new MemberView(ME, "Alisson", "a@a.com", null)));
