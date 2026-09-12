@@ -20,7 +20,7 @@
 		<spring-cloud.version>2025.0.3</spring-cloud.version>
 		<!-- Manually managed dependency versions -->
 		<jjwt.version>0.13.0</jjwt.version>
-		<springdoc.version>2.9.0</springdoc.version>
+		<springdoc.version>2.9.1</springdoc.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<archunit.version>1.5.0</archunit.version>
 		<wiremock.version>3.13.2</wiremock.version>
@@ -32,7 +32,7 @@
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
 		<checkstyle.version>10.21.0</checkstyle.version>
 		<jacoco.version>0.8.15</jacoco.version>
-		<enforcer.version>3.5.0</enforcer.version>
+		<enforcer.version>3.6.3</enforcer.version>
 	</properties>
 
 	<dependencies>
