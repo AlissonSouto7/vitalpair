@@ -76,7 +76,7 @@ public class MailSenderAdapter implements MailSenderPort {
             helper.setSubject(subject);
             helper.setText(html, true);
             mailSender.send(message);
-            log.info("E-mail de {} enviado para {}", kind, toEmail);
+            log.info("E-mail de {} enviado para {}", kind, mask(toEmail));
         } catch (MessagingException ex) {
             throw new IllegalStateException("Falha ao montar o e-mail de " + kind, ex);
         }
