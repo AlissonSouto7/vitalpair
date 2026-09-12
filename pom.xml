@@ -444,11 +444,17 @@
 						</goals>
 					</execution>
 					<!--
-						Ratchet, not a target. Measured on 2026-09-06, after the integration
-						suite: 82.5% line, 53.4% branch, against 35.9% and 15.4% the day before.
-						The limits below are those numbers rounded down, so the build fails if
-						coverage drops but never blocks work for being merely low. Raise them
-						whenever a phase adds tests; never lower them to make a build pass.
+						Ratchet, not a target. The limits are the measured coverage rounded
+						down, so the build fails if coverage drops but never blocks work for
+						being merely low. Raise them whenever a change adds tests; never lower
+						them to make a build pass.
+
+						2026-09-06: 82.5% line, 53.4% branch, against 35.9% and 15.4% the day
+						before, when the integration suite arrived.
+						2026-09-11: 90.59% line, 68.72% branch, after the audit covered the six
+						features that had no tests at all. The limits below moved from 0.80 and
+						0.50, which had drifted eight and fifteen points behind reality and so
+						were protecting nothing that was not already protected.
 					-->
 					<execution>
 						<id>check</id>
@@ -464,12 +470,12 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.80</minimum>
+											<minimum>0.88</minimum>
 										</limit>
 										<limit>
 											<counter>BRANCH</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.50</minimum>
+											<minimum>0.65</minimum>
 										</limit>
 									</limits>
 								</rule>

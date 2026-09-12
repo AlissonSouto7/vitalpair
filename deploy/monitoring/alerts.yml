@@ -1,0 +1,89 @@
+# What is worth waking somebody for.
+#
+# Prometheus had no rules at all: it collected everything and said nothing, so the only way
+# to learn that staging was down was to open Grafana and look. These are the conditions a
+# person would want to hear about, and nothing else. An alert nobody acts on trains people
+# to ignore the ones that matter.
+#
+# Every expression below was checked against the live instance before being written here:
+# the metric names exist and return series. There is no alert on vitalpair_ai_requests_total,
+# which does not exist until the first AI call of a process, and an alert that depends on a
+# metric appearing is an alert that fires on a restart.
+#
+# There is no Alertmanager yet, so these fire into Prometheus' own alerts page and into
+# Grafana. That is the honest state: the rules are the hard part, and routing them to an
+# inbox is configuration on top.
+
+groups:
+  - name: availability
+    rules:
+      - alert: BackendDown
+        # `up` is Prometheus' own verdict on the scrape, so this covers the container being
+        # gone, the JVM being wedged, and the management port not answering.
+        expr: up{job="vitalpair-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: The backend has not answered a scrape for two minutes
+          description: >
+            Either the container is not running or the application is not serving its
+            management port. Check `docker ps` and `docker logs vitalpair-staging-backend-1`.
+
+      - alert: BackendRestarted
+        # Uptime going backwards means a restart. Worth knowing even when nothing is down:
+        # a container that restarts every few minutes looks healthy between restarts.
+        expr: process_uptime_seconds{job="vitalpair-backend"} < 300
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: The backend started less than five minutes ago
+          description: >
+            Expected right after a deploy. Unexpected otherwise, and a sign of a crash loop
+            if it repeats.
+
+  - name: external-calls
+    rules:
+      - alert: CircuitBreakerOpen
+        # state=open is the breaker refusing calls. Anthropic being down is the usual cause,
+        # and the product answers 503 for the AI features while it lasts.
+        expr: resilience4j_circuitbreaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'The {{ $labels.name }} circuit breaker is open'
+          description: >
+            Calls to this dependency are being refused rather than attempted. The AI
+            features answer 503 while it is open. It closes itself once calls succeed again.
+
+  - name: resources
+    rules:
+      - alert: HeapNearlyFull
+        # Ratio, not bytes: the limit changes with the container's memory and a threshold in
+        # bytes silently stops meaning anything when it does.
+        expr: >
+          sum(jvm_memory_used_bytes{job="vitalpair-backend", area="heap"})
+          / sum(jvm_memory_max_bytes{job="vitalpair-backend", area="heap"}) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: The heap has been over 90 percent full for ten minutes
+          description: >
+            Ten minutes rather than a moment: a full heap during a garbage collection is
+            normal, and one that stays full is a leak or a limit that is too low.
+
+      - alert: DatabaseConnectionsExhausted
+        # Threads waiting for a connection. One waiting briefly is a busy moment; a queue
+        # that persists is requests piling up behind the pool.
+        expr: hikaricp_connections_pending{job="vitalpair-backend"} > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Requests have been waiting for a database connection for five minutes
+          description: >
+            Either the pool is too small for the load or something is holding connections.
+            A slow query with a transaction open around it is the usual cause.

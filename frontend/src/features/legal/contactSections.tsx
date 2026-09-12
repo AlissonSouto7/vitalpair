@@ -64,7 +64,7 @@ export function Faq() {
           <>
             {before}
             <Link
-              to="/privacidade"
+              to="/privacy"
               className="cursor-pointer font-extrabold text-brand-ink underline decoration-brand/40 underline-offset-2 transition hover:decoration-brand"
             >
               {photoLink}

@@ -1,21 +1,7 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Select } from './Select'
-
-const MONTHS = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
-]
 
 interface DateParts {
   d: string
@@ -68,6 +54,7 @@ export function DateField({
   onChange: (iso: string) => void
   'aria-describedby'?: string
 }) {
+  const { t } = useTranslation()
   const [parts, setParts] = useState(() => split(value))
 
   // Loading a profile or clearing the form has to win over what is on screen, so a value
@@ -89,8 +76,12 @@ export function DateField({
     const dd = String(i + 1).padStart(2, '0')
     return { value: dd, label: String(i + 1) }
   })
-  const monthOpts = MONTHS.map((label, i) => ({ value: String(i + 1).padStart(2, '0'), label }))
-  // de 13 anos atrás até 100 anos antes disso — faixa razoável para data de nascimento
+  // The month names come from the bundle, in the reading order of the current language.
+  // They were hardcoded in Portuguese, in a component the onboarding and the profile share,
+  // so every other language showed a translated form with "Março" inside it.
+  const months: readonly string[] = t('common.date.months', { returnObjects: true })
+  const monthOpts = months.map((label, i) => ({ value: String(i + 1).padStart(2, '0'), label }))
+  // de 13 anos atrás até 100 anos antes disso: faixa razoável para data de nascimento
   const yearOpts = Array.from({ length: 100 }, (_, i) => {
     const yy = String(thisYear - 13 - i)
     return { value: yy, label: yy }
@@ -113,19 +104,19 @@ export function DateField({
         value={d}
         onChange={(nd) => set({ ...parts, d: nd })}
         options={dayOpts}
-        placeholder="Dia"
+        placeholder={t('common.date.day')}
       />
       <Select
         value={m}
         onChange={(nm) => set({ ...parts, m: nm })}
         options={monthOpts}
-        placeholder="Mês"
+        placeholder={t('common.date.month')}
       />
       <Select
         value={y}
         onChange={(ny) => set({ ...parts, y: ny })}
         options={yearOpts}
-        placeholder="Ano"
+        placeholder={t('common.date.year')}
       />
     </div>
   )

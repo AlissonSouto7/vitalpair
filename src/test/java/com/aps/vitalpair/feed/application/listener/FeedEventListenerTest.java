@@ -39,7 +39,7 @@ class FeedEventListenerTest {
     private FeedEventListener listener;
 
     @Test
-    void criaItemDeRefeicaoComTituloFormatado() {
+    void writesAmealItemWithAformattedTitle() {
         when(userRepository.findById(USER))
                 .thenReturn(Optional.of(User.builder()
                         .id(USER)
@@ -59,7 +59,7 @@ class FeedEventListenerTest {
     }
 
     @Test
-    void criaItemDeAtividadeComTituloFormatado() {
+    void writesAnActivityItemWithAformattedTitle() {
         when(userRepository.findById(USER))
                 .thenReturn(Optional.of(User.builder()
                         .id(USER)

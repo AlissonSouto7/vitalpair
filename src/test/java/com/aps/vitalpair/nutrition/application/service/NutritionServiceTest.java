@@ -53,7 +53,7 @@ class NutritionServiceTest {
     private NutritionService service;
 
     @Test
-    void logMealUsaTenantDoUsuarioEPreencheZerosEData() {
+    void logsAmealUnderTheCallersTenantFillingZerosAndTheDate() {
         when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.of(User.builder()
                         .id(USER_ID)
@@ -75,7 +75,7 @@ class NutritionServiceTest {
     }
 
     @Test
-    void deleteDeRegistroDeOutroUsuarioRetornaNotFound() {
+    void deletingAnotherPersonsEntryIsNotFound() {
         UUID logId = UUID.randomUUID();
         FoodLog otherUsersLog =
                 FoodLog.builder().id(logId).userId(UUID.randomUUID()).build();
@@ -86,7 +86,7 @@ class NutritionServiceTest {
     }
 
     @Test
-    void getSummarySomaConsumoECalculaRestante() {
+    void sumsIntakeAndWorksOutWhatIsLeft() {
         when(userRepository.findById(USER_ID))
                 .thenReturn(Optional.of(User.builder()
                         .id(USER_ID)
@@ -110,7 +110,7 @@ class NutritionServiceTest {
     }
 
     @Test
-    void findByBarcodeInexistenteLancaNotFound() {
+    void abarcodeNobodyHasIsNotFound() {
         when(openFoodFacts.findByBarcode("000")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.findByBarcode("000")).isInstanceOf(ResourceNotFoundException.class);

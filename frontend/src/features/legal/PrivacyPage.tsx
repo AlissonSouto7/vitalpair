@@ -211,9 +211,9 @@ export function LegalFooter({
 }) {
   const { t } = useTranslation()
   const links: { key: 'privacy' | 'terms' | 'contact'; to: string; label: string }[] = [
-    { key: 'privacy', to: '/privacidade', label: t('legal.footerPrivacy') },
-    { key: 'terms', to: '/termos', label: t('legal.footerTerms') },
-    { key: 'contact', to: '/contato', label: t('legal.footerContact') },
+    { key: 'privacy', to: '/privacy', label: t('legal.footerPrivacy') },
+    { key: 'terms', to: '/terms', label: t('legal.footerTerms') },
+    { key: 'contact', to: '/contact', label: t('legal.footerContact') },
   ]
   return (
     <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-hair pt-6 text-center sm:flex-row sm:text-left">

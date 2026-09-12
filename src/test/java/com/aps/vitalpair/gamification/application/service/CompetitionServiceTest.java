@@ -44,7 +44,7 @@ class CompetitionServiceTest {
     private CompetitionService service;
 
     @Test
-    void addPointsCriaPlacarEDefineVencedor() {
+    void createsTheScoreboardAndNamesAleader() {
         when(pairRepository.findById(TENANT)).thenReturn(Optional.of(pair()));
         when(competitionRepository.findByTenantAndWeek(eq(TENANT), any())).thenReturn(Optional.empty());
         when(competitionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -59,7 +59,7 @@ class CompetitionServiceTest {
     }
 
     @Test
-    void addPointsAcumulaEViraOVencedor() {
+    void accumulatesPointsAndChangesTheLeader() {
         CompetitionScore existing = CompetitionScore.builder()
                 .tenantId(TENANT)
                 .weekStart(DATE)

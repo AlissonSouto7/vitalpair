@@ -107,11 +107,13 @@ rather than sending every notification twice.
 
 ## Tests
 
-| Test                        | Type        | Risk it covers                                                                                        |
-| --------------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
-| `SchedulerLockIT` (3 cases) | integration | R-6 and R-7: duplicate notifications from a rolling deploy, and a UTC server firing at the wrong hour |
-| `TenantIsolationIT`         | integration | Cross-pair reads of notifications and preferences                                                     |
-| `MealPrivacyIT`             | integration | R-4's visible half                                                                                    |
+| Test                                      | Type        | Risk it covers                                                                                                                                                                                                                                              |
+| ----------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SchedulerLockIT` (3 cases)               | integration | R-6 and R-7: duplicate notifications from a rolling deploy, and a UTC server firing at the wrong hour                                                                                                                                                       |
+| `TenantIsolationIT`                       | integration | Cross-pair reads of notifications and preferences                                                                                                                                                                                                           |
+| `NotificationServiceTest` (11 cases)      | unit        | The preference gate: each automatic type silenced by its own switch and no other, the defaults deciding when nothing is stored, a partner's own action never being suppressed, and the badge count coming from the unread query rather than the list length |
+| `NotificationEventListenerTest` (8 cases) | unit        | The private meal telling nobody; the recipient always being the half of the pair that did not act; a pending pair notifying nobody; a profile that cannot be read still producing a notification                                                            |
+| `MealPrivacyIT`                           | integration | R-4's visible half                                                                                                                                                                                                                                          |
 
 ```bash
 ./mvnw verify -Dit.test=SchedulerLockIT
@@ -119,11 +121,6 @@ rather than sending every notification twice.
 
 ### What is not covered
 
-- **`suppressedByPreference` has no test**: the entire preference gate, including the early
-  return that makes the older types unconditional, is unverified. Turning a preference off
-  and still receiving the notification would break no test.
-- **`NotificationEventListener` has no test**: neither the private-meal guard nor the
-  null-partner guards.
 - **The reminder job** is never exercised; only the mission job is, and only for its lock.
 - **`markAllRead`** has no test.
 - **NT-2**: no test asserts that a job run twice produces one notification, because it does
@@ -165,7 +162,8 @@ psql -c "SELECT name, locked_at, lock_until, locked_by FROM shedlock;"
 
 ## History
 
-| Date       | Change                                     | Pull request                    |
-| ---------- | ------------------------------------------ | ------------------------------- |
-| 2026-09-05 | ShedLock and the scheduling zone (phase 8) | `feat/observability-resilience` |
-| 2026-09-06 | Document created (phase 13)                | `docs/professional-docs`        |
+| Date       | Change                                                                                                                                                           | Pull request                    |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| 2026-09-11 | The preference gate and the listener got the tests this document called the highest-value ones to add: nineteen cases, including the private meal telling nobody | `fix/audit-loose-ends`          |
+| 2026-09-05 | ShedLock and the scheduling zone (phase 8)                                                                                                                       | `feat/observability-resilience` |
+| 2026-09-06 | Document created (phase 13)                                                                                                                                      | `docs/professional-docs`        |

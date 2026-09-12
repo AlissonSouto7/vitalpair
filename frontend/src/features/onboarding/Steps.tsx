@@ -217,7 +217,12 @@ export function StepBet({
         </span>
       </div>
 
-      {/* TODO: backend de temporada/aposta — a aposta acima é só visual por enquanto. */}
+      {/*
+          The stake typed here is not sent anywhere, which is a decision rather than a gap:
+          a season belongs to a pair and onboarding runs before there is one. See the comment
+          on the submit handler in OnboardingPage, and the season screen, where the stake is
+          saved against a season that exists (PUT /api/v1/season/stake).
+        */}
     </StepWrap>
   )
 }

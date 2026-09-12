@@ -1,5 +1,6 @@
 package com.aps.vitalpair.mission.application.service;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,15 +35,28 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
     private final PairRepositoryPort pairRepository;
     private final UserRepositoryPort userRepository;
 
+    /**
+     * Where the mission week starts and ends.
+     *
+     * <p>The product's zone, which is what this read before as {@code ZoneId.systemDefault()}.
+     * A weekly mission belongs to a pair rather than to one person, and two people can be in
+     * different zones, so whose Monday counts is a product question this does not answer: it
+     * is recorded as debt in {@code docs/features/missions.md} instead of being decided here.
+     */
+    private final Clock clock;
+
     public WeeklyMissionService(
             WeeklyMissionCatalogRepositoryPort catalogRepository,
             WeeklyMissionMetricsRepositoryPort metricsRepository,
             PairRepositoryPort pairRepository,
-            UserRepositoryPort userRepository) {
+            UserRepositoryPort userRepository,
+            Clock clock,
+            @Value("${vitalpair.scheduling.zone}") String zone) {
         this.catalogRepository = catalogRepository;
         this.metricsRepository = metricsRepository;
         this.pairRepository = pairRepository;
         this.userRepository = userRepository;
+        this.clock = clock.withZone(ZoneId.of(zone));
     }
 
     @Override
@@ -49,8 +64,8 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
     public List<WeeklyMissionProgress> getCurrentWeek(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
-        ZoneId zone = ZoneId.systemDefault();
-        LocalDate today = LocalDate.now(zone);
+        ZoneId zone = clock.getZone();
+        LocalDate today = LocalDate.now(clock);
         Instant weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                 .atStartOfDay(zone)
                 .toInstant();

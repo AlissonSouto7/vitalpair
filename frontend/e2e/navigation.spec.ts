@@ -22,7 +22,7 @@ test.describe('navigation', () => {
   test('the legal pages render text, not translation keys', async ({ page }) => {
     // Their strings are fetched separately from the main bundle, so a mistake here shows
     // as raw identifiers on screen. That is precisely how one was caught during phase 9.
-    await page.goto('/termos')
+    await page.goto('/terms')
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await expect(page.locator('body')).not.toContainText('legal.terms')

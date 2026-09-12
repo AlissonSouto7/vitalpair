@@ -43,7 +43,7 @@ class ReactionServiceTest {
     private ReactionService service;
 
     @Test
-    void reageQuandoItemEstaNoTenantDoUsuario() {
+    void reactsToAnItemInsideTheCallersOwnTenant() {
         when(userRepository.findById(USER)).thenReturn(Optional.of(user(TENANT)));
         when(feedItemRepository.findById(ITEM)).thenReturn(Optional.of(item(TENANT)));
         when(reactionRepository.exists(ITEM, USER, ReactionType.FIRE)).thenReturn(false);
@@ -54,7 +54,7 @@ class ReactionServiceTest {
     }
 
     @Test
-    void naoReageEmItemDeOutroTenant() {
+    void refusesToReactToAnotherTenantsItem() {
         when(userRepository.findById(USER)).thenReturn(Optional.of(user(TENANT)));
         when(feedItemRepository.findById(ITEM)).thenReturn(Optional.of(item(UUID.randomUUID())));
 

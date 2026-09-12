@@ -96,8 +96,14 @@ Seeded weekly missions: log meals on five days (40 points), train three times
 
 ## Tests
 
-**This feature has no tests of its own.** Thirty-six classes, three endpoints, no
-test file under `src/test/java/com/aps/vitalpair/mission/`.
+| Test                                 | Type | Risk it covers                                                                                                                                                                                                                                      |
+| ------------------------------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MissionServiceTest` (7 cases)       | unit | The rotation being zero-based on day of year, and wrapping; both halves of a pair seeing the same mission with no row written; expiry at 23:59:59 in the product's zone; accepting once and twice; an empty catalogue being a 404 rather than `% 0` |
+| `WeeklyMissionServiceTest` (7 cases) | unit | The week running Monday to the end of today, and Monday counting as its own first day; a PAIR mission needing both halves at the target; nobody to pair with never completing one; a SELF mission not consulting the partner                        |
+
+Proved non-vacuous by four sabotages: dropping the `- 1` from the rotation,
+expiring in UTC, completing a pair mission on the caller alone, and starting
+the week on the previous Monday.
 
 | Test                | Type        | Risk it covers                                                          |
 | ------------------- | ----------- | ----------------------------------------------------------------------- |
@@ -139,13 +145,13 @@ SELECT tenant_id, mission_date, mission_code FROM pair_missions WHERE mission_da
 | Item                            | Impact                                     | When it is meant to be addressed                                             |
 | ------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
 | M-1, missions award nothing     | The feature does not do what it appears to | Needs a completion rule first; it is the largest product gap in the codebase |
-| No tests at all                 | Every rule above can change silently       | After a `Clock` is injectable                                                |
 | M-2, the stored code is ignored | The screen and the row can disagree        | With the tests                                                               |
 | M-3, the timezone               | The day rolls over at the wrong hour       | One fix across the codebase                                                  |
 | M-6, a query per mission        | Grows with the catalogue                   | When the catalogue grows                                                     |
 
 ## History
 
-| Date       | Change                                              | Pull request             |
-| ---------- | --------------------------------------------------- | ------------------------ |
-| 2026-09-06 | Document created, M-1 found and reported (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                                                       | Pull request             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| 2026-09-11 | Both services took an injected clock, replacing `LocalDate.now()` with no zone at all, and got their first tests: fourteen cases over the rotation, the expiry, the Monday boundary and the both-halves rule | `fix/audit-loose-ends`   |
+| 2026-09-06 | Document created, M-1 found and reported (phase 13)                                                                                                                                                          | `docs/professional-docs` |

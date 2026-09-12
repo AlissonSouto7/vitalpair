@@ -110,15 +110,15 @@ export function AppRouter() {
         <Routes>
           <Route path="/" element={<RootEntry />} />
           <Route path="/landing" element={<LandingPage />} />
-          <Route path="/privacidade" element={<PrivacyPage />} />
-          <Route path="/termos" element={<TermsPage />} />
-          <Route path="/contato" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route path="/convite/:code" element={<InvitePage />} />
+          <Route path="/invite/:code" element={<InvitePage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route element={<Layout />}>

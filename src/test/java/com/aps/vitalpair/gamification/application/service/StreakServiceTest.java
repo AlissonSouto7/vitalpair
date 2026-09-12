@@ -34,7 +34,7 @@ class StreakServiceTest {
     private StreakService service;
 
     @Test
-    void criaStreakQuandoNaoExiste() {
+    void startsAstreakThatDoesNotExistYet() {
         when(repository.findByUserAndType(USER, StreakType.NUTRITION_LOG)).thenReturn(Optional.empty());
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -46,7 +46,7 @@ class StreakServiceTest {
     }
 
     @Test
-    void incrementaEmDiasConsecutivos() {
+    void growsOnConsecutiveDays() {
         UserStreak existing = streak(3, 3, TODAY.minusDays(1));
         when(repository.findByUserAndType(USER, StreakType.NUTRITION_LOG)).thenReturn(Optional.of(existing));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -58,7 +58,7 @@ class StreakServiceTest {
     }
 
     @Test
-    void reiniciaComLacunaMantendoMaiorSequencia() {
+    void restartsAfterAgapButKeepsTheLongestRun() {
         UserStreak existing = streak(5, 5, TODAY.minusDays(3));
         when(repository.findByUserAndType(USER, StreakType.NUTRITION_LOG)).thenReturn(Optional.of(existing));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -70,7 +70,7 @@ class StreakServiceTest {
     }
 
     @Test
-    void naoContaDuasVezesNoMesmoDia() {
+    void doesNotCountTwiceOnTheSameDay() {
         UserStreak existing = streak(2, 2, TODAY);
         when(repository.findByUserAndType(USER, StreakType.NUTRITION_LOG)).thenReturn(Optional.of(existing));
 

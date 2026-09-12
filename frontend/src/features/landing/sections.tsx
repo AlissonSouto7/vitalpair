@@ -239,13 +239,13 @@ export function CtaFinal() {
       <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-hair pt-6 sm:flex-row">
         <span className="text-[12.5px] font-bold text-muted">{t('landing.footerRights')}</span>
         <div className="flex gap-4 text-[12.5px] font-bold text-muted">
-          <Link to="/privacidade" className="transition hover:text-ink">
+          <Link to="/privacy" className="transition hover:text-ink">
             {t('landing.footerPrivacy')}
           </Link>
-          <Link to="/termos" className="transition hover:text-ink">
+          <Link to="/terms" className="transition hover:text-ink">
             {t('landing.footerTerms')}
           </Link>
-          <Link to="/contato" className="transition hover:text-ink">
+          <Link to="/contact" className="transition hover:text-ink">
             {t('landing.footerContact')}
           </Link>
         </div>

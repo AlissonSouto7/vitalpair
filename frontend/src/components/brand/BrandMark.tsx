@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { Broto } from './Broto'
 
 /**
@@ -9,6 +11,7 @@ export function BrandMark({ size = 40 }: { size?: number }) {
 }
 
 export function BrandLockup({ size = 40 }: { size?: number }) {
+  const { t } = useTranslation()
   return (
     <div className="flex items-center gap-2.5">
       <div className="flex shrink-0 items-end">
@@ -22,7 +25,7 @@ export function BrandLockup({ size = 40 }: { size?: number }) {
           VitalPair
         </div>
         <div className="mt-[3px] text-[9px] font-extrabold uppercase tracking-[0.05em] text-muted">
-          Saúde é melhor em dupla
+          {t('common.brandTagline')}
         </div>
       </div>
     </div>
