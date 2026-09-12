@@ -111,14 +111,14 @@ e-mails go to Mailpit instead of the internet. AI features answer 503 until
 
 | Command                      | What runs                                                                                                                                          | Needs               |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `./mvnw test`                | 90 unit tests                                                                                                                                      | nothing             |
-| `./mvnw verify`              | everything: unit, 158 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
-| `cd frontend && npm test`    | 170 frontend tests, including translation parity across the four languages                                                                         | nothing             |
+| `./mvnw test`                | 169 unit tests                                                                                                                                     | nothing             |
+| `./mvnw verify`              | everything: unit, 165 integration tests against real Postgres, Redis and SMTP in containers, formatting, style, architecture rules, coverage floor | Docker              |
+| `cd frontend && npm test`    | 194 frontend tests, including translation parity across the four languages                                                                         | nothing             |
 | `cd frontend && npm run e2e` | 20 browser tests in a real Chromium against the production build                                                                                   | the backend running |
 
-Measured on 2026-09-09: line coverage 88%, branch coverage 62%, with a build
-floor of 80 / 50 that only moves up. Every test added since phase 7 was proved
-non-vacuous by breaking the code on purpose and watching it fail.
+Measured on 2026-09-11: line coverage 90.59%, branch coverage 68.72%, with a
+build floor of 88 / 65 that only moves up. Every test added since phase 7 was
+proved non-vacuous by breaking the code on purpose and watching it fail.
 
 External APIs are never called in tests. Anthropic and Open Food Facts are
 replayed by WireMock from responses captured from the real services, so a
