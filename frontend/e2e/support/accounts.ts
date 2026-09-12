@@ -149,6 +149,10 @@ export async function activateThroughTheEmail(page: Page, email: string) {
     .not.toBeNull()
 
   await page.goto(`/verify-email?token=${token}`)
+
+  // The page calls the API on load; without waiting for its answer the next step signs in
+  // against an account that is still unconfirmed, and the sign-in is refused.
+  await expect(page.getByText(/email confirmado/i)).toBeVisible({ timeout: 15_000 })
 }
 
 /** Signs in through the form. Does not wait: use signIn when the test needs to be inside. */
