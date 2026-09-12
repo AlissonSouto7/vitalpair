@@ -110,13 +110,14 @@ and a ledger write.
 
 ## Tests
 
-| Test                               | Type        | Risk it covers                                                              |
-| ---------------------------------- | ----------- | --------------------------------------------------------------------------- |
-| `StreakServiceTest` (4 cases)      | unit        | Creation, consecutive increment, reset on a gap keeping the record, and R-2 |
-| `BadgeServiceTest` (4 cases)       | unit        | Award, R-7, R-8, and the catalogue join                                     |
-| `CompetitionServiceTest` (2 cases) | unit        | Creating the week's row with a winner, and accumulation flipping the lead   |
-| `ConcurrentScoringIT` (2 cases)    | integration | G-1, with a barrier and an assertion that the requests actually overlapped  |
-| `TenantIsolationIT`                | integration | Cross-pair reads                                                            |
+| Test                                       | Type        | Risk it covers                                                                                                                                                                                                                                                         |
+| ------------------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `StreakServiceTest` (4 cases)              | unit        | Creation, consecutive increment, reset on a gap keeping the record, and R-2                                                                                                                                                                                            |
+| `BadgeServiceTest` (4 cases)               | unit        | Award, R-7, R-8, and the catalogue join                                                                                                                                                                                                                                |
+| `GamificationEventListenerTest` (12 cases) | unit        | The whole points economy: ten for a meal and fifteen for an activity on both the scoreboard and the ledger; the second record of a day scoring nothing; the streak bonus every seventh day and not on day six; the overtake notification firing on the transition only |
+| `CompetitionServiceTest` (2 cases)         | unit        | Creating the week's row with a winner, and accumulation flipping the lead                                                                                                                                                                                              |
+| `ConcurrentScoringIT` (2 cases)            | integration | G-1, with a barrier and an assertion that the requests actually overlapped                                                                                                                                                                                             |
+| `TenantIsolationIT`                        | integration | Cross-pair reads                                                                                                                                                                                                                                                       |
 
 ```bash
 ./mvnw test -Dtest='StreakServiceTest,BadgeServiceTest,CompetitionServiceTest'
@@ -130,7 +131,6 @@ and a ledger write.
   an untested class. Changing `MEAL_POINTS` to 100 breaks no test. `ConcurrentScoringIT`
   exercises it end to end and pins the 10-point award, which is the only coverage it has.
 - **The tie case**, R-10, has no test.
-- **The overtake notification** has no test at all.
 - **The milestone bonus**, R-6, is not tested: no test builds a seven-day streak.
 - **`CompetitionService.currentScoreOf` and `partnerOf`** have no tests.
 - **`getCurrentCompetition`** is untested; its user lookup is mocked and never stubbed.
@@ -170,6 +170,7 @@ SELECT count(*) FROM point_events WHERE points < 0;
 
 ## History
 
-| Date       | Change                                                   | Pull request             |
-| ---------- | -------------------------------------------------------- | ------------------------ |
-| 2026-09-06 | `ConcurrentScoringIT` added, document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                                  | Pull request             |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| 2026-09-11 | The event listener got the test this document called the highest-value one left to write: twelve cases over the whole points economy, including the overtake transition | `fix/audit-loose-ends`   |
+| 2026-09-06 | `ConcurrentScoringIT` added, document created (phase 13)                                                                                                                | `docs/professional-docs` |

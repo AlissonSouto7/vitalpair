@@ -92,8 +92,13 @@ which the architecture forbids.
 
 ## Tests
 
-**This feature has no tests.** Nineteen classes, two endpoints, no test file
-under `src/test/java/com/aps/vitalpair/progress/`.
+| Test                            | Type | Risk it covers                                                                                                                                                                                                                                                                                                           |
+| ------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ProgressServiceTest` (9 cases) | unit | The averages dividing by the window rather than by the days with records; the seven-day span ending today; a blank day reading as zero; `withinGoal` at exactly the target; no target meaning every day is within it; the profile weight standing in until the first weigh-in; a weigh-in filed in the person's own zone |
+
+Each one was proved non-vacuous: dividing by the logged days, using the
+server's date, and making the goal comparison strict each fail exactly the test
+that covers them.
 
 | Test                | Type        | Risk it covers                                                     |
 | ------------------- | ----------- | ------------------------------------------------------------------ |
@@ -127,7 +132,6 @@ SELECT count(*) FROM (SELECT user_id FROM weight_logs GROUP BY 1 HAVING count(*)
 
 | Item                                     | Impact                                                    | When it is meant to be addressed                                                                                                                                                                                                           |
 | ---------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| No tests at all                          | Every rule above can change silently                      | The chart arithmetic is cheap to test and worth doing next                                                                                                                                                                                 |
 | P-1, the divisor                         | The average understates intake for anyone who skips a day | Product decision                                                                                                                                                                                                                           |
 | P-2, an unlogged day reads as success    | Flattering and wrong                                      | Needs a response field                                                                                                                                                                                                                     |
 | P-4, unbounded and uncorrectable weights | A typo is permanent                                       | Half done: the browser refuses anything outside 20 to 500 kg since phase 10a. `RecordWeightRequest` still accepts up to 999.99, so a direct API call can log 3 kg; tighten it to the profile's bound with a test. Correction still missing |
@@ -137,5 +141,6 @@ SELECT count(*) FROM (SELECT user_id FROM weight_logs GROUP BY 1 HAVING count(*)
 
 | Date       | Change                                                                                                                                                                                                                                                                                                     | Pull request                        |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| 2026-09-11 | The feature got its first tests: nine cases over the chart arithmetic and the day boundary, each proved non-vacuous by breaking the service on purpose                                                                                                                                                     | `fix/audit-loose-ends`              |
 | 2026-09-06 | Document created (phase 13)                                                                                                                                                                                                                                                                                | `docs/professional-docs`            |
 | 2026-09-08 | Phase 10a: the weight form became one component, `WeightForm`, shared with the profile screen. It refuses an empty weight, zero and anything outside 20 to 500 kg with a message, and shows the server's message when a save fails (the profile copy had no `catch`). First 5 component tests. P-4 updated | `refactor/frontend-forms-and-tests` |

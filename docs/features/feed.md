@@ -95,13 +95,14 @@ and builds a card from the event.
 
 ## Tests
 
-| Test                              | Type        | Risk it covers                                                     |
-| --------------------------------- | ----------- | ------------------------------------------------------------------ |
-| `MealPrivacyIT` (4 cases)         | integration | R-1, R-2, R-3, and cross-pair invisibility                         |
-| `FeedEventListenerTest` (2 cases) | unit        | The card's copy and its point value drifting                       |
-| `ReactionServiceTest` (2 cases)   | unit        | R-5, and that the tenant guard does not block legitimate reactions |
-| `FeedPaginationIT` (6 cases)      | integration | FD-1, the cap at 50, and the defaults                              |
-| `TenantIsolationIT`               | integration | The feed and the reaction endpoint across pairs                    |
+| Test                              | Type        | Risk it covers                                                                                                                                                                                                                                 |
+| --------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MealPrivacyIT` (4 cases)         | integration | R-1, R-2, R-3, and cross-pair invisibility                                                                                                                                                                                                     |
+| `FeedEventListenerTest` (2 cases) | unit        | The card's copy and its point value drifting                                                                                                                                                                                                   |
+| `FeedServiceTest` (7 cases)       | unit        | Reaction counts grouped per item and per type; "mine" holding only the caller's; empty maps rather than nulls; the whole page costing one reaction query; the tenant coming from the stored profile; the paging envelope surviving the mapping |
+| `ReactionServiceTest` (2 cases)   | unit        | R-5, and that the tenant guard does not block legitimate reactions                                                                                                                                                                             |
+| `FeedPaginationIT` (6 cases)      | integration | FD-1, the cap at 50, and the defaults                                                                                                                                                                                                          |
+| `TenantIsolationIT`               | integration | The feed and the reaction endpoint across pairs                                                                                                                                                                                                |
 
 ```bash
 ./mvnw verify -Dit.test='MealPrivacyIT,FeedPaginationIT'
@@ -139,6 +140,7 @@ SELECT feed_item_id, user_id, type, count(*) FROM feed_reactions GROUP BY 1,2,3 
 
 ## History
 
-| Date       | Change                                             | Pull request             |
-| ---------- | -------------------------------------------------- | ------------------------ |
-| 2026-09-06 | `MealPrivacyIT` added, document created (phase 13) | `docs/professional-docs` |
+| Date       | Change                                                                                                                                                  | Pull request             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| 2026-09-11 | `FeedService` got its first test: seven cases over the reaction counts, which reactions are the caller's own, and the single query the whole page costs | `fix/audit-loose-ends`   |
+| 2026-09-06 | `MealPrivacyIT` added, document created (phase 13)                                                                                                      | `docs/professional-docs` |
