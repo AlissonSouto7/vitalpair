@@ -27,6 +27,9 @@ services:
       - '--web.enable-lifecycle'
     volumes:
       - './monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro'
+      # The alerting rules, referenced by rule_files in the config above. A separate file so
+      # that changing what is worth alerting on does not touch what is scraped.
+      - './monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro'
       - 'prometheusdata:/prometheus'
     healthcheck:
       test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://127.0.0.1:9090/-/healthy']
