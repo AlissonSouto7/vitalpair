@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.aps.vitalpair.auth.application.dto.AuthResult;
 import com.aps.vitalpair.auth.application.dto.LoginCommand;
 import com.aps.vitalpair.auth.application.dto.RegisterCommand;
+import com.aps.vitalpair.auth.domain.exception.EmailNotVerifiedException;
 import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
 import com.aps.vitalpair.auth.domain.model.GoogleUserInfo;
 import com.aps.vitalpair.auth.domain.port.in.GoogleLoginUseCase;
@@ -30,7 +31,6 @@ import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.model.RelationshipType;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
-import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.model.UserTimeZones;
@@ -78,22 +78,43 @@ public class AuthService
 
     @Override
     @Transactional
-    public AuthResult register(RegisterCommand command) {
-        if (userRepository.existsByEmail(command.email())) {
-            throw new BusinessRuleException("E-mail já cadastrado");
-        }
+    public void register(RegisterCommand command) {
+        // Answering "e-mail already registered" told anyone with a list of addresses which of
+        // them belong to users. Both branches below produce the same HTTP answer, and what
+        // differs happens by e-mail, where only the mailbox's owner can see it.
+        userRepository
+                .findByEmail(command.email())
+                .ifPresentOrElse(
+                        existing -> warnTheOwnerOfAnExistingAccount(existing.getEmail(), existing.getName()),
+                        () -> createUnverifiedAccount(command));
+    }
+
+    /**
+     * Creates the account and sends the link that activates it.
+     *
+     * <p>The account exists from here on but cannot sign in with a password until the link is
+     * used ({@link #login}), so a caller who never reads the mailbox gains nothing by
+     * registering an address that was not theirs.
+     */
+    private void createUnverifiedAccount(RegisterCommand command) {
         User user =
                 createUserWithTenant(command.email(), command.name(), passwordHasher.hash(command.password()), false);
-        // A mail outage must not cost a signup. The account is already created and the
-        // person is about to be logged in; the verification e-mail can be resent from the
-        // app. Letting the exception through would return 500 to someone whose account
-        // does exist, and they would try to register again and hit "e-mail already taken".
         try {
             sendEmailVerification.send(user.getId(), user.getEmail(), user.getName());
         } catch (RuntimeException ex) {
-            log.error("Registration succeeded but the verification e-mail failed for user {}", user.getId(), ex);
+            // The account is created and the answer is already the generic one, so failing
+            // here would turn a mail outage into a 500 that also revealed which branch ran.
+            // The person can ask for the link again from the sign-in screen.
+            log.error("Account created but the verification e-mail failed for user {}", user.getId(), ex);
         }
-        return issueTokens(user);
+    }
+
+    private void warnTheOwnerOfAnExistingAccount(String email, String name) {
+        try {
+            sendEmailVerification.warnAboutRegistrationAttempt(email, name);
+        } catch (RuntimeException ex) {
+            log.error("Could not warn the owner of an existing account about a registration attempt", ex);
+        }
     }
 
     @Override
@@ -119,6 +140,14 @@ public class AuthService
 
         if (user.getPasswordHash() == null || !passwordHasher.matches(command.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException("Credenciais inválidas");
+        }
+
+        // Checked after the password, so the answer only changes for somebody who already
+        // proved the address is theirs. Without this the activation link would be optional
+        // and registering an address that is not yours would still get you in.
+        if (!user.isEmailVerified()) {
+            throw new EmailNotVerifiedException(
+                    "Confirme seu e-mail para entrar. Reenviamos o link se você pedir na tela de acesso.");
         }
 
         return issueTokens(user);

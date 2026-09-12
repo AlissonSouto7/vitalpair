@@ -106,11 +106,53 @@ export async function registerThroughTheUi(
   await fields.password.fill(PASSWORD)
   await fields.submit.click()
 
-  // Registration ends on onboarding (new profile) or the dashboard; waiting here means a
-  // caller never races against a redirect that has not happened yet.
+  // Registration no longer signs anyone in: it answers the same way for a new address and
+  // for one that already has an account, and the link in the e-mail is what activates it.
+  // The screen that follows is the same either way.
+  await expect(page.getByRole('heading', { name: /confere seu e-mail/i })).toBeVisible()
+
+  await activateThroughTheEmail(page, email)
+  await loginThroughTheUi(page, email, PASSWORD)
   await expect(page).toHaveURL(/\/(onboarding|dashboard)/)
 
   return { email, password: PASSWORD }
+}
+
+/**
+ * Opens the activation link the registration e-mail carries.
+ *
+ * Reads it from Mailpit, the fake SMTP server the development compose runs, which is where
+ * the backend delivers when MAIL_ENABLED is on. Going through the mailbox is what a person
+ * does, so the browser suite exercises the real path rather than a shortcut around it.
+ */
+export async function activateThroughTheEmail(page: Page, email: string) {
+  const mailpit = process.env.E2E_MAILPIT_URL ?? 'http://localhost:8025'
+
+  /** The activation token in the newest message to this address, or null while none arrived. */
+  async function tokenInTheMailbox(): Promise<string | null> {
+    const list = await page.request.get(`${mailpit}/api/v1/search?query=to:${email}`)
+    if (!list.ok()) return null
+    const id = ((await list.json()) as { messages?: { ID: string }[] }).messages?.[0]?.ID
+    if (!id) return null
+    const message = await page.request.get(`${mailpit}/api/v1/message/${id}`)
+    if (!message.ok()) return null
+    const body = (await message.json()) as { HTML?: string; Text?: string }
+    return /[?&]token=([^"&\s]+)/.exec(`${body.HTML ?? ''}${body.Text ?? ''}`)?.[1] ?? null
+  }
+
+  let token: string | null = null
+  await expect
+    .poll(async () => (token = await tokenInTheMailbox()), {
+      message: `no activation e-mail reached ${email}`,
+      timeout: 15_000,
+    })
+    .not.toBeNull()
+
+  await page.goto(`/verify-email?token=${token}`)
+
+  // The page calls the API on load; without waiting for its answer the next step signs in
+  // against an account that is still unconfirmed, and the sign-in is refused.
+  await expect(page.getByText(/email confirmado/i)).toBeVisible({ timeout: 15_000 })
 }
 
 /** Signs in through the form. Does not wait: use signIn when the test needs to be inside. */

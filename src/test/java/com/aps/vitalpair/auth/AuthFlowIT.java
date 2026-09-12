@@ -34,13 +34,28 @@ class AuthFlowIT extends AbstractIntegrationTest {
     private static final String LOGOUT = "/api/v1/auth/logout";
 
     @Test
-    void registrationSetsTheRefreshCookieAndKeepsTheTokenOutOfTheBody() {
+    void registrationIssuesNoSessionAtAll() {
         String email = uniqueEmail("Ana");
 
         ResponseEntity<String> response =
                 anonymous(HttpMethod.POST, REGISTER, Map.of("name", "Ana", "email", email, "password", PASSWORD));
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        // Registration answers the same thing for a new address and for one that already has
+        // an account, so it can carry neither a session nor a cookie: either would tell the
+        // two apart. Signing in comes after the link in the e-mail is used.
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(data(response).isNull()).isTrue();
+        assertThat(response.getHeaders().get(HttpHeaders.SET_COOKIE)).isNull();
+    }
+
+    @Test
+    void signingInSetsTheRefreshCookieAndKeepsTheTokenOutOfTheBody() {
+        Session registered = register("Ana");
+
+        ResponseEntity<String> response =
+                anonymous(HttpMethod.POST, LOGIN, Map.of("email", registered.email(), "password", PASSWORD));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode data = data(response);
         assertThat(data.path("accessToken").asText()).isNotBlank();
         assertThat(data.path("userId").asText()).isNotBlank();
@@ -57,21 +72,27 @@ class AuthFlowIT extends AbstractIntegrationTest {
                 .contains("Path=/api/v1/auth")
                 .contains("Max-Age=2592000");
 
-        Session session = sessionFrom(response, email, "Ana");
+        Session session = sessionFrom(response, registered.email(), "Ana");
         ResponseEntity<String> me = httpGet("/api/v1/users/me", session);
         assertThat(me.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(data(me).path("email").asText()).isEqualTo(email);
+        assertThat(data(me).path("email").asText()).isEqualTo(registered.email());
     }
 
     @Test
     void verificationEmailIsDeliveredAndItsLinkConfirmsTheAccount() {
-        Session session = register("Bruno");
-        assertThat(data(httpGet("/api/v1/users/me", session))
-                        .path("emailVerified")
-                        .asBoolean())
-                .isFalse();
+        // Registers without the helper, which activates the account as part of its job: this
+        // test is about the link itself, from the unconfirmed state to the confirmed one.
+        String email = uniqueEmail("Bruno");
+        assertThat(anonymous(HttpMethod.POST, REGISTER, Map.of("name", "Bruno", "email", email, "password", PASSWORD))
+                        .getStatusCode())
+                .isEqualTo(HttpStatus.ACCEPTED);
 
-        Mail mail = MailpitSupport.latestTo(session.email()).orElseThrow();
+        // An unconfirmed address cannot sign in, which is what makes the link load-bearing.
+        assertThat(anonymous(HttpMethod.POST, LOGIN, Map.of("email", email, "password", PASSWORD))
+                        .getStatusCode())
+                .isEqualTo(HttpStatus.FORBIDDEN);
+
+        Mail mail = MailpitSupport.latestTo(email).orElseThrow();
         assertThat(mail.subject()).isEqualTo("Confirme seu e-mail no VitalPair");
         assertThat(mail.link()).contains("/verify-email?token=");
         assertThat(mail.html()).contains("Oi, Bruno!");
@@ -80,6 +101,7 @@ class AuthFlowIT extends AbstractIntegrationTest {
         ResponseEntity<String> verify = anonymous(HttpMethod.POST, "/api/v1/auth/verify-email", Map.of("token", token));
         assertThat(verify.getStatusCode()).as(verify.getBody()).isEqualTo(HttpStatus.OK);
 
+        Session session = login(email, PASSWORD);
         assertThat(data(httpGet("/api/v1/users/me", session))
                         .path("emailVerified")
                         .asBoolean())
@@ -202,14 +224,16 @@ class AuthFlowIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void duplicateEmailIsRejected() {
+    void aSecondRegistrationForTheSameAddressAnswersLikeTheFirst() {
         Session session = register("Helena");
 
         ResponseEntity<String> response = anonymous(
                 HttpMethod.POST, REGISTER, Map.of("name", "Helena", "email", session.email(), "password", PASSWORD));
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-        assertThat(body(response).path("message").asText()).isEqualTo("E-mail já cadastrado");
+        // It used to answer 422 "e-mail already registered", which told anyone with a list of
+        // addresses which of them belong to users. RegisterEnumerationIT compares the two
+        // answers field by field; this one pins the status the endpoint now always gives.
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
     }
 
     @Test

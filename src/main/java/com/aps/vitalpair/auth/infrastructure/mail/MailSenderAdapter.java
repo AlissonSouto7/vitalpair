@@ -58,6 +58,17 @@ public class MailSenderAdapter implements MailSenderPort {
         send(toEmail, "Confirme seu e-mail no VitalPair", html, "confirmação");
     }
 
+    @Override
+    public void sendRegistrationAttemptOnExistingAccount(String toEmail, String name, String signInLink) {
+        String html = brandedHtml(
+                greet(name),
+                "Alguém tentou criar uma conta no VitalPair com este e-mail, que já é seu. Não criamos nada de novo: sua conta e sua senha continuam as mesmas.",
+                "Entrar na minha conta",
+                signInLink,
+                "Se foi você, é só entrar normalmente. Se não foi, ignore este e-mail; ninguém consegue usar seu endereço para criar uma segunda conta.");
+        send(toEmail, "Alguém tentou criar uma conta com seu e-mail", html, "aviso de cadastro");
+    }
+
     private void send(String toEmail, String subject, String html, String kind) {
         JavaMailSender mailSender = enabled ? mailSenderProvider.getIfAvailable() : null;
         if (mailSender == null) {

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.aps.vitalpair.auth.application.dto.AuthResult;
 import com.aps.vitalpair.auth.application.dto.LoginCommand;
 import com.aps.vitalpair.auth.application.dto.RegisterCommand;
+import com.aps.vitalpair.auth.domain.exception.EmailNotVerifiedException;
 import com.aps.vitalpair.auth.domain.exception.InvalidCredentialsException;
 import com.aps.vitalpair.auth.domain.model.GoogleUserInfo;
 import com.aps.vitalpair.auth.domain.port.in.SendEmailVerificationUseCase;
@@ -35,7 +37,6 @@ import com.aps.vitalpair.config.JwtProperties;
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
-import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
@@ -85,54 +86,49 @@ class AuthServiceTest {
     }
 
     @Test
-    void registeringCreatesAtenantAuserAndIssuesTokens() {
-        when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(false);
+    void registeringANewAddressCreatesAtenantAuserAndSendsTheActivationLink() {
+        when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.empty());
         when(pairRepository.save(any())).thenReturn(pairWithId());
         when(passwordHasher.hash("senha1234")).thenReturn("hashed");
         when(userRepository.save(any())).thenReturn(userWithId());
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
-                .thenReturn("access");
 
-        AuthResult result = authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
+        authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
 
-        assertThat(result.accessToken()).isEqualTo("access");
-        assertThat(result.refreshToken()).isNotBlank();
-        assertThat(result.userId()).isEqualTo(USER_ID);
         // The pair is saved twice: once created, once associated with user1.
         verify(pairRepository, times(2)).save(any());
-        verify(refreshTokenStore).save(anyString(), eq(USER_ID), any(UUID.class), eq(REFRESH_TTL));
+        verify(sendEmailVerification).send(USER_ID, "ana@vitalpair.app", "Ana");
+        // No session: one in the answer would tell a new address from a taken one.
+        verifyNoInteractions(refreshTokenStore);
     }
 
     @Test
-    void registerSucceedsWhenTheVerificationEmailCannotBeSent() {
-        when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(false);
+    void registeringAnAddressThatAlreadyHasAnAccountWarnsTheOwnerAndCreatesNothing() {
+        when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(userWithId()));
+
+        authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
+
+        verify(sendEmailVerification).warnAboutRegistrationAttempt("ana@vitalpair.app", "Ana");
+        verify(sendEmailVerification, never()).send(any(), anyString(), anyString());
+        verifyNoInteractions(pairRepository, passwordHasher, refreshTokenStore);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void registrationStillSucceedsWhenTheActivationEmailCannotBeSent() {
+        when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.empty());
         when(pairRepository.save(any())).thenReturn(pairWithId());
         when(passwordHasher.hash("senha1234")).thenReturn("hashed");
         when(userRepository.save(any())).thenReturn(userWithId());
-        when(tokenProvider.generateAccessToken(USER_ID, TENANT_ID, "ana@vitalpair.app", Role.USER))
-                .thenReturn("access");
         doThrow(new RuntimeException("SMTP unreachable"))
                 .when(sendEmailVerification)
                 .send(any(), anyString(), anyString());
 
-        AuthResult result = authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
+        // A mail outage must not turn into a 500, which would also reveal which branch ran
+        // and so undo the whole point of answering the same thing either way. The account
+        // exists and the link can be requested again from the sign-in screen.
+        authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana"));
 
-        // The account exists and the user is logged in. A mail outage must not cost a
-        // signup: the verification e-mail can be resent, but a 500 sends the person away
-        // and leaves a half-created account behind.
-        assertThat(result.accessToken()).isEqualTo("access");
-        assertThat(result.userId()).isEqualTo(USER_ID);
-    }
-
-    @Test
-    void registeringAnEmailThatExistsIsRejected() {
-        when(userRepository.existsByEmail("ana@vitalpair.app")).thenReturn(true);
-
-        assertThatThrownBy(() -> authService.register(new RegisterCommand("ana@vitalpair.app", "senha1234", "Ana")))
-                .isInstanceOf(BusinessRuleException.class);
-
-        verify(userRepository, never()).save(any());
-        verify(pairRepository, never()).save(any());
+        verify(userRepository).save(any());
     }
 
     @Test
@@ -155,6 +151,20 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.login(new LoginCommand("ana@vitalpair.app", "errada")))
                 .isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    void anAccountWhoseAddressWasNeverConfirmedCannotSignIn() {
+        when(userRepository.findByEmail("ana@vitalpair.app")).thenReturn(Optional.of(verifiedUser(false)));
+        when(passwordHasher.matches("senha1234", "hashed")).thenReturn(true);
+
+        // Checked after the password on purpose: the answer only changes for somebody who
+        // already proved the address is theirs. Without it the activation link would be
+        // optional, and registering an address that is not yours would still get you in.
+        assertThatThrownBy(() -> authService.login(new LoginCommand("ana@vitalpair.app", "senha1234")))
+                .isInstanceOf(EmailNotVerifiedException.class);
+
+        verifyNoInteractions(refreshTokenStore);
     }
 
     @Test
@@ -284,7 +294,12 @@ class AuthServiceTest {
                 .build();
     }
 
+    /** An account that finished registration, which is the only kind that can sign in. */
     private User userWithId() {
+        return verifiedUser(true);
+    }
+
+    private User verifiedUser(boolean emailVerified) {
         return User.builder()
                 .id(USER_ID)
                 .tenantId(TENANT_ID)
@@ -292,6 +307,7 @@ class AuthServiceTest {
                 .passwordHash("hashed")
                 .name("Ana")
                 .role(Role.USER)
+                .emailVerified(emailVerified)
                 .build();
     }
 }

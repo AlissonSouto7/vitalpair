@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { joinPair } from '@/api/pair'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { GoogleLoginButton } from '@/components/GoogleLoginButton'
+import { takePendingInvite } from '@/features/pair/pendingInvite'
 import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { FormError } from '@/shared/ui/form/FormError'
@@ -51,8 +52,11 @@ export function LoginPage() {
     setError(null)
     try {
       await login(values)
-      if (invite) {
-        await joinPair(invite.trim().toUpperCase()).catch(() => undefined)
+      // O código da URL, ou o que ficou guardado ao registrar: quem chegou por convite só
+      // pode entrar na dupla depois de confirmar o e-mail, porque entrar exige sessão.
+      const code = invite?.trim().toUpperCase() ?? takePendingInvite()
+      if (code) {
+        await joinPair(code).catch(() => undefined)
       }
       void navigate('/dashboard')
     } catch (err) {

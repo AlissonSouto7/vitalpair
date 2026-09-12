@@ -29,6 +29,11 @@ export const auth = {
     // register
     registerTitle: 'Cria sua conta',
     registerSubtitle: 'Leva menos tempo que escolher série na Netflix.',
+    checkEmailTitle: 'Confere seu e-mail',
+    checkEmailText:
+      'Se {{email}} ainda não tem conta, mandamos o link pra ativar. Se já tem, avisamos o dono.',
+    checkEmailHint: 'Não chegou em alguns minutos? Olha o spam, ou tenta de novo.',
+    checkEmailCta: 'Ir para o acesso',
     registerInviteHint:
       'Você foi convidado pra uma dupla. Cria a conta que eu já te coloco lá dentro.',
     nameLabel: 'Como te chamam?',
@@ -94,6 +99,11 @@ export const auth = {
 
     registerTitle: 'Create your account',
     registerSubtitle: 'Takes less time than picking a show on Netflix.',
+    checkEmailTitle: 'Check your e-mail',
+    checkEmailText:
+      'If {{email}} has no account yet, we sent the link to activate it. If it does, we told its owner.',
+    checkEmailHint: 'Nothing after a few minutes? Check the spam folder, or try again.',
+    checkEmailCta: 'Go to sign in',
     registerInviteHint:
       'You’ve been invited to a pair. Create your account and I’ll put you right in.',
     nameLabel: 'What should we call you?',
@@ -156,6 +166,11 @@ export const auth = {
 
     registerTitle: 'Crea tu cuenta',
     registerSubtitle: 'Tardas menos que en elegir serie en Netflix.',
+    checkEmailTitle: 'Revisa tu correo',
+    checkEmailText:
+      'Si {{email}} aún no tiene cuenta, enviamos el enlace para activarla. Si ya la tiene, avisamos a su dueño.',
+    checkEmailHint: '¿No llegó en unos minutos? Mira el spam, o inténtalo de nuevo.',
+    checkEmailCta: 'Ir al acceso',
     registerInviteHint: 'Te invitaron a una pareja. Crea la cuenta y te meto ahí dentro.',
     nameLabel: '¿Cómo te llaman?',
     createAccountCta: 'Crear cuenta y vamos',
@@ -218,6 +233,11 @@ export const auth = {
 
     registerTitle: 'Crée ton compte',
     registerSubtitle: 'Plus rapide que de choisir une série sur Netflix.',
+    checkEmailTitle: 'Vérifie tes e-mails',
+    checkEmailText:
+      'Si {{email}} n’a pas encore de compte, on a envoyé le lien pour l’activer. S’il en a un, on a prévenu son propriétaire.',
+    checkEmailHint: 'Rien après quelques minutes ? Regarde les spams, ou réessaie.',
+    checkEmailCta: 'Aller à la connexion',
     registerInviteHint: 'On t’a invité à un binôme. Crée ton compte et je te place dedans.',
     nameLabel: 'On t’appelle comment ?',
     createAccountCta: 'Créer le compte, c’est parti',

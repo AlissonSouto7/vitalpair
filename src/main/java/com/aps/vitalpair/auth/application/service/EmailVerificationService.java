@@ -60,6 +60,19 @@ public class EmailVerificationService
         mailSender.sendEmailVerification(email, name, link);
     }
 
+    /**
+     * Tells an existing account that somebody tried to register with its address.
+     *
+     * <p>Registration answers the same thing either way, so this notice is where the two
+     * cases differ, and it reaches only the mailbox's owner. It carries no token: there is
+     * nothing to activate, and a link that grants anything would turn a warning into the
+     * very thing it warns about.
+     */
+    @Override
+    public void warnAboutRegistrationAttempt(String email, String name) {
+        mailSender.sendRegistrationAttemptOnExistingAccount(email, name, frontendUrl + "/login");
+    }
+
     @Override
     @Transactional
     public void verify(String token) {

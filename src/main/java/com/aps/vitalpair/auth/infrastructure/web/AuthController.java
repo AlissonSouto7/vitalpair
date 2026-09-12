@@ -75,17 +75,13 @@ public class AuthController {
     @Operation(
             summary = "Create an account",
             description =
-                    "Registers a person and signs them in immediately: the response carries an access token and sets the refresh cookie. A failure to send the verification e-mail does not fail the request, because the account exists and the person is already in; the e-mail can be resent.")
+                    "Starts a registration. The answer is the same whether or not the address already has an account, so the endpoint cannot be used to find out who is registered: a new address receives a link that activates it, and an address that already has an account receives a notice that somebody tried to register with it. No session is issued here; signing in comes after the link is used, or through Google.")
     @StandardApiResponses
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<TokenResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResult result =
-                registerUserUseCase.register(new RegisterCommand(request.email(), request.password(), request.name()));
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .header(
-                        HttpHeaders.SET_COOKIE,
-                        refreshTokenCookie.issue(result.refreshToken()).toString())
-                .body(ApiResponse.ok(TokenResponse.from(result), "Conta criada com sucesso"));
+    public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
+        registerUserUseCase.register(new RegisterCommand(request.email(), request.password(), request.name()));
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(ApiResponse.ok(null, "Enviamos um e-mail para você confirmar o cadastro"));
     }
 
     @Operation(

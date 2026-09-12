@@ -2,12 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 
-import { joinPair } from '@/api/pair'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { GoogleLoginButton } from '@/components/GoogleLoginButton'
+import { PENDING_INVITE_KEY } from '@/features/pair/pendingInvite'
 import { useAuth } from '@/hooks/useAuth'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { FormError } from '@/shared/ui/form/FormError'
@@ -38,10 +38,11 @@ function strength(pw: string): number {
 export function RegisterPage() {
   const { t } = useTranslation()
   const { register: createAccount } = useAuth()
-  const navigate = useNavigate()
   const [params] = useSearchParams()
   const invite = params.get('invite')
   const [error, setError] = useState<string | null>(null)
+  // O endereço para o qual o e-mail saiu, ou null enquanto o formulário está aberto.
+  const [submittedTo, setSubmittedTo] = useState<string | null>(null)
 
   const {
     register,
@@ -63,14 +64,46 @@ export function RegisterPage() {
     setError(null)
     try {
       await createAccount(values)
+      // Nenhuma sessão vem daqui: a conta nasce sem confirmação e o link do e-mail é que a
+      // ativa, o que é o que permite ao cadastro responder igual para um e-mail que já tem
+      // conta. O convite, quando existe, fica guardado e é usado no primeiro acesso.
       if (invite) {
-        // Veio de um convite: entra na dupla antes de seguir pro onboarding.
-        await joinPair(invite.trim().toUpperCase()).catch(() => undefined)
+        try {
+          sessionStorage.setItem(PENDING_INVITE_KEY, invite.trim().toUpperCase())
+        } catch {
+          // Site data blocked: the person can still enter the code on the pair screen.
+        }
       }
-      void navigate('/onboarding')
+      setSubmittedTo(values.email)
     } catch (err) {
       setError(getApiErrorMessage(err, t('auth.errorRegister')))
     }
+  }
+
+  // Uma tela só, e deliberadamente a mesma para e-mail novo e para e-mail que já tem
+  // conta: a diferença acontece na caixa de entrada, que só o dono lê.
+  if (submittedTo) {
+    return (
+      <AuthShell>
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft">
+          <svg viewBox="0 0 24 24" className="h-7 w-7 fill-brand" aria-hidden="true">
+            <path d="M2 6.5A2.5 2.5 0 014.5 4h15A2.5 2.5 0 0122 6.5v11a2.5 2.5 0 01-2.5 2.5h-15A2.5 2.5 0 012 17.5v-11zm2.4-.5L12 12l7.6-6H4.4z" />
+          </svg>
+        </div>
+        <h1 className="mb-1.5 text-center font-display text-[26px] font-semibold tracking-tight text-ink">
+          {t('auth.checkEmailTitle')}
+        </h1>
+        <p className="mb-2 text-center text-sm font-semibold text-muted">
+          {t('auth.checkEmailText', { email: submittedTo })}
+        </p>
+        <p className="mb-6 text-center text-[13px] font-semibold text-faint">
+          {t('auth.checkEmailHint')}
+        </p>
+        <Link to="/login" className="btn-primary w-full justify-center">
+          {t('auth.checkEmailCta')}
+        </Link>
+      </AuthShell>
+    )
   }
 
   return (

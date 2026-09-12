@@ -137,7 +137,7 @@ class AccountDeletionIT extends AbstractIntegrationTest {
                 Map.of("name", "Returning", "email", email, "password", PASSWORD));
         assertThat(again.getStatusCode())
                 .as("registering again with the same address: %s", again.getBody())
-                .isEqualTo(HttpStatus.CREATED);
+                .isEqualTo(HttpStatus.ACCEPTED);
     }
 
     /**

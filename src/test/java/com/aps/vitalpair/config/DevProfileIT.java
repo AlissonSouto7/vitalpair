@@ -2,6 +2,8 @@ package com.aps.vitalpair.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,10 +68,23 @@ class DevProfileIT {
         String email = "dev-" + UUID.randomUUID().toString().substring(0, 8) + "@test.vitalpair.app";
         Map<String, String> body = Map.of("name", "Dev", "email", email, "password", "Test@12345");
 
-        ResponseEntity<String> response =
-                http.postForEntity("/api/v1/auth/register", new HttpEntity<>(body, headers), String.class);
+        assertThat(http.postForEntity("/api/v1/auth/register", new HttpEntity<>(body, headers), String.class)
+                        .getStatusCode())
+                .isEqualTo(HttpStatus.ACCEPTED);
 
-        assertThat(response.getStatusCode()).as(response.getBody()).isEqualTo(HttpStatus.CREATED);
+        // Registration issues no session, so the cookie this test is about is set by signing
+        // in, which needs the address confirmed first.
+        String token =
+                URLDecoder.decode(MailpitSupport.latestTo(email).orElseThrow().token(), StandardCharsets.UTF_8);
+        http.postForEntity(
+                "/api/v1/auth/verify-email", new HttpEntity<>(Map.of("token", token), headers), String.class);
+
+        ResponseEntity<String> response = http.postForEntity(
+                "/api/v1/auth/login",
+                new HttpEntity<>(Map.of("email", email, "password", "Test@12345"), headers),
+                String.class);
+
+        assertThat(response.getStatusCode()).as(response.getBody()).isEqualTo(HttpStatus.OK);
         List<String> cookies = response.getHeaders().getOrEmpty(HttpHeaders.SET_COOKIE);
         assertThat(cookies).anySatisfy(cookie -> assertThat(cookie)
                 .startsWith("vp_refresh=")
