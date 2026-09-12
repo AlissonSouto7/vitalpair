@@ -10,6 +10,7 @@
 # The custom format (-Fc) rather than plain SQL: it is compressed, and pg_restore can pull
 # a single table out of it without replaying the whole file.
 set -euo pipefail
+umask 077
 
 ENVIRONMENT="${1:?usage: backup.sh <staging|production>}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/vitalpair/${ENVIRONMENT}}"
@@ -23,6 +24,7 @@ if [ -z "${container}" ]; then
 fi
 
 mkdir -p "${BACKUP_DIR}"
+chmod 700 "${BACKUP_DIR}"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 target="${BACKUP_DIR}/vitalpair-${stamp}.dump"
 

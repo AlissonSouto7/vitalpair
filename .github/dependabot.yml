@@ -94,7 +94,10 @@ updates:
         patterns: ['*']
 
   - package-ecosystem: docker
-    directory: /
+    # Every place an image tag is written: the two Dockerfiles and the compose files that
+    # run the edge proxy and the monitoring stack. A directory that is not listed here is
+    # one whose images never get a bump.
+    directories: ['/', '/frontend', '/deploy']
     schedule:
       interval: weekly
       day: monday
@@ -106,11 +109,8 @@ updates:
       # The Java version is a decision, not an upgrade. It is pinned in five places
       # (pom.xml, both stages of the Dockerfile, ci.yml twice, codeql.yml) and moving one
       # of them alone means testing on one JVM and shipping on another. Closed as #7 and
-      # #8. When Java moves, all five move together, deliberately.
-      #
-      # Worth knowing before trusting a green check on one of these: no workflow runs
-      # `docker build`, so CI never exercises the Dockerfile at all. Both closed pull
-      # requests passed every check without anything having built the image.
+      # #8. When Java moves, all five move together, deliberately. CI builds both images on
+      # every pull request (ci.yml), so a bump here is exercised before it is merged.
       - dependency-name: eclipse-temurin
         update-types: [version-update:semver-major]
       - dependency-name: maven

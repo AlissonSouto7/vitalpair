@@ -8,6 +8,7 @@
 # than at startup, and never committed. apr1 is the hash every nginx build understands;
 # bcrypt is stronger but needs nginx compiled with it, which the stock image is not.
 set -euo pipefail
+umask 077
 
 USER_NAME="${1:?usage: htpasswd.sh <user>}"
 

@@ -46,7 +46,7 @@ login_status="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 15 \
   -d '{"email":"smoke-test@invalid.local","password":"not-a-real-password"}')"
 check "login rejects bad credentials" 401 "${login_status}"
 
-# Phase 8 moved metrics off the public port on purpose. If this ever answers, the proxy is
+# Metrics are kept off the public port on purpose. If this ever answers, the proxy is
 # exposing a live readout of the system to the internet.
 check "metrics are NOT public" 404 "$(status "${BASE}/actuator/prometheus")"
 check "health is NOT public" 404 "$(status "${BASE}/actuator/health")"

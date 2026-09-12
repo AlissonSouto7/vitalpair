@@ -2,7 +2,7 @@
 #
 #   docker compose -f deploy/compose.monitoring.yaml --env-file deploy/env/staging.env up -d
 #
-# Phase 8 put the application's metrics on their own port so that nothing outside could
+# The application serves its metrics on their own port so that nothing outside could
 # reach them. This stack is the thing that reads that port, and it joins the same `edge`
 # network to do it. It publishes nothing to the host either: Grafana is reached through the
 # edge proxy, behind basic auth, the same way Swagger is on staging.
@@ -17,14 +17,15 @@ name: 'vitalpair-monitoring'
 
 services:
   prometheus:
-    image: 'prom/prometheus:v3.1.0'
+    image: 'prom/prometheus:v3.14.0'
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       # Fifteen days is enough to see a leak build up over a fortnight and cheap enough to
       # keep on a small disk. Longer needs remote storage, not a bigger number here.
       - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-15d}'
-      - '--web.enable-lifecycle'
+      # The lifecycle endpoints (/-/reload, /-/quit) stay off: nothing here calls them, and
+      # on the shared network any container could otherwise stop the scraper with one POST.
     volumes:
       - './monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro'
       # The alerting rules, referenced by rule_files in the config above. A separate file so
@@ -50,7 +51,9 @@ services:
         aliases: ['prometheus']
 
   grafana:
-    image: 'grafana/grafana:11.4.0'
+    # The last 11.x line. 11.4.0 carried CVE-2025-4123 (open redirect and path traversal,
+    # fixed in 11.4.4); staying on 11 keeps the provisioned dashboard as it is.
+    image: 'grafana/grafana:11.6.16'
     environment:
       # No anonymous access and no sign-up: this dashboard shows how the product is used,
       # which is not public. The password is required rather than defaulted, because a

@@ -3,7 +3,7 @@
 # release-please reads the Conventional Commits merged into main since the last release,
 # keeps a "release" pull request open with the next version and the changelog entry, and
 # when that pull request is merged it creates the tag and the GitHub release. Nothing is
-# built or deployed here: the tag is the signal the deploy pipeline (phase 12) will react
+# built or deployed here: the tag is the signal the deploy pipeline will react
 # to, and the deploy still needs a manual approval.
 #
 # Versions: bump-minor-pre-major is on, so a feat: bumps the minor and a fix: the patch
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json

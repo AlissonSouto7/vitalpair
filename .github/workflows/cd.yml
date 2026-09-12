@@ -2,19 +2,32 @@ name: CD
 
 # What reaches a server, and when.
 #
-#   push to main  -> tests, images, staging
-#   push of a tag -> tests, images, production, but only after a person approves it
+#   push to main        -> tests, images, staging
+#   push of a tag       -> tests, images, production, but only after a person approves it
+#   manual run of a tag -> the same production path, for a tag the pipeline did not see
 #
 # The two paths build the same way and deploy with the same script, so production is not a
 # path that runs for the first time on the day it matters.
+#
+# The manual path exists because a tag created by another workflow with the default token
+# never triggers this one (GitHub does not chain workflow runs off GITHUB_TOKEN events), and
+# release-please creates its tags exactly that way. Running this workflow by hand with the
+# tag name is the supported answer; a personal access token is not.
 on:
   push:
     branches: [main]
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy to production, for example v0.5.0'
+        required: true
+        type: string
 
+# Read by default. The one job that publishes images asks for what it needs, and the two
+# that deploy only pull, so the token a deploy carries to the server cannot push a package.
 permissions:
   contents: read
-  packages: write
 
 # Deploys are not cancelled halfway. A run interrupted between "the containers are down" and
 # "the new ones are up" leaves an environment in neither state, so a second push waits for
@@ -39,14 +52,21 @@ jobs:
     needs: ci
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
     outputs:
       backend: ${{ steps.tags.outputs.backend }}
       frontend: ${{ steps.tags.outputs.frontend }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # A manual run names the tag to build; a push builds what was pushed.
+          ref: ${{ inputs.tag || github.ref }}
+          persist-credentials: false
 
       - name: Log in to the registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -64,10 +84,10 @@ jobs:
           echo "frontend=${repo}-frontend:${sha}" >> "$GITHUB_OUTPUT"
           echo "Building ${repo}-{backend,frontend}:${sha}"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.9.0
 
       - name: Backend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.9.0
         with:
           context: .
           push: true
@@ -78,7 +98,7 @@ jobs:
       # The client id is baked in at build time, because a static bundle has no environment
       # to read at runtime. It is not a secret: it is in every page the browser loads.
       - name: Frontend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.9.0
         with:
           context: ./frontend
           push: true
@@ -91,14 +111,19 @@ jobs:
   staging:
     name: Deploy staging
     needs: images
-    if: startsWith(github.ref, 'refs/heads/')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
     environment:
       name: staging
       url: https://staging.vitalpair.app
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/deploy
         with:
           environment: staging
@@ -116,14 +141,22 @@ jobs:
   production:
     name: Deploy production
     needs: images
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+      || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
     environment:
       name: production
       url: https://app.vitalpair.app
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          persist-credentials: false
       - uses: ./.github/actions/deploy
         with:
           environment: production

@@ -70,7 +70,7 @@
     {
       "type": "stat",
       "title": "Circuit breakers",
-      "description": "Phase 8 put a breaker on Anthropic and on Open Food Facts. Open means the app stopped calling out and is failing fast on purpose, which is the state worth seeing without digging through logs.",
+      "description": "There is a breaker on Anthropic and on Open Food Facts. Open means the app stopped calling out and is failing fast on purpose, which is the state worth seeing without digging through logs.",
       "gridPos": { "h": 6, "w": 8, "x": 0, "y": 10 },
       "fieldConfig": {
         "defaults": {

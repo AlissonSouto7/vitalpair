@@ -73,7 +73,7 @@ server {
     set $backend backend-${ENVIRONMENT};
     set $frontend frontend-${ENVIRONMENT};
 
-    # Phase 8 moved health and metrics to their own port so that publishing the API would
+    # Health and metrics live on their own port so that publishing the API would
     # not publish a live readout of the system. Refusing the path outright, rather than
     # simply not routing it, matters: without this the single-page application's catch-all
     # answers /actuator/prometheus with index.html and a 200, which looks from the outside

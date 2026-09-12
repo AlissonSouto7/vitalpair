@@ -29,6 +29,11 @@ services:
       - './nginx/templates:/etc/nginx/templates:ro'
       - './nginx/site.conf.template:/etc/nginx/site.conf.template:ro'
       - './nginx/docker-entrypoint.d/15-render-sites.sh:/docker-entrypoint.d/15-render-sites.sh:ro'
+      # nginx reads a certificate once, at startup, so a renewal would sit on disk unused
+      # until something reloaded it. This script reloads once a day from inside the
+      # container, which needs no privilege; the alternative, a container holding the
+      # Docker socket, is root on the host.
+      - './nginx/docker-entrypoint.d/20-reload-daily.sh:/docker-entrypoint.d/20-reload-daily.sh:ro'
       - './nginx/extras:/etc/nginx/extras:ro'
       - './nginx/proxy_params.conf:/etc/nginx/proxy_params.conf:ro'
       # Basic-auth users for the staging extras, written by scripts/htpasswd.sh before the
@@ -55,30 +60,13 @@ services:
         max-file: '3'
     networks: [edge]
 
-  # nginx reads a certificate once, at startup, so a renewal would sit on disk unused until
-  # something restarted the container and the site would serve an expired certificate.
-  # This asks nginx to re-read its files once a day. It is a separate container on purpose:
-  # replacing nginx's own command would bypass the entrypoint that renders the sites,
-  # which is exactly the mistake that left the stock configuration in place here once.
-  nginx-reloader:
-    image: 'docker:cli'
-    volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    entrypoint: >
-      sh -c 'trap exit TERM;
-      while :; do
-        sleep 24h & wait $${!};
-        docker exec vitalpair-edge-nginx-1 nginx -s reload || true;
-      done'
-    restart: unless-stopped
-    depends_on: [nginx]
-    logging: *logging
-
   # Renews the certificates long before they expire. Let's Encrypt issues for ninety days and
   # renews at thirty left, so twice a day is generous and costs nothing: certbot exits
-  # immediately when there is nothing to do.
+  # immediately when there is nothing to do. Pinned: this container can write the private
+  # key of the production certificate, and an image that changes under a floating tag is
+  # not something to hand that to.
   certbot:
-    image: 'certbot/certbot:latest'
+    image: 'certbot/certbot:v5.8.0'
     volumes:
       - 'certs:/etc/letsencrypt'
       - 'acme:/var/www/certbot'
