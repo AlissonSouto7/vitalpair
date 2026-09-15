@@ -1,6 +1,7 @@
 package com.aps.vitalpair.activity.domain.port.out;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.aps.vitalpair.activity.domain.model.ActivityLog;
@@ -17,4 +18,8 @@ public interface ActivityLogRepositoryPort {
      * belongs to, and the adapter guessing UTC is exactly the bug this replaced.
      */
     List<ActivityLog> findByUserAndDay(UUID userId, DayWindow day);
+
+    Optional<ActivityLog> findById(UUID id);
+
+    void deleteById(UUID id);
 }

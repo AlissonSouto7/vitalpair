@@ -2,6 +2,7 @@ package com.aps.vitalpair.activity.infrastructure.web;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 
@@ -9,7 +10,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.activity.application.dto.LogActivityCommand;
+import com.aps.vitalpair.activity.domain.port.in.DeleteActivityLogUseCase;
 import com.aps.vitalpair.activity.domain.port.in.GetActivitySummaryUseCase;
 import com.aps.vitalpair.activity.domain.port.in.GetDailyActivitiesUseCase;
 import com.aps.vitalpair.activity.domain.port.in.LogActivityUseCase;
@@ -36,16 +40,19 @@ public class ActivityController {
     private final LogActivityUseCase logActivityUseCase;
     private final GetDailyActivitiesUseCase getDailyActivitiesUseCase;
     private final GetActivitySummaryUseCase getActivitySummaryUseCase;
+    private final DeleteActivityLogUseCase deleteActivityLogUseCase;
     private final UserDayUseCase userDayUseCase;
 
     public ActivityController(
             LogActivityUseCase logActivityUseCase,
             GetDailyActivitiesUseCase getDailyActivitiesUseCase,
             GetActivitySummaryUseCase getActivitySummaryUseCase,
+            DeleteActivityLogUseCase deleteActivityLogUseCase,
             UserDayUseCase userDayUseCase) {
         this.logActivityUseCase = logActivityUseCase;
         this.getDailyActivitiesUseCase = getDailyActivitiesUseCase;
         this.getActivitySummaryUseCase = getActivitySummaryUseCase;
+        this.deleteActivityLogUseCase = deleteActivityLogUseCase;
         this.userDayUseCase = userDayUseCase;
     }
 
@@ -100,6 +107,18 @@ public class ActivityController {
                     LocalDate date) {
         var summary = getActivitySummaryUseCase.getSummary(principal.userId(), orToday(principal, date));
         return ResponseEntity.ok(ApiResponse.ok(ActivitySummaryResponse.from(summary)));
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "Delete an activity",
+            description =
+                    "Removes one of the caller's own activities and the item it left in the pair's feed. Another person's record answers 404, not 403, so the endpoint cannot be used to probe ids. Points already awarded are not taken back: they were earned on the day it was logged.")
+    @DeleteMapping("/logs/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @AuthenticationPrincipal AuthenticatedUser principal, @PathVariable UUID id) {
+        deleteActivityLogUseCase.delete(principal.userId(), id);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Registro removido"));
     }
 
     /**
