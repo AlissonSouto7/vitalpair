@@ -78,6 +78,25 @@ export async function bootstrapSession(): Promise<void> {
   }
 }
 
+/**
+ * Routes where a 401 is the answer itself, not an expired session.
+ *
+ * Signing in with the wrong password answers 401 with "Credenciais inválidas", and the
+ * interceptor below used to treat every 401 the same way: try to refresh, fail because there
+ * is no session to refresh, and reject with the refresh error. So the person read "Sessão
+ * expirada. Faça login novamente." while standing on the login screen, having never had a
+ * session, and the message naming the actual problem was thrown away on the way.
+ *
+ * These are the routes reached by somebody who is not signed in, which is exactly when the
+ * real message matters most. `/auth/refresh` is here too: a 401 from it means the session is
+ * gone, and refreshing a refresh is the loop `_retry` exists to stop.
+ */
+const SESSIONLESS_ROUTES = ['/auth/login', '/auth/oauth2/google', '/auth/refresh']
+
+function isSessionlessRoute(url: string | undefined): boolean {
+  return url != null && SESSIONLESS_ROUTES.some((route) => url.includes(route))
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -86,7 +105,12 @@ api.interceptors.response.use(
     // No refreshToken check any more: script cannot see the cookie, so the only way to
     // know whether a session exists is to ask. _retry stops an endless loop when the
     // refresh itself comes back 401.
-    if (error.response?.status === 401 && original && !original._retry) {
+    if (
+      error.response?.status === 401 &&
+      original &&
+      !original._retry &&
+      !isSessionlessRoute(original.url)
+    ) {
       original._retry = true
       try {
         if (!refreshing) {
