@@ -229,10 +229,10 @@ class GamificationEventListenerTest {
     }
 
     private static MealLoggedEvent meal() {
-        return new MealLoggedEvent(YOU, TENANT, TODAY, "Salada", "LUNCH", false, 400, 20, 40, 12);
+        return new MealLoggedEvent(YOU, TENANT, UUID.randomUUID(), TODAY, "Salada", "LUNCH", false, 400, 20, 40, 12);
     }
 
     private static ActivityLoggedEvent activity() {
-        return new ActivityLoggedEvent(YOU, TENANT, TODAY, "RUNNING", 300, 40);
+        return new ActivityLoggedEvent(YOU, TENANT, UUID.randomUUID(), TODAY, "RUNNING", 300, 40);
     }
 }

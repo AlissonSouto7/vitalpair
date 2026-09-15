@@ -67,6 +67,7 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
         eventPublisher.publishEvent(new ActivityLoggedEvent(
                 userId,
                 saved.getTenantId(),
+                saved.getId(),
                 // The user's day, not UTC's: this date is what the streak and the weekly
                 // scoreboard are keyed on, so an activity logged at 21:00 in Brazil scored
                 // against tomorrow and could break a streak the person had not broken.

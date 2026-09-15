@@ -26,6 +26,7 @@ import com.aps.vitalpair.nutrition.domain.port.in.LogMealUseCase;
 import com.aps.vitalpair.nutrition.domain.port.in.SearchFoodUseCase;
 import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
 import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
+import com.aps.vitalpair.shared.event.MealDeletedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.shared.time.DayWindow;
@@ -95,6 +96,7 @@ public class NutritionService
         eventPublisher.publishEvent(new MealLoggedEvent(
                 userId,
                 saved.getTenantId(),
+                saved.getId(),
                 // The user's day, not UTC's: this date is what the streak, the missions and the
                 // weekly scoreboard are keyed on, so a meal logged at 21:00 in Brazil counted
                 // towards tomorrow and could break a streak the person had not broken.
@@ -119,6 +121,9 @@ public class NutritionService
             throw ResourceNotFoundException.of("Registro", foodLogId);
         }
         foodLogRepository.deleteById(foodLogId);
+        // The pair's feed keeps its own copy of the meal, so removing the diary row is only half
+        // the deletion: without this the partner went on reading a meal that no longer existed.
+        eventPublisher.publishEvent(new MealDeletedEvent(userId, log.getTenantId(), foodLogId));
     }
 
     @Override

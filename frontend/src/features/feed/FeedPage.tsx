@@ -144,6 +144,46 @@ export function FeedPage() {
   )
 }
 
+/**
+ * The item's headline, written here rather than read from the database.
+ *
+ * The server used to store the finished sentence, in Portuguese, so the feed stayed in
+ * Portuguese with the interface in English and switching language changed nothing. It also
+ * joined the parts with an em dash, which the project's writing rules forbid; the separator is
+ * the `·` the rest of the app uses.
+ *
+ * Items stored before that change have no structured fields and fall back to their stored
+ * sentence, which keeps old timelines intact instead of blanking them.
+ */
+function headline(item: FeedItem, t: TFn): string {
+  if (item.type === 'MEAL_LOGGED' && item.foodName) {
+    const meal = item.mealType ? t(`feed.mealType.${item.mealType}`) : null
+    return meal ? `${item.foodName} (${meal})` : item.foodName
+  }
+  if (item.type === 'ACTIVITY_LOGGED' && item.activityType) {
+    const kind = t(`feed.activityType.${item.activityType}`)
+    return item.calories != null ? `${kind} · ${t('feed.kcal', { n: item.calories })}` : kind
+  }
+  return item.title ?? ''
+}
+
+/** The detail line under the headline: macros for a meal, duration for an activity. */
+function detail(item: FeedItem, t: TFn): string | null {
+  if (item.type === 'MEAL_LOGGED' && item.calories != null) {
+    const parts: string[] = [t('feed.kcal', { n: item.calories })]
+    if (item.proteinG != null) parts.push(t('feed.protein', { n: item.proteinG }))
+    if (item.carbG != null) parts.push(t('feed.carb', { n: item.carbG }))
+    if (item.fatG != null) parts.push(t('feed.fat', { n: item.fatG }))
+    return parts.join(' · ')
+  }
+  if (item.type === 'ACTIVITY_LOGGED' && item.durationMinutes != null) {
+    return `${t('feed.minutes', { n: item.durationMinutes })}${
+      item.calories != null ? ` · ${t('feed.kcal', { n: item.calories })}` : ''
+    }`
+  }
+  return item.subtitle
+}
+
 function FeedCard({
   item,
   isMine,
@@ -157,6 +197,7 @@ function FeedCard({
 }) {
   const { t } = useTranslation()
   const isMeal = item.type === 'MEAL_LOGGED'
+  const subtitle = detail(item, t)
 
   return (
     <article className="card">
@@ -164,7 +205,7 @@ function FeedCard({
         <Avatar initial={initial(item.actorName)} tone={isMine ? 'you' : 'rival'} size={38} />
 
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-extrabold leading-snug text-ink">{item.title}</p>
+          <p className="text-sm font-extrabold leading-snug text-ink">{headline(item, t)}</p>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-bold text-muted">
             <span className="truncate">{item.actorName}</span>
             <span aria-hidden="true">·</span>
@@ -188,9 +229,7 @@ function FeedCard({
         </div>
       </div>
 
-      {item.subtitle && (
-        <p className="mt-2.5 text-[12.5px] font-semibold text-muted">{item.subtitle}</p>
-      )}
+      {subtitle && <p className="mt-2.5 text-[12.5px] font-semibold text-muted">{subtitle}</p>}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {REACTIONS.map((r) => {

@@ -169,11 +169,22 @@ class NotificationEventListenerTest {
     /** A meal event as the nutrition feature publishes it: the actor first, then the tenant. */
     private static MealLoggedEvent meal(UUID actor, String foodName, boolean isPrivate) {
         return new MealLoggedEvent(
-                actor, TENANT, LocalDate.of(2026, 5, 20), foodName, "LUNCH", isPrivate, 500, 30, 50, 15);
+                actor,
+                TENANT,
+                UUID.randomUUID(),
+                LocalDate.of(2026, 5, 20),
+                foodName,
+                "LUNCH",
+                isPrivate,
+                500,
+                30,
+                50,
+                15);
     }
 
     private static ActivityLoggedEvent activity(UUID actor, int caloriesBurned) {
-        return new ActivityLoggedEvent(actor, TENANT, LocalDate.of(2026, 5, 20), "RUNNING", caloriesBurned, 45);
+        return new ActivityLoggedEvent(
+                actor, TENANT, UUID.randomUUID(), LocalDate.of(2026, 5, 20), "RUNNING", caloriesBurned, 45);
     }
 
     private void givenPair() {
