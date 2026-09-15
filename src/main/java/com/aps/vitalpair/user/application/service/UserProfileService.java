@@ -67,7 +67,12 @@ public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCa
                 .weightKg(command.weightKg())
                 .goal(command.goal())
                 .activityLevel(command.activityLevel())
-                .avatarUrl(command.avatarUrl())
+                // Same rule as the zone below, and it was missing here. The photo is set by its
+                // own endpoint and no screen sends this field, so every profile save arrived with
+                // it null and wiped the photo: measured on a running server, set the avatar, save
+                // the form once, avatar gone. A partial update must not clear what it does not
+                // mention.
+                .avatarUrl(command.avatarUrl() != null ? command.avatarUrl() : user.getAvatarUrl())
                 // Absent means "leave it alone", not "clear it": every other field on this form
                 // is required, so a client that omits the zone is one that does not know about
                 // it yet, and it must not wipe a preference the person set elsewhere.
