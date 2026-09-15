@@ -62,7 +62,7 @@ export function Scoreboard({
         className="absolute inset-x-0 top-0 h-[3px]"
         style={{
           background: `linear-gradient(90deg, var(--brand) 0 ${youPct}%, ${
-            ghost ? '#9a8f7f' : 'var(--rival)'
+            ghost ? 'var(--faint)' : 'var(--pair)'
           } ${youPct}% 100%)`,
         }}
       />
@@ -88,7 +88,7 @@ export function Scoreboard({
         <div className="flex flex-1 items-center gap-[14px]">
           <SideAvatar tone="you" initial={you.initial ?? 'V'} />
           <div>
-            <div className="text-xs font-extrabold tracking-wide text-brand-ink">{you.name}</div>
+            <div className="text-xs font-extrabold tracking-wide text-you-ink">{you.name}</div>
             <div className="font-display text-[44px] font-semibold leading-[.95] text-arena-text">
               {you.score}
             </div>
@@ -113,8 +113,8 @@ export function Scoreboard({
       </div>
 
       <div className="my-[18px] flex h-[9px] overflow-hidden rounded-md bg-arena-track">
-        <div className="bg-brand" style={{ width: `${youPct}%` }} />
-        <div className="flex-1" style={{ background: ghost ? '#9a8f7f' : 'var(--rival)' }} />
+        <div className="bg-you" style={{ width: `${youPct}%` }} />
+        <div className="flex-1" style={{ background: ghost ? 'var(--faint)' : 'var(--pair)' }} />
       </div>
 
       <div className="flex items-center justify-between">

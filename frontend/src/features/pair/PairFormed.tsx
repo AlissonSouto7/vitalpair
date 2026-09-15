@@ -176,7 +176,7 @@ function MemberRow({
   tone: 'you' | 'rival'
   tag: string
 }) {
-  const tagCls = tone === 'you' ? 'bg-brand-soft text-brand-ink' : 'bg-rival-soft text-rival-ink'
+  const tagCls = tone === 'you' ? 'bg-you-soft text-you-ink' : 'bg-pair-soft text-pair-ink'
   return (
     <div className="card flex items-center gap-3 py-3.5">
       <Avatar

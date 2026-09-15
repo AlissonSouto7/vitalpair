@@ -32,13 +32,30 @@
   --color-hair:     var(--hair);
   --color-track:    var(--track);
 
-  --color-brand:      var(--brand);       /* laranja = você */
-  --color-brand-ink:  var(--brand-ink);
-  --color-brand-soft: var(--brand-soft);
+  /* Ação do sistema. É a cor do botão, e de mais nada: não identifica ninguém.
+     `brand` continua existindo como apelido porque 100+ lugares o usam; os dois
+     apontam para o mesmo valor até a última tela migrar. */
+  --color-act:      var(--act);
+  --color-act-ink:  var(--act-ink);
+  --color-act-soft: var(--act-soft);
+  --color-brand:      var(--act);
+  --color-brand-ink:  var(--act-ink);
+  --color-brand-soft: var(--act-soft);
 
-  --color-rival:      var(--rival);       /* roxo = o par */
-  --color-rival-ink:  var(--rival-ink);
-  --color-rival-soft: var(--rival-soft);
+  /* Identidade das duas pessoas. Nunca viram botão: se a cor de "você" também
+     fosse a da ação, você teria peso de sistema que seu par não tem, e a disputa
+     deixaria de ser simétrica. */
+  --color-you:      var(--you);
+  --color-you-ink:  var(--you-ink);
+  --color-you-soft: var(--you-soft);
+
+  --color-pair:      var(--pair);
+  --color-pair-ink:  var(--pair-ink);
+  --color-pair-soft: var(--pair-soft);
+  /* apelido: as telas ainda dizem "rival" */
+  --color-rival:      var(--pair);
+  --color-rival-ink:  var(--pair-ink);
+  --color-rival-soft: var(--pair-soft);
 
   --color-success:      var(--success);   /* verde = saúde/meta/venceu */
   --color-success-ink:  var(--success-ink);
@@ -80,7 +97,44 @@
   --font-sans:    "Nunito", sans-serif;   /* corpo, UI */
 }
 
-/* ---------- CLARO (creme quente) ----------
+/* ---------- CLARO (Arena: cinza-azulado frio) ----------
+
+   A paleta trocou de família em 15/09/2026. Era creme quente com laranja para "você" e
+   roxo para o par; virou cinza-azulado com azul para "você" e bordô para o par, e o
+   laranja passou a ser só a ação do sistema.
+
+   O motivo da troca não é gosto. Três coisas quebravam:
+
+     1. Uma cor fazia dois trabalhos. O laranja era ao mesmo tempo a marca, a identidade
+        de "você" e o botão. Num produto que é uma disputa entre duas pessoas, isso dava a
+        uma delas o peso visual do sistema inteiro.
+     2. O par era violeta. Violeta se confunde com azul em daltonismo, e é hoje a cor mais
+        associada a interface gerada por máquina.
+     3. Laranja contra roxo dá 2,01:1 entre si. Em escala de cinza, "você" e "seu par"
+        viravam a mesma coisa.
+
+   Azul com laranja é o par que a literatura de acessibilidade chama de padrão ouro, por
+   continuar distinguível em todos os tipos comuns de daltonismo. O bordô do par é mais
+   sóbrio que o magenta e fica longe do azul.
+
+   Ainda assim, duas cores nunca bastam: o componente de identidade carrega FORMA junto
+   (moldura na cor da pessoa, canto recortado só no par), porque cor sozinha não sobrevive
+   ao preto e branco nem a uma foto de perfil cobrindo o quadrado.
+
+   Medido pela fórmula da WCAG contra os fundos reais deste tema (surface #ffffff e canvas
+   #f2f4f6). Alvo: texto >= 4.5:1, preenchimento/barra >= 3:1, rótulo sobre botão >= 4.5:1.
+
+     act     #c2410c  branco sobre ele 5.18  no surface 5.18
+     you     #0b5fd0  branco sobre ele 5.90  no surface 5.90
+     pair    #8c1d3f  branco sobre ele 8.89  no surface 8.89
+     success #1b7a3e  branco sobre ele 5.38  no surface 5.38
+     carb    #9a5b00  no surface 5.43      fat #0f766e  no surface 5.47
+     danger  #b3261e  branco sobre ele 6.54
+     ink 18.01 > muted 5.85 > faint 5.18 no surface, e 4.70 no canvas, que é o piso real:
+     faint carrega conteúdo de verdade (horário, data, e-mail, placeholder), então tem que
+     passar como texto nos DOIS fundos, não só no mais claro.
+
+   ---------- histórico do creme, antes da troca ----------
 
    Cada valor abaixo foi MEDIDO pela fórmula de luminância relativa da WCAG contra os fundos
    reais deste tema (surface #ffffff e canvas #fbf6ee), não escolhido no olho. Alvo: texto
@@ -111,41 +165,58 @@
    creme. faint carrega conteúdo de verdade (horário, data de vigência da política, e-mail,
    placeholder), então tinha que passar como texto, não como enfeite. */
 :root {
-  --canvas:#fbf6ee; --surface:#ffffff; --sidebar:#ffffff;
-  --ink:#241f17; --muted:#6f6556; --faint:#756b5c; --hair:#ece1cf; --track:#f1e7d8;
+  --canvas:#f2f4f6; --surface:#ffffff; --sidebar:#ffffff;
+  --ink:#12171d; --muted:#5b6672; --faint:#646e7a; --hair:#dde3e9; --track:#eaeef3;
 
-  --brand:#c94810;   --brand-ink:#b03f0e;   --brand-soft:#fff0e4;
-  --rival:#7c3aed;   --rival-ink:#6d28d9;   --rival-soft:#f3ecff;
-  --success:#17853f; --success-ink:#157f39; --success-soft:#e6f7ec;
-  --carb:#b0761c;    --carb-ink:#8f6116;
-  --fat:#0d8b80;     --fat-ink:#0f766e;
-  --danger:#c93f32;  --danger-soft:#f3d4cf;
+  --act:#c2410c;     --act-ink:#a8370a;     --act-soft:#fdefe8;
+  --you:#0b5fd0;     --you-ink:#0a53b8;     --you-soft:#e4edfb;
+  --pair:#8c1d3f;    --pair-ink:#7a1836;    --pair-soft:#fae7ec;
+  --success:#1b7a3e; --success-ink:#186e37; --success-soft:#e4f3e9;
+  --carb:#9a5b00;    --carb-ink:#8a5100;
+  --fat:#0f766e;     --fat-ink:#0e6b63;
+  --danger:#b3261e;  --danger-soft:#fae5e3;
   --on-fill:#ffffff;
 
-  --arena:#ffffff; --arena-text:#241f17; --arena-muted:#6f6556; --arena-line:#e8dccb;
-  --arena-border:#ece1cf; --arena-track:#efe4d4; --arena-shadow:rgba(70,45,20,.1);
+  --arena:#ffffff; --arena-text:#12171d; --arena-muted:#5b6672; --arena-line:#dde3e9;
+  --arena-border:#dde3e9; --arena-track:#eaeef3; --arena-shadow:rgba(18,23,29,.1);
 }
 
-/* ---------- ESCURO (carvão-âmbar aconchegante, nunca navy) ----------
+/* ---------- ESCURO (azul-noite, nativo e não invertido) ----------
+
+   Este tema não é o claro com as cores trocadas: ele nasceu escuro. O anterior era
+   carvão-âmbar quente, que sofre do problema de escuro quente ler como marrom. O
+   azul-noite #0d1117 dá um preto que não é preto puro (evita halo no texto) e deixa as
+   cores de identidade respirarem.
+
+   Medido contra surface #161c23 e canvas #0d1117, e passa com folga em tudo:
+
+     act 7.39   you 7.12   pair 8.55   success 10.66   carb 10.75   fat 11.59   danger 8.40
+     ink 15.24 > muted 6.99 > faint 4.68
+
+   `on-fill` é #0a1420, quase-preto azulado: no escuro os preenchimentos são claros de
+   propósito, e branco sobre eles seria ilegível.
+
+   ---------- histórico do carvão-âmbar ----------
 
    Medido pelo mesmo critério do tema claro, e este passava em quase tudo: todos os -ink ficam
    entre 8.1 e 10.1 e todas as barras entre 3.5 e 8.0. O único abaixo do limite era o faint,
    com 4.18:1 no surface, então subiu de #8a7f6d para #948873 (4.72:1) e continua mais apagado
    que o muted, que tem 5.99:1. */
 .dark {
-  --canvas:#1b1610; --surface:#251e16; --sidebar:#221b13;
-  --ink:#f7efe1; --muted:#a99a85; --faint:#948873; --hair:#352a1f; --track:#352a1f;
+  --canvas:#0d1117; --surface:#161c23; --sidebar:#11161c;
+  --ink:#eef2f6; --muted:#9aa7b4; --faint:#7b8794; --hair:#252d36; --track:#1e252d;
 
-  --brand:#ff8a4c;   --brand-ink:#ffa066;   --brand-soft:rgba(255,138,76,.14);
-  --rival:#a855f7;   --rival-ink:#c4a9f8;   --rival-soft:rgba(168,85,247,.16);
-  --success:#4ade80; --success-ink:#5ed98e; --success-soft:rgba(74,222,128,.14);
-  --carb:#f0b455;    --carb-ink:#f0b455;
-  --fat:#2dd4bf;     --fat-ink:#4dd6c4;
-  --danger:#ff6a5c;  --danger-soft:rgba(255,106,92,.3);
-  --on-fill:#1b1610;
+  --act:#ff8b4d;     --act-ink:#ffa06b;     --act-soft:rgba(255,139,77,.15);
+  --you:#6fa8ff;     --you-ink:#8fbcff;     --you-soft:rgba(111,168,255,.15);
+  --pair:#f2a0b5;    --pair-ink:#f5b3c4;    --pair-soft:rgba(242,160,181,.15);
+  --success:#7ee0a0; --success-ink:#95e7b1; --success-soft:rgba(126,224,160,.14);
+  --carb:#ffc34d;    --carb-ink:#ffcf70;
+  --fat:#5eead4;     --fat-ink:#7cefdd;
+  --danger:#ff9a91;  --danger-soft:rgba(255,154,145,.18);
+  --on-fill:#0a1420;
 
-  --arena:#322619; --arena-text:#ffffff; --arena-muted:#b6a288; --arena-line:rgba(255,255,255,.14);
-  --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.1); --arena-shadow:rgba(0,0,0,.4);
+  --arena:#161c23; --arena-text:#eef2f6; --arena-muted:#9aa7b4; --arena-line:rgba(255,255,255,.12);
+  --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.08); --arena-shadow:rgba(0,0,0,.5);
 }
 
 html, body, #root { height: 100%; }
@@ -183,21 +254,32 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 @keyframes vp-ring-draw { from { stroke-dashoffset: 314; } to { stroke-dashoffset: var(--vp-off, 92); } }
 @keyframes vp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
-/* ---------- classes utilitárias (compat com telas ainda não migradas) ---------- */
+/* ---------- classes utilitárias ----------
+
+   Estas existem para as telas ainda não migradas, e vão embora conforme cada uma passa a
+   usar <Card> e <Button>. A diferença entre as duas formas não é de estilo: uma classe é
+   um convite e um componente é um contrato. Medido antes da migração começar: 46 lugares
+   usavam .card e 38 reescreviam `border border-hair bg-surface` na mão, em 23 combinações
+   diferentes de raio, preenchimento e sombra.
+
+   Enquanto durarem, seguem os mesmos tokens do resto, para que uma tela não migrada não
+   destoe de uma migrada. */
 @layer components {
   .card {
-    @apply rounded-2xl border border-hair bg-surface p-5 shadow-[0_10px_30px_rgba(70,45,20,0.06)];
+    @apply rounded-xl border border-hair bg-surface p-4;
   }
   .label {
     @apply mb-1 block text-xs font-bold text-muted;
   }
   .input {
     @apply w-full rounded-xl border border-hair bg-canvas px-3 py-2.5 text-ink placeholder-faint
-      outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30;
+      outline-none transition focus:border-act focus:ring-2 focus:ring-act/30;
   }
+  /* text-on-fill, e não text-white: no tema escuro o preenchimento é claro de propósito, e
+     branco sobre ele dava 2,32:1, ilegível em todo botão primário do app. */
   .btn-primary {
-    @apply rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition
-      hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply rounded-xl bg-act px-4 py-2.5 font-extrabold text-on-fill transition
+      hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-ghost {
     @apply rounded-xl border border-hair px-4 py-2.5 text-sm font-bold text-muted
@@ -208,19 +290,24 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   }
 }
 
-/* Painel "arena" (lado escuro do auth): espresso nos dois temas.
-   Sobrescreve os tokens arena localmente, então text-arena-muted etc. funcionam dentro. */
+/* Painel "arena" (lado escuro do auth): azul-noite nos dois temas.
+   Sobrescreve os tokens arena localmente, então text-arena-muted etc. funcionam dentro.
+
+   Era espresso #322619, do tempo da paleta creme. Contra o cinza-azulado de hoje ele lia
+   como uma faixa marrom colada num app frio, que é o tipo de detalhe que faz um produto
+   parecer montado por partes. Medido: texto #eef2f6 sobre #131a22 dá 15,9:1, e o muted
+   #9aa7b4 dá 7,3:1. */
 .arena-panel {
-  --arena: #322619;
-  --arena-text: #ffffff;
-  --arena-muted: #b6a288;
-  --arena-line: rgba(255, 255, 255, 0.13);
-  --arena-track: rgba(255, 255, 255, 0.1);
+  --arena: #131a22;
+  --arena-text: #eef2f6;
+  --arena-muted: #9aa7b4;
+  --arena-line: rgba(255, 255, 255, 0.12);
+  --arena-track: rgba(255, 255, 255, 0.08);
   background: var(--arena);
   color: var(--arena-text);
 }
 .dark .arena-panel {
-  --arena: #241c14;
+  --arena: #0a0e14;
 }
 
 .glow-lime {

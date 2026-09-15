@@ -188,8 +188,8 @@ export function SideProgress({
   const { t } = useTranslation()
   const pct = Math.min(100, Math.round((current / total) * 100))
   const done = current >= total
-  const barCls = tone === 'you' ? 'bg-brand' : 'bg-rival'
-  const labelCls = tone === 'you' ? 'text-brand-ink' : 'text-rival-ink'
+  const barCls = tone === 'you' ? 'bg-you' : 'bg-pair'
+  const labelCls = tone === 'you' ? 'text-you-ink' : 'text-pair-ink'
 
   return (
     <div className="flex items-center gap-3">

@@ -60,15 +60,16 @@ const TEXT_TOKENS = [
   'ink',
   'muted',
   'faint',
-  'brand-ink',
-  'rival-ink',
+  'act-ink',
+  'you-ink',
+  'pair-ink',
   'success-ink',
   'carb-ink',
   'fat-ink',
 ]
 
 /** Colours that fill a bar or a dot behind nothing. Graphic, so the bar is 3:1. */
-const FILL_TOKENS = ['brand', 'rival', 'success', 'carb', 'fat', 'danger']
+const FILL_TOKENS = ['act', 'you', 'pair', 'success', 'carb', 'fat', 'danger']
 
 /**
  * Fills that serve as the background of a filled button, whose label needs 4.5:1.
@@ -80,8 +81,14 @@ const FILL_TOKENS = ['brand', 'rival', 'success', 'carb', 'fat', 'danger']
  * carb and fat are deliberately absent: neither is ever a button background (grep for
  * `bg-carb`/`bg-fat` alongside a label colour finds nothing), so holding them to a button
  * threshold would darken them for a case that does not exist.
+ *
+ * `you` and `pair` are absent for a different reason, and it is a rule rather than an
+ * omission: the two people's colours must never become a button. If "you" were the action
+ * colour, you would carry the weight of the whole system and your partner would not, in a
+ * product whose premise is that the two of you compete on equal terms. Button.test.tsx
+ * holds that rule from the other side.
  */
-const FILLED_BUTTON_TOKENS = ['brand', 'rival', 'success', 'danger']
+const FILLED_BUTTON_TOKENS = ['act', 'success', 'danger']
 
 describe.each([
   ['light', LIGHT],
