@@ -1,6 +1,11 @@
 export const dashboard = {
   pt: {
     title: 'Hoje',
+    /* O título da tela diz o que falta fazer, não a hora do dia. "Bom dia, Fulano" é
+       simpático e não ajuda ninguém a decidir o que fazer ao abrir o app. */
+    headlineNone: 'Nada registrado ainda hoje',
+    headlineSome_one: 'Você registrou 1 refeição hoje',
+    headlineSome_other: 'Você registrou {{count}} refeições hoje',
     loading: 'Carregando...',
     loadError: 'Não rolou carregar agora. Tenta de novo daqui a pouco.',
     greetingMorning: 'Bom dia',
@@ -22,6 +27,10 @@ export const dashboard = {
     callSomeone: 'Ou chama alguém pra competir de verdade →',
     todayIntake: 'Consumo de hoje',
     remainingKcal: 'dá pra comer mais {{n}} kcal',
+    /* Rótulo do número em destaque: o valor já aparece grande ao lado, então aqui
+       entra só o que ele significa. */
+    remainingLabel: 'kcal ainda cabem hoje',
+    overLabel: 'kcal acima da meta',
     overKcal: '{{n}} kcal acima',
     protein: 'Proteína',
     carb: 'Carboidrato',
@@ -47,6 +56,9 @@ export const dashboard = {
   },
   en: {
     title: 'Today',
+    headlineNone: 'Nothing logged yet today',
+    headlineSome_one: "You've logged 1 meal today",
+    headlineSome_other: "You've logged {{count}} meals today",
     loading: 'Loading...',
     loadError: "Couldn't load right now. Try again in a bit.",
     greetingMorning: 'Good morning',
@@ -68,6 +80,8 @@ export const dashboard = {
     callSomeone: 'Or bring someone in to really compete →',
     todayIntake: "Today's intake",
     remainingKcal: '{{n}} kcal you can still eat',
+    remainingLabel: 'kcal still fit today',
+    overLabel: 'kcal over the target',
     overKcal: '{{n}} kcal over',
     protein: 'Protein',
     carb: 'Carbs',
@@ -93,6 +107,9 @@ export const dashboard = {
   },
   es: {
     title: 'Hoy',
+    headlineNone: 'Nada registrado hoy todavía',
+    headlineSome_one: 'Registraste 1 comida hoy',
+    headlineSome_other: 'Registraste {{count}} comidas hoy',
     loading: 'Cargando...',
     loadError: 'No se pudo cargar ahora. Inténtalo de nuevo en un rato.',
     greetingMorning: 'Buenos días',
@@ -114,6 +131,8 @@ export const dashboard = {
     callSomeone: 'O llama a alguien para competir de verdad →',
     todayIntake: 'Consumo de hoy',
     remainingKcal: 'puedes comer {{n}} kcal más',
+    remainingLabel: 'kcal que aún caben hoy',
+    overLabel: 'kcal por encima de la meta',
     overKcal: '{{n}} kcal de más',
     protein: 'Proteína',
     carb: 'Carbohidratos',
@@ -139,6 +158,9 @@ export const dashboard = {
   },
   fr: {
     title: "Aujourd'hui",
+    headlineNone: "Rien d'enregistré aujourd'hui",
+    headlineSome_one: "Tu as enregistré 1 repas aujourd'hui",
+    headlineSome_other: "Tu as enregistré {{count}} repas aujourd'hui",
     loading: 'Chargement...',
     loadError: 'Impossible de charger maintenant. Réessaie dans un instant.',
     greetingMorning: 'Bonjour',
@@ -160,6 +182,8 @@ export const dashboard = {
     callSomeone: 'Ou invite quelqu’un pour rivaliser pour de vrai →',
     todayIntake: "Apport d'aujourd'hui",
     remainingKcal: 'tu peux encore manger {{n}} kcal',
+    remainingLabel: 'kcal encore possibles',
+    overLabel: 'kcal au-dessus de la cible',
     overKcal: '{{n}} kcal de trop',
     protein: 'Protéines',
     carb: 'Glucides',

@@ -44,27 +44,6 @@ export function Macro({
   )
 }
 
-export function StatCell({
-  value,
-  label,
-  success,
-}: {
-  value: string
-  label: string
-  success?: boolean
-}) {
-  return (
-    <div className="px-2 py-4 text-center">
-      <div
-        className={`font-display text-2xl font-semibold ${success ? 'text-success-ink' : 'text-ink'}`}
-      >
-        {value}
-      </div>
-      <div className="mt-1 text-[11px] font-bold lowercase tracking-wide text-muted">{label}</div>
-    </div>
-  )
-}
-
 export function MissionCard({
   mission,
   onAccept,
@@ -82,9 +61,9 @@ export function MissionCard({
     )
   }
   return (
-    <section className="rounded-2xl border-[1.5px] border-brand-soft bg-brand-soft p-5">
-      <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
-        <BoltIcon className="h-4 w-4 fill-brand" />
+    <section className="rounded-xl border-[1.5px] border-act-soft bg-act-soft p-5">
+      <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-act-ink">
+        <BoltIcon className="h-4 w-4 fill-act" />
         {t('dashboard.flashMission')}
       </div>
       <p className="font-display text-lg font-semibold leading-tight text-ink">{mission.title}</p>
@@ -101,9 +80,15 @@ export function MissionCard({
           <CheckIcon className="h-4 w-4 fill-current" /> {t('dashboard.missionAccepted')}
         </div>
       ) : (
+        /*
+          Secundário, e não verde sólido. Era um botão cheio ao lado do "Registrar
+          refeição", que é a ação da tela: duas chamadas do mesmo peso em cores diferentes,
+          e quem abre o app tinha que escolher entre as duas. Verde também estava errado
+          aqui, porque significa concluído, e topar a missão é o começo dela.
+        */
         <button
           onClick={onAccept}
-          className="mt-3 w-full rounded-xl bg-success px-4 py-3 font-extrabold text-on-fill transition hover:brightness-105"
+          className="mt-3 w-full rounded-xl bg-surface px-4 py-3 font-extrabold text-act-ink transition hover:brightness-95"
         >
           {t('dashboard.acceptMission')}
         </button>

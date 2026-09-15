@@ -3,13 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { CameraIcon, FlameIcon } from './icons'
-import { FeedPreview, Macro, MissionCard, StatCell } from './parts'
+import { FeedPreview, Macro, MissionCard } from './parts'
 import { dateLabel, greeting } from './text'
 
 import { acceptFlashMission } from '@/api/missions'
 import { EmailVerificationBanner } from '@/components/EmailVerificationBanner'
 import { CalorieRing } from '@/components/ui/CalorieRing'
+import { Card } from '@/components/ui/Card'
 import { Scoreboard } from '@/components/ui/Scoreboard'
+import { Stat } from '@/components/ui/Stat'
 import { dashboardQueries } from '@/features/dashboard/queries'
 import { useAuthStore } from '@/store/authStore'
 
@@ -67,6 +69,7 @@ export function DashboardPage() {
   const streak = (streaksQuery.data ?? []).reduce((max, s) => Math.max(max, s.currentCount), 0)
   const workouts = (activitiesQuery.data ?? []).filter((a) => a.activityType !== 'STEPS').length
   const me = dash.me
+  const remaining = me.remainingCalories
   const meName = pair.members.find((m) => m.userId === userId)?.name ?? ''
   const partner = dash.partner
   const iAmUser1 = pair.members[0]?.userId === userId
@@ -88,18 +91,27 @@ export function DashboardPage() {
     <div className="space-y-6">
       <EmailVerificationBanner />
 
+      {/*
+        O título responde "o que eu faço agora", que é a pergunta de quem abre o app. Era
+        "Bom dia, Fulano": simpático, e sem ajuda nenhuma para decidir. A saudação e a data
+        continuam, uma linha abaixo, porque situam sem disputar atenção.
+      */}
       <header className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink">
-            {greeting(t)}
-            {meName ? `, ${meName.split(' ')[0]}` : ''}
+            {me.mealCount > 0
+              ? t('dashboard.headlineSome', { count: me.mealCount })
+              : t('dashboard.headlineNone')}
           </h1>
-          <p className="text-sm font-bold text-muted">{dateLabel(dash.date, i18n.language)}</p>
+          <p className="text-sm font-bold text-muted">
+            {greeting(t)}
+            {meName ? `, ${meName.split(' ')[0]}` : ''} · {dateLabel(dash.date, i18n.language)}
+          </p>
         </div>
         {streak > 0 && (
-          <div className="flex shrink-0 items-center gap-2 rounded-full bg-brand-soft px-4 py-2">
-            <FlameIcon className="h-[18px] w-[18px] fill-brand" />
-            <span className="text-sm font-extrabold text-brand-ink">{streak}</span>
+          <div className="flex shrink-0 items-center gap-2 rounded-full bg-act-soft px-4 py-2">
+            <FlameIcon className="h-[18px] w-[18px] fill-act" />
+            <span className="text-sm font-extrabold tabular-nums text-act-ink">{streak}</span>
             <span className="hidden text-xs font-bold text-muted sm:inline">
               {t('dashboard.streakDays', { count: streak })}
             </span>
@@ -148,69 +160,96 @@ export function DashboardPage() {
       <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
         {/* coluna esquerda */}
         <div className="space-y-5">
-          <section className="card">
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold text-ink">
-                {t('dashboard.todayIntake')}
-              </h2>
-              {me.remainingCalories != null && (
-                <span className="text-sm font-bold text-muted">
-                  {me.remainingCalories >= 0 ? (
-                    <span className="text-success-ink">
-                      {t('dashboard.remainingKcal', { n: me.remainingCalories })}
-                    </span>
-                  ) : (
-                    t('dashboard.overKcal', { n: -me.remainingCalories })
-                  )}
-                </span>
-              )}
+          {/*
+            Um número em destaque, e não nove. Era o anel com o consumo, mais três barras de
+            macro com valor e alvo cada, tudo no mesmo peso: quem abria o app tinha que
+            varrer a seção inteira para descobrir se podia comer.
+
+            O saldo é o número que decide a próxima ação, então é ele que fica grande. Os
+            macros continuam logo abaixo, porque quem os procura sabe o que procura.
+          */}
+          <Card as="section" padding="roomy">
+            {/*
+              O saldo fica neutro quando há margem e âmbar quando passou da meta. É
+              informação, não ação: pintá-lo de laranja o faria disputar com o botão logo
+              abaixo, que é justamente o que a separação entre `act` e o resto evita.
+            */}
+            <div className="flex items-start justify-between gap-4">
+              <Stat
+                size="hero"
+                tone={remaining != null && remaining < 0 ? 'pending' : 'neutral'}
+                value={remaining == null ? '—' : Math.abs(remaining).toLocaleString(i18n.language)}
+                label={
+                  remaining == null
+                    ? t('dashboard.todayIntake')
+                    : remaining >= 0
+                      ? t('dashboard.remainingLabel')
+                      : t('dashboard.overLabel')
+                }
+                hint={`${me.consumedCalories.toLocaleString(i18n.language)} / ${(
+                  me.calorieTarget ?? 2000
+                ).toLocaleString(i18n.language)} kcal`}
+              />
+              <CalorieRing current={me.consumedCalories} goal={me.calorieTarget ?? 2000} />
             </div>
 
-            <div className="flex flex-col items-center gap-6 sm:flex-row">
-              <CalorieRing current={me.consumedCalories} goal={me.calorieTarget ?? 2000} />
-              <div className="w-full flex-1 space-y-4">
-                <Macro
-                  label={t('dashboard.protein')}
-                  value={me.consumedProteinG}
-                  target={me.proteinTargetG}
-                  tone="brand"
-                />
-                <Macro
-                  label={t('dashboard.carb')}
-                  value={me.consumedCarbG}
-                  target={me.carbTargetG}
-                  tone="carb"
-                />
-                <Macro
-                  label={t('dashboard.fat')}
-                  value={me.consumedFatG}
-                  target={me.fatTargetG}
-                  tone="fat"
-                />
-              </div>
+            <div className="mt-5 space-y-4">
+              <Macro
+                label={t('dashboard.protein')}
+                value={me.consumedProteinG}
+                target={me.proteinTargetG}
+                tone="protein"
+              />
+              <Macro
+                label={t('dashboard.carb')}
+                value={me.consumedCarbG}
+                target={me.carbTargetG}
+                tone="carb"
+              />
+              <Macro
+                label={t('dashboard.fat')}
+                value={me.consumedFatG}
+                target={me.fatTargetG}
+                tone="fat"
+              />
             </div>
 
             <Link
               to="/nutrition"
-              className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3.5 font-extrabold text-on-fill transition hover:brightness-105"
+              className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-act px-4 py-3.5 font-extrabold text-on-fill transition hover:brightness-110"
             >
               <CameraIcon className="h-5 w-5 fill-current" />
               {t('dashboard.logMeal')}
             </Link>
-          </section>
+          </Card>
 
-          <div className="grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-2xl border border-hair bg-surface">
-            <StatCell value={me.steps.toLocaleString('pt-BR')} label={t('dashboard.steps')} />
-            <StatCell
-              value={String(workouts)}
-              label={workouts === 1 ? t('dashboard.workoutDone') : t('dashboard.workouts')}
-            />
-            <StatCell
-              value={Math.round(me.burnedCalories).toLocaleString('pt-BR')}
-              label={t('dashboard.kcalBurned')}
-              success
-            />
-          </div>
+          {/*
+            Passos, treinos e kcal gastas são quantidade sem juízo de valor, então ficam
+            neutros: pintá-los de verde diria que oitocentos passos é "bom", que é uma
+            avaliação que o app não tem como fazer.
+
+            Formatados pelo idioma da interface, e não em pt-BR fixo: 8.400 vira 8,400 para
+            quem lê em inglês.
+          */}
+          <Card padding="none">
+            <div className="grid grid-cols-3 divide-x divide-hair">
+              <div className="px-2 py-4 text-center">
+                <Stat value={me.steps.toLocaleString(i18n.language)} label={t('dashboard.steps')} />
+              </div>
+              <div className="px-2 py-4 text-center">
+                <Stat
+                  value={workouts}
+                  label={workouts === 1 ? t('dashboard.workoutDone') : t('dashboard.workouts')}
+                />
+              </div>
+              <div className="px-2 py-4 text-center">
+                <Stat
+                  value={Math.round(me.burnedCalories).toLocaleString(i18n.language)}
+                  label={t('dashboard.kcalBurned')}
+                />
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* coluna direita */}
