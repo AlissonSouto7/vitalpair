@@ -98,7 +98,7 @@ export function SearchTab({
                   type="button"
                   onClick={() => onPick(p)}
                   aria-label={t('nutrition.addAria', { name: p.name })}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-on-fill transition hover:brightness-105"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-act-soft text-act-ink transition hover:brightness-95"
                 >
                   <PlusIcon />
                 </button>

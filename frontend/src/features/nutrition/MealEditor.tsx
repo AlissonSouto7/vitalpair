@@ -146,12 +146,20 @@ export function MealEditor({
           <span className="text-muted">G {computed.fat}g</span>
         </div>
 
+        {/*
+          Secundário, porque a barra fixa lá embaixo faz exatamente a mesma coisa: as duas
+          chamam `save()`. Ela é a que fica em destaque, porque diz o que vai ser gravado e
+          quantos pontos rende antes de a pessoa confirmar.
+
+          Este continua existindo porque a barra só aparece com calorias acima de zero, e
+          água (0 kcal) é um registro legítimo que precisa de um jeito de salvar.
+        */}
         <div className="flex gap-2">
           <button
             type="button"
             onClick={onSave}
             disabled={saving || blocker !== null}
-            className="btn-primary text-sm disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-act-soft px-4 py-2.5 text-sm font-extrabold text-act-ink transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? t('common.saving') : t('common.add')}
           </button>

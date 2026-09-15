@@ -3,7 +3,7 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { deleteLog, logMeal } from '../../api/nutrition'
-import { CalorieRing } from '../../components/ui/CalorieRing'
+import { Card } from '../../components/ui/Card'
 import type {
   DailySummary,
   DetectedFood,
@@ -20,7 +20,7 @@ import { FavoritesTab } from './FavoritesTab'
 import { CameraIcon, SearchIcon, StarIcon } from './icons'
 import { MealDetailModal } from './MealDetailModal'
 import { MealEditor } from './MealEditor'
-import { Macro, TabButton } from './parts'
+import { TabButton } from './parts'
 import { PhotoTab } from './PhotoTab'
 import { nutritionQueries } from './queries'
 import { SaveBar } from './SaveBar'
@@ -42,7 +42,7 @@ function per100(value: number, grams: number) {
 }
 
 export function NutritionPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const foodNameId = useId()
   const mealLabel = (m: MealType) => t(`nutrition.mealShort.${m}`)
   const queryClient = useQueryClient()
@@ -203,50 +203,35 @@ export function NutritionPage() {
         <p className="mt-1 text-sm font-semibold text-muted">{t('nutrition.pageSubtitle')}</p>
       </header>
 
-      {/* Resumo do dia */}
+      {/*
+        O saldo do dia numa linha, e não o card inteiro.
+
+        Aqui havia uma cópia do painel do Início: o mesmo anel de calorias e as mesmas três
+        barras de macro, ocupando a primeira dobra de uma tela cuja função é registrar. Quem
+        abre esta tela já sabe quanto comeu, veio para adicionar mais uma coisa. O número
+        fica porque situa a decisão ("ainda cabe?"), o resto está a um clique no Início.
+      */}
       {summary && (
-        <section className="card">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink">
-              {t('nutrition.todayTitle')}
-            </h2>
-            <span className="text-sm font-bold text-muted">
+        <Card as="section" padding="tight">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <span className="font-display text-xl font-semibold tabular-nums text-ink">
               {summary.remainingCalories != null
                 ? summary.remainingCalories >= 0
                   ? t('nutrition.remainingKcal', { kcal: summary.remainingCalories })
                   : t('nutrition.overKcal', { kcal: -summary.remainingCalories })
                 : t('nutrition.mealsCount', { count: summary.mealCount })}
             </span>
+            <span className="text-xs font-bold tabular-nums text-muted">
+              {t('nutrition.consumedOfTarget', {
+                consumed: summary.consumedCalories.toLocaleString(i18n.language),
+                target: (summary.targetCalories ?? 2000).toLocaleString(i18n.language),
+              })}
+            </span>
           </div>
-
-          <div className="flex flex-col items-center gap-6 sm:flex-row">
-            <CalorieRing current={summary.consumedCalories} goal={summary.targetCalories ?? 2000} />
-            <div className="w-full flex-1 space-y-4">
-              <Macro
-                label={t('nutrition.proteinLabel')}
-                value={summary.consumedProteinG}
-                target={summary.targetProteinG}
-                tone="protein"
-              />
-              <Macro
-                label={t('nutrition.carbLabel')}
-                value={summary.consumedCarbG}
-                target={summary.targetCarbG}
-                tone="carb"
-              />
-              <Macro
-                label={t('nutrition.fatLabel')}
-                value={summary.consumedFatG}
-                target={summary.targetFatG}
-                tone="fat"
-              />
-            </div>
-          </div>
-
           {summary.targetCalories == null && (
-            <p className="mt-5 text-xs font-bold text-muted">{t('nutrition.noTargetHint')}</p>
+            <p className="mt-2 text-xs font-bold text-muted">{t('nutrition.noTargetHint')}</p>
           )}
-        </section>
+        </Card>
       )}
 
       {(error ?? loadError) && (

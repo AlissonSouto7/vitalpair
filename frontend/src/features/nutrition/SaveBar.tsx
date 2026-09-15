@@ -45,7 +45,7 @@ export function SaveBar({
           type="button"
           onClick={onSave}
           disabled={disabled}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-extrabold text-on-fill transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-act px-5 py-3 text-sm font-extrabold text-on-fill transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? t('common.saving') : t('nutrition.register')}
           <Points value={10} />
