@@ -69,3 +69,9 @@ deploy/env/htpasswd
 
 # Local AI session pointer; the rules it points to are versioned in docs/ENGINEERING.md.
 CLAUDE.md
+
+# Manual QA sweeps: a snapshot of what a person saw on a given day, with screenshots of real
+# accounts and their data. Useful while the findings are being worked through and misleading
+# afterwards, because it describes behaviour the fixes have already changed. The findings that
+# survive belong in docs/features/<name>.md, where they are kept up to date.
+docs/qa/

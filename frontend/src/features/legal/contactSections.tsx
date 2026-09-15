@@ -17,7 +17,10 @@ export function SideInfo() {
       <div className="rounded-3xl border border-arena-border bg-arena p-6 shadow-[0_20px_50px_var(--arena-shadow)]">
         <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand">
           <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] fill-white" aria-hidden="true">
-            <path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 3.2V6l8 5 8-5v1.2l-8 5z" />
+            <path
+              fillRule="evenodd"
+              d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 3.2V6l8 5 8-5v1.2l-8 5z"
+            />
           </svg>
         </div>
         <div className="mb-1 text-[11px] font-extrabold tracking-[0.12em] text-arena-muted">

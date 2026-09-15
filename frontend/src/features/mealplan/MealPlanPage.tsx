@@ -106,7 +106,14 @@ export function MealPlanPage() {
           <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
             {t('mealplan.title')}
           </h1>
-          <p className="mt-1 text-sm font-semibold text-muted">{t('mealplan.subtitle')}</p>
+          {/*
+            While the feature is locked the subtitle describes what subscribing buys, instead
+            of telling somebody to use a "Troca" button that is not on the screen: the header
+            invited an action and the card right below it said the plan is not on sale yet.
+          */}
+          <p className="mt-1 text-sm font-semibold text-muted">
+            {t(locked ? 'mealplan.subtitleLocked' : 'mealplan.subtitle')}
+          </p>
         </div>
 
         {plan && !locked && (

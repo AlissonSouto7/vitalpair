@@ -167,6 +167,13 @@ export function Field({
   error?: string
   children: ReactNode
 }) {
+  /*
+   * Each of these draws a shape with a cut-out, as two subpaths. The default fill rule is
+   * nonzero, which fills any area the path winds around at all, so a cut-out drawn in the same
+   * direction as the outline counts twice and gets filled in: the envelope and the speech
+   * bubble rendered as solid blocks next to a correct person icon. evenodd counts crossings
+   * instead, so an area inside two subpaths is a hole, which is what these shapes want.
+   */
   const path = {
     user: 'M12 12a5 5 0 100-10 5 5 0 000 10zm-8 9c0-4 3.6-6 8-6s8 2 8 6v1H4z',
     mail: 'M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 3.2V6l8 5 8-5v1.2l-8 5z',
@@ -180,7 +187,7 @@ export function Field({
         className="mb-1.5 flex items-center gap-2 text-[13px] font-extrabold text-ink"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-muted" aria-hidden="true">
-          <path d={path} />
+          <path fillRule="evenodd" d={path} />
         </svg>
         {label}
       </label>

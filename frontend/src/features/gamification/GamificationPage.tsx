@@ -113,7 +113,7 @@ function StreakCard({ streak }: { streak: Streak }) {
           })}
         </p>
         <p className="text-[11px] font-bold text-faint">
-          {t('gamification.record', { days: streak.longestCount })}
+          {t('gamification.record', { count: streak.longestCount })}
         </p>
       </div>
     </div>

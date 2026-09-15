@@ -96,7 +96,7 @@ export const onboarding = {
     inviteLabel: 'Já tem um código de convite?',
     invitePlaceholder: 'ABCD2345',
     inviteHint:
-      'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra mandar pra ela.',
+      'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra você mandar.',
     soloConfirm: 'Fechou. Você começa sozinho e pode chamar alguém quando bater vontade.',
 
     // passo 5 (aposta)
