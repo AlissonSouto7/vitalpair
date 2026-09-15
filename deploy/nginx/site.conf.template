@@ -94,6 +94,28 @@ server {
         proxy_send_timeout 120s;
     }
 
+    # Profile photos, read side. Covered by the /api/ block above already, so this exists for
+    # what it adds rather than for routing: the object name changes whenever the photo does, so
+    # the response is safe to cache hard, and saying so here means repeat views never reach the
+    # application at all. The backend sends the same max-age; this keeps the header if a future
+    # change there forgets to.
+    location /api/v1/users/avatars/ {
+        proxy_pass http://$backend:8080;
+        include /etc/nginx/proxy_params.conf;
+
+        proxy_cache_valid 200 30d;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+
+        # Every server-level header has to be repeated here. nginx's add_header does not
+        # inherit into a location that declares any of its own, so writing only the two that
+        # are new would have quietly dropped HSTS, X-Frame-Options, Referrer-Policy and the
+        # CSP from every image response.
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
+
     location /api/v1/auth/ {
         # burst allows a person who mistypes their password a few times in a row; nodelay
         # serves those immediately rather than queueing them.

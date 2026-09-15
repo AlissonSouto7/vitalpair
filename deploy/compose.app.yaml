@@ -117,6 +117,19 @@ services:
       # Off unless the env file says otherwise. Staging turns it on and the edge puts basic
       # auth in front; production never does, and the edge answers 404 on those paths anyway.
       SWAGGER_ENABLED: '${SWAGGER_ENABLED:-false}'
+      # Where profile photos are written, inside the container. The path is the mount point of
+      # the avatars volume below, so the files outlive a container replacement: without the
+      # volume they live in the container layer and every deploy would wipe everyone's photo.
+      AVATAR_DIRECTORY: '/var/lib/vitalpair/avatars'
+    volumes:
+      # Profile photos. Named rather than a bind mount so Docker owns the permissions: the
+      # image runs as an unprivileged user, and a host directory would have to be chowned to
+      # a uid that is an implementation detail of the image.
+      #
+      # This is the only durable state outside Postgres, which means it is the one thing the
+      # database dump does not cover. backup.sh has to include it or a restore comes back
+      # with every profile pointing at a file that is not there.
+      - 'avatars:/var/lib/vitalpair/avatars'
     # The process runs as an unprivileged user already; these keep it from ever becoming
     # anything else, whatever a dependency turns out to do.
     security_opt: ['no-new-privileges:true']
@@ -155,6 +168,7 @@ services:
 volumes:
   pgdata:
   redisdata:
+  avatars:
 
 networks:
   # Database and cache live here and are unreachable from the proxy.

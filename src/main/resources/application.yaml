@@ -47,6 +47,10 @@ vitalpair:
     secret: ${JWT_SECRET:}
     access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}
+  avatar:
+    # Onde as fotos de perfil ficam gravadas. Em produção é um volume do Docker, montado no
+    # container; o default local aponta para target/, que o build já ignora e limpa.
+    directory: ${AVATAR_DIRECTORY:target/avatars}
   password-reset:
     token-ttl-ms: ${PASSWORD_RESET_TTL_MS:1800000}
   email-verification:

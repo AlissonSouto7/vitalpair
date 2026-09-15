@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarUpload } from './AvatarUpload'
 import { EditForm } from './EditForm'
 import { GOAL_ICON } from './goalIcons'
 import { IconTarget } from './icons'
@@ -122,6 +123,11 @@ export function ProfilePage() {
         </h1>
         <p className="mt-1 text-sm font-semibold text-muted">{t('profile.subtitle')}</p>
       </header>
+
+      {/* Foto de perfil: é o que o par vê ao lado do nome, então fica no topo */}
+      <section className="card">
+        <AvatarUpload name={profile.name} currentAvatar={profile.avatarUrl} />
+      </section>
 
       {/* Broto + nível */}
       <section className="card flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">

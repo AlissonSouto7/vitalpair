@@ -106,7 +106,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 Map.entry(
                         "POST /api/v1/workout-plan/generate",
                         RateLimitPolicy.perUser("workoutplan", 5, Duration.ofHours(1))),
-                Map.entry("POST /api/v1/meal-plan/swap", RateLimitPolicy.perUser("mealswap", 20, Duration.ofHours(1))));
+                Map.entry("POST /api/v1/meal-plan/swap", RateLimitPolicy.perUser("mealswap", 20, Duration.ofHours(1))),
+                // Each upload decodes and re-encodes an image, which is the most CPU a
+                // single request in this application spends. Ten an hour is far more than
+                // anyone changing their photo needs and little enough that one account
+                // cannot keep a core busy.
+                Map.entry("PUT /api/v1/users/me/avatar", RateLimitPolicy.perUser("avatar", 10, Duration.ofHours(1))));
     }
 
     @Override

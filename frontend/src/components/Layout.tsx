@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
@@ -7,6 +8,9 @@ import { useAuth } from '../hooks/useAuth'
 import { BrandLockup } from './brand/BrandMark'
 import { NotificationsBell } from './NotificationsBell'
 import { Avatar } from './ui/Avatar'
+
+import { profileQueries } from '@/features/profile/queries'
+import { avatarUrl } from '@/shared/api/avatarUrl'
 
 /** Ícones SVG preenchidos (nada de emoji). 24x24, herdam currentColor. */
 const ICONS: Record<string, ReactNode> = {
@@ -62,6 +66,20 @@ export function Layout() {
   const { t } = useTranslation()
   const { logout } = useAuth()
   const navigate = useNavigate()
+  /**
+   * Who is signed in, for the card at the foot of the menu.
+   *
+   * The avatar and the name below it were the literals "A" and "VitalPair", so every account
+   * saw somebody else's initial: signing in as Bel showed an orange "A". In a product built
+   * around two people whose colours mean "you" and "your partner", an avatar bearing the wrong
+   * initial is exactly the detail that makes someone doubt which account is open.
+   *
+   * Reads the same cached query the profile screen uses, so this costs no extra request. It is
+   * enrichment: while it loads, or if it fails, the card falls back to the app's own name
+   * rather than taking the whole layout down.
+   */
+  const profile = useQuery(profileQueries.profile())
+  const me = profile.data ?? null
 
   async function handleLogout() {
     await logout()
@@ -111,12 +129,17 @@ export function Layout() {
             onClick={() => void handleLogout()}
             className="flex w-full items-center gap-3 rounded-xl bg-surface px-3 py-2.5 text-left transition hover:bg-track"
           >
-            <Avatar initial="A" tone="you" size={36} />
+            <Avatar
+              initial={me?.name?.trim().charAt(0).toUpperCase() || '?'}
+              tone="you"
+              size={36}
+              art={avatarUrl(me?.avatarUrl)}
+            />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-extrabold text-ink">
                 {t('nav.logout')}
               </span>
-              <span className="block truncate text-xs text-muted">VitalPair</span>
+              <span className="block truncate text-xs text-muted">{me?.name ?? 'VitalPair'}</span>
             </span>
           </button>
         </div>
