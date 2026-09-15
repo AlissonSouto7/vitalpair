@@ -36,6 +36,21 @@ export function MealEditor({
   onDiscard: () => void
   saving: boolean
 }) {
+  /**
+   * Why the meal cannot be saved yet, or null when it can.
+   *
+   * An empty calories field used to be read as zero, so an Open Food Facts item with no
+   * nutrition information opened at 0 kcal with the button enabled, and saving it put a meal
+   * in the diary claiming the food had no calories. "Unknown" and "zero" are different
+   * statements, and only the person knows which one is true. A real 0 kcal food (black coffee,
+   * water) still saves: what is required is a number, not a number above zero.
+   */
+  const blocker: 'name' | 'calories' | null = !draft.name.trim()
+    ? 'name'
+    : draft.kcalPer100.trim() === ''
+      ? 'calories'
+      : null
+
   return (
     <section className="card border-brand/40">
       <div className="mb-4 flex items-center gap-2">
@@ -67,6 +82,7 @@ export function MealEditor({
             label={t('nutrition.kcalField')}
             value={draft.kcalPer100}
             onChange={(e) => setDraft({ ...draft, kcalPer100: e.target.value })}
+            error={blocker === 'calories' ? t('nutrition.kcalRequired') : undefined}
           />
           <NumberField
             label={t('nutrition.protField')}
@@ -134,7 +150,7 @@ export function MealEditor({
           <button
             type="button"
             onClick={onSave}
-            disabled={saving || !draft.name}
+            disabled={saving || blocker !== null}
             className="btn-primary text-sm disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? t('common.saving') : t('common.add')}

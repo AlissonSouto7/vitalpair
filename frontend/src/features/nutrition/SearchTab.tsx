@@ -86,14 +86,32 @@ export function SearchTab({
                   {p.caloriesPer100g} kcal
                 </span>
               )}
-              <button
-                type="button"
-                onClick={() => onPick(p)}
-                aria-label={t('nutrition.addAria', { name: p.name })}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105"
-              >
-                <PlusIcon />
-              </button>
+              {/*
+                An item Open Food Facts has no nutrition for gets a different button, because
+                it leads somewhere different: the editor opens with the calories blank and the
+                person has to supply them. It used to carry the same "+" as a complete item and
+                open at 0 kcal with saving enabled, so the diary ended up with a meal claiming
+                the food had no calories, which is not what "no information" means.
+              */}
+              {p.caloriesPer100g != null ? (
+                <button
+                  type="button"
+                  onClick={() => onPick(p)}
+                  aria-label={t('nutrition.addAria', { name: p.name })}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105"
+                >
+                  <PlusIcon />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onPick(p)}
+                  aria-label={t('nutrition.fillInAria', { name: p.name })}
+                  className="shrink-0 rounded-lg border border-brand px-2.5 py-1.5 text-[11px] font-extrabold text-brand-ink transition hover:bg-brand-soft"
+                >
+                  {t('nutrition.fillIn')}
+                </button>
+              )}
             </li>
           ))}
         </ul>
