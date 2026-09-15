@@ -1,5 +1,12 @@
 package com.aps.vitalpair.support;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.time.Duration;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -8,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.aps.vitalpair.auth.domain.port.out.TokenProviderPort;
 import com.aps.vitalpair.config.SecurityConfig;
+import com.aps.vitalpair.shared.ratelimit.RateLimitResult;
 import com.aps.vitalpair.shared.ratelimit.RateLimiter;
 import com.aps.vitalpair.shared.web.JsonAuthenticationEntryPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +50,19 @@ public abstract class ControllerSliceTest {
 
     @MockitoBean
     protected RateLimiter rateLimiter;
+
+    /**
+     * Lets every request through the limiter by default.
+     *
+     * <p>A mocked limiter returns null, and the filter reads the result to set its headers, so
+     * any slice for a rate-limited endpoint failed with a NullPointerException before the
+     * controller was reached. Allowing by default keeps a slice about the controller; a test
+     * that wants to see a 429 overrides this with its own stub.
+     */
+    @BeforeEach
+    void allowRateLimitByDefault() {
+        when(rateLimiter.check(any(), anyString())).thenReturn(new RateLimitResult(true, 1, Duration.ZERO));
+    }
 
     protected String toJson(Object body) {
         try {

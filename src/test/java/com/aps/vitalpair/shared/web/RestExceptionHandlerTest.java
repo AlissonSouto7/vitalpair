@@ -1,13 +1,19 @@
 package com.aps.vitalpair.shared.web;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +51,12 @@ class RestExceptionHandlerTest extends ControllerSliceTest {
         @PostMapping("/probe-typed")
         TypedBody echoTyped(@RequestBody TypedBody body) {
             return body;
+        }
+
+        /** Takes a UUID so a malformed one exercises the type-mismatch handler. */
+        @DeleteMapping("/probe/{id}")
+        void remove(@PathVariable UUID id) {
+            // Reaching the body at all means the conversion succeeded, which is the point.
         }
     }
 
@@ -108,5 +120,56 @@ class RestExceptionHandlerTest extends ControllerSliceTest {
         mockMvc.perform(post("/probe").contentType(MediaType.APPLICATION_JSON).content("{\"name\": \"unterminated"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.data.violations").isEmpty());
+    }
+
+    /**
+     * A malformed id in the path is the caller's mistake, not a server fault.
+     *
+     * <p>Measured on a running server before this handler existed: DELETE with "not-a-uuid"
+     * answered 500 on the nutrition delete, the activity delete and the feed reaction endpoint,
+     * which is every UUID path variable in the API.
+     */
+    @Test
+    @WithVitalPairUser
+    void amalformedPathIdIsA400NotA500() throws Exception {
+        mockMvc.perform(delete("/probe/{id}", "not-a-uuid"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.data.violations[0].field").value("id"));
+    }
+
+    /**
+     * The handler's own message does not repeat the value the caller sent.
+     *
+     * <p>Only the message: the envelope's `path` carries the request URI, as it does on every
+     * error, and that is URL-encoded by the servlet container. Both are served as
+     * application/json with nosniff, so neither is a script a browser will run. What this pins
+     * is the narrower rule, that the human-readable message stays free of caller text, because
+     * that is the string most likely to end up rendered somewhere by a client.
+     */
+    @Test
+    @WithVitalPairUser
+    void thehandlerMessageDoesNotRepeatWhatTheCallerSent() throws Exception {
+        mockMvc.perform(delete("/probe/{id}", "<img onerror=alert(1)>"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Valor inválido para o parâmetro id"))
+                .andExpect(jsonPath("$.message")
+                        .value(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("onerror"))));
+    }
+
+    /**
+     * The wrong method on a real route is a 405, and it was a 500.
+     *
+     * <p>Measured on a running server: {@code PATCH /api/v1/activity/logs} and {@code DELETE
+     * /api/v1/users/me/tdee} both answered 500. The Allow header is what saves the caller from
+     * guessing which method the route does take.
+     */
+    @Test
+    @WithVitalPairUser
+    void awrongMethodIsA405WithAnAllowHeader() throws Exception {
+        mockMvc.perform(delete("/probe"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(header().string("Allow", org.hamcrest.Matchers.containsString("POST")))
+                .andExpect(jsonPath("$.success").value(false));
     }
 }
