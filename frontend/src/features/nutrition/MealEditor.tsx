@@ -138,7 +138,7 @@ export function MealEditor({
           <span className="font-display text-lg font-semibold text-ink">
             {computed.calories} kcal
           </span>
-          <Dot tone="brand" />
+          <Dot tone="protein" />
           <span className="text-muted">P {computed.protein}g</span>
           <Dot tone="carb" />
           <span className="text-muted">C {computed.carb}g</span>

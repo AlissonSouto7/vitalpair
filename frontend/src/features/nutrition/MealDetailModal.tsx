@@ -41,7 +41,7 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
   const pct = (kcal: number) => (macroCal > 0 ? Math.round((kcal / macroCal) * 100) : 0)
 
   const macros: { label: string; grams: number; pct: number; tone: MacroTone }[] = [
-    { label: t('nutrition.proteinShort'), grams: meal.proteinG, pct: pct(pCal), tone: 'brand' },
+    { label: t('nutrition.proteinShort'), grams: meal.proteinG, pct: pct(pCal), tone: 'protein' },
     { label: t('nutrition.carbShort'), grams: meal.carbG, pct: pct(cCal), tone: 'carb' },
     { label: t('nutrition.fatShort'), grams: meal.fatG, pct: pct(fCal), tone: 'fat' },
   ]

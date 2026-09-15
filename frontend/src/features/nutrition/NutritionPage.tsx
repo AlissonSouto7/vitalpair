@@ -226,7 +226,7 @@ export function NutritionPage() {
                 label={t('nutrition.proteinLabel')}
                 value={summary.consumedProteinG}
                 target={summary.targetProteinG}
-                tone="brand"
+                tone="protein"
               />
               <Macro
                 label={t('nutrition.carbLabel')}

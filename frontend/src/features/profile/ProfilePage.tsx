@@ -213,7 +213,11 @@ export function ProfilePage() {
             </h2>
           </div>
           <div className="grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-xl border border-hair">
-            <MacroCell label={t('profile.macroProtein')} grams={tdee.proteinTargetG} tone="brand" />
+            <MacroCell
+              label={t('profile.macroProtein')}
+              grams={tdee.proteinTargetG}
+              tone="protein"
+            />
             <MacroCell label={t('profile.macroCarb')} grams={tdee.carbTargetG} tone="carb" />
             <MacroCell label={t('profile.macroFat')} grams={tdee.fatTargetG} tone="fat" />
           </div>

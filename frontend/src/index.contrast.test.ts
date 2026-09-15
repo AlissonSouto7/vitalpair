@@ -64,12 +64,13 @@ const TEXT_TOKENS = [
   'you-ink',
   'pair-ink',
   'success-ink',
+  'protein-ink',
   'carb-ink',
   'fat-ink',
 ]
 
 /** Colours that fill a bar or a dot behind nothing. Graphic, so the bar is 3:1. */
-const FILL_TOKENS = ['act', 'you', 'pair', 'success', 'carb', 'fat', 'danger']
+const FILL_TOKENS = ['act', 'you', 'pair', 'success', 'protein', 'carb', 'fat', 'danger']
 
 /**
  * Fills that serve as the background of a filled button, whose label needs 4.5:1.
@@ -78,9 +79,9 @@ const FILL_TOKENS = ['act', 'you', 'pair', 'success', 'carb', 'fat', 'danger']
  * white label on them measured 2.34:1 on brand and 1.74:1 on success, which is unreadable. The
  * token is white in the light theme and near-black in the dark one.
  *
- * carb and fat are deliberately absent: neither is ever a button background (grep for
- * `bg-carb`/`bg-fat` alongside a label colour finds nothing), so holding them to a button
- * threshold would darken them for a case that does not exist.
+ * protein, carb and fat are deliberately absent: none is ever a button background (grep for
+ * `bg-protein`/`bg-carb`/`bg-fat` alongside a label colour finds nothing), so holding them to
+ * a button threshold would darken them for a case that does not exist.
  *
  * `you` and `pair` are absent for a different reason, and it is a rule rather than an
  * omission: the two people's colours must never become a button. If "you" were the action

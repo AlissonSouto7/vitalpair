@@ -61,6 +61,9 @@
   --color-success-ink:  var(--success-ink);
   --color-success-soft: var(--success-soft);
 
+  --color-protein:     var(--protein);    /* ardósia = proteína */
+  --color-protein-ink: var(--protein-ink);
+
   --color-carb:     var(--carb);          /* dourado = carboidrato */
   --color-carb-ink: var(--carb-ink);
 
@@ -172,6 +175,7 @@
   --you:#0b5fd0;     --you-ink:#0a53b8;     --you-soft:#e4edfb;
   --pair:#8c1d3f;    --pair-ink:#7a1836;    --pair-soft:#fae7ec;
   --success:#1b7a3e; --success-ink:#186e37; --success-soft:#e4f3e9;
+  --protein:#5b4b8a; --protein-ink:#524383;
   --carb:#9a5b00;    --carb-ink:#8a5100;
   --fat:#0f766e;     --fat-ink:#0e6b63;
   --danger:#b3261e;  --danger-soft:#fae5e3;
@@ -210,6 +214,7 @@
   --you:#6fa8ff;     --you-ink:#8fbcff;     --you-soft:rgba(111,168,255,.15);
   --pair:#f2a0b5;    --pair-ink:#f5b3c4;    --pair-soft:rgba(242,160,181,.15);
   --success:#7ee0a0; --success-ink:#95e7b1; --success-soft:rgba(126,224,160,.14);
+  --protein:#b9a7e8; --protein-ink:#c6b7ee;
   --carb:#ffc34d;    --carb-ink:#ffcf70;
   --fat:#5eead4;     --fat-ink:#7cefdd;
   --danger:#ff9a91;  --danger-soft:rgba(255,154,145,.18);

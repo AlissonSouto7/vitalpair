@@ -220,7 +220,7 @@ export function MealPlanPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-bold">
-              <MacroPill label={t('mealplan.protein')} value={totals.protein} tone="brand" />
+              <MacroPill label={t('mealplan.protein')} value={totals.protein} tone="protein" />
               <MacroPill label={t('mealplan.carb')} value={totals.carb} tone="carb" />
               <MacroPill label={t('mealplan.fat')} value={totals.fat} tone="fat" />
             </div>
@@ -288,7 +288,7 @@ function MealCard({
 
       <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] font-bold">
         <span className="font-display text-sm font-semibold text-ink">{meal.kcal} kcal</span>
-        <MacroPill label="P" value={meal.proteinG} tone="brand" />
+        <MacroPill label="P" value={meal.proteinG} tone="protein" />
         <MacroPill label="C" value={meal.carbG} tone="carb" />
         <MacroPill label="G" value={meal.fatG} tone="fat" />
       </div>
