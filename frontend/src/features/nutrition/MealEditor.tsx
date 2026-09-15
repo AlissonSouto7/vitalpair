@@ -142,7 +142,7 @@ export function MealEditor({
           <span className="text-muted">P {computed.protein}g</span>
           <Dot tone="carb" />
           <span className="text-muted">C {computed.carb}g</span>
-          <Dot tone="success" />
+          <Dot tone="fat" />
           <span className="text-muted">G {computed.fat}g</span>
         </div>
 

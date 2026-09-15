@@ -9,7 +9,13 @@
      roxo  (rival)    = o par-rival, e só isso
      verde (success)  = saúde, meta batida, quem está ganhando
      dourado (carb)   = macro de carboidrato
+     teal (fat)       = macro de gordura
      neutros quentes  = estrutura/chrome
+
+   Os macros têm cor de CATEGORIA, não de julgamento: proteína usa o laranja da
+   marca, carboidrato o dourado e gordura o teal. Gordura já usou o verde de
+   success, e duas barras no mesmo percentual saíam em cores opostas, uma lida
+   como "atrasada" e a outra como "ótima". Verde ficou só para o papel dele.
    ============================================================ */
 
 @import "tailwindcss";
@@ -41,8 +47,12 @@
   --color-carb:     var(--carb);          /* dourado = carboidrato */
   --color-carb-ink: var(--carb-ink);
 
+  --color-fat:     var(--fat);            /* teal = gordura */
+  --color-fat-ink: var(--fat-ink);
+
   --color-danger:      var(--danger);
   --color-danger-soft: var(--danger-soft);
+
 
   /* arena (placar) — theme-aware */
   --color-arena:        var(--arena);
@@ -73,9 +83,10 @@
   --rival:#7c3aed;   --rival-ink:#6d28d9;   --rival-soft:#f3ecff;
   --success:#22c55e; --success-ink:#1aa34a; --success-soft:#e6f7ec;
   --carb:#dd9527;    --carb-ink:#c9881f;
+  --fat:#0f9b8e;     --fat-ink:#0f766e;
   --danger:#d8483a;  --danger-soft:#f3d4cf;
 
-  --arena:#ffffff; --arena-text:#241f17; --arena-muted:#8a7f6d; --arena-line:#e8dccb;
+  --arena:#ffffff; --arena-text:#241f17; --arena-muted:#6f6556; --arena-line:#e8dccb;
   --arena-border:#ece1cf; --arena-track:#efe4d4; --arena-shadow:rgba(70,45,20,.1);
 }
 
@@ -88,6 +99,7 @@
   --rival:#a855f7;   --rival-ink:#c4a9f8;   --rival-soft:rgba(168,85,247,.16);
   --success:#4ade80; --success-ink:#5ed98e; --success-soft:rgba(74,222,128,.14);
   --carb:#f0b455;    --carb-ink:#f0b455;
+  --fat:#2dd4bf;     --fat-ink:#4dd6c4;
   --danger:#ff6a5c;  --danger-soft:rgba(255,106,92,.3);
 
   --arena:#322619; --arena-text:#ffffff; --arena-muted:#b6a288; --arena-line:rgba(255,255,255,.14);

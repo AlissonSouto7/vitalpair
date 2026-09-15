@@ -238,7 +238,7 @@ export function NutritionPage() {
                 label={t('nutrition.fatLabel')}
                 value={summary.consumedFatG}
                 target={summary.targetFatG}
-                tone="success"
+                tone="fat"
               />
             </div>
           </div>

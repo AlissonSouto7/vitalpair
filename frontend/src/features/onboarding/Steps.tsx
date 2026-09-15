@@ -71,7 +71,7 @@ export function StepTargets({ t, tdee }: { t: TFunction; tdee: Tdee }) {
             tone="brand"
           />
           <MacroCell label={t('onboarding.macroCarb')} grams={tdee.carbTargetG} tone="carb" />
-          <MacroCell label={t('onboarding.macroFat')} grams={tdee.fatTargetG} tone="success" />
+          <MacroCell label={t('onboarding.macroFat')} grams={tdee.fatTargetG} tone="fat" />
         </div>
 
         <p className="text-sm font-semibold leading-relaxed text-muted">

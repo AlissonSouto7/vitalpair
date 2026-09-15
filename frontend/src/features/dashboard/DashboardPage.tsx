@@ -185,7 +185,7 @@ export function DashboardPage() {
                   label={t('dashboard.fat')}
                   value={me.consumedFatG}
                   target={me.fatTargetG}
-                  tone="success"
+                  tone="fat"
                 />
               </div>
             </div>

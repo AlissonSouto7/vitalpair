@@ -4,6 +4,7 @@ import { BoltIcon, CheckIcon } from './icons'
 import { initial, timeAgo, type TFn } from './text'
 
 import { Avatar } from '@/components/ui/Avatar'
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
 import type { FeedItem } from '@/types/feed'
 import type { FlashMission } from '@/types/missions'
 
@@ -23,10 +24,10 @@ export function Macro({
   label: string
   value: number
   target: number | null
-  tone: 'brand' | 'carb' | 'success'
+  tone: MacroTone
 }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : 0
-  const bar = tone === 'brand' ? 'bg-brand' : tone === 'carb' ? 'bg-carb' : 'bg-success'
+  const bar = MACRO_TONES[tone].bg
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between text-sm">

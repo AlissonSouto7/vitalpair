@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { fmtKg } from './format'
 import { type TFn } from './profileForm'
 
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
 import { WeightForm } from '@/features/progress/WeightForm'
 import type { WeightPoint } from '@/types/progress'
 
@@ -133,10 +134,9 @@ export function MacroCell({
 }: {
   label: string
   grams: number
-  tone: 'brand' | 'carb' | 'success'
+  tone: MacroTone
 }) {
-  const color =
-    tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
+  const color = MACRO_TONES[tone].text
   return (
     <div className="bg-surface px-3 py-4 text-center">
       <div className={`font-display text-2xl font-semibold ${color}`}>{Math.round(grams)}g</div>
