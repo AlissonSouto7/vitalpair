@@ -115,7 +115,7 @@ export function GoalCard({
       }`}
     >
       <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-brand text-white' : 'bg-brand-soft text-brand'}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-brand text-on-fill' : 'bg-brand-soft text-brand'}`}
       >
         {icon}
       </span>

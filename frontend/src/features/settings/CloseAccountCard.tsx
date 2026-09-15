@@ -98,7 +98,7 @@ export function CloseAccountCard() {
           type="button"
           onClick={() => void confirm()}
           disabled={!confirmed || closing}
-          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-white transition hover:brightness-105 disabled:opacity-50"
+          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-on-fill transition hover:brightness-105 disabled:opacity-50"
         >
           {closing ? t('settings.closing') : t('settings.closeConfirm')}
         </button>

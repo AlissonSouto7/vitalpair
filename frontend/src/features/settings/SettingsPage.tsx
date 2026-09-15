@@ -158,7 +158,7 @@ export function SettingsPage() {
       <Section title={t('settings.account')}>
         <div className="overflow-hidden rounded-2xl border border-hair bg-surface">
           <div className="flex items-center gap-3 border-b border-hair px-[18px] py-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand font-display text-base font-semibold text-white">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand font-display text-base font-semibold text-on-fill">
               {initial}
             </span>
             <div className="min-w-0">

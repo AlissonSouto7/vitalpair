@@ -16,17 +16,24 @@ function Fallback({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="text-2xl font-bold">{t('errors.errorBoundary.title')}</h1>
-      <p className="max-w-md text-muted">{t('errors.errorBoundary.description')}</p>
+      <h1 className="font-display text-2xl font-bold text-ink">
+        {t('errors.errorBoundary.title')}
+      </h1>
+      <p className="max-w-md font-semibold text-muted">{t('errors.errorBoundary.description')}</p>
       {requestId && (
         <p className="text-xs text-muted">
           {t('errors.errorBoundary.requestId')}: <code className="font-mono">{requestId}</code>
         </p>
       )}
+      {/*
+        The retry was `bg-primary` with white text, and this palette has no `primary` token, so
+        Tailwind emitted nothing: the only way out of the error screen was a white label on the
+        page background. Same bug as the 404's exit had.
+      */}
       <button
         type="button"
         onClick={resetErrorBoundary}
-        className="mt-2 rounded-xl bg-primary px-6 py-3 font-bold text-white transition hover:opacity-90"
+        className="mt-2 rounded-xl bg-brand px-6 py-3 font-extrabold text-on-fill transition hover:brightness-105"
       >
         {t('errors.errorBoundary.retry')}
       </button>

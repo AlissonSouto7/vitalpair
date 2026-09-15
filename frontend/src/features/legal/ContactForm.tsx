@@ -138,7 +138,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-1 inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-[15px] font-extrabold text-white transition hover:brightness-105"
+        className="mt-1 inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 text-[15px] font-extrabold text-on-fill transition hover:brightness-105"
       >
         <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-white" aria-hidden="true">
           <path d="M2 21l21-9L2 3v7l15 2-15 2z" />

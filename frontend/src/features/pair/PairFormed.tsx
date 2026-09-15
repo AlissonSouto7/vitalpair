@@ -43,7 +43,7 @@ export function PairFormed({
 
         <div className="mb-4 flex items-center justify-center">
           <Avatar initial={initial(me?.name)} tone="you" size={56} />
-          <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-success text-white">
+          <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-success text-on-fill">
             <IconLink />
           </span>
           <Avatar initial={initial(partner?.name)} tone="rival" size={56} />
@@ -141,7 +141,7 @@ function LeavePairCard({
           type="button"
           onClick={() => void confirm()}
           disabled={leaving}
-          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-white transition hover:brightness-105 disabled:opacity-60"
+          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-on-fill transition hover:brightness-105 disabled:opacity-60"
         >
           {leaving ? t('pair.leaving') : t('pair.leaveConfirm')}
         </button>

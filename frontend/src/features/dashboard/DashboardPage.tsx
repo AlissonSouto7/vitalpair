@@ -192,7 +192,7 @@ export function DashboardPage() {
 
             <Link
               to="/nutrition"
-              className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3.5 font-extrabold text-white transition hover:brightness-105"
+              className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3.5 font-extrabold text-on-fill transition hover:brightness-105"
             >
               <CameraIcon className="h-5 w-5 fill-current" />
               {t('dashboard.logMeal')}

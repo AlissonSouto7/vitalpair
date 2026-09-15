@@ -13,10 +13,10 @@ type Variant = 'primary' | 'secondary' | 'success' | 'ghost'
 
 const styles: Record<Variant, string> = {
   // laranja = ação principal / "você"
-  primary: 'bg-brand text-white hover:brightness-105',
+  primary: 'bg-brand text-on-fill hover:brightness-105',
   secondary: 'border border-hair bg-transparent text-ink hover:bg-surface',
   // verde = ação positiva de saúde (ex.: topar missão)
-  success: 'bg-success text-white hover:brightness-105',
+  success: 'bg-success text-on-fill hover:brightness-105',
   ghost: 'bg-transparent text-muted hover:text-ink',
 }
 

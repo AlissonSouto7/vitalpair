@@ -103,7 +103,7 @@ export function MissionCard({
       ) : (
         <button
           onClick={onAccept}
-          className="mt-3 w-full rounded-xl bg-success px-4 py-3 font-extrabold text-white transition hover:brightness-105"
+          className="mt-3 w-full rounded-xl bg-success px-4 py-3 font-extrabold text-on-fill transition hover:brightness-105"
         >
           {t('dashboard.acceptMission')}
         </button>

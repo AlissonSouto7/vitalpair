@@ -85,7 +85,7 @@ export function InvitePanel({
             onClick={onCopy}
             aria-label={t('pair.copyCode')}
             className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-extrabold transition ${
-              copied ? 'bg-success text-white' : 'bg-rival text-white hover:brightness-105'
+              copied ? 'bg-success text-on-fill' : 'bg-rival text-on-fill hover:brightness-105'
             }`}
           >
             {copied ? <IconCheck /> : <IconCopy />}

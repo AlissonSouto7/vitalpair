@@ -32,7 +32,7 @@ export function Hero() {
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
           to="/register"
-          className="rounded-2xl bg-brand px-7 py-3.5 text-[15px] font-extrabold text-white transition hover:brightness-105"
+          className="rounded-2xl bg-brand px-7 py-3.5 text-[15px] font-extrabold text-on-fill transition hover:brightness-105"
         >
           {t('landing.start')}
         </Link>
@@ -231,7 +231,7 @@ export function CtaFinal() {
       <p className="mb-7 text-[15px] font-semibold text-muted">{t('landing.ctaText')}</p>
       <Link
         to="/register"
-        className="inline-block rounded-2xl bg-brand px-8 py-4 text-base font-extrabold text-white transition hover:brightness-105"
+        className="inline-block rounded-2xl bg-brand px-8 py-4 text-base font-extrabold text-on-fill transition hover:brightness-105"
       >
         {t('landing.ctaButton')}
       </Link>

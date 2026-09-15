@@ -228,7 +228,7 @@ export function WorkoutPlanPage() {
                   }
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[9px] transition ${
                     ex.done
-                      ? 'border-none bg-success text-white'
+                      ? 'border-none bg-success text-on-fill'
                       : 'border-2 border-track bg-transparent hover:border-success'
                   } disabled:cursor-default`}
                 >
@@ -259,7 +259,7 @@ export function WorkoutPlanPage() {
               today.completed
                 ? 'cursor-default bg-success-soft text-success-ink'
                 : allDone
-                  ? 'bg-brand text-white hover:brightness-105'
+                  ? 'bg-brand text-on-fill hover:brightness-105'
                   : 'cursor-not-allowed bg-track text-faint'
             }`}
           >

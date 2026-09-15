@@ -114,7 +114,7 @@ export function MealPlanPage() {
             type="button"
             onClick={() => void generate()}
             disabled={generating}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-extrabold text-on-fill transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <SparkIcon className="h-[18px] w-[18px]" />
             {generating ? t('mealplan.generating') : t('mealplan.regenerate')}
@@ -172,7 +172,7 @@ export function MealPlanPage() {
                   aria-pressed={active}
                   className={`flex shrink-0 flex-col items-center rounded-xl border px-3.5 py-2 leading-tight transition ${
                     active
-                      ? 'border-brand bg-brand text-white'
+                      ? 'border-brand bg-brand text-on-fill'
                       : 'border-hair bg-surface text-muted hover:text-ink'
                   }`}
                 >

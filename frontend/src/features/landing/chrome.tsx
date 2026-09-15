@@ -67,7 +67,7 @@ export function Nav() {
         </Link>
         <Link
           to="/register"
-          className="rounded-xl bg-brand px-4 py-2.5 text-[13.5px] font-extrabold text-white transition hover:brightness-105"
+          className="rounded-xl bg-brand px-4 py-2.5 text-[13.5px] font-extrabold text-on-fill transition hover:brightness-105"
         >
           {t('landing.start')}
         </Link>
@@ -77,7 +77,7 @@ export function Nav() {
       <div className="flex items-center gap-2 md:hidden">
         <Link
           to="/register"
-          className="rounded-xl bg-brand px-3.5 py-2 text-[13px] font-extrabold text-white transition hover:brightness-105"
+          className="rounded-xl bg-brand px-3.5 py-2 text-[13px] font-extrabold text-on-fill transition hover:brightness-105"
         >
           {t('landing.start')}
         </Link>

@@ -53,6 +53,12 @@
   --color-danger:      var(--danger);
   --color-danger-soft: var(--danger-soft);
 
+  /* Rótulo de botão PREENCHIDO (bg-brand, bg-success, bg-danger, bg-rival).
+     Não é branco fixo: no tema escuro os preenchimentos são claros de propósito, e branco
+     sobre eles dava 2.34:1 no laranja e 1.74:1 no verde, ilegível. Medido nos dois temas, o
+     rótulo certo é branco no claro e quase-preto no escuro. Usar `text-on-fill` em vez de
+     `text-white` em qualquer botão de fundo colorido. */
+  --color-on-fill: var(--on-fill);
 
   /* arena (placar) — theme-aware */
   --color-arena:        var(--arena);
@@ -74,26 +80,61 @@
   --font-sans:    "Nunito", sans-serif;   /* corpo, UI */
 }
 
-/* ---------- CLARO (creme quente) ---------- */
+/* ---------- CLARO (creme quente) ----------
+
+   Cada valor abaixo foi MEDIDO pela fórmula de luminância relativa da WCAG contra os fundos
+   reais deste tema (surface #ffffff e canvas #fbf6ee), não escolhido no olho. Alvo: texto
+   normal >= 4.5:1, preenchimento/barra >= 3:1, e rótulo branco sobre botão preenchido >= 4.5:1.
+
+   O tema claro reprovava quase inteiro e ninguém tinha visto, porque a varredura de telas só
+   olhou o tema escuro (que passa em tudo). O pior caso era o botão de ação primária: branco
+   sobre o laranja #ff6b2c dava 2.84:1, abaixo até do limite de texto grande, em toda tela do
+   app. Matiz preservado em todos, só a luminosidade caiu até cruzar o limite:
+
+     brand      #ff6b2c -> #c94810   branco sobre ele 2.84 -> 4.75   barra 2.32 -> 3.88
+     brand-ink  #e0561c -> #b03f0e   no creme         3.54 -> 5.48
+     success    #22c55e -> #17853f   branco sobre ele 2.28 -> 4.71   barra 1.86 -> 3.85
+     success-ink #1aa34a -> #157f39  no creme         3.06 -> 4.73
+     carb       #dd9527 -> #b0761c   barra            2.04 -> 3.15
+     carb-ink   #c9881f -> #8f6116   no creme         2.78 -> 5.02
+     fat        #0f9b8e -> #0d8b80   barra            2.81 -> 3.42
+     muted      #8a7f6d -> #6f6556   no creme         3.66 -> 5.32
+     faint      #a99a85 -> #756b5c   no creme         2.55 -> 4.86
+     danger     #d8483a -> #c93f32   branco sobre ele 4.28 -> 4.95
+
+   carb e fat não viraram fundo de botão de rótulo branco em lugar nenhum (conferido: zero
+   ocorrências de bg-carb ou bg-fat com text-white), então foram ajustados só para o papel que
+   de fato têm, que é barra e ponto. Escurecê-los além disso seria pagar contraste de um caso
+   que não existe. rival e fat-ink já passavam e não mudaram.
+
+   A hierarquia ink > muted > faint continua legível e na mesma ordem: 15.21, 5.32 e 4.86 no
+   creme. faint carrega conteúdo de verdade (horário, data de vigência da política, e-mail,
+   placeholder), então tinha que passar como texto, não como enfeite. */
 :root {
   --canvas:#fbf6ee; --surface:#ffffff; --sidebar:#ffffff;
-  --ink:#241f17; --muted:#8a7f6d; --faint:#a99a85; --hair:#ece1cf; --track:#f1e7d8;
+  --ink:#241f17; --muted:#6f6556; --faint:#756b5c; --hair:#ece1cf; --track:#f1e7d8;
 
-  --brand:#ff6b2c;   --brand-ink:#e0561c;   --brand-soft:#fff0e4;
+  --brand:#c94810;   --brand-ink:#b03f0e;   --brand-soft:#fff0e4;
   --rival:#7c3aed;   --rival-ink:#6d28d9;   --rival-soft:#f3ecff;
-  --success:#22c55e; --success-ink:#1aa34a; --success-soft:#e6f7ec;
-  --carb:#dd9527;    --carb-ink:#c9881f;
-  --fat:#0f9b8e;     --fat-ink:#0f766e;
-  --danger:#d8483a;  --danger-soft:#f3d4cf;
+  --success:#17853f; --success-ink:#157f39; --success-soft:#e6f7ec;
+  --carb:#b0761c;    --carb-ink:#8f6116;
+  --fat:#0d8b80;     --fat-ink:#0f766e;
+  --danger:#c93f32;  --danger-soft:#f3d4cf;
+  --on-fill:#ffffff;
 
   --arena:#ffffff; --arena-text:#241f17; --arena-muted:#6f6556; --arena-line:#e8dccb;
   --arena-border:#ece1cf; --arena-track:#efe4d4; --arena-shadow:rgba(70,45,20,.1);
 }
 
-/* ---------- ESCURO (carvão-âmbar aconchegante, nunca navy) ---------- */
+/* ---------- ESCURO (carvão-âmbar aconchegante, nunca navy) ----------
+
+   Medido pelo mesmo critério do tema claro, e este passava em quase tudo: todos os -ink ficam
+   entre 8.1 e 10.1 e todas as barras entre 3.5 e 8.0. O único abaixo do limite era o faint,
+   com 4.18:1 no surface, então subiu de #8a7f6d para #948873 (4.72:1) e continua mais apagado
+   que o muted, que tem 5.99:1. */
 .dark {
   --canvas:#1b1610; --surface:#251e16; --sidebar:#221b13;
-  --ink:#f7efe1; --muted:#a99a85; --faint:#8a7f6d; --hair:#352a1f; --track:#352a1f;
+  --ink:#f7efe1; --muted:#a99a85; --faint:#948873; --hair:#352a1f; --track:#352a1f;
 
   --brand:#ff8a4c;   --brand-ink:#ffa066;   --brand-soft:rgba(255,138,76,.14);
   --rival:#a855f7;   --rival-ink:#c4a9f8;   --rival-soft:rgba(168,85,247,.16);
@@ -101,6 +142,7 @@
   --carb:#f0b455;    --carb-ink:#f0b455;
   --fat:#2dd4bf;     --fat-ink:#4dd6c4;
   --danger:#ff6a5c;  --danger-soft:rgba(255,106,92,.3);
+  --on-fill:#1b1610;
 
   --arena:#322619; --arena-text:#ffffff; --arena-muted:#b6a288; --arena-line:rgba(255,255,255,.14);
   --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.1); --arena-shadow:rgba(0,0,0,.4);

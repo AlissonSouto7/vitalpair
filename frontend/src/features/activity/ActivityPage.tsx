@@ -209,7 +209,7 @@ function SourceRow({
           type="button"
           disabled
           title={t('activity.soon')}
-          className="shrink-0 cursor-not-allowed rounded-xl bg-brand px-3.5 py-2 text-xs font-extrabold text-white opacity-60"
+          className="shrink-0 cursor-not-allowed rounded-xl bg-brand px-3.5 py-2 text-xs font-extrabold text-on-fill opacity-60"
         >
           {t('activity.connect')}
         </button>
