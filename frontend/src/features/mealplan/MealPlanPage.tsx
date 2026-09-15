@@ -21,7 +21,7 @@ import { getApiErrorMessage } from '@/shared/api/errors'
 const WEEKDAY_KEYS = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'] as const
 
 export function MealPlanPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
   // Null until the person picks a day, so the plan arriving can open on today without
@@ -215,7 +215,7 @@ export function MealPlanPage() {
                 {t('mealplan.dayTotal')}
               </p>
               <p className="font-display text-2xl font-semibold text-ink">
-                {totals.kcal.toLocaleString('pt-BR')} kcal
+                {totals.kcal.toLocaleString(i18n.language)} kcal
               </p>
             </div>
 
@@ -267,7 +267,7 @@ function MealCard({
   return (
     <article className={`card p-4 transition sm:p-5 ${swapping ? 'opacity-60' : ''}`}>
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-brand-ink">
+        <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted">
           {t(`mealplan.mealLabel.${meal.mealType}`)}
         </span>
 
@@ -276,7 +276,7 @@ function MealCard({
             type="button"
             onClick={onSwap}
             disabled={swapping}
-            className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-rival-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-act-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <SwapIcon className={`h-[13px] w-[13px] ${swapping ? 'animate-spin' : ''}`} />
             {swapping ? t('mealplan.swapping') : t('mealplan.swap')}
@@ -286,12 +286,14 @@ function MealCard({
 
       <p className="text-[15px] font-extrabold text-ink">{meal.name}</p>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] font-bold">
-        <span className="font-display text-sm font-semibold text-ink">{meal.kcal} kcal</span>
-        <MacroPill label="P" value={meal.proteinG} tone="protein" />
-        <MacroPill label="C" value={meal.carbG} tone="carb" />
-        <MacroPill label="G" value={meal.fatG} tone="fat" />
-      </div>
+      {/*
+        Só as calorias por prato. Os três macros de cada refeição somavam dezesseis pastilhas
+        numa tela cuja pergunta é "o que eu como hoje": quem quer a composição tem o total do
+        dia logo abaixo, e o detalhe de um prato ao abrir a refeição.
+      */}
+      <p className="mt-2 font-display text-sm font-semibold tabular-nums text-muted">
+        {meal.kcal} kcal
+      </p>
     </article>
   )
 }

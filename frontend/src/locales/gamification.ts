@@ -15,6 +15,16 @@ export const gamification = {
     badgeCount: '{{earned}} de {{total}}',
     badgesEmpty: 'Nenhuma medalha por aqui ainda. Começa a registrar e elas vão acendendo.',
     streakLabel: { NUTRITION_LOG: 'Alimentação', ACTIVITY: 'Atividade' },
+    /* Nomes das cinco famílias de medalha. A categoria já vinha no dado e era usada só
+       pra escolher o ícone; agora agrupa a grade, que antes era o catálogo inteiro numa
+       parede única onde ninguém achava nada. */
+    category: {
+      NUTRITION: 'Comida',
+      WORKOUT: 'Treino',
+      CONSISTENCY: 'Constância',
+      SOCIAL: 'Dupla',
+      WEIGHT: 'Peso',
+    },
   },
   en: {
     title: 'Achievements',
@@ -30,6 +40,13 @@ export const gamification = {
     badgeCount: '{{earned}} of {{total}}',
     badgesEmpty: 'No medals around here yet. Start logging and they’ll light up.',
     streakLabel: { NUTRITION_LOG: 'Nutrition', ACTIVITY: 'Activity' },
+    category: {
+      NUTRITION: 'Food',
+      WORKOUT: 'Workout',
+      CONSISTENCY: 'Consistency',
+      SOCIAL: 'Pair',
+      WEIGHT: 'Weight',
+    },
   },
   es: {
     title: 'Logros',
@@ -45,6 +62,13 @@ export const gamification = {
     badgeCount: '{{earned}} de {{total}}',
     badgesEmpty: 'Aún no hay medallas por aquí. Empieza a registrar y se irán encendiendo.',
     streakLabel: { NUTRITION_LOG: 'Alimentación', ACTIVITY: 'Actividad' },
+    category: {
+      NUTRITION: 'Comida',
+      WORKOUT: 'Entrenamiento',
+      CONSISTENCY: 'Constancia',
+      SOCIAL: 'Pareja',
+      WEIGHT: 'Peso',
+    },
   },
   fr: {
     title: 'Succès',
@@ -60,5 +84,12 @@ export const gamification = {
     badgeCount: '{{earned}} sur {{total}}',
     badgesEmpty: 'Pas encore de médaille par ici. Commence à enregistrer et elles s’allumeront.',
     streakLabel: { NUTRITION_LOG: 'Nutrition', ACTIVITY: 'Activité' },
+    category: {
+      NUTRITION: 'Repas',
+      WORKOUT: 'Séance',
+      CONSISTENCY: 'Régularité',
+      SOCIAL: 'Duo',
+      WEIGHT: 'Poids',
+    },
   },
 } as const

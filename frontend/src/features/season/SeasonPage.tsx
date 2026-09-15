@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Trans, useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 
 import { Scoreboard } from '../../components/ui/Scoreboard'
 import type { SeasonView } from '../../types/season'
@@ -127,6 +128,31 @@ export function SeasonPage() {
         )}
       </div>
 
+      {/*
+        A saída da tela.
+
+        Eram seis seções densas, vinte e nove números e nenhum botão: um relatório dentro de
+        um app. Quem lê que está trinta pontos atrás não tinha o que fazer com a informação,
+        e competição que só informa a derrota desanima em vez de puxar. Aparece só para quem
+        está atrás, porque para quem lidera seria cobrança sem motivo.
+      */}
+      {hasPartner && leading < 0 && (
+        <Link
+          to="/nutrition"
+          className="flex items-center justify-between gap-4 rounded-xl border border-hair bg-surface px-[18px] py-[14px] transition hover:bg-track"
+        >
+          <span>
+            <span className="block text-sm font-extrabold text-ink">{t('season.nudgeTitle')}</span>
+            <span className="block text-[11.5px] font-bold text-muted">
+              {t('season.nudgeBody')}
+            </span>
+          </span>
+          <span className="shrink-0 rounded-xl bg-act px-4 py-2.5 text-[13px] font-extrabold text-on-fill">
+            {t('season.nudgeCta')}
+          </span>
+        </Link>
+      )}
+
       {/* Ponto a ponto */}
       {season.days.length > 0 && (
         <section className="card">
@@ -135,8 +161,8 @@ export function SeasonPage() {
               {t('season.pointByPoint')}
             </h2>
             <div className="flex items-center gap-4 text-[11.5px] font-extrabold">
-              <Legend color="bg-brand" label={t('season.you')} cls="text-brand-ink" />
-              {hasPartner && <Legend color="bg-rival" label={partnerName} cls="text-rival-ink" />}
+              <Legend color="bg-you" label={t('season.you')} cls="text-you-ink" />
+              {hasPartner && <Legend color="bg-pair" label={partnerName} cls="text-pair-ink" />}
             </div>
           </div>
           <DayChart days={season.days} hasPartner={hasPartner} partnerName={partnerName} />
@@ -195,11 +221,11 @@ export function SeasonPage() {
                         })}
                 </div>
               </div>
-              <div className="flex items-baseline gap-1.5 font-display text-lg font-semibold">
-                <span className="text-brand-ink">{overall.you}</span>
-                <span className="text-faint">·</span>
-                <span className="text-rival-ink">{overall.rival}</span>
-              </div>
+              {/*
+                Os números saíram daqui. A frase ao lado já diz "Você 3 · Ana 1, na frente no
+                geral também", e repeti-los em corpo grande era a mesma informação duas vezes
+                na mesma linha, competindo consigo mesma.
+              */}
             </div>
           )}
         </section>

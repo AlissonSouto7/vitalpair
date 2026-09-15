@@ -10,6 +10,9 @@ import { gamificationQueries } from './queries'
  * Conquistas — medalhas e sequências (streaks), dados reais.
  * O placar/temporada vive em /season; missões em /missions.
  */
+/** A ordem em que as famílias aparecem: do que a pessoa faz todo dia ao que é raro. */
+const CATEGORY_ORDER: BadgeCategory[] = ['NUTRITION', 'WORKOUT', 'CONSISTENCY', 'WEIGHT', 'SOCIAL']
+
 export function GamificationPage() {
   const { t } = useTranslation()
   const streaksQuery = useQuery(gamificationQueries.streaks())
@@ -32,6 +35,11 @@ export function GamificationPage() {
     )
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
+  const byCategory = catalog.reduce((map, badge) => {
+    const list = map.get(badge.category) ?? []
+    list.push(badge)
+    return map.set(badge.category, list)
+  }, new Map<BadgeCategory, Badge[]>())
 
   return (
     <div className="space-y-7">
@@ -74,9 +82,29 @@ export function GamificationPage() {
             {t('gamification.badgesEmpty')}
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {catalog.map((badge) => (
-              <BadgeTile key={badge.code} badge={badge} unlocked={earnedCodes.has(badge.code)} />
+          /*
+            Agrupado por categoria, e não o catálogo inteiro numa grade só.
+
+            Vinte medalhas conquistadas e bloqueadas na mesma malha, na ordem que o servidor
+            mandou, viravam uma parede onde a pessoa tinha que caçar visualmente quais eram
+            verdes. As cinco categorias já vinham no dado e serviam só pra escolher o ícone.
+          */
+          <div className="space-y-5">
+            {CATEGORY_ORDER.filter((c) => byCategory.has(c)).map((category) => (
+              <div key={category}>
+                <h3 className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-faint">
+                  {t(`gamification.category.${category}`)}
+                </h3>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {byCategory.get(category)?.map((badge) => (
+                    <BadgeTile
+                      key={badge.code}
+                      badge={badge}
+                      unlocked={earnedCodes.has(badge.code)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
