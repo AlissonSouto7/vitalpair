@@ -2,7 +2,7 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-09-15
 
 ## What it is and where it lives
 
@@ -156,7 +156,8 @@ SELECT source, count(*) FROM point_events GROUP BY source;
 
 ## History
 
-| Date       | Change                                                                                                                                                                                                                  | Pull request           |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| 2026-09-11 | The service took an injected clock in the product's zone, replacing the static `ZoneId.systemDefault()` that caused S-7, and the lifecycle got its first unit test: seven cases, reachable only because the clock moved | `fix/audit-loose-ends` |
-| 2026-09-06 | Document created                                                                                                                                                                                                        | #32                    |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                                 | Pull request           |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 2026-09-15 | The API stopped sending written words: the points breakdown carries the enum name and a finished season carries its length and end date, instead of "Refeições" and "30 dias · fechou em 14/08" built on the server. A test asserts nothing in the view arrives pre-worded. The screen also stopped calling a draw a win, and stopped showing two different day counts | `fix/screen-sweep`     |
+| 2026-09-11 | The service took an injected clock in the product's zone, replacing the static `ZoneId.systemDefault()` that caused S-7, and the lifecycle got its first unit test: seven cases, reachable only because the clock moved                                                                                                                                                | `fix/audit-loose-ends` |
+| 2026-09-06 | Document created                                                                                                                                                                                                                                                                                                                                                       | #32                    |

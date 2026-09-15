@@ -2,7 +2,7 @@
 
 - **Status**: shipped; staging runs on the server and deploys itself, production not started
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-11
+- **Last updated**: 2026-09-15
 
 ## What it is and where it lives
 
@@ -161,7 +161,9 @@ deploy/scripts/smoke.sh https://staging.your.domain
 # read only: the last deploy and the one before it
 cat deploy/env/.deployed-staging deploy/env/.previous-staging
 
-# read only: backups exist, are recent, and are not growing without bound
+# read only: backups exist, are recent, and are not growing without bound.
+# Each backup is a PAIR: the database dump and the profile photos beside it. A dump without
+# its .tar.gz restores profiles pointing at files that are not there.
 ls -lt /var/backups/vitalpair/staging | head
 ```
 
@@ -178,6 +180,7 @@ ls -lt /var/backups/vitalpair/staging | head
 
 | Date       | Change                                                                                                                                                                                                                                                                                                                                                                                                                             | Pull request           |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 2026-09-15 | Profile photos gave the stack its first durable state outside Postgres: a named `avatars` volume on the backend, an nginx location that caches the images and repeats the security headers (`add_header` does not inherit into a location that declares its own), and `backup.sh`/`restore.sh` extended to carry the files with the dump as one pair                                                                               | `fix/screen-sweep`     |
 | 2026-09-06 | The deployment stack built, replacing the inherited one that forwarded `/actuator` to the internet. Rehearsed locally with a self-signed certificate                                                                                                                                                                                                                                                                               | `49f6443`              |
 | 2026-09-08 | Scripts marked executable in git                                                                                                                                                                                                                                                                                                                                                                                                   | #62                    |
 | 2026-09-09 | Prometheus and Grafana stack                                                                                                                                                                                                                                                                                                                                                                                                       | #68                    |

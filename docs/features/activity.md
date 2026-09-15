@@ -34,11 +34,12 @@ build the daily balance, without touching this feature's service or its table.
 
 ### Endpoints
 
-| Method | Path                             | Action                                                |
-| ------ | -------------------------------- | ----------------------------------------------------- |
-| POST   | `/api/v1/activity/logs`          | Log an activity. 201, publishes `ActivityLoggedEvent` |
-| GET    | `/api/v1/activity/logs?date=`    | The day's activities                                  |
-| GET    | `/api/v1/activity/summary?date=` | Calories burned, steps and a count for the day        |
+| Method | Path                             | Action                                                                                                 |
+| ------ | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| POST   | `/api/v1/activity/logs`          | Log an activity. 201, publishes `ActivityLoggedEvent`                                                  |
+| GET    | `/api/v1/activity/logs?date=`    | The day's activities                                                                                   |
+| GET    | `/api/v1/activity/summary?date=` | Calories burned, steps and a count for the day                                                         |
+| DELETE | `/api/v1/activity/logs/{id}`     | Remove one of your own activities. Publishes `ActivityDeletedEvent`, which takes the feed item with it |
 
 ### Data
 
@@ -48,13 +49,15 @@ build the daily balance, without touching this feature's service or its table.
 
 ## Business rules
 
-| #   | Rule                                                                                                  | Why                                                                                                             |
-| --- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| R-1 | `tenantId` is read from the stored user, never from the request                                       | A tenant a client can send is a tenant a client can change                                                      |
-| R-2 | Calories are taken from the request when given; otherwise estimated as `steps × 0.04`; otherwise zero | An explicit number from a watch beats an estimate, and the column is `NOT NULL` so there must always be a value |
-| R-3 | `loggedAt` defaults to now                                                                            | Most activities are logged after the fact                                                                       |
-| R-4 | The summary rounds calories half-up to a whole number                                                 | Nobody reads "336.47 kcal burned"                                                                               |
-| R-5 | Logging publishes `ActivityLoggedEvent` `AFTER_COMMIT` with `REQUIRES_NEW` listeners                  | Gamification, the feed and notifications react. None of them may roll back the activity                         |
+| #   | Rule                                                                                                  | Why                                                                                                                                                                                          |
+| --- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-1 | `tenantId` is read from the stored user, never from the request                                       | A tenant a client can send is a tenant a client can change                                                                                                                                   |
+| R-2 | Calories are taken from the request when given; otherwise estimated as `steps × 0.04`; otherwise zero | An explicit number from a watch beats an estimate, and the column is `NOT NULL` so there must always be a value                                                                              |
+| R-3 | `loggedAt` defaults to now                                                                            | Most activities are logged after the fact                                                                                                                                                    |
+| R-4 | The summary rounds calories half-up to a whole number                                                 | Nobody reads "336.47 kcal burned"                                                                                                                                                            |
+| R-5 | Logging publishes `ActivityLoggedEvent` `AFTER_COMMIT` with `REQUIRES_NEW` listeners                  | Gamification, the feed and notifications react. None of them may roll back the activity                                                                                                      |
+| R-6 | Deleting somebody else's activity answers 404, not 403                                                | A 403 confirms the id exists, which turns the endpoint into a yes/no oracle for ids being guessed at. Same rule as the meal endpoint                                                         |
+| R-7 | Deleting does not take back points already awarded                                                    | They were earned on the day it was logged, the ledger is append-only, and a scoreboard that moves backwards days later is worse than one that counted a workout the person later tidied away |
 
 ## Security findings
 
@@ -126,5 +129,6 @@ SELECT count(*) FROM activity_logs a JOIN users u ON u.id = a.user_id WHERE a.te
 
 | Date       | Change                                                                                                                                                                                                                                                                                            | Pull request                        |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| 2026-09-15 | `DELETE /api/v1/activity/logs/{id}` added: a workout could not be removed at all, so one logged twice or with the wrong number stayed in the diary and in the partner's timeline for good. The controller had no test; it has nine now                                                            | `fix/screen-sweep`                  |
 | 2026-09-06 | Document created                                                                                                                                                                                                                                                                                  | #32                                 |
 | 2026-09-08 | both forms on react-hook-form + zod. An empty workout and a zero step count are refused in the browser with a message; `NaN` no longer reaches the request body. First 7 component tests. Server-side, `LogActivityRequest` still accepts every measure null (open, see `frontend-foundation.md`) | `refactor/frontend-forms-and-tests` |

@@ -40,10 +40,28 @@ cd ~/vitalpair && ./deploy/scripts/schedule-backups.sh staging
 BACKUP_AT=04:30 ./deploy/scripts/schedule-backups.sh production
 ```
 
+## A backup is two files
+
+`backup.sh` writes a pair, with the same timestamp:
+
+```
+vitalpair-<stamp>.dump              the database
+vitalpair-<stamp>-avatars.tar.gz    the profile photos
+```
+
+They belong together. The dump holds a photo's name per profile and the tarball
+holds the file it names, so restoring the database alone brings everyone back
+with an avatar pointing at nothing. Retention removes them together for the same
+reason: half a backup invites a restore that half works.
+
+A stack that has never had an upload has no volume yet, and the archive is
+simply absent. `restore.sh` warns in that case rather than failing.
+
 ## Trusting a dump
 
-`backup.sh` reads every dump back with `pg_restore --list` before keeping it, so
-a file that exists has been parsed at least once. That is not the same as
+`backup.sh` reads every dump back with `pg_restore --list` before keeping it, and
+lists the photo archive with `tar -tzf`, so a file that exists has been parsed at
+least once. That is not the same as
 knowing it restores, and the difference matters: a dump nobody has restored is a
 belief, not a backup.
 
@@ -71,6 +89,9 @@ cd ~/vitalpair/deploy
 ls -lt /var/backups/vitalpair/staging | head
 ./scripts/restore.sh staging /var/backups/vitalpair/staging/vitalpair-<stamp>.dump
 ```
+
+Pass the dump; the script finds the photo archive beside it by name, empties the
+volume and unpacks it, then says how many files it restored.
 
 The script waits for the application's own healthcheck before saying it is done,
 because `docker compose start` returns as soon as the process exists and the
