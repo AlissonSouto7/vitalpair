@@ -154,7 +154,13 @@ export function ProfilePage() {
       </section>
 
       {/* Peso */}
-      <WeightCard weights={weights} currentWeight={currentWeight} onLogged={reload} t={t} />
+      <WeightCard
+        weights={weights}
+        currentWeight={currentWeight}
+        goal={profile.goal}
+        onLogged={reload}
+        t={t}
+      />
 
       {/* Objetivo */}
       <section className="card">
