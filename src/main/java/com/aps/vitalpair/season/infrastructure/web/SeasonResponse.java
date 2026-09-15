@@ -1,5 +1,6 @@
 package com.aps.vitalpair.season.infrastructure.web;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.aps.vitalpair.season.application.dto.SeasonView;
@@ -25,9 +26,12 @@ public record SeasonResponse(
 
     public record DayScore(String label, int you, int rival) {}
 
-    public record BreakdownRow(String source, String label, int you, int rival) {}
+    /** Points by source. The client writes the label from {@code source}, in its own language. */
+    public record BreakdownRow(String source, int you, int rival) {}
 
-    public record HistoryRow(int number, String sub, int you, int rival, String winner, String stake) {}
+    /** A finished season. The client writes the summary line and formats the date. */
+    public record HistoryRow(
+            int number, int lengthDays, LocalDate endedOn, int you, int rival, String winner, String stake) {}
 
     public static SeasonResponse from(SeasonView v) {
         Side you = new Side(v.you().name(), v.you().score());
@@ -37,10 +41,11 @@ public record SeasonResponse(
                 .map(d -> new DayScore(d.label(), d.you(), d.rival()))
                 .toList();
         List<BreakdownRow> breakdown = v.breakdown().stream()
-                .map(b -> new BreakdownRow(b.source(), b.label(), b.you(), b.rival()))
+                .map(b -> new BreakdownRow(b.source(), b.you(), b.rival()))
                 .toList();
         List<HistoryRow> history = v.history().stream()
-                .map(h -> new HistoryRow(h.number(), h.sub(), h.you(), h.rival(), h.winner(), h.stake()))
+                .map(h -> new HistoryRow(
+                        h.number(), h.lengthDays(), h.endedOn(), h.you(), h.rival(), h.winner(), h.stake()))
                 .toList();
         return new SeasonResponse(
                 v.number(),

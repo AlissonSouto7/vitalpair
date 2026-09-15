@@ -123,7 +123,9 @@ export function BreakdownRow({
       </div>
       <div className="flex-1">
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-[13px] font-extrabold text-ink">{item.label}</span>
+          <span className="text-[13px] font-extrabold text-ink">
+            {t(`season.source.${item.source}`)}
+          </span>
           <span className="flex items-center gap-2 text-[11px] font-extrabold">
             <span className="text-brand-ink">{t('season.breakdownYou', { n: item.you })}</span>
             {hasPartner && (
@@ -153,7 +155,7 @@ export function HistoryRow({
   item: SeasonHistoryItem
   partnerName: string
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const youWon = item.winner === 'YOU'
   const tie = item.winner === 'TIE'
   const badge = tie
@@ -181,7 +183,20 @@ export function HistoryRow({
         <div className="text-sm font-extrabold text-ink">
           {t('season.seasonNumber', { n: String(item.number).padStart(2, '0') })}
         </div>
-        <div className="text-[11.5px] font-bold text-muted">{item.sub}</div>
+        {/*
+          Written here rather than received ready-made: the server used to send "30 dias ·
+          fechou em 14/08", in Portuguese and with a Brazilian date, whatever language the
+          reader had picked.
+        */}
+        <div className="text-[11.5px] font-bold text-muted">
+          {t('season.historySub', {
+            days: item.lengthDays,
+            date: new Date(item.endedOn).toLocaleDateString(i18n.language, {
+              day: '2-digit',
+              month: '2-digit',
+            }),
+          })}
+        </div>
         <div className="mt-0.5 text-[11.5px] font-extrabold">
           <span className="text-brand-ink">{t('season.breakdownYou', { n: item.you })}</span>
           <span className="mx-1 text-faint">·</span>

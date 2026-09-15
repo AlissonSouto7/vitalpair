@@ -118,10 +118,31 @@ export function Scoreboard({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-extrabold text-success-ink">
-          {leading >= 0
+        {/*
+          Three states, not two, and the colour follows the state.
+
+          A tie used to fall into the leading branch, so 25 against 25 announced "você lidera
+          por 0 pts" and declared a winner where there was none. In a product that is a
+          competition between two people, a draw is its own thing.
+
+          The colour was a fixed text-success-ink, so somebody losing read that they were
+          behind in the same green as somebody winning: the line says one thing and the colour
+          says the opposite, on what is the emotional scoreboard of the whole screen. Green
+          while ahead, amber while behind (it is a gap still to close, not a loss already
+          taken) and the neutral ink for a draw. All three measured against both arena
+          backgrounds: 5.40 and 7.96 for amber, 5.09 and 8.26 for green, 16.36 and 14.72 for
+          the neutral.
+        */}
+        <span
+          className={`text-[13px] font-extrabold ${
+            leading > 0 ? 'text-success-ink' : leading < 0 ? 'text-carb-ink' : 'text-arena-text'
+          }`}
+        >
+          {leading > 0
             ? t('dashboard.leadingBy', { n: leading })
-            : t('dashboard.behindBy', { n: -leading })}
+            : leading < 0
+              ? t('dashboard.behindBy', { n: -leading })
+              : t('dashboard.tied')}
         </span>
         <span className="text-xs font-bold text-arena-muted">
           {remaining === 0 ? t('dashboard.lastDay') : t('dashboard.daysLeft', { n: remaining })}

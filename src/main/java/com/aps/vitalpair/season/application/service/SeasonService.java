@@ -263,7 +263,7 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
             int you = points(totals, youId);
             int rival = hasPartner && rivalId != null ? points(totals, rivalId) : 0;
             if (you > 0 || rival > 0) {
-                breakdown.add(new SeasonView.BreakdownRow(source.name(), label(source), you, rival));
+                breakdown.add(new SeasonView.BreakdownRow(source.name(), you, rival));
             }
         }
         return breakdown;
@@ -280,8 +280,8 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
             int you = points(totals, youId);
             int rival = hasPartner && rivalId != null ? points(totals, rivalId) : 0;
             String winner = you > rival ? "YOU" : (rival > you ? "RIVAL" : "TIE");
-            String sub = SEASON_DAYS + " dias · fechou em " + s.getEndDate().format(DAY_MONTH);
-            history.add(new SeasonView.HistoryRow(s.getNumber(), sub, you, rival, winner, s.getStake()));
+            history.add(new SeasonView.HistoryRow(
+                    s.getNumber(), SEASON_DAYS, s.getEndDate(), you, rival, winner, s.getStake()));
         }
         return history;
     }
@@ -336,14 +336,5 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
             return 0;
         }
         return totals.getOrDefault(userId, 0L).intValue();
-    }
-
-    private String label(PointSource source) {
-        return switch (source) {
-            case MEAL -> "Refeições";
-            case ACTIVITY -> "Treinos";
-            case STREAK -> "Sequências";
-            case MISSION -> "Missões";
-        };
     }
 }

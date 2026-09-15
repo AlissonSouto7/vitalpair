@@ -51,7 +51,11 @@ export function SeasonPage() {
         </p>
       </header>
 
-      {/* Placar */}
+      {/*
+        Placar. daysLeft is passed, or the scoreboard falls back to total - day and counts
+        today as already spent: the screen showed "faltam 29 dias" inside the scoreboard and
+        "30 dias" in the subtitle and the stat card, from the same season.
+      */}
       {hasPartner && rival ? (
         <Scoreboard
           you={{ name: t('season.you'), score: you.score, initial: 'V' }}
@@ -64,6 +68,7 @@ export function SeasonPage() {
           stake={season.stake}
           day={season.day}
           total={season.total}
+          daysLeft={season.daysLeft}
         />
       ) : (
         <div className="rounded-[22px] border border-dashed border-hair bg-surface px-7 py-7 text-center">
@@ -94,15 +99,22 @@ export function SeasonPage() {
             n: season.daysLeft,
           })}
         />
+        {/*
+          The leader card carries the same missing third state as the scoreboard: a draw used
+          to read "Você, por 0 pts" with a green star, so the screen declared a winner twice
+          over on a tie. Fixing the Scoreboard alone would have left this card wrong.
+        */}
         {hasPartner ? (
           <Stat
             icon={<MedalIcon />}
-            tone={leading >= 0 ? 'success' : 'rival'}
+            tone={leading > 0 ? 'success' : leading < 0 ? 'rival' : 'carb'}
             title={t('season.statLeaderTitle')}
             value={
-              leading >= 0
+              leading > 0
                 ? t('season.leaderYou', { n: leading })
-                : t('season.leaderPartner', { name: partnerName, n: -leading })
+                : leading < 0
+                  ? t('season.leaderPartner', { name: partnerName, n: -leading })
+                  : t('season.leaderTied')
             }
           />
         ) : (
