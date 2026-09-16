@@ -20,6 +20,7 @@ import { FavoritesTab } from './FavoritesTab'
 import { CameraIcon, SearchIcon, StarIcon } from './icons'
 import { MealDetailModal } from './MealDetailModal'
 import { MealEditor } from './MealEditor'
+import { mealForHour } from './mealForHour'
 import { TabButton } from './parts'
 import { PhotoTab } from './PhotoTab'
 import { nutritionQueries } from './queries'
@@ -47,7 +48,7 @@ export function NutritionPage() {
   const mealLabel = (m: MealType) => t(`nutrition.mealShort.${m}`)
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<Tab>('foto')
-  const [meal, setMeal] = useState<MealType>('LUNCH')
+  const [meal, setMeal] = useState<MealType>(() => mealForHour(new Date().getHours()))
   const [draft, setDraft] = useState<Draft | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<FoodLog | null>(null)
