@@ -102,8 +102,53 @@ describe('NutritionPage', () => {
     const { user } = renderWithProviders(<NutritionPage />)
 
     await user.click(await screen.findByLabelText(n('removeAria', { name: 'Banana' })))
+    // Remover pergunta antes: a ação leva junto a linha do feed e os pontos.
+    await user.click(await screen.findByRole('button', { name: n('deleteConfirm') }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Erro interno')
+  })
+
+  it('asks before deleting, and says what goes with it', async () => {
+    /*
+      Era um clique só, sem volta. A refeição saía do dia, da linha do feed da dupla e levava
+      os pontos que rendeu, e quem errasse o alvo só descobria depois.
+    */
+    server.use(
+      http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
+      http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
+      http.get(path('/entitlements/me'), () => ok(premiumEntitlementFixture)),
+    )
+    const { user } = renderWithProviders(<NutritionPage />)
+
+    await user.click(await screen.findByLabelText(n('removeAria', { name: 'Banana' })))
+
+    const box = await screen.findByRole('dialog')
+    expect(box).toHaveAccessibleName(n('deleteTitle', { name: 'Banana' }))
+    expect(box).toHaveAccessibleDescription(n('deleteText'))
+  })
+
+  it('keeps the meal when the person backs out', async () => {
+    // A metade que importa mais: desistir não pode apagar nada.
+    const removals: string[] = []
+    server.use(
+      http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
+      http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
+      http.get(path('/entitlements/me'), () => ok(premiumEntitlementFixture)),
+      http.delete(path('/nutrition/logs/:id'), ({ params }) => {
+        removals.push(String(params.id))
+        return ok(null)
+      }),
+    )
+    const { user } = renderWithProviders(<NutritionPage />)
+
+    await user.click(await screen.findByLabelText(n('removeAria', { name: 'Banana' })))
+    await user.click(await screen.findByRole('button', { name: n('deleteCancel') }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    // E nenhuma chamada saiu: a tela sem o item provaria só o render, não o pedido retido.
+    expect(removals).toEqual([])
   })
 })
 

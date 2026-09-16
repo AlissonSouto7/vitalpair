@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react'
 
 /**
  * The product's button, and the one place the colour law for actions is written down.
@@ -20,7 +20,9 @@ const styles: Record<Variant, string> = {
   // The action colour at low weight: for a second action that is still an action, like
   // "swap this meal", next to a primary that must stay louder.
   secondary: 'bg-act-soft text-act-ink hover:brightness-95',
-  quiet: 'border border-hair bg-transparent text-ink hover:bg-track',
+  // `edge` e não `hair`: o contorno é a única coisa que diz que isto é clicável, já que o
+  // botão não tem preenchimento. Com `hair` (1,2:1) a caixa sumia e ele lia como texto solto.
+  quiet: 'border border-edge bg-transparent text-ink hover:bg-track',
   danger: 'bg-danger-soft text-danger hover:brightness-95',
 }
 
@@ -30,6 +32,11 @@ const sizes = {
 } as const
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /**
+   * Encaminhado para o <button>. Serve a quem precisa mandar o foco para cá, como o diálogo
+   * de confirmação, que põe o foco no cancelar para ninguém confirmar sem ler.
+   */
+  ref?: Ref<HTMLButtonElement>
   variant?: Variant
   size?: keyof typeof sizes
   /** Fills the line it sits on. For the single action at the bottom of a card. */

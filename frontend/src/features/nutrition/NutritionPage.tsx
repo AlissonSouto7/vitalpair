@@ -27,6 +27,7 @@ import { nutritionQueries } from './queries'
 import { SaveBar } from './SaveBar'
 import { SearchTab } from './SearchTab'
 
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { getApiErrorMessage } from '@/shared/api/errors'
 
 const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
@@ -182,8 +183,16 @@ export function NutritionPage() {
     }
   }
 
+  /*
+    Apagar pergunta antes. A ação leva junto a linha do feed da dupla e os pontos que a
+    refeição rendeu, e era um clique só, sem volta: quem errasse o alvo perdia as três coisas
+    e só descobria depois.
+  */
+  const [toDelete, setToDelete] = useState<FoodLog | null>(null)
+
   async function removeLog(id: string) {
     setSelected((cur) => (cur?.id === id ? null : cur))
+    setToDelete(null)
     setError(null)
     try {
       await deleteLogMutation.mutateAsync(id)
@@ -326,7 +335,7 @@ export function NutritionPage() {
         mealLabel={mealLabel}
         partnerName={partnerName}
         onOpen={setSelected}
-        onRemove={(id) => void removeLog(id)}
+        onRemove={(id) => setToDelete(logs.find((l) => l.id === id) ?? null)}
       />
 
       {/* Barra fixa "vai entrar" */}
@@ -346,7 +355,19 @@ export function NutritionPage() {
         <MealDetailModal
           meal={selected}
           onClose={() => setSelected(null)}
-          onDelete={(id) => void removeLog(id)}
+          onDelete={(id) => setToDelete(logs.find((l) => l.id === id) ?? null)}
+        />
+      )}
+
+      {toDelete && (
+        <ConfirmDialog
+          title={t('nutrition.deleteTitle', { name: toDelete.foodName })}
+          description={t('nutrition.deleteText')}
+          confirmLabel={t('nutrition.deleteConfirm')}
+          cancelLabel={t('nutrition.deleteCancel')}
+          busy={deleteLogMutation.isPending}
+          onConfirm={() => void removeLog(toDelete.id)}
+          onCancel={() => setToDelete(null)}
         />
       )}
     </div>
