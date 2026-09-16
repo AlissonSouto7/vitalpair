@@ -221,8 +221,18 @@ function FeedCard({
             activityLabel={t('feed.activity')}
             privateLabel={t('feed.private')}
           />
+          {/*
+            O ponto sai na cor de quem o fez, e não em verde. Verde no sistema significa
+            concluído, então um "+10 pts" verde no item do par dizia "feito" em vez de "dele":
+            num feed em que as duas pessoas aparecem intercaladas, a cor é o que separa quem
+            marcou de quem só leu.
+          */}
           {item.points > 0 && (
-            <span className="rounded-lg bg-success-soft px-2 py-1 text-[11px] font-extrabold text-success-ink">
+            <span
+              className={`rounded-lg px-2 py-1 text-[11px] font-extrabold tabular-nums ${
+                isMine ? 'bg-you-soft text-you-ink' : 'bg-pair-soft text-pair-ink'
+              }`}
+            >
               +{item.points} pts
             </span>
           )}

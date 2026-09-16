@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { Scoreboard } from '../../components/ui/Scoreboard'
 import type { SeasonView } from '../../types/season'
+import { pairQueries } from '../pair/queries'
 import { profileQueries } from '../profile/queries'
 
 import { ClockIcon, DishIcon, MedalIcon, TrophyIcon } from './icons'
@@ -11,10 +12,18 @@ import { firstName, initial } from './names'
 import { BreakdownRow, DayChart, HistoryRow, Legend, Stat } from './parts'
 import { stakeText } from './stake'
 
+import { avatarUrl } from '@/shared/api/avatarUrl'
+
 export function SeasonPage() {
   const { t } = useTranslation()
   // The same season query the dashboard, profile and end-of-season screens read.
   const seasonQuery = useQuery(profileQueries.season())
+  // O nome só serve para a inicial do avatar: sem ele o quadrado mostrava um "V" fixo, que
+  // não é a inicial de ninguém.
+  const profileQuery = useQuery(profileQueries.profile())
+  // A dupla só pelas fotos: o placar da temporada não recebe avatarUrl, e sem isto os dois
+  // quadrados ficariam em iniciais enquanto o resto do app já mostra o rosto.
+  const pairQuery = useQuery(pairQueries.current())
   const season: SeasonView | null = seasonQuery.data ?? null
 
   if (seasonQuery.isPending) return <p className="font-bold text-muted">{t('common.loading')}</p>
@@ -60,12 +69,22 @@ export function SeasonPage() {
       */}
       {hasPartner && rival ? (
         <Scoreboard
-          you={{ name: t('season.you'), score: you.score, initial: 'V' }}
+          you={{
+            name: t('season.you'),
+            score: you.score,
+            initial: initial(profileQuery.data?.name ?? t('season.you')),
+            art: avatarUrl(
+              pairQuery.data?.members.find((m) => m.userId === profileQuery.data?.id)?.avatarUrl,
+            ),
+          }}
           rival={{
             name: partnerName,
             score: rival.score,
             initial: initial(partnerName),
             tone: 'rival',
+            art: avatarUrl(
+              pairQuery.data?.members.find((m) => m.userId !== profileQuery.data?.id)?.avatarUrl,
+            ),
           }}
           stake={stakeText(season.stake, t)}
           day={season.day}

@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card'
 import { Scoreboard } from '@/components/ui/Scoreboard'
 import { Stat } from '@/components/ui/Stat'
 import { dashboardQueries } from '@/features/dashboard/queries'
+import { avatarUrl } from '@/shared/api/avatarUrl'
 import { useAuthStore } from '@/store/authStore'
 
 export function DashboardPage() {
@@ -70,7 +71,9 @@ export function DashboardPage() {
   const workouts = (activitiesQuery.data ?? []).filter((a) => a.activityType !== 'STEPS').length
   const me = dash.me
   const remaining = me.remainingCalories
-  const meName = pair.members.find((m) => m.userId === userId)?.name ?? ''
+  // O membro da dupla, e não `dash.me`: aquele é o progresso do dia, este é quem a pessoa é.
+  const meMember = pair.members.find((m) => m.userId === userId)
+  const meName = meMember?.name ?? ''
   const partner = dash.partner
   const iAmUser1 = pair.members[0]?.userId === userId
   const myScore = competition ? (iAmUser1 ? competition.user1Score : competition.user2Score) : 0
@@ -130,8 +133,18 @@ export function DashboardPage() {
 
       {partner ? (
         <Scoreboard
-          you={{ name: t('dashboard.youLabel'), score: myScore }}
-          rival={{ name: partner.name, score: partnerScore, tone: 'rival' }}
+          you={{
+            name: t('dashboard.youLabel'),
+            score: myScore,
+            initial: meName.charAt(0),
+            art: avatarUrl(meMember?.avatarUrl),
+          }}
+          rival={{
+            name: partner.name,
+            score: partnerScore,
+            tone: 'rival',
+            art: avatarUrl(partner.avatarUrl),
+          }}
           stake={season?.stake ?? (pair.pairName ? undefined : t('dashboard.stakeDefault'))}
           seasonNumber={seasonNumber}
           day={day}
@@ -141,7 +154,7 @@ export function DashboardPage() {
       ) : (
         <div className="space-y-3">
           <Scoreboard
-            you={{ name: t('dashboard.youLabel'), score: myScore }}
+            you={{ name: t('dashboard.youLabel'), score: myScore, initial: meName.charAt(0) }}
             rival={{ name: t('dashboard.lastWeek'), score: 0, tone: 'ghost' }}
             seasonNumber={seasonNumber}
             day={day}

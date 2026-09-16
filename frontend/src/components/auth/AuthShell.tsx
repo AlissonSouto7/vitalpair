@@ -35,19 +35,36 @@ export function AuthShell({ children }: { children: ReactNode }) {
           </h2>
           <ul className="space-y-3.5">
             {[
-              { c: 'bg-brand', label: t('auth.shellPoint1') },
+              { c: 'bg-act', label: t('auth.shellPoint1') },
               { c: 'bg-success', label: t('auth.shellPoint2') },
-              { c: 'bg-rival', label: t('auth.shellPoint3') },
+              { c: 'bg-pair', label: t('auth.shellPoint3') },
             ].map((p) => (
               <li
                 key={p.label}
                 className="flex items-center gap-3 text-[14px] font-bold text-arena-text"
               >
+                {/*
+                  `fill-on-fill`, e não branco. No tema escuro os três preenchimentos são
+                  claros de propósito, então um check branco media 1,61:1 sobre o verde e
+                  2,32:1 sobre o laranja: o quadrado aparecia vazio. Com o on-fill, 11,52:1
+                  e 7,98:1. É a mesma regra que o Button já segue.
+
+                  Canto de 8px e traço mais grosso: com `rounded-lg` e o check fino o
+                  quadrado lia como um borrão colorido em vez de uma marca de confirmado.
+                */}
                 <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${p.c}`}
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] ${p.c}`}
                 >
-                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-white" aria-hidden="true">
-                    <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-[15px] w-[15px] stroke-on-fill"
+                    fill="none"
+                    strokeWidth={3.2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12.5 10 17.5 19 7" />
                   </svg>
                 </span>
                 {p.label}
