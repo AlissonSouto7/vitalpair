@@ -67,6 +67,7 @@ function theServerAnswers(flash: FlashMission | null, list: WeeklyMission[]) {
     http.get(path('/missions/flash'), () => ok(flash)),
     http.get(path('/missions/weekly'), () => ok(list)),
     http.post(path('/missions/flash/accept'), () => ok({ ...FLASH, accepted: true })),
+    http.post(path('/missions/flash/cancel'), () => ok({ ...FLASH, accepted: false })),
   )
 }
 
@@ -143,7 +144,10 @@ describe('MissionsPage', () => {
       await screen.findByRole('button', { name: i18n.t('missions.flashAccept') }),
     )
 
-    expect(await screen.findByText(i18n.t('missions.flashAccepted'))).toBeInTheDocument()
+    // O botão passa a oferecer a saída, em vez de virar um aviso sem ação.
+    expect(
+      await screen.findByRole('button', { name: i18n.t('missions.flashCancel') }),
+    ).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: i18n.t('missions.flashAccept') }),
     ).not.toBeInTheDocument()
@@ -155,5 +159,24 @@ describe('MissionsPage', () => {
     renderWithProviders(<MissionsPage />)
 
     expect(await screen.findByText(i18n.t('missions.emptyTitle'))).toBeInTheDocument()
+  })
+
+  it('lets someone give the mission back after taking it', async () => {
+    /*
+      Topar era mão única: quem clicasse por engano, ou mudasse de ideia, carregava a missão
+      até o dia virar. O mesmo botão troca de papel, em vez de um segundo controle do mesmo
+      peso ao lado.
+    */
+    theServerAnswers({ ...FLASH, accepted: true }, [weekly()])
+
+    renderWithProviders(<MissionsPage />)
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: i18n.t('missions.flashCancel') }),
+    )
+
+    expect(
+      await screen.findByRole('button', { name: i18n.t('missions.flashAccept') }),
+    ).toBeInTheDocument()
   })
 })

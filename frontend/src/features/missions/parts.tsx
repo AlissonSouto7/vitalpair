@@ -5,7 +5,7 @@ import { BoltIcon, CheckIcon, UsersIcon } from './icons'
 import { flashCopy, weeklyCopy } from './missionCopy'
 import { firstName, formatRemaining, progressLabelKey, WEEKLY_ICON } from './missionText'
 
-import { acceptFlashMission } from '@/api/missions'
+import { acceptFlashMission, cancelFlashMission } from '@/api/missions'
 import { Points } from '@/components/ui/Badge'
 import type { FlashMission as FlashMissionT, WeeklyMission } from '@/types/missions'
 
@@ -38,10 +38,17 @@ export function FlashMission({
   const secondsLeft = Math.max(0, Math.floor((new Date(mission.expiresAt).getTime() - now) / 1000))
   const acabou = secondsLeft <= 0
 
+  /*
+    Topar e desistir pelo mesmo botão.
+
+    Topar era mão única: quem clicasse por engano, ou mudasse de ideia, carregava a missão até
+    o dia virar. Um segundo botão ao lado daria dois controles do mesmo peso para uma decisão
+    que é uma só; o botão troca de papel conforme o estado, como o de seguir numa rede social.
+  */
   async function topar() {
     setAccepting(true)
     try {
-      const updated = await acceptFlashMission()
+      const updated = mission.accepted ? await cancelFlashMission() : await acceptFlashMission()
       onAccept(updated)
     } catch {
       // silencioso: o botão volta a "Topar"
@@ -73,15 +80,19 @@ export function FlashMission({
         <button
           type="button"
           onClick={() => void topar()}
-          disabled={mission.accepted || acabou || accepting}
-          className="btn-primary mt-1.5 px-4 py-2 text-[13px] disabled:opacity-60"
+          disabled={acabou || accepting}
+          className={`mt-1.5 rounded-xl px-4 py-2 text-[13px] font-extrabold transition disabled:opacity-60 ${
+            mission.accepted
+              ? 'border border-edge bg-transparent text-muted hover:text-ink'
+              : 'btn-primary'
+          }`}
         >
-          {mission.accepted
-            ? t('missions.flashAccepted')
-            : acabou
-              ? t('missions.flashOver')
-              : accepting
-                ? '...'
+          {acabou
+            ? t('missions.flashOver')
+            : accepting
+              ? '...'
+              : mission.accepted
+                ? t('missions.flashCancel')
                 : t('missions.flashAccept')}
         </button>
       </div>

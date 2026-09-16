@@ -17,6 +17,7 @@ import com.aps.vitalpair.mission.domain.model.Mission;
 import com.aps.vitalpair.mission.domain.model.MissionKind;
 import com.aps.vitalpair.mission.domain.model.PairMissionState;
 import com.aps.vitalpair.mission.domain.port.in.AcceptFlashMissionUseCase;
+import com.aps.vitalpair.mission.domain.port.in.CancelFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.out.MissionCatalogRepositoryPort;
 import com.aps.vitalpair.mission.domain.port.out.PairMissionRepositoryPort;
@@ -25,7 +26,7 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 @Service
-public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissionUseCase {
+public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissionUseCase, CancelFlashMissionUseCase {
 
     private final MissionCatalogRepositoryPort catalogRepository;
     private final PairMissionRepositoryPort pairMissionRepository;
@@ -89,6 +90,24 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
 
         PairMissionState saved = pairMissionRepository.save(state);
         return view(mission, today, saved.isAccepted());
+    }
+
+    @Override
+    @Transactional
+    public FlashMissionView cancelToday(UUID userId) {
+        UUID tenantId = resolveTenant(userId);
+        LocalDate today = LocalDate.now(clock);
+        Mission mission = missionOfDay(today);
+
+        // Nothing accepted means nothing to give back, and the answer is the same either
+        // way: today's mission, not accepted. Failing here would make the button report an
+        // error for a state the person already wanted.
+        return pairMissionRepository
+                .find(tenantId, today)
+                .map(existing -> pairMissionRepository.save(
+                        existing.toBuilder().accepted(false).acceptedAt(null).build()))
+                .map(saved -> view(mission, today, saved.isAccepted()))
+                .orElseGet(() -> view(mission, today, false));
     }
 
     private UUID resolveTenant(UUID userId) {

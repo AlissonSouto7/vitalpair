@@ -78,9 +78,16 @@ export function MissionCard({
           : t('dashboard.missionReward', { reward: mission.reward })}
       </p>
       {mission.accepted ? (
-        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success-ink">
+        /*
+          Leva às Missões em vez de ser um aviso morto. Topar é reversível, e o botão de
+          desistir vive lá: sem este caminho, quem clicou por engano não tinha para onde ir.
+        */
+        <Link
+          to="/missions"
+          className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success-ink transition hover:brightness-95"
+        >
           <CheckIcon className="h-4 w-4 fill-current" /> {t('dashboard.missionAccepted')}
-        </div>
+        </Link>
       ) : (
         /*
           Secundário, e não verde sólido. Era um botão cheio ao lado do "Registrar

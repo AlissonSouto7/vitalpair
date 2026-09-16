@@ -17,6 +17,9 @@ export const missions = {
     flashAccepted: 'Topou!',
     flashOver: 'Passou',
     flashAccept: 'Topar',
+    /* O mesmo botão do topar, trocando de papel: topar era mão única, e quem
+       clicasse por engano carregava a missão até o dia virar. */
+    flashCancel: 'Desistir',
     // progress
     progressOf: '{{current}} de {{target}} · {{label}}',
     sideDone: 'feito',
@@ -65,6 +68,7 @@ export const missions = {
     flashAccepted: 'You’re in!',
     flashOver: 'Missed it',
     flashAccept: 'I’m in',
+    flashCancel: 'Give it back',
     progressOf: '{{current}} of {{target}} · {{label}}',
     sideDone: 'done',
     rewardPts: '+{{reward}} pts',
@@ -102,6 +106,7 @@ export const missions = {
     flashAccepted: '¡Apuntado!',
     flashOver: 'Se pasó',
     flashAccept: 'Me apunto',
+    flashCancel: 'Desistir',
     progressOf: '{{current}} de {{target}} · {{label}}',
     sideDone: 'hecho',
     rewardPts: '+{{reward}} pts',
@@ -140,6 +145,7 @@ export const missions = {
     flashAccepted: 'Validé !',
     flashOver: 'Loupée',
     flashAccept: 'Je relève',
+    flashCancel: 'Abandonner',
     progressOf: '{{current}} sur {{target}} · {{label}}',
     sideDone: 'fait',
     rewardPts: '+{{reward}} pts',
