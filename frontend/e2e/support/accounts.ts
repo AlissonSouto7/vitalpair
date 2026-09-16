@@ -102,6 +102,7 @@ function registerFields(page: Page) {
 export async function registerThroughTheUi(
   page: Page,
   name: string,
+  options: { profile?: 'complete' | 'empty' } = {},
 ): Promise<{ email: string; password: string }> {
   const email = uniqueEmail(name.toLowerCase())
 
@@ -117,7 +118,42 @@ export async function registerThroughTheUi(
   // caller never races against a redirect that has not happened yet.
   await expect(page).toHaveURL(/\/(onboarding|dashboard)/)
 
+  // O roteador manda para o onboarding quem não tem perfil, o que é certo para uma conta
+  // de verdade e atrapalha um teste que é sobre outra coisa. As duas specs de onboarding
+  // pedem 'empty' e conduzem os passos elas mesmas.
+  if (options.profile !== 'empty') await completeProfileThroughTheApi(page, email, PASSWORD)
+
   return { email, password: PASSWORD }
+}
+
+/**
+ * Preenche o perfil como o primeiro passo do onboarding faz, pela API.
+ *
+ * Pela API, e não conduzindo os cinco passos, para que uma spec sobre registrar refeição não
+ * quebre quando o texto do onboarding mudar.
+ */
+export async function completeProfileThroughTheApi(page: Page, email: string, password: string) {
+  // Entra de novo para ter um token próprio: o token de acesso vive só em memória e nunca
+  // vai para o storage, então não há o que ler, e mexer no estado do app acoplaria a suíte
+  // a como ele guarda a sessão.
+  const session = await page.request.post('/api/v1/auth/login', { data: { email, password } })
+  expect(session.status(), await session.text()).toBe(200)
+  const { data } = (await session.json()) as { data: { accessToken: string } }
+
+  const response = await page.request.put('/api/v1/users/me', {
+    headers: { Authorization: `Bearer ${data.accessToken}` },
+    data: {
+      name: 'Suite',
+      birthDate: '1995-03-14',
+      sex: 'FEMALE',
+      heightCm: 170,
+      weightKg: 65,
+      goal: 'LOSE_WEIGHT',
+      activityLevel: 'MODERATE',
+      timeZone: 'America/Sao_Paulo',
+    },
+  })
+  expect(response.status(), await response.text()).toBe(200)
 }
 
 /** Signs in through the form. Does not wait: use signIn when the test needs to be inside. */

@@ -1,19 +1,15 @@
 import { expect, test } from '@playwright/test'
 
-import { PASSWORD, uniqueEmail, withPortugueseUi } from './support/accounts'
+import { registerThroughTheUi, withPortugueseUi } from './support/accounts'
 
 test.describe('logging a meal', () => {
   test('a meal logged by hand shows on the day and moves the totals', async ({ page }) => {
     // Its own account rather than the shared one: this test asserts on the day's totals,
     // and a shared account accumulates whatever other tests logged.
+    // Pelo helper, e não com uma cópia do formulário aqui: ele também preenche o perfil,
+    // sem o qual o roteador manda a conta nova para o onboarding e esta tela nunca abre.
     await withPortugueseUi(page)
-    const email = uniqueEmail('refeicao')
-    await page.goto('/register')
-    await page.getByRole('textbox', { name: 'Como te chamam?' }).fill('Refeicao')
-    await page.locator('input[autocomplete="email"]').fill(email)
-    await page.getByLabel('Senha', { exact: true }).fill(PASSWORD)
-    await page.getByRole('button', { name: /criar conta/i }).click()
-    await expect(page).toHaveURL(/\/(onboarding|dashboard)/)
+    await registerThroughTheUi(page, 'Refeicao')
 
     await page.goto('/nutrition')
     await page.getByRole('button', { name: /buscar/i }).click()
