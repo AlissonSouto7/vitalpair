@@ -9,6 +9,7 @@ import { profileQueries } from '../profile/queries'
 import { ClockIcon, DishIcon, MedalIcon, TrophyIcon } from './icons'
 import { firstName, initial } from './names'
 import { BreakdownRow, DayChart, HistoryRow, Legend, Stat } from './parts'
+import { stakeText } from './stake'
 
 export function SeasonPage() {
   const { t } = useTranslation()
@@ -66,7 +67,7 @@ export function SeasonPage() {
             initial: initial(partnerName),
             tone: 'rival',
           }}
-          stake={season.stake}
+          stake={stakeText(season.stake, t)}
           day={season.day}
           total={season.total}
           daysLeft={season.daysLeft}
@@ -77,7 +78,8 @@ export function SeasonPage() {
           <p className="mt-1 text-sm font-semibold text-muted">
             <Trans
               i18nKey="season.soloText"
-              values={{ points: you.score, days: season.day }}
+              count={season.day}
+              values={{ points: you.score, count: season.day }}
               components={[<span className="font-extrabold text-success-ink" />]}
             />
           </p>
@@ -90,7 +92,7 @@ export function SeasonPage() {
           icon={<DishIcon />}
           tone="carb"
           title={t('season.statStakeTitle')}
-          value={season.stake}
+          value={stakeText(season.stake, t)}
         />
         <Stat
           icon={<ClockIcon />}

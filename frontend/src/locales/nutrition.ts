@@ -1,7 +1,11 @@
 export const nutrition = {
   pt: {
     title: 'Refeições',
-    mealsCount: '{{count}} refeição(ões)',
+    /* Variantes de plural no lugar de "refeição(ões)". O parêntese aparecia no título em
+       destaque da tela, e em "0 refeição(ões)" ele é puro ruído: o i18next já recebia o
+       count, só faltava usá-lo. */
+    mealsCount_one: '{{count}} refeição',
+    mealsCount_other: '{{count}} refeições',
     searchPlaceholder: 'Buscar alimento (ex: banana, arroz)...',
     searching: 'Buscando...',
     noInfo: 'sem info nutricional',
@@ -102,7 +106,8 @@ export const nutrition = {
   },
   en: {
     title: 'Meals',
-    mealsCount: '{{count}} meal(s)',
+    mealsCount_one: '{{count}} meal',
+    mealsCount_other: '{{count}} meals',
     searchPlaceholder: 'Search food (e.g. banana, rice)...',
     searching: 'Searching...',
     noInfo: 'no nutrition info',
@@ -203,7 +208,8 @@ export const nutrition = {
   },
   es: {
     title: 'Comidas',
-    mealsCount: '{{count}} comida(s)',
+    mealsCount_one: '{{count}} comida',
+    mealsCount_other: '{{count}} comidas',
     searchPlaceholder: 'Buscar alimento (ej: plátano, arroz)...',
     searching: 'Buscando...',
     noInfo: 'sin info nutricional',
@@ -305,7 +311,8 @@ export const nutrition = {
   },
   fr: {
     title: 'Repas',
-    mealsCount: '{{count}} repas',
+    mealsCount_one: '{{count}} repas',
+    mealsCount_other: '{{count}} repas',
     searchPlaceholder: 'Rechercher un aliment (ex : banane, riz)...',
     searching: 'Recherche...',
     noInfo: 'pas d’info nutritionnelle',

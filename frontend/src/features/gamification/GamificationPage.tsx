@@ -161,7 +161,20 @@ function EmptyStreaks() {
 }
 
 function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
+  const { t } = useTranslation()
   const Icon = CATEGORY_ICON[badge.category] ?? TrophyIcon
+  /*
+    O catálogo chega do servidor com nome e descrição gravados em pt-BR no banco, então numa
+    tela em inglês a medalha aparecia como "Primeira refeição". O `code` é estável, então a
+    tradução acontece aqui pela chave.
+
+    `defaultValue` é o texto do próprio servidor: se ele criar uma medalha que este bundle
+    ainda não conhece, ela aparece em português em vez de mostrar a chave crua na tela.
+  */
+  const name = t(`gamification.badge.${badge.code}.name`, { defaultValue: badge.name })
+  const description = t(`gamification.badge.${badge.code}.description`, {
+    defaultValue: badge.description,
+  })
   return (
     <div
       className={`rounded-2xl border p-4 transition ${
@@ -176,12 +189,12 @@ function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
         <Icon className={`h-[22px] w-[22px] ${unlocked ? 'fill-white' : 'fill-muted'}`} />
       </span>
       <p className={`text-sm font-extrabold ${unlocked ? 'text-success-ink' : 'text-muted'}`}>
-        {badge.name}
+        {name}
       </p>
       <p
         className={`mt-0.5 text-[11.5px] font-semibold ${unlocked ? 'text-ink/70' : 'text-faint'}`}
       >
-        {badge.description}
+        {description}
       </p>
     </div>
   )

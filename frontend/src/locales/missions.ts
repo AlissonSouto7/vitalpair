@@ -25,6 +25,28 @@ export const missions = {
     progressAlmost: 'falta uma, tá quase',
     progressStart: 'bora começar',
     progressGoing: 'tá indo',
+    /* Título e descrição de cada missão, pela chave estável do `code`. O catálogo vive no
+       banco (V13 e V15) com o texto em pt-BR, então numa tela em inglês a missão aparecia
+       em português, e ela é o conteúdo principal desta tela. Missão nova que o servidor
+       criar e que ainda não esteja aqui cai no texto que ele mandou. */
+    mission: {
+      FLASH_WATER: { title: 'Beba 2L de água hoje', description: 'Hidratação conta ponto' },
+      FLASH_THREE_MEALS: {
+        title: 'Registre 3 refeições hoje',
+        description: 'Não pula refeição',
+      },
+      FLASH_WORKOUT: { title: 'Faça um treino hoje', description: 'Qualquer treino vale' },
+      FLASH_STEPS: { title: 'Bata 8.000 passos hoje', description: 'Bora andar' },
+      MEAL_DAYS_5: {
+        title: 'Registre refeições em 5 dias',
+        description: 'Sem pular nenhum dia',
+      },
+      WORKOUTS_3: { title: 'Treine 3x essa semana', description: 'Bora suar a camisa' },
+      PAIR_WORKOUTS_3: {
+        title: 'Treinem 3x essa semana, os dois',
+        description: 'Só vale se os dois fizerem a parte',
+      },
+    },
   },
   en: {
     title: 'Missions',
@@ -50,6 +72,18 @@ export const missions = {
     progressAlmost: 'one to go, almost there',
     progressStart: 'let’s get going',
     progressGoing: 'on your way',
+    mission: {
+      FLASH_WATER: { title: 'Drink 2L of water today', description: 'Hydration scores too' },
+      FLASH_THREE_MEALS: { title: 'Log 3 meals today', description: 'No skipping meals' },
+      FLASH_WORKOUT: { title: 'Get a workout in today', description: 'Any workout counts' },
+      FLASH_STEPS: { title: 'Hit 8,000 steps today', description: 'Time to walk' },
+      MEAL_DAYS_5: { title: 'Log meals on 5 days', description: 'Without skipping a day' },
+      WORKOUTS_3: { title: 'Train 3x this week', description: 'Time to break a sweat' },
+      PAIR_WORKOUTS_3: {
+        title: 'Both of you train 3x this week',
+        description: 'Only counts if you both do your part',
+      },
+    },
   },
   es: {
     title: 'Misiones',
@@ -75,6 +109,18 @@ export const missions = {
     progressAlmost: 'falta una, ya casi',
     progressStart: 'a empezar',
     progressGoing: 'vas bien',
+    mission: {
+      FLASH_WATER: { title: 'Bebe 2L de agua hoy', description: 'Hidratarse también suma' },
+      FLASH_THREE_MEALS: { title: 'Registra 3 comidas hoy', description: 'Sin saltarse comidas' },
+      FLASH_WORKOUT: { title: 'Haz un entrenamiento hoy', description: 'Cualquiera cuenta' },
+      FLASH_STEPS: { title: 'Llega a 8.000 pasos hoy', description: 'A caminar' },
+      MEAL_DAYS_5: { title: 'Registra comidas 5 días', description: 'Sin saltarte ninguno' },
+      WORKOUTS_3: { title: 'Entrena 3 veces esta semana', description: 'A sudar la camiseta' },
+      PAIR_WORKOUTS_3: {
+        title: 'Entrenen 3 veces esta semana, los dos',
+        description: 'Solo vale si los dos cumplen',
+      },
+    },
   },
   fr: {
     title: 'Missions',
@@ -101,5 +147,20 @@ export const missions = {
     progressAlmost: 'plus qu’une, presque',
     progressStart: 'c’est parti',
     progressGoing: 'tu avances',
+    mission: {
+      FLASH_WATER: { title: 'Bois 2L d’eau aujourd’hui', description: 'S’hydrater rapporte aussi' },
+      FLASH_THREE_MEALS: {
+        title: 'Enregistre 3 repas aujourd’hui',
+        description: 'On ne saute pas de repas',
+      },
+      FLASH_WORKOUT: { title: 'Fais une séance aujourd’hui', description: 'N’importe laquelle' },
+      FLASH_STEPS: { title: 'Atteins 8 000 pas aujourd’hui', description: 'En route' },
+      MEAL_DAYS_5: { title: 'Enregistre tes repas 5 jours', description: 'Sans en sauter un' },
+      WORKOUTS_3: { title: 'Entraîne-toi 3x cette semaine', description: 'Il va falloir suer' },
+      PAIR_WORKOUTS_3: {
+        title: 'Entraînez-vous 3x cette semaine, tous les deux',
+        description: 'Ça ne compte que si vous jouez le jeu tous les deux',
+      },
+    },
   },
 } as const

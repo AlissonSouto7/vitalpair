@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { http } from 'msw'
 import { describe, expect, it } from 'vitest'
 
@@ -213,5 +213,64 @@ describe('DashboardPage', () => {
     renderWithProviders(<DashboardPage />)
 
     expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
+  })
+  it('shows the mission card in the interface language, not the database one', async () => {
+    // O card da home lê o mesmo catálogo em pt-BR da tela de Missões, então numa interface
+    // em inglês ele mostrava "Registre 3 refeições hoje" logo abaixo do título traduzido.
+    useAuthStore.setState({ userId: ME })
+    theServerAnswers()
+    server.use(
+      http.get(path('/missions/flash'), () =>
+        ok({
+          id: 'm1',
+          code: 'FLASH_THREE_MEALS',
+          title: 'Registre 3 refeições hoje',
+          description: 'Não pula refeição',
+          reward: 30,
+          accepted: false,
+          expiresAt: '2099-01-01T00:00:00Z',
+        }),
+      ),
+    )
+
+    renderWithProviders(<DashboardPage />)
+    expect(await screen.findByText('Registre 3 refeições hoje')).toBeInTheDocument()
+
+    await act(async () => {
+      await i18n.changeLanguage('en')
+    })
+
+    expect(await screen.findByText('Log 3 meals today')).toBeInTheDocument()
+    // A linha de apoio vive dentro da frase da recompensa, então é ali que ela aparece.
+    expect(screen.getByText(/No skipping meals/)).toBeInTheDocument()
+    expect(screen.queryByText('Registre 3 refeições hoje')).not.toBeInTheDocument()
+
+    await i18n.changeLanguage('pt')
+  })
+
+  it('leaves out the reward detail when the mission has no support line', async () => {
+    // Sem a descrição o card usa a frase curta: interpolar um texto vazio deixaria o
+    // separador "·" solto no fim da linha.
+    useAuthStore.setState({ userId: ME })
+    theServerAnswers()
+    server.use(
+      http.get(path('/missions/flash'), () =>
+        ok({
+          id: 'm1',
+          code: 'FLASH_THREE_MEALS',
+          title: 'Registre 3 refeições hoje',
+          description: null,
+          reward: 30,
+          accepted: false,
+          expiresAt: '2099-01-01T00:00:00Z',
+        }),
+      ),
+    )
+
+    renderWithProviders(<DashboardPage />)
+
+    expect(
+      await screen.findByText(i18n.t('dashboard.missionReward', { reward: 30 })),
+    ).toBeInTheDocument()
   })
 })

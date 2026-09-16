@@ -8,9 +8,16 @@ export const season = {
     you: 'Você',
     defaultPartner: 'seu par',
     soloTitle: 'Temporada solo',
-    soloText:
-      'Já são <0>{{points}} pts</0> seus nesses {{days}} dias. Chama seu par e o placar vira um VS.',
+    /* Duas variantes porque o primeiro dia de toda temporada caía no plural: a tela dizia
+       "nesses 1 dias" justamente para quem acabou de começar e é quem mais vê esta tela. */
+    soloText_one:
+      'Já são <0>{{points}} pts</0> seus nesse {{count}} dia. Chama seu par e o placar vira um VS.',
+    soloText_other:
+      'Já são <0>{{points}} pts</0> seus nesses {{count}} dias. Chama seu par e o placar vira um VS.',
     statStakeTitle: 'A aposta',
+    /* O valor que o servidor grava quando ninguém escolheu a aposta. Só ele é traduzido:
+       aposta escrita pela pessoa aparece como ela escreveu. Ver features/season/stake.ts. */
+    stakeDefault: 'Quem perder paga o jantar',
     statDaysLeftTitle: 'Dias restantes',
     daysOne: '{{n}} dia',
     daysOther: '{{n}} dias',
@@ -59,9 +66,12 @@ export const season = {
     you: 'You',
     defaultPartner: 'your partner',
     soloTitle: 'Solo season',
-    soloText:
-      'That’s already <0>{{points}} pts</0> of yours in these {{days}} days. Invite your partner and the board turns into a showdown.',
+    soloText_one:
+      'That’s already <0>{{points}} pts</0> of yours in this {{count}} day. Invite your partner and the board turns into a showdown.',
+    soloText_other:
+      'That’s already <0>{{points}} pts</0> of yours in these {{count}} days. Invite your partner and the board turns into a showdown.',
     statStakeTitle: 'The stake',
+    stakeDefault: 'Loser buys dinner',
     statDaysLeftTitle: 'Days left',
     daysOne: '{{n}} day',
     daysOther: '{{n}} days',
@@ -107,9 +117,12 @@ export const season = {
     you: 'Tú',
     defaultPartner: 'tu pareja',
     soloTitle: 'Temporada en solitario',
-    soloText:
-      'Ya son <0>{{points}} pts</0> tuyos en estos {{days}} días. Llama a tu pareja y el marcador se vuelve un duelo.',
+    soloText_one:
+      'Ya son <0>{{points}} pts</0> tuyos en este {{count}} día. Llama a tu pareja y el marcador se vuelve un duelo.',
+    soloText_other:
+      'Ya son <0>{{points}} pts</0> tuyos en estos {{count}} días. Llama a tu pareja y el marcador se vuelve un duelo.',
     statStakeTitle: 'La apuesta',
+    stakeDefault: 'El que pierde paga la cena',
     statDaysLeftTitle: 'Días restantes',
     daysOne: '{{n}} día',
     daysOther: '{{n}} días',
@@ -156,9 +169,12 @@ export const season = {
     you: 'Toi',
     defaultPartner: 'ton binôme',
     soloTitle: 'Saison solo',
-    soloText:
-      'Ça fait déjà <0>{{points}} pts</0> à toi sur ces {{days}} jours. Invite ton binôme et le tableau devient un duel.',
+    soloText_one:
+      'Ça fait déjà <0>{{points}} pts</0> à toi sur ce {{count}} jour. Invite ton binôme et le tableau devient un duel.',
+    soloText_other:
+      'Ça fait déjà <0>{{points}} pts</0> à toi sur ces {{count}} jours. Invite ton binôme et le tableau devient un duel.',
     statStakeTitle: 'L’enjeu',
+    stakeDefault: 'Le perdant paie le dîner',
     statDaysLeftTitle: 'Jours restants',
     daysOne: '{{n}} jour',
     daysOther: '{{n}} jours',

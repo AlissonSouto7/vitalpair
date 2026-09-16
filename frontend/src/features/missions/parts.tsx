@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BoltIcon, CheckIcon, UsersIcon } from './icons'
+import { flashCopy, weeklyCopy } from './missionCopy'
 import { firstName, formatRemaining, progressLabelKey, WEEKLY_ICON } from './missionText'
 
 import { acceptFlashMission } from '@/api/missions'
@@ -23,6 +24,7 @@ export function FlashMission({
   onAccept: (m: FlashMissionT) => void
 }) {
   const { t } = useTranslation()
+  const { title, description } = flashCopy(mission, t)
   // Lazy initialiser: Date.now() runs once on mount instead of on every render.
   const [now, setNow] = useState(() => Date.now())
   const [accepting, setAccepting] = useState(false)
@@ -60,10 +62,8 @@ export function FlashMission({
             ? t('missions.flashLabelOver')
             : t('missions.flashLabelLeft', { time: formatRemaining(secondsLeft) })}
         </p>
-        <p className="font-display text-lg font-semibold text-ink">{mission.title}</p>
-        {mission.description && (
-          <p className="text-xs font-semibold text-muted">{mission.description}</p>
-        )}
+        <p className="font-display text-lg font-semibold text-ink">{title}</p>
+        {description && <p className="text-xs font-semibold text-muted">{description}</p>}
       </div>
 
       <div className="shrink-0 text-right">
@@ -95,6 +95,7 @@ export function FlashMission({
 
 export function MissionCard({ mission }: { mission: WeeklyMission }) {
   const { t } = useTranslation()
+  const { title, description } = weeklyCopy(mission, t)
   const pct = Math.min(100, Math.round((mission.current / mission.target) * 100))
   const done = mission.current >= mission.target
   const Icon = WEEKLY_ICON[mission.icon]
@@ -110,10 +111,8 @@ export function MissionCard({ mission }: { mission: WeeklyMission }) {
           <Icon className={`h-[21px] w-[21px] ${done ? 'fill-white' : 'fill-success'}`} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14.5px] font-extrabold text-ink">{mission.title}</p>
-          {mission.subtitle && (
-            <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>
-          )}
+          <p className="text-[14.5px] font-extrabold text-ink">{title}</p>
+          {description && <p className="text-xs font-semibold text-muted">{description}</p>}
         </div>
         <Points value={mission.reward} />
       </div>
@@ -141,6 +140,7 @@ export function MissionCard({ mission }: { mission: WeeklyMission }) {
 
 export function PairMissionCard({ mission }: { mission: WeeklyMission }) {
   const { t } = useTranslation()
+  const { title, description } = weeklyCopy(mission, t)
   return (
     <div className="rounded-2xl border border-hair bg-surface p-[18px]">
       <div className="mb-[14px] flex items-center gap-[13px]">
@@ -148,10 +148,8 @@ export function PairMissionCard({ mission }: { mission: WeeklyMission }) {
           <UsersIcon className="h-[21px] w-[21px] fill-rival" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14.5px] font-extrabold text-ink">{mission.title}</p>
-          {mission.subtitle && (
-            <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>
-          )}
+          <p className="text-[14.5px] font-extrabold text-ink">{title}</p>
+          {description && <p className="text-xs font-semibold text-muted">{description}</p>}
         </div>
         <Points value={mission.reward} />
       </div>
@@ -212,12 +210,13 @@ export function SideProgress({
 
 export function DoneRow({ mission }: { mission: WeeklyMission }) {
   const { t } = useTranslation()
+  const { title } = weeklyCopy(mission, t)
   return (
     <div className="flex items-center gap-[13px] rounded-[14px] border border-hair bg-surface px-4 py-[13px] opacity-[0.72]">
       <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] bg-success-soft">
         <CheckIcon className="h-[17px] w-[17px] fill-success" />
       </span>
-      <p className="min-w-0 flex-1 text-[13.5px] font-extrabold text-ink">{mission.title}</p>
+      <p className="min-w-0 flex-1 text-[13.5px] font-extrabold text-ink">{title}</p>
       <span className="shrink-0 text-xs font-extrabold text-success-ink">
         {t('missions.rewardPts', { reward: mission.reward })}
       </span>

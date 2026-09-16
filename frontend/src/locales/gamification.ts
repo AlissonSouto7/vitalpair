@@ -25,6 +25,27 @@ export const gamification = {
       SOCIAL: 'Dupla',
       WEIGHT: 'Peso',
     },
+    /* Nome e descrição de cada medalha, pela chave estável que o servidor manda no `code`.
+       O catálogo do backend vem com o texto fixo em pt-BR gravado no banco, então uma tela
+       em inglês exibia "Primeira refeição" no meio dela. Traduzir pelo código resolve no
+       cliente, sem migração e sem quebrar quem já tem a medalha. Medalha nova que o servidor
+       criar e que ainda não estiver aqui cai no texto que ele mandou. */
+    badge: {
+      FIRST_MEAL: { name: 'Primeira refeição', description: 'Registrou a primeira refeição' },
+      FIRST_ACTIVITY: {
+        name: 'Primeira atividade',
+        description: 'Registrou a primeira atividade física',
+      },
+      STREAK_7_NUTRITION: {
+        name: '7 dias nutrindo',
+        description: '7 dias seguidos registrando refeições',
+      },
+      STREAK_7_ACTIVITY: {
+        name: '7 dias ativo',
+        description: '7 dias seguidos de atividade física',
+      },
+      PAIR_FORMED: { name: 'Dupla formada', description: 'Formou um par no VitalPair' },
+    },
   },
   en: {
     title: 'Achievements',
@@ -46,6 +67,19 @@ export const gamification = {
       CONSISTENCY: 'Consistency',
       SOCIAL: 'Pair',
       WEIGHT: 'Weight',
+    },
+    badge: {
+      FIRST_MEAL: { name: 'First meal', description: 'Logged your first meal' },
+      FIRST_ACTIVITY: { name: 'First workout', description: 'Logged your first workout' },
+      STREAK_7_NUTRITION: {
+        name: '7 days fed',
+        description: '7 days in a row logging meals',
+      },
+      STREAK_7_ACTIVITY: {
+        name: '7 days active',
+        description: '7 days in a row of exercise',
+      },
+      PAIR_FORMED: { name: 'Pair formed', description: 'Teamed up with someone on VitalPair' },
     },
   },
   es: {
@@ -69,6 +103,19 @@ export const gamification = {
       SOCIAL: 'Pareja',
       WEIGHT: 'Peso',
     },
+    badge: {
+      FIRST_MEAL: { name: 'Primera comida', description: 'Registró su primera comida' },
+      FIRST_ACTIVITY: { name: 'Primera actividad', description: 'Registró su primera actividad' },
+      STREAK_7_NUTRITION: {
+        name: '7 días comiendo bien',
+        description: '7 días seguidos registrando comidas',
+      },
+      STREAK_7_ACTIVITY: {
+        name: '7 días activo',
+        description: '7 días seguidos de actividad física',
+      },
+      PAIR_FORMED: { name: 'Pareja formada', description: 'Formó una pareja en VitalPair' },
+    },
   },
   fr: {
     title: 'Succès',
@@ -90,6 +137,22 @@ export const gamification = {
       CONSISTENCY: 'Régularité',
       SOCIAL: 'Duo',
       WEIGHT: 'Poids',
+    },
+    badge: {
+      FIRST_MEAL: { name: 'Premier repas', description: 'A enregistré son premier repas' },
+      FIRST_ACTIVITY: {
+        name: 'Première activité',
+        description: 'A enregistré sa première activité',
+      },
+      STREAK_7_NUTRITION: {
+        name: '7 jours de repas',
+        description: '7 jours d’affilée à enregistrer ses repas',
+      },
+      STREAK_7_ACTIVITY: {
+        name: '7 jours actif',
+        description: '7 jours d’affilée d’activité physique',
+      },
+      PAIR_FORMED: { name: 'Duo formé', description: 'A formé un duo sur VitalPair' },
     },
   },
 } as const

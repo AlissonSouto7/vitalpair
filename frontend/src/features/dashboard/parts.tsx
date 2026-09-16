@@ -5,6 +5,7 @@ import { initial, timeAgo, type TFn } from './text'
 
 import { Avatar } from '@/components/ui/Avatar'
 import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
+import { flashCopy } from '@/features/missions/missionCopy'
 import type { FeedItem } from '@/types/feed'
 import type { FlashMission } from '@/types/missions'
 
@@ -60,18 +61,19 @@ export function MissionCard({
       </section>
     )
   }
+  const { title, description } = flashCopy(mission, t)
   return (
     <section className="rounded-xl border-[1.5px] border-act-soft bg-act-soft p-5">
       <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-act-ink">
         <BoltIcon className="h-4 w-4 fill-act" />
         {t('dashboard.flashMission')}
       </div>
-      <p className="font-display text-lg font-semibold leading-tight text-ink">{mission.title}</p>
+      <p className="font-display text-lg font-semibold leading-tight text-ink">{title}</p>
       <p className="mt-1 text-xs font-semibold text-muted">
-        {mission.description
+        {description
           ? t('dashboard.missionRewardWithDesc', {
               reward: mission.reward,
-              desc: mission.description,
+              desc: description,
             })
           : t('dashboard.missionReward', { reward: mission.reward })}
       </p>
