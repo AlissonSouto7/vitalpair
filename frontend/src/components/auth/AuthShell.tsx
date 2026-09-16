@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 
 import { useTheme } from '../../hooks/useTheme'
 import { BrandLockup } from '../brand/BrandMark'
@@ -15,6 +16,23 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative flex min-h-screen bg-canvas">
+      {/*
+        A saída. Quem abre /login direto, ou desiste de criar conta, não tinha para onde ir:
+        a marca vive na coluna da esquerda, que some abaixo de lg, então no telefone não
+        havia nada clicável na tela inteira. Fica à esquerda em cima, onde o olho procura
+        voltar, e em qualquer largura.
+      */}
+      <Link
+        to="/"
+        aria-label={t('auth.backHome')}
+        className="absolute left-5 top-5 z-20 flex h-9 items-center gap-1.5 rounded-xl border border-edge bg-surface px-3 text-[13px] font-bold text-ink transition hover:bg-track"
+      >
+        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+          <path d="M15.4 5.4 13.98 4 6 12l7.98 8 1.42-1.4L8.83 12z" />
+        </svg>
+        {t('auth.backHome')}
+      </Link>
+
       <button
         onClick={toggle}
         aria-label={theme === 'dark' ? t('header.light') : t('header.dark')}
@@ -25,9 +43,10 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
       {/* Esquerda: arena */}
       <aside className="arena-panel relative hidden w-[34%] max-w-[480px] flex-col justify-between overflow-hidden px-10 py-12 lg:flex">
-        <div className="[&_*]:!text-white">
+        {/* A marca também leva para casa, que é o que se espera ao clicar num logo. */}
+        <Link to="/" className="[&_*]:!text-white">
           <BrandLockup size={56} />
-        </div>
+        </Link>
 
         <div>
           <h2 className="mb-7 max-w-[380px] font-display text-[32px] font-semibold leading-[1.15] tracking-tight text-arena-text">

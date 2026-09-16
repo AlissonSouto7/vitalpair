@@ -8,7 +8,7 @@ import { DoneRow, FlashMission, MissionCard, PairMissionCard } from './parts'
 import { missionQueries } from './queries'
 
 /**
- * Tela de Missões — dados reais.
+ * Tela de Missões, dados reais.
  *   relâmpago (laranja) = backend de missão relâmpago
  *   semanais (verde)    = progresso calculado dos logs
  *   do par (roxo)       = você + o par
@@ -105,5 +105,5 @@ export function MissionsPage() {
 }
 
 /* ============================================================
-   Missão relâmpago — laranja, countdown real
+   Missão relâmpago, laranja, countdown real
    ============================================================ */

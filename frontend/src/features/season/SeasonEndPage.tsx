@@ -9,7 +9,7 @@ import { BowlIcon, Confetti, ScopedStyles, ScoreSide, StarIcon, TrophyIcon } fro
 import { initial, lowerFirst } from './endText'
 
 /**
- * Fim de temporada — a ÚNICA tela de celebração do app (dados reais).
+ * Fim de temporada, a ÚNICA tela de celebração do app (dados reais).
  * Mostra a última temporada FECHADA (do histórico). Confete nas 3 cores da marca.
  */
 export function SeasonEndPage() {

@@ -72,15 +72,23 @@ describe('the landing scoreboard', () => {
   })
 
   it('names nobody real, and says so in every language', async () => {
-    // O par não tem nome próprio de propósito: um nome inventado sugeriria uma pessoa real
-    // para quem chega na página.
+    /*
+      Nenhum dos dois lados tem nome próprio.
+
+      O par já era genérico; o lado azul dizia "Alisson", copiado do protótipo. Quem abre a
+      landing é um estranho, e um nome próprio ali é o nome de outra pessoa: ele precisa se
+      ver no lado que vai ser dele.
+    */
     const { container } = renderWithProviders(<Hero />)
     expect(screen.getAllByText('Seu par').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Você').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Alisson')).not.toBeInTheDocument()
 
     await act(async () => {
       await i18n.changeLanguage('en')
     })
     expect(screen.getAllByText('Your partner').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('You').length).toBeGreaterThan(0)
     expect(screen.getByText('Your partner logged a run')).toBeInTheDocument()
     // A troca de idioma recria o roteiro; o placar tem de continuar coerente e não misturar
     // números de um roteiro com o texto de outro.

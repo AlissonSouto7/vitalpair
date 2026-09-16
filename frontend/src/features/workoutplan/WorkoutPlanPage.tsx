@@ -14,7 +14,7 @@ import { goalLabel } from './text'
 import { getApiErrorMessage } from '@/shared/api/errors'
 
 /**
- * Plano de treino — gerado pela IA no objetivo do usuário (dados reais).
+ * Plano de treino, gerado pela IA no objetivo do usuário (dados reais).
  * Mostra o treino de HOJE; marcar como feito registra a atividade (e os pontos vêm por lá).
  */
 export function WorkoutPlanPage() {

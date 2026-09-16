@@ -35,6 +35,10 @@ describe('Preço', () => {
 
     expect(screen.getByText('R$ 14')).toBeInTheDocument()
     expect(screen.getByText('cobre vocês dois')).toBeInTheDocument()
+    // "Premium" é o nome do plano no produto inteiro; "Plano da dupla" era um segundo nome
+    // para a mesma coisa, e dois nomes é o que faz alguém achar que são dois planos.
+    expect(screen.getByText('Premium')).toBeInTheDocument()
+    expect(screen.queryByText(/Plano da dupla/)).not.toBeInTheDocument()
     expect(screen.getByText('Seu par usa junto, sem pagar nada')).toBeInTheDocument()
   })
 

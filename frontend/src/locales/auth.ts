@@ -16,6 +16,9 @@ export const auth = {
     password: 'Senha',
     forgotShort: 'Esqueci',
     signIn: 'Entrar',
+    /* A saída das telas de entrada: quem abre /login direto não tinha para onde
+       voltar, e no telefone a marca nem aparece. */
+    backHome: 'Início',
     signingIn: 'Entrando...',
     noAccount: 'Ainda não tem conta?',
     createOne: 'Cria uma aí',
@@ -82,6 +85,7 @@ export const auth = {
     password: 'Password',
     forgotShort: 'Forgot',
     signIn: 'Sign in',
+    backHome: 'Home',
     signingIn: 'Signing in...',
     noAccount: 'Don’t have an account yet?',
     createOne: 'Make one',
@@ -144,6 +148,7 @@ export const auth = {
     password: 'Contraseña',
     forgotShort: 'Olvidé',
     signIn: 'Entrar',
+    backHome: 'Inicio',
     signingIn: 'Entrando...',
     noAccount: '¿Aún no tienes cuenta?',
     createOne: 'Crea una',
@@ -206,6 +211,7 @@ export const auth = {
     password: 'Mot de passe',
     forgotShort: 'Oublié',
     signIn: 'Se connecter',
+    backHome: 'Accueil',
     signingIn: 'Connexion...',
     noAccount: 'Pas encore de compte ?',
     createOne: 'Crées-en un',

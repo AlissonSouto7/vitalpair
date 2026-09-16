@@ -14,7 +14,7 @@ import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
 import { getApiErrorMessage } from '@/shared/api/errors'
 
 /**
- * Plano alimentar semanal — gerado pela IA na meta do usuário (dados reais).
+ * Plano alimentar semanal, gerado pela IA na meta do usuário (dados reais).
  * Sem plano ainda: estado vazio com CTA de gerar. "Trocar" pede outra opção à IA.
  */
 
