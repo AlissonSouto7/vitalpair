@@ -1,5 +1,6 @@
-import { Nav } from './chrome'
-import { CtaFinal, ComoFunciona, Hero, Temporada } from './sections'
+import { Nav, Rodape } from './chrome'
+import { Duvidas, Preco } from './commerce'
+import { ComoFunciona, CtaFinal, Hero, Temporada } from './sections'
 
 /**
  * Landing pública (logado-out) do VitalPair.
@@ -13,7 +14,10 @@ export function LandingPage() {
       <Hero />
       <ComoFunciona />
       <Temporada />
+      <Preco />
+      <Duvidas />
       <CtaFinal />
+      <Rodape />
     </div>
   )
 }

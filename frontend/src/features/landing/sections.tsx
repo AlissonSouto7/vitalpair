@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
-import { PersonGlyph } from './chrome'
-
-import { BrandMark } from '@/components/brand/BrandMark'
+import { Avatar } from '@/components/ui/Avatar'
 
 /**
  * The sections the landing page stacks, in the order a visitor scrolls through them.
@@ -13,51 +11,213 @@ import { BrandMark } from '@/components/brand/BrandMark'
  * and nothing here holds state or fetches.
  */
 
+/**
+ * O cartão do placar, ao lado da promessa.
+ *
+ * A landing dizia que o produto é uma disputa de 30 dias e mostrava três círculos genéricos,
+ * então quem chegava tinha de acreditar na descrição. Aqui o placar aparece funcionando: os
+ * dois nomes, os dois números, a barra dividida na proporção real e a última coisa que
+ * aconteceu. É a mesma lei de cor do app, e é de propósito: quem entra depois reconhece a
+ * tela que já viu aqui.
+ *
+ * Números fixos, e ninguém finge que são de alguém: "BIA" é uma demonstração, como o prato
+ * de plástico na vitrine. Não há dado real a buscar, porque não há sessão nesta página.
+ */
+/**
+ * O placar da vitrine, se movendo.
+ *
+ * A landing dizia que o produto é uma disputa de 30 dias e mostrava três círculos genéricos,
+ * então quem chegava tinha de acreditar na descrição. Aqui o placar joga: cada evento soma
+ * pontos ao lado de quem registrou, os números sobem e a barra se reacomoda. É a diferença
+ * entre mostrar um número e mostrar o que o produto faz.
+ *
+ * Começa empatado em 25 e não termina: o roteiro dá a volta, porque a promessa é a disputa
+ * continuar, não alguém ganhar. Ninguém finge que os dados são de alguém, e o par não tem
+ * nome próprio, porque um nome inventado sugeriria uma pessoa real.
+ *
+ * Respeita `prefers-reduced-motion`: quem pediu menos movimento vê o primeiro lance e o
+ * placar parado ali.
+ */
+function ArenaCard() {
+  const { t } = useTranslation()
+  /*
+    `returnObjects` devolve o array do bundle, que é `readonly` e tipado como a tupla
+    literal exata do pt; o cast duplo é o que o i18next exige para lê-lo como lista. Fica
+    `readonly` de propósito: a lista é o bundle de traduções, e escrever nela seria alterar
+    o locale em tempo de execução.
+  */
+  const script = t('landing.arenaFeed', {
+    returnObjects: true,
+  }) as unknown as readonly { who: 'you' | 'pair'; pts: number; text: string }[]
+
+  const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    const quiet = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (quiet || script.length < 2) return
+    const id = setInterval(() => setStep((n) => n + 1), 2800)
+    return () => clearInterval(id)
+  }, [script.length])
+
+  /*
+    O placar é derivado do passo, e não guardado em estado próprio: assim trocar de idioma
+    (o que recria o roteiro) não deixa números de um roteiro sobre o texto de outro. Cada
+    volta completa soma o mesmo total aos dois lados, então a disputa segue equilibrada por
+    quantas voltas a pessoa ficar na página.
+  */
+  const played = script.slice(0, (step % script.length) + 1)
+  const laps = Math.floor(step / script.length)
+  const lapTotal = (who: 'you' | 'pair') =>
+    script.filter((e) => e.who === who).reduce((sum, e) => sum + e.pts, 0)
+  const scored = (who: 'you' | 'pair') =>
+    25 + laps * lapTotal(who) + played.filter((e) => e.who === who).reduce((a, e) => a + e.pts, 0)
+
+  const you = scored('you')
+  const pair = scored('pair')
+  const youPct = Math.round((you / (you + pair)) * 100)
+  const last = played[played.length - 1]
+  const mine = last.who === 'you'
+
+  return (
+    <div className="rounded-2xl border border-hair bg-surface p-5 shadow-[0_18px_44px_var(--arena-shadow)]">
+      <div className="mb-[18px] flex items-center justify-between gap-2.5">
+        <span className="text-[10.5px] font-bold uppercase tracking-[0.11em] tabular-nums text-faint">
+          {t('landing.arenaSeason')}
+        </span>
+        <span className="shrink-0 rounded-md bg-track px-2.5 py-1 text-[11.5px] font-bold text-muted">
+          {t('landing.arenaStake')}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex flex-col gap-[7px]">
+          <div className="flex items-center gap-2.5">
+            <Avatar initial={t('landing.arenaYouAvatar')} tone="you" size={38} />
+            <span className="text-[11.5px] font-bold text-muted">{t('landing.arenaYou')}</span>
+          </div>
+          <span className="font-display text-[40px] font-semibold leading-[.95] tracking-[-0.04em] tabular-nums text-you">
+            {you}
+          </span>
+        </div>
+
+        <span className="text-[11px] font-bold tracking-[0.1em] text-faint">VS</span>
+
+        <div className="flex flex-col items-end gap-[7px] text-right">
+          <div className="flex flex-row-reverse items-center gap-2.5">
+            <Avatar initial={t('landing.arenaRivalAvatar')} tone="rival" size={38} />
+            <span className="text-[11.5px] font-bold text-muted">{t('landing.arenaRival')}</span>
+          </div>
+          <span className="font-display text-[40px] font-semibold leading-[.95] tracking-[-0.04em] tabular-nums text-pair">
+            {pair}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-[18px]">
+        <div
+          className="relative flex h-3.5 overflow-hidden rounded-full bg-track"
+          role="img"
+          aria-label={t('dashboard.barSplit', { you: youPct, pair: 100 - youPct })}
+        >
+          <div
+            className="vp-live bg-you transition-[width] duration-500 ease-out"
+            style={{ width: `${youPct}%` }}
+          />
+          <div className="vp-live vp-delay flex-1 bg-pair" />
+          {/*
+            A juntura: onde os dois se encontram. Sem ela, duas cores coladas leem como uma
+            barra de progresso com duas fases; com ela, leem como dois lados se empurrando,
+            que é o que o placar realmente é.
+          */}
+          {/*
+            Dentro da trilha, e não transbordando: a trilha corta o que passa da borda
+            (`overflow-hidden`, que é o que arredonda as pontas da barra), então uma juntura
+            que se estendesse para fora simplesmente sumiria.
+          */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-0 w-[3px] -translate-x-[1.5px] bg-surface transition-[left] duration-500 ease-out"
+            style={{ left: `${youPct}%` }}
+          />
+        </div>
+        <div className="mt-2 flex justify-between text-[11.5px] font-bold">
+          <span className="text-you">{`${t('landing.arenaYou')} ${youPct}%`}</span>
+          <span className="text-pair">{`${t('landing.arenaRival')} ${100 - youPct}%`}</span>
+        </div>
+      </div>
+
+      {/*
+        aria-live: quem usa leitor de tela ouve cada lance conforme ele entra, que é a
+        informação que o movimento carrega para quem enxerga.
+      */}
+      <div
+        aria-live="polite"
+        className="mt-4 flex min-h-[44px] items-center gap-2.5 border-t border-hair pt-3.5"
+      >
+        <Avatar
+          initial={mine ? t('landing.arenaYouAvatar') : t('landing.arenaRivalAvatar')}
+          tone={mine ? 'you' : 'rival'}
+          size={26}
+        />
+        <span
+          key={step}
+          className="min-w-0 flex-1 animate-[vp-fade-up_450ms_ease-out] text-[13px] font-semibold text-ink"
+        >
+          {last.text}
+        </span>
+        <span
+          className={`shrink-0 rounded-md px-2.5 py-[3px] text-[11.5px] font-bold tabular-nums ${
+            mine ? 'bg-you-soft text-you' : 'bg-pair-soft text-pair'
+          }`}
+        >
+          {t('landing.arenaPts', { n: last.pts })}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export function Hero() {
   const { t } = useTranslation()
   return (
-    <header className="mx-auto max-w-[720px] px-5 pb-10 pt-10 text-center sm:px-8 lg:pt-16">
-      <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-rival-soft px-3.5 py-1.5 text-xs font-extrabold text-rival-ink">
-        {t('landing.heroBadge')}
-      </span>
-      <h1 className="mb-5 font-display text-[32px] font-semibold leading-[1.06] tracking-[-0.03em] text-ink sm:text-[44px] lg:text-[52px]">
-        {t('landing.heroTitlePre')}
-        <span className="text-brand">{t('landing.heroTitleHi')}</span>
-        {t('landing.heroTitlePost')}
-      </h1>
-      <p className="mx-auto mb-8 max-w-[520px] text-base font-semibold leading-relaxed text-muted sm:text-[17px]">
-        {t('landing.heroSubtitle')}
-      </p>
+    /*
+      Duas colunas a partir de lg, empilhadas antes disso: no telefone o cartão vem depois
+      da promessa e dos botões, porque ali a decisão é rolar ou sair, e a chamada tem de
+      caber na primeira tela.
+    */
+    <header className="mx-auto grid max-w-[1100px] items-center gap-10 px-5 pb-12 pt-10 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:pt-16">
+      <div>
+        <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-pair-soft px-3.5 py-1.5 text-xs font-extrabold text-pair-ink">
+          {t('landing.heroBadge')}
+        </span>
+        <h1 className="mb-5 font-display text-[34px] font-semibold leading-[1.04] tracking-[-0.03em] text-ink sm:text-[46px] lg:text-[54px]">
+          {t('landing.heroTitlePre')}
+          <span className="text-act">{t('landing.heroTitleHi')}</span>
+          {t('landing.heroTitlePost')}
+        </h1>
+        <p className="mb-8 max-w-[520px] text-base font-semibold leading-relaxed text-muted sm:text-[17px]">
+          {t('landing.heroSubtitle')}
+        </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Link
-          to="/register"
-          className="rounded-2xl bg-brand px-7 py-3.5 text-[15px] font-extrabold text-on-fill transition hover:brightness-105"
-        >
-          {t('landing.start')}
-        </Link>
-        <a
-          href="#como-funciona"
-          className="rounded-2xl border border-hair bg-surface px-6 py-3.5 text-[15px] font-extrabold text-ink transition hover:border-brand"
-        >
-          {t('landing.heroSee')}
-        </a>
-      </div>
-
-      <div className="mt-7 flex items-center justify-center gap-2.5">
-        <div className="flex">
-          <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-canvas bg-brand">
-            <PersonGlyph className="h-[17px] w-[17px] text-white" />
-          </span>
-          <span className="-ml-2.5 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-canvas bg-rival">
-            <PersonGlyph className="h-[17px] w-[17px] text-white" />
-          </span>
-          <span className="-ml-2.5 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-canvas bg-success">
-            <PersonGlyph className="h-[17px] w-[17px] text-white" />
-          </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/register"
+            className="rounded-2xl bg-act px-7 py-3.5 text-[15px] font-extrabold text-on-fill transition hover:brightness-110"
+          >
+            {t('landing.start')}
+          </Link>
+          <a
+            href="#como-funciona"
+            className="rounded-2xl border border-edge bg-surface px-6 py-3.5 text-[15px] font-extrabold text-ink transition hover:border-act"
+          >
+            {t('landing.heroSee')}
+          </a>
         </div>
-        <span className="text-[12.5px] font-bold text-muted">{t('landing.heroAvatars')}</span>
+
+        <p className="mt-6 text-[12.5px] font-bold text-muted">{t('landing.heroAvatars')}</p>
       </div>
+
+      <ArenaCard />
     </header>
   )
 }
@@ -218,37 +378,34 @@ export function Stat({ value, label }: { value: string; label: string }) {
 
 /* ===================== CTA FINAL ===================== */
 
+/**
+ * O fechamento, como cartão.
+ *
+ * Era texto solto no fim da página, com a divisória do rodapé presa dentro dele: a linha
+ * saía curta, do tamanho da coluna de texto, e o fim da página parecia ter sido cortado.
+ * Aqui o convite é um objeto com borda e fundo, que é o que faz uma última chamada parecer
+ * uma decisão a tomar e não um parágrafo que sobrou.
+ */
 export function CtaFinal() {
   const { t } = useTranslation()
   return (
-    <section className="mx-auto max-w-[760px] px-5 pb-16 pt-2 text-center sm:px-8">
-      <div className="mb-5 flex justify-center">
-        <BrandMark size={58} />
-      </div>
-      <h2 className="mb-3 font-display text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[36px]">
-        {t('landing.ctaTitle')}
-      </h2>
-      <p className="mb-7 text-[15px] font-semibold text-muted">{t('landing.ctaText')}</p>
-      <Link
-        to="/register"
-        className="inline-block rounded-2xl bg-brand px-8 py-4 text-base font-extrabold text-on-fill transition hover:brightness-105"
-      >
-        {t('landing.ctaButton')}
-      </Link>
-
-      <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-hair pt-6 sm:flex-row">
-        <span className="text-[12.5px] font-bold text-muted">{t('landing.footerRights')}</span>
-        <div className="flex gap-4 text-[12.5px] font-bold text-muted">
-          <Link to="/privacy" className="transition hover:text-ink">
-            {t('landing.footerPrivacy')}
-          </Link>
-          <Link to="/terms" className="transition hover:text-ink">
-            {t('landing.footerTerms')}
-          </Link>
-          <Link to="/contact" className="transition hover:text-ink">
-            {t('landing.footerContact')}
+    <section className="mx-auto max-w-[1100px] px-5 pb-14 pt-4 sm:px-8">
+      <div className="rounded-[18px] border border-hair bg-surface px-6 py-10 text-center shadow-[0_18px_44px_var(--arena-shadow)] sm:px-12 sm:py-12">
+        <h2 className="mb-3 font-display text-[26px] font-semibold tracking-[-0.035em] text-ink sm:text-[34px]">
+          {t('landing.ctaTitle')}
+        </h2>
+        <p className="mx-auto max-w-[60ch] text-[16px] font-semibold leading-relaxed text-muted sm:text-[17px]">
+          {t('landing.ctaText')}
+        </p>
+        <div className="mt-6">
+          <Link
+            to="/register"
+            className="inline-block rounded-2xl bg-act px-8 py-4 text-base font-extrabold text-on-fill transition hover:brightness-110"
+          >
+            {t('landing.ctaButton')}
           </Link>
         </div>
+        <p className="mt-3 text-[13px] font-semibold text-faint">{t('landing.ctaNote')}</p>
       </div>
     </section>
   )
