@@ -16,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.aps.vitalpair.activity.application.dto.ActivitySummary;
 import com.aps.vitalpair.activity.application.dto.LogActivityCommand;
 import com.aps.vitalpair.activity.domain.model.ActivityLog;
+import com.aps.vitalpair.activity.domain.port.in.DeleteActivityLogUseCase;
 import com.aps.vitalpair.activity.domain.port.in.GetActivitySummaryUseCase;
 import com.aps.vitalpair.activity.domain.port.in.GetDailyActivitiesUseCase;
 import com.aps.vitalpair.activity.domain.port.in.LogActivityUseCase;
 import com.aps.vitalpair.activity.domain.port.out.ActivityLogRepositoryPort;
+import com.aps.vitalpair.shared.event.ActivityDeletedEvent;
 import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.shared.time.DayWindow;
@@ -28,7 +30,8 @@ import com.aps.vitalpair.user.domain.model.UserTimeZones;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 @Service
-public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUseCase, GetActivitySummaryUseCase {
+public class ActivityService
+        implements LogActivityUseCase, GetDailyActivitiesUseCase, GetActivitySummaryUseCase, DeleteActivityLogUseCase {
 
     /** kcal per step for an average person; the product's own estimate, see docs/features/activity.md. */
     private static final BigDecimal KCAL_PER_STEP = new BigDecimal("0.04");
@@ -67,6 +70,7 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
         eventPublisher.publishEvent(new ActivityLoggedEvent(
                 userId,
                 saved.getTenantId(),
+                saved.getId(),
                 // The user's day, not UTC's: this date is what the streak and the weekly
                 // scoreboard are keyed on, so an activity logged at 21:00 in Brazil scored
                 // against tomorrow and could break a streak the person had not broken.
@@ -75,6 +79,31 @@ public class ActivityService implements LogActivityUseCase, GetDailyActivitiesUs
                 saved.getCaloriesBurned() != null ? saved.getCaloriesBurned().intValue() : 0,
                 saved.getDurationMinutes()));
         return saved;
+    }
+
+    /**
+     * Removes one of the caller's own activities.
+     *
+     * <p>Another person's record answers 404 rather than 403, exactly as the meal endpoint does:
+     * a 403 would confirm the id exists, which turns the endpoint into a way to probe for them.
+     *
+     * <p>Points already awarded are not taken back. They were earned on the day the activity was
+     * logged, the ledger is append-only by design, and a scoreboard that moves backwards days
+     * later is worse than one that counted a workout the person later tidied away.
+     */
+    @Override
+    @Transactional
+    public void delete(UUID userId, UUID activityLogId) {
+        ActivityLog log = activityLogRepository
+                .findById(activityLogId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Registro", activityLogId));
+        if (!log.getUserId().equals(userId)) {
+            throw ResourceNotFoundException.of("Registro", activityLogId);
+        }
+        activityLogRepository.deleteById(activityLogId);
+        // The pair's feed keeps its own copy, so removing the record alone would leave the
+        // partner reading a workout that no longer exists.
+        eventPublisher.publishEvent(new ActivityDeletedEvent(userId, log.getTenantId(), activityLogId));
     }
 
     @Override

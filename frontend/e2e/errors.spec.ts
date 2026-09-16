@@ -25,7 +25,7 @@ test('a 500 shows a toast carrying the request id', async ({ page }) => {
     }),
   )
   await page.goto('/login')
-  await page.getByRole('textbox', { name: 'Email', exact: true }).fill('quem@example.com')
+  await page.locator('input[autocomplete="email"]').fill('quem@example.com')
   await page.getByLabel('Senha', { exact: true }).fill('Test@12345')
   await page.getByRole('button', { name: /entrar/i }).click()
 

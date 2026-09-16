@@ -11,16 +11,24 @@ export interface SeasonDay {
   rival: number
 }
 
+/** Points by where they came from. The label is written on screen, from `source`. */
 export interface SeasonBreakdown {
-  source: string
-  label: string
+  source: 'MEAL' | 'ACTIVITY' | 'STREAK' | 'MISSION'
   you: number
   rival: number
 }
 
+/**
+ * A finished season.
+ *
+ * The server used to send a ready-made "30 dias · fechou em 14/08", in Portuguese and with a
+ * Brazilian date, whatever language the reader had chosen. It sends the facts now.
+ */
 export interface SeasonHistoryItem {
   number: number
-  sub: string
+  lengthDays: number
+  /** ISO date, formatted on screen in the reader's locale. */
+  endedOn: string
   you: number
   rival: number
   winner: SeasonWinner

@@ -25,13 +25,16 @@ import org.mockito.quality.Strictness;
 import com.aps.vitalpair.pair.domain.model.Pair;
 import com.aps.vitalpair.pair.domain.model.PairStatus;
 import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
+import com.aps.vitalpair.season.application.dto.SeasonView;
 import com.aps.vitalpair.season.domain.model.PointEvent;
 import com.aps.vitalpair.season.domain.model.PointSource;
 import com.aps.vitalpair.season.domain.model.Season;
 import com.aps.vitalpair.season.domain.model.SeasonStatus;
 import com.aps.vitalpair.season.domain.port.out.PointEventRepositoryPort;
 import com.aps.vitalpair.season.domain.port.out.SeasonRepositoryPort;
+import com.aps.vitalpair.season.domain.port.out.projection.SourceUserPoints;
 import com.aps.vitalpair.season.domain.port.out.projection.UserPoints;
+import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
@@ -208,5 +211,123 @@ class SeasonServiceTest {
                 .stake("Quem perder paga o jantar")
                 .status(SeasonStatus.ACTIVE)
                 .build();
+    }
+
+    /**
+     * The view the season screen reads, and what it deliberately does not contain.
+     *
+     * <p>The service used to write the words: "Refeições" and "Treinos" for the point sources,
+     * and "30 dias · fechou em 14/08" for a finished season. Both were Portuguese, so the block
+     * stayed Portuguese with the interface in English and changing language changed nothing,
+     * because the sentence had already been built on the server.
+     */
+    @Test
+    void thebreakdownNamesTheSourceAndNotAtranslatedLabel() {
+        givenActivePairAndSeason();
+        when(pointEventRepository.sumBySourceAndUser(any(), any(), any()))
+                .thenReturn(List.of(
+                        new SourceUserPoints(PointSource.MEAL, YOU, 40L),
+                        new SourceUserPoints(PointSource.ACTIVITY, YOU, 30L)));
+
+        SeasonView view = serviceOn(LocalDate.of(2026, 6, 10)).getCurrentSeason(YOU);
+
+        assertThat(view.breakdown()).extracting(SeasonView.BreakdownRow::source).containsExactly("MEAL", "ACTIVITY");
+    }
+
+    @Test
+    void thebreakdownKeepsAfixedOrderAndDropsEmptySources() {
+        givenActivePairAndSeason();
+        when(pointEventRepository.sumBySourceAndUser(any(), any(), any()))
+                .thenReturn(List.of(
+                        new SourceUserPoints(PointSource.MISSION, YOU, 15L),
+                        new SourceUserPoints(PointSource.MEAL, YOU, 40L)));
+
+        SeasonView view = serviceOn(LocalDate.of(2026, 6, 10)).getCurrentSeason(YOU);
+
+        // Meals, workouts, streaks, missions, whatever order the rows arrive in; and a source
+        // nobody scored on is left out rather than shown as a zero.
+        assertThat(view.breakdown()).extracting(SeasonView.BreakdownRow::source).containsExactly("MEAL", "MISSION");
+    }
+
+    @Test
+    void ahistoryRowCarriesTheFactsRatherThanAsentence() {
+        givenActivePairAndSeason();
+        when(seasonRepository.findByTenantAndStatusOrderByNumberDesc(TENANT, SeasonStatus.CLOSED))
+                .thenReturn(List.of(Season.builder()
+                        .id(UUID.randomUUID())
+                        .tenantId(TENANT)
+                        .number(1)
+                        .startDate(LocalDate.of(2026, 4, 15))
+                        .endDate(LocalDate.of(2026, 5, 15))
+                        .status(SeasonStatus.CLOSED)
+                        .stake("Massagem")
+                        .build()));
+        when(pointEventRepository.sumByUser(any(), any(), any()))
+                .thenReturn(List.of(new UserPoints(YOU, 120L), new UserPoints(RIVAL, 90L)));
+
+        SeasonView view = serviceOn(LocalDate.of(2026, 6, 10)).getCurrentSeason(YOU);
+
+        assertThat(view.history()).hasSize(1);
+        SeasonView.HistoryRow row = view.history().get(0);
+        // The date and the length, for the client to format and phrase in its own language.
+        assertThat(row.endedOn()).isEqualTo(LocalDate.of(2026, 5, 15));
+        assertThat(row.lengthDays()).isEqualTo(30);
+        assertThat(row.you()).isEqualTo(120);
+        assertThat(row.rival()).isEqualTo(90);
+        assertThat(row.winner()).isEqualTo("YOU");
+    }
+
+    @Test
+    void thewholeViewCarriesNoPortugueseWordsFromTheServer() {
+        givenActivePairAndSeason();
+        when(pointEventRepository.sumBySourceAndUser(any(), any(), any()))
+                .thenReturn(List.of(new SourceUserPoints(PointSource.MEAL, YOU, 40L)));
+        when(seasonRepository.findByTenantAndStatusOrderByNumberDesc(TENANT, SeasonStatus.CLOSED))
+                .thenReturn(List.of(Season.builder()
+                        .id(UUID.randomUUID())
+                        .tenantId(TENANT)
+                        .number(1)
+                        .startDate(LocalDate.of(2026, 4, 15))
+                        .endDate(LocalDate.of(2026, 5, 15))
+                        .status(SeasonStatus.CLOSED)
+                        .build()));
+
+        SeasonView view = serviceOn(LocalDate.of(2026, 6, 10)).getCurrentSeason(YOU);
+
+        // The guard that catches a new label being written on the server later: nothing the
+        // client prints should arrive already worded.
+        assertThat(view.toString())
+                .doesNotContain("Refeições")
+                .doesNotContain("Treinos")
+                .doesNotContain("Sequências")
+                .doesNotContain("Missões")
+                .doesNotContain("dias · fechou");
+    }
+
+    /** An active pair with an open season, which is the state the view is built from. */
+    private void givenActivePairAndSeason() {
+        when(userRepository.findById(YOU))
+                .thenReturn(Optional.of(
+                        User.builder().id(YOU).tenantId(TENANT).name("Alisson").build()));
+        when(userRepository.findById(RIVAL))
+                .thenReturn(Optional.of(
+                        User.builder().id(RIVAL).tenantId(TENANT).name("Bel").build()));
+        when(pairRepository.findById(TENANT))
+                .thenReturn(Optional.of(Pair.builder()
+                        .id(TENANT)
+                        .user1Id(YOU)
+                        .user2Id(RIVAL)
+                        .status(PairStatus.ACTIVE)
+                        .createdAt(java.time.Instant.parse("2026-04-15T00:00:00Z"))
+                        .build()));
+        when(seasonRepository.findActiveByTenant(TENANT))
+                .thenReturn(Optional.of(Season.builder()
+                        .id(UUID.randomUUID())
+                        .tenantId(TENANT)
+                        .number(2)
+                        .startDate(LocalDate.of(2026, 6, 1))
+                        .endDate(LocalDate.of(2026, 7, 1))
+                        .status(SeasonStatus.ACTIVE)
+                        .build()));
     }
 }

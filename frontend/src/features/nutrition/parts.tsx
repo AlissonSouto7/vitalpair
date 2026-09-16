@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
+
 /**
  * The small pieces the nutrition screen is assembled from.
  *
@@ -43,10 +45,10 @@ export function Macro({
   label: string
   value: number
   target: number | null
-  tone: 'brand' | 'carb' | 'success'
+  tone: MacroTone
 }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : 0
-  const bar = tone === 'brand' ? 'bg-brand' : tone === 'carb' ? 'bg-carb' : 'bg-success'
+  const bar = MACRO_TONES[tone].bg
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between text-sm">
@@ -63,7 +65,6 @@ export function Macro({
   )
 }
 
-export function Dot({ tone }: { tone: 'brand' | 'carb' | 'success' }) {
-  const bg = tone === 'brand' ? 'bg-brand' : tone === 'carb' ? 'bg-carb' : 'bg-success'
-  return <span className={`h-2 w-2 rounded-full ${bg}`} aria-hidden="true" />
+export function Dot({ tone }: { tone: MacroTone }) {
+  return <span className={`h-2 w-2 rounded-full ${MACRO_TONES[tone].bg}`} aria-hidden="true" />
 }

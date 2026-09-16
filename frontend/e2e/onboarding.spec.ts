@@ -53,7 +53,7 @@ async function fillAboutYou(page: Page, name: string) {
 
 test.describe('onboarding', () => {
   test('a new account can go through onboarding and reach the dashboard', async ({ page }) => {
-    await registerThroughTheUi(page, 'Novato')
+    await registerThroughTheUi(page, 'Novato', { profile: 'empty' })
     await expect(page).toHaveURL(/\/onboarding/)
 
     await fillAboutYou(page, 'Novato')
@@ -83,7 +83,7 @@ test.describe('onboarding', () => {
   })
 
   test('onboarding refuses to advance with the form empty', async ({ page }) => {
-    await registerThroughTheUi(page, 'Apressado')
+    await registerThroughTheUi(page, 'Apressado', { profile: 'empty' })
     await expect(page).toHaveURL(/\/onboarding/)
 
     await page.getByRole('button', { name: /continuar/i }).click()

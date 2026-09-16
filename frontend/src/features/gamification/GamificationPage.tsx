@@ -10,6 +10,9 @@ import { gamificationQueries } from './queries'
  * Conquistas — medalhas e sequências (streaks), dados reais.
  * O placar/temporada vive em /season; missões em /missions.
  */
+/** A ordem em que as famílias aparecem: do que a pessoa faz todo dia ao que é raro. */
+const CATEGORY_ORDER: BadgeCategory[] = ['NUTRITION', 'WORKOUT', 'CONSISTENCY', 'WEIGHT', 'SOCIAL']
+
 export function GamificationPage() {
   const { t } = useTranslation()
   const streaksQuery = useQuery(gamificationQueries.streaks())
@@ -32,6 +35,18 @@ export function GamificationPage() {
     )
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
+  /*
+    Conquistadas primeiro, depois pela ordem das famílias.
+
+    A tela é sobre o que a pessoa já fez: com as bloqueadas no meio, quem tinha três medalhas
+    precisava caçar quais eram as verdes. O desempate por família mantém juntas as que se
+    parecem.
+  */
+  const ordered = [...catalog].sort((a, b) => {
+    const mine = Number(earnedCodes.has(b.code)) - Number(earnedCodes.has(a.code))
+    if (mine !== 0) return mine
+    return CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category)
+  })
 
   return (
     <div className="space-y-7">
@@ -74,8 +89,20 @@ export function GamificationPage() {
             {t('gamification.badgesEmpty')}
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {catalog.map((badge) => (
+          /*
+            Uma grade só, densa, com a categoria escrita em cada medalha.
+
+            O agrupamento por seção vinha de um catálogo imaginado com vinte medalhas, em que
+            uma malha única viraria uma parede. São cinco, espalhadas em cinco categorias:
+            cada seção abria uma linha de três colunas para pôr uma medalha nela, e dois
+            terços de cada faixa ficavam vazios. A pessoa rolava muito para ver pouco.
+
+            A família continua legível, só que dentro do cartão, onde ela pertence ao objeto
+            em vez de virar um cabeçalho que ocupa uma linha inteira. Em ordem: primeiro as
+            conquistadas, porque a tela é sobre o que a pessoa já fez.
+          */
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {ordered.map((badge) => (
               <BadgeTile key={badge.code} badge={badge} unlocked={earnedCodes.has(badge.code)} />
             ))}
           </div>
@@ -113,7 +140,7 @@ function StreakCard({ streak }: { streak: Streak }) {
           })}
         </p>
         <p className="text-[11px] font-bold text-faint">
-          {t('gamification.record', { days: streak.longestCount })}
+          {t('gamification.record', { count: streak.longestCount })}
         </p>
       </div>
     </div>
@@ -133,27 +160,50 @@ function EmptyStreaks() {
 }
 
 function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
+  const { t } = useTranslation()
   const Icon = CATEGORY_ICON[badge.category] ?? TrophyIcon
+  /*
+    O catálogo chega do servidor com nome e descrição gravados em pt-BR no banco, então numa
+    tela em inglês a medalha aparecia como "Primeira refeição". O `code` é estável, então a
+    tradução acontece aqui pela chave.
+
+    `defaultValue` é o texto do próprio servidor: se ele criar uma medalha que este bundle
+    ainda não conhece, ela aparece em português em vez de mostrar a chave crua na tela.
+  */
+  const name = t(`gamification.badge.${badge.code}.name`, { defaultValue: badge.name })
+  const description = t(`gamification.badge.${badge.code}.description`, {
+    defaultValue: badge.description,
+  })
   return (
     <div
       className={`rounded-2xl border p-4 transition ${
         unlocked ? 'border-success-soft bg-success-soft' : 'border-hair bg-surface'
       }`}
     >
-      <span
-        className={`mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl ${
-          unlocked ? 'bg-success' : 'bg-track'
-        }`}
-      >
-        <Icon className={`h-[22px] w-[22px] ${unlocked ? 'fill-white' : 'fill-muted'}`} />
-      </span>
+      <div className="mb-2.5 flex items-start justify-between gap-2">
+        <span
+          className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
+            unlocked ? 'bg-success' : 'bg-track'
+          }`}
+        >
+          <Icon className={`h-[22px] w-[22px] ${unlocked ? 'fill-on-fill' : 'fill-muted'}`} />
+        </span>
+        {/*
+          A família, no canto do próprio cartão. Era um cabeçalho de seção que abria uma
+          linha inteira de grade para uma ou duas medalhas; aqui ela pertence ao objeto e
+          não custa espaço nenhum.
+        */}
+        <span className="mt-0.5 shrink-0 text-[9.5px] font-extrabold uppercase tracking-[0.1em] text-faint">
+          {t(`gamification.category.${badge.category}`)}
+        </span>
+      </div>
       <p className={`text-sm font-extrabold ${unlocked ? 'text-success-ink' : 'text-muted'}`}>
-        {badge.name}
+        {name}
       </p>
       <p
         className={`mt-0.5 text-[11.5px] font-semibold ${unlocked ? 'text-ink/70' : 'text-faint'}`}
       >
-        {badge.description}
+        {description}
       </p>
     </div>
   )

@@ -7,6 +7,7 @@ import { refreshSession } from '@/api/auth'
 import { leavePair } from '@/api/pair'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { Avatar } from '@/components/ui/Avatar'
+import { avatarUrl } from '@/shared/api/avatarUrl'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { FormError } from '@/shared/ui/form/FormError'
 import type { Pair, PairMember, RelationshipType } from '@/types/pair'
@@ -42,11 +43,16 @@ export function PairFormed({
         </span>
 
         <div className="mb-4 flex items-center justify-center">
-          <Avatar initial={initial(me?.name)} tone="you" size={56} />
-          <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-success text-white">
+          <Avatar initial={initial(me?.name)} tone="you" size={56} art={avatarUrl(me?.avatarUrl)} />
+          <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-success text-on-fill">
             <IconLink />
           </span>
-          <Avatar initial={initial(partner?.name)} tone="rival" size={56} />
+          <Avatar
+            initial={initial(partner?.name)}
+            tone="rival"
+            size={56}
+            art={avatarUrl(partner?.avatarUrl)}
+          />
         </div>
 
         <p className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-xs font-extrabold text-success-ink">
@@ -141,7 +147,7 @@ function LeavePairCard({
           type="button"
           onClick={() => void confirm()}
           disabled={leaving}
-          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-white transition hover:brightness-105 disabled:opacity-60"
+          className="rounded-xl bg-danger px-4 py-2.5 text-sm font-extrabold text-on-fill transition hover:brightness-105 disabled:opacity-60"
         >
           {leaving ? t('pair.leaving') : t('pair.leaveConfirm')}
         </button>
@@ -170,14 +176,14 @@ function MemberRow({
   tone: 'you' | 'rival'
   tag: string
 }) {
-  const tagCls = tone === 'you' ? 'bg-brand-soft text-brand-ink' : 'bg-rival-soft text-rival-ink'
+  const tagCls = tone === 'you' ? 'bg-you-soft text-you-ink' : 'bg-pair-soft text-pair-ink'
   return (
     <div className="card flex items-center gap-3 py-3.5">
       <Avatar
         initial={initial(member?.name)}
         tone={tone}
         size={44}
-        art={member?.avatarUrl ?? undefined}
+        art={avatarUrl(member?.avatarUrl)}
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-bold text-ink">{member?.name ?? '—'}</p>

@@ -75,11 +75,18 @@ export async function withPortugueseUi(page: Page) {
   await page.addInitScript(() => window.localStorage.setItem('vitalpair-lang', 'pt'))
 }
 
-/** The three fields of the sign-up form, by the label a person reads. */
+/**
+ * The three fields of the sign-up form.
+ *
+ * O e-mail é procurado por `autocomplete`, e não pelo rótulo: o rótulo é copy, e uma
+ * correção de texto derrubou a suíte inteira uma vez ("Email" virou "E-mail", que é a
+ * grafia certa em português). O atributo é semântico, o navegador depende dele para o
+ * preenchimento automático, e por isso não muda quando a redação muda.
+ */
 function registerFields(page: Page) {
   return {
     name: page.getByRole('textbox', { name: 'Como te chamam?' }),
-    email: page.getByRole('textbox', { name: 'Email', exact: true }),
+    email: page.locator('input[autocomplete="email"]'),
     password: page.getByLabel('Senha', { exact: true }),
     submit: page.getByRole('button', { name: /criar conta/i }),
   }
@@ -95,6 +102,7 @@ function registerFields(page: Page) {
 export async function registerThroughTheUi(
   page: Page,
   name: string,
+  options: { profile?: 'complete' | 'empty' } = {},
 ): Promise<{ email: string; password: string }> {
   const email = uniqueEmail(name.toLowerCase())
 
@@ -110,14 +118,49 @@ export async function registerThroughTheUi(
   // caller never races against a redirect that has not happened yet.
   await expect(page).toHaveURL(/\/(onboarding|dashboard)/)
 
+  // O roteador manda para o onboarding quem não tem perfil, o que é certo para uma conta
+  // de verdade e atrapalha um teste que é sobre outra coisa. As duas specs de onboarding
+  // pedem 'empty' e conduzem os passos elas mesmas.
+  if (options.profile !== 'empty') await completeProfileThroughTheApi(page, email, PASSWORD)
+
   return { email, password: PASSWORD }
+}
+
+/**
+ * Preenche o perfil como o primeiro passo do onboarding faz, pela API.
+ *
+ * Pela API, e não conduzindo os cinco passos, para que uma spec sobre registrar refeição não
+ * quebre quando o texto do onboarding mudar.
+ */
+export async function completeProfileThroughTheApi(page: Page, email: string, password: string) {
+  // Entra de novo para ter um token próprio: o token de acesso vive só em memória e nunca
+  // vai para o storage, então não há o que ler, e mexer no estado do app acoplaria a suíte
+  // a como ele guarda a sessão.
+  const session = await page.request.post('/api/v1/auth/login', { data: { email, password } })
+  expect(session.status(), await session.text()).toBe(200)
+  const { data } = (await session.json()) as { data: { accessToken: string } }
+
+  const response = await page.request.put('/api/v1/users/me', {
+    headers: { Authorization: `Bearer ${data.accessToken}` },
+    data: {
+      name: 'Suite',
+      birthDate: '1995-03-14',
+      sex: 'FEMALE',
+      heightCm: 170,
+      weightKg: 65,
+      goal: 'LOSE_WEIGHT',
+      activityLevel: 'MODERATE',
+      timeZone: 'America/Sao_Paulo',
+    },
+  })
+  expect(response.status(), await response.text()).toBe(200)
 }
 
 /** Signs in through the form. Does not wait: use signIn when the test needs to be inside. */
 export async function loginThroughTheUi(page: Page, email: string, password: string) {
   await withPortugueseUi(page)
   await page.goto('/login')
-  await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email)
+  await page.locator('input[autocomplete="email"]').fill(email)
   await page.getByLabel('Senha', { exact: true }).fill(password)
   await page.getByRole('button', { name: /^entrar$/i }).click()
 }
@@ -133,6 +176,32 @@ export async function loginThroughTheUi(page: Page, email: string, password: str
 export async function signIn(page: Page): Promise<{ email: string; password: string }> {
   const account = sharedAccount()
   await loginThroughTheUi(page, account.email, account.password)
+  await expect(page.getByRole('button', { name: /sair/i })).toBeVisible()
+  return account
+}
+
+/**
+ * O mesmo login, sem fixar o idioma da interface.
+ *
+ * `withPortugueseUi` instala um addInitScript que reescreve 'vitalpair-lang' a cada
+ * carregamento, o que é o certo para as outras specs: elas asseveram texto em português e
+ * não podem depender do idioma do navegador de quem roda a suíte. Só que o Playwright não
+ * remove um init script depois de registrado, então um teste sobre idioma que usasse
+ * `signIn` mediria o próprio andaime: no reload o script devolveria 'pt' e a persistência
+ * pareceria quebrada.
+ *
+ * Quem chamar precisa fixar o locale do contexto (`test.use({ locale: 'pt-BR' })`), senão o
+ * idioma de abertura passa a depender da máquina onde a suíte roda: o detector cai em
+ * `navigator` quando não há nada no localStorage.
+ */
+export async function signInWithoutPinningLanguage(
+  page: Page,
+): Promise<{ email: string; password: string }> {
+  const account = sharedAccount()
+  await page.goto('/login')
+  await page.locator('input[autocomplete="email"]').fill(account.email)
+  await page.getByLabel('Senha', { exact: true }).fill(account.password)
+  await page.getByRole('button', { name: /^entrar$/i }).click()
   await expect(page.getByRole('button', { name: /sair/i })).toBeVisible()
   return account
 }

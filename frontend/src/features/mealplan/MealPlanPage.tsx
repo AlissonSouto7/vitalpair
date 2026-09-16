@@ -10,6 +10,7 @@ import { premiumQueries } from '../premium/queries'
 
 import { mealPlanQueries } from './queries'
 
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
 import { getApiErrorMessage } from '@/shared/api/errors'
 
 /**
@@ -20,7 +21,7 @@ import { getApiErrorMessage } from '@/shared/api/errors'
 const WEEKDAY_KEYS = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'] as const
 
 export function MealPlanPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
   // Null until the person picks a day, so the plan arriving can open on today without
@@ -105,7 +106,14 @@ export function MealPlanPage() {
           <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
             {t('mealplan.title')}
           </h1>
-          <p className="mt-1 text-sm font-semibold text-muted">{t('mealplan.subtitle')}</p>
+          {/*
+            While the feature is locked the subtitle describes what subscribing buys, instead
+            of telling somebody to use a "Troca" button that is not on the screen: the header
+            invited an action and the card right below it said the plan is not on sale yet.
+          */}
+          <p className="mt-1 text-sm font-semibold text-muted">
+            {t(locked ? 'mealplan.subtitleLocked' : 'mealplan.subtitle')}
+          </p>
         </div>
 
         {plan && !locked && (
@@ -113,7 +121,7 @@ export function MealPlanPage() {
             type="button"
             onClick={() => void generate()}
             disabled={generating}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-extrabold text-on-fill transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <SparkIcon className="h-[18px] w-[18px]" />
             {generating ? t('mealplan.generating') : t('mealplan.regenerate')}
@@ -171,7 +179,7 @@ export function MealPlanPage() {
                   aria-pressed={active}
                   className={`flex shrink-0 flex-col items-center rounded-xl border px-3.5 py-2 leading-tight transition ${
                     active
-                      ? 'border-brand bg-brand text-white'
+                      ? 'border-brand bg-brand text-on-fill'
                       : 'border-hair bg-surface text-muted hover:text-ink'
                   }`}
                 >
@@ -207,14 +215,14 @@ export function MealPlanPage() {
                 {t('mealplan.dayTotal')}
               </p>
               <p className="font-display text-2xl font-semibold text-ink">
-                {totals.kcal.toLocaleString('pt-BR')} kcal
+                {totals.kcal.toLocaleString(i18n.language)} kcal
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-bold">
-              <MacroPill label={t('mealplan.protein')} value={totals.protein} tone="brand" />
+              <MacroPill label={t('mealplan.protein')} value={totals.protein} tone="protein" />
               <MacroPill label={t('mealplan.carb')} value={totals.carb} tone="carb" />
-              <MacroPill label={t('mealplan.fat')} value={totals.fat} tone="success" />
+              <MacroPill label={t('mealplan.fat')} value={totals.fat} tone="fat" />
             </div>
 
             {plan.targetKcal != null && <TargetBadge diff={totals.kcal - plan.targetKcal} t={t} />}
@@ -259,7 +267,7 @@ function MealCard({
   return (
     <article className={`card p-4 transition sm:p-5 ${swapping ? 'opacity-60' : ''}`}>
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-brand-ink">
+        <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted">
           {t(`mealplan.mealLabel.${meal.mealType}`)}
         </span>
 
@@ -268,7 +276,7 @@ function MealCard({
             type="button"
             onClick={onSwap}
             disabled={swapping}
-            className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-rival-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1.5 text-[11.5px] font-extrabold text-act-ink transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <SwapIcon className={`h-[13px] w-[13px] ${swapping ? 'animate-spin' : ''}`} />
             {swapping ? t('mealplan.swapping') : t('mealplan.swap')}
@@ -278,28 +286,20 @@ function MealCard({
 
       <p className="text-[15px] font-extrabold text-ink">{meal.name}</p>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] font-bold">
-        <span className="font-display text-sm font-semibold text-ink">{meal.kcal} kcal</span>
-        <MacroPill label="P" value={meal.proteinG} tone="brand" />
-        <MacroPill label="C" value={meal.carbG} tone="carb" />
-        <MacroPill label="G" value={meal.fatG} tone="success" />
-      </div>
+      {/*
+        Só as calorias por prato. Os três macros de cada refeição somavam dezesseis pastilhas
+        numa tela cuja pergunta é "o que eu como hoje": quem quer a composição tem o total do
+        dia logo abaixo, e o detalhe de um prato ao abrir a refeição.
+      */}
+      <p className="mt-2 font-display text-sm font-semibold tabular-nums text-muted">
+        {meal.kcal} kcal
+      </p>
     </article>
   )
 }
 
-function MacroPill({
-  label,
-  value,
-  tone,
-}: {
-  label: string
-  value: number
-  tone: 'brand' | 'carb' | 'success'
-}) {
-  const dot = tone === 'brand' ? 'bg-brand' : tone === 'carb' ? 'bg-carb' : 'bg-success'
-  const text =
-    tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
+function MacroPill({ label, value, tone }: { label: string; value: number; tone: MacroTone }) {
+  const { bg: dot, text } = MACRO_TONES[tone]
   return (
     <span className="flex items-center gap-1.5">
       <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />

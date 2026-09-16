@@ -12,7 +12,7 @@ export const auth = {
     loginSubtitle: 'Entra aí pra ver se você ainda tá ganhando.',
     loginInviteHint: 'Entra que eu já te coloco na dupla que te convidaram.',
     orWithEmail: 'ou com email',
-    email: 'Email',
+    email: 'E-mail',
     password: 'Senha',
     forgotShort: 'Esqueci',
     signIn: 'Entrar',
@@ -22,9 +22,9 @@ export const auth = {
     errorLogin: 'Não rolou entrar. Confere o email e a senha.',
     errorGoogle: 'Não rolou entrar com o Google. Tenta de novo.',
     invalidEmail: 'Confere esse e-mail: falta algo nele.',
-    nameRequired: 'Como a gente te chama? Escreve teu nome.',
+    nameRequired: 'Como a gente te chama? Escreve seu nome.',
     passwordTooShort: 'A senha precisa de pelo menos 8 caracteres.',
-    passwordRequired: 'Escreve tua senha pra continuar.',
+    passwordRequired: 'Escreve sua senha pra continuar.',
 
     // register
     registerTitle: 'Cria sua conta',

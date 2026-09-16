@@ -10,7 +10,6 @@ import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 import type { LogActivityPayload } from '@/types/activity'
 
-
 function mount() {
   server.use(
     http.get(path('/activity/logs'), () => ok(activityLogsFixture)),

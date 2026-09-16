@@ -9,7 +9,6 @@ import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
-
 /**
  * The weight form on the progress screen.
  *

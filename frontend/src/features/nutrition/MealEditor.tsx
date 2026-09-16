@@ -36,6 +36,21 @@ export function MealEditor({
   onDiscard: () => void
   saving: boolean
 }) {
+  /**
+   * Why the meal cannot be saved yet, or null when it can.
+   *
+   * An empty calories field used to be read as zero, so an Open Food Facts item with no
+   * nutrition information opened at 0 kcal with the button enabled, and saving it put a meal
+   * in the diary claiming the food had no calories. "Unknown" and "zero" are different
+   * statements, and only the person knows which one is true. A real 0 kcal food (black coffee,
+   * water) still saves: what is required is a number, not a number above zero.
+   */
+  const blocker: 'name' | 'calories' | null = !draft.name.trim()
+    ? 'name'
+    : draft.kcalPer100.trim() === ''
+      ? 'calories'
+      : null
+
   return (
     <section className="card border-brand/40">
       <div className="mb-4 flex items-center gap-2">
@@ -67,6 +82,7 @@ export function MealEditor({
             label={t('nutrition.kcalField')}
             value={draft.kcalPer100}
             onChange={(e) => setDraft({ ...draft, kcalPer100: e.target.value })}
+            error={blocker === 'calories' ? t('nutrition.kcalRequired') : undefined}
           />
           <NumberField
             label={t('nutrition.protField')}
@@ -122,20 +138,28 @@ export function MealEditor({
           <span className="font-display text-lg font-semibold text-ink">
             {computed.calories} kcal
           </span>
-          <Dot tone="brand" />
+          <Dot tone="protein" />
           <span className="text-muted">P {computed.protein}g</span>
           <Dot tone="carb" />
           <span className="text-muted">C {computed.carb}g</span>
-          <Dot tone="success" />
+          <Dot tone="fat" />
           <span className="text-muted">G {computed.fat}g</span>
         </div>
 
+        {/*
+          Secundário, porque a barra fixa lá embaixo faz exatamente a mesma coisa: as duas
+          chamam `save()`. Ela é a que fica em destaque, porque diz o que vai ser gravado e
+          quantos pontos rende antes de a pessoa confirmar.
+
+          Este continua existindo porque a barra só aparece com calorias acima de zero, e
+          água (0 kcal) é um registro legítimo que precisa de um jeito de salvar.
+        */}
         <div className="flex gap-2">
           <button
             type="button"
             onClick={onSave}
-            disabled={saving || !draft.name}
-            className="btn-primary text-sm disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={saving || blocker !== null}
+            className="rounded-xl bg-act-soft px-4 py-2.5 text-sm font-extrabold text-act-ink transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? t('common.saving') : t('common.add')}
           </button>

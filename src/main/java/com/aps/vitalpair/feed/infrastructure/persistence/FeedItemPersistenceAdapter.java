@@ -34,6 +34,11 @@ public class FeedItemPersistenceAdapter implements FeedItemRepositoryPort {
     }
 
     @Override
+    public int deleteBySource(UUID tenantId, UUID sourceId) {
+        return repository.deleteBySourceId(tenantId, sourceId);
+    }
+
+    @Override
     public PageResponse<FeedItem> findVisibleByTenant(UUID tenantId, UUID viewerId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FeedItem> result =

@@ -158,7 +158,7 @@ export function SettingsPage() {
       <Section title={t('settings.account')}>
         <div className="overflow-hidden rounded-2xl border border-hair bg-surface">
           <div className="flex items-center gap-3 border-b border-hair px-[18px] py-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand font-display text-base font-semibold text-white">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand font-display text-base font-semibold text-on-fill">
               {initial}
             </span>
             <div className="min-w-0">
@@ -178,12 +178,24 @@ export function SettingsPage() {
             <IconUser className="h-[18px] w-[18px] text-muted" />
             {t('settings.editProfile')}
           </Link>
+          {/*
+            The label used to be the whole item, and tapping it landed on "Comeu o quê?", a
+            screen where the word privacy does not appear: somebody looking for a privacy
+            setting ended up on the meal form with no idea why. The destination is right, since
+            the control really is the per-meal "Só pra mim" switch, so the line below says so
+            rather than leaving the person to work it out.
+          */}
           <Link
             to="/nutrition"
-            className="flex w-full items-center gap-2.5 border-b border-hair px-[18px] py-4 text-left text-sm font-extrabold text-ink transition hover:bg-track/40"
+            className="flex w-full items-start gap-2.5 border-b border-hair px-[18px] py-4 text-left transition hover:bg-track/40"
           >
-            <IconLock className="h-[18px] w-[18px] text-muted" />
-            {t('settings.privacy')}
+            <IconLock className="mt-0.5 h-[18px] w-[18px] shrink-0 text-muted" />
+            <span className="min-w-0">
+              <span className="block text-sm font-extrabold text-ink">{t('settings.privacy')}</span>
+              <span className="mt-0.5 block text-xs font-semibold text-muted">
+                {t('settings.privacyHint')}
+              </span>
+            </span>
           </Link>
 
           <button

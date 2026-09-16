@@ -34,27 +34,30 @@ Write it in English.
 
 Every backend feature package has a document. Counts measured on 2026-09-06.
 
-| Package        | Classes | Document                                                       |
-| -------------- | ------- | -------------------------------------------------------------- |
-| `ai`           | 64      | [ai-plans.md](ai-plans.md)                                     |
-| `auth`         | 45      | [auth.md](auth.md)                                             |
-| `nutrition`    | 42      | [nutrition.md](nutrition.md)                                   |
-| `gamification` | 41      | [gamification.md](gamification.md)                             |
-| `mission`      | 36      | [missions.md](missions.md)                                     |
-| `notification` | 31      | [notifications.md](notifications.md)                           |
-| `mealvision`   | 27      | [meal-vision.md](meal-vision.md)                               |
-| `season`       | 26      | [season.md](season.md)                                         |
-| `feed`         | 23      | [feed.md](feed.md)                                             |
-| `pair`         | 23      | [pair.md](pair.md)                                             |
-| `activity`     | 19      | [activity.md](activity.md)                                     |
-| `progress`     | 19      | [progress.md](progress.md)                                     |
-| `user`         | 19      | [user-profile.md](user-profile.md)                             |
-| `dashboard`    | 9       | [dashboard.md](dashboard.md)                                   |
-| `tdee`         | 5       | [user-profile.md](user-profile.md), with the feature it serves |
-| `entitlement`  | 6       | [premium.md](premium.md)                                       |
-| `admin`        | 1       | [admin.md](admin.md)                                           |
+| Package        | Classes | Document                                                        |
+| -------------- | ------- | --------------------------------------------------------------- |
+| `ai`           | 64      | [ai-plans.md](ai-plans.md)                                      |
+| `auth`         | 45      | [auth.md](auth.md)                                              |
+| `nutrition`    | 42      | [nutrition.md](nutrition.md)                                    |
+| `gamification` | 41      | [gamification.md](gamification.md)                              |
+| `mission`      | 36      | [missions.md](missions.md)                                      |
+| `notification` | 31      | [notifications.md](notifications.md)                            |
+| `mealvision`   | 27      | [meal-vision.md](meal-vision.md)                                |
+| `season`       | 26      | [season.md](season.md)                                          |
+| `feed`         | 23      | [feed.md](feed.md)                                              |
+| `pair`         | 23      | [pair.md](pair.md)                                              |
+| `activity`     | 19      | [activity.md](activity.md)                                      |
+| `progress`     | 19      | [progress.md](progress.md)                                      |
+| `user`         | 36      | [user-profile.md](user-profile.md), [avatar.md](avatar.md)      |
+| `dashboard`    | 9       | [dashboard.md](dashboard.md)                                    |
+| `tdee`         | 5       | [user-profile.md](user-profile.md), with the feature it serves  |
+| `entitlement`  | 6       | [premium.md](premium.md)                                        |
+| `admin`        | 1       | [admin.md](admin.md)                                            |
+| `shared.image` | 2       | [avatar.md](avatar.md), the sanitizer every upload goes through |
 
-`config`, `shared` and `tenant` are infrastructure packages, not features. The
+`config` and `tenant` are infrastructure packages, not features, and so is most
+of `shared`; `shared.image` is listed because it is where the upload defences
+live and a reader looking for them would not think to open a feature document. The
 cross-cutting documents are [testing.md](testing.md),
 [observability.md](observability.md),
 [frontend-foundation.md](frontend-foundation.md),

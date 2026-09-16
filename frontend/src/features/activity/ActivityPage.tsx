@@ -124,6 +124,9 @@ export function ActivityPage() {
 /* ---------- formulário de treino ---------- */
 
 function TodayList({ logs, t }: { logs: ActivityLog[]; t: TFunction }) {
+  /* O idioma vem do hook, e não de mais uma prop: `t` já vem de fora por herança do
+     componente pai, e o único uso aqui é formatar número. */
+  const { i18n } = useTranslation()
   return (
     <div>
       <h2 className="mb-2.5 text-xs font-bold text-muted">{t('activity.todayLogs')}</h2>
@@ -148,11 +151,11 @@ function TodayList({ logs, t }: { logs: ActivityLog[]; t: TFunction }) {
                   {t(`activity.typeLabel.${log.activityType}`)}
                 </div>
                 <div className="truncate text-[11.5px] font-semibold text-muted">
-                  {logDetail(log, t)}
+                  {logDetail(log, t, i18n.language)}
                 </div>
               </div>
               <span className="shrink-0 font-display text-[13px] font-semibold text-success-ink">
-                {log.caloriesBurned.toLocaleString('pt-BR')} kcal
+                {log.caloriesBurned.toLocaleString(i18n.language)} kcal
               </span>
             </li>
           ))}
@@ -162,10 +165,10 @@ function TodayList({ logs, t }: { logs: ActivityLog[]; t: TFunction }) {
   )
 }
 
-function logDetail(log: ActivityLog, t: TFunction): string {
+function logDetail(log: ActivityLog, t: TFunction, locale: string): string {
   const parts: string[] = []
   if (log.steps != null)
-    parts.push(`${log.steps.toLocaleString('pt-BR')} ${t('activity.steps').toLowerCase()}`)
+    parts.push(`${log.steps.toLocaleString(locale)} ${t('activity.steps').toLowerCase()}`)
   if (log.distanceKm != null) parts.push(`${log.distanceKm} km`)
   if (log.durationMinutes != null) parts.push(`${log.durationMinutes} min`)
   parts.push(t(`activity.sourceLabel.${log.source}`))
@@ -209,7 +212,7 @@ function SourceRow({
           type="button"
           disabled
           title={t('activity.soon')}
-          className="shrink-0 cursor-not-allowed rounded-xl bg-brand px-3.5 py-2 text-xs font-extrabold text-white opacity-60"
+          className="shrink-0 cursor-not-allowed rounded-xl bg-brand px-3.5 py-2 text-xs font-extrabold text-on-fill opacity-60"
         >
           {t('activity.connect')}
         </button>

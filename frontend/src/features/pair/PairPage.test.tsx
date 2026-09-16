@@ -10,7 +10,6 @@ import { fail, ok, path } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
-
 /** Records which code reached the server; the code travels in the URL, not the body. */
 function joinHandler(respond: () => Response = () => ok(pairPendingFixture)) {
   const codes: string[] = []

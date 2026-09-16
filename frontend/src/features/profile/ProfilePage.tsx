@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarUpload } from './AvatarUpload'
 import { EditForm } from './EditForm'
 import { GOAL_ICON } from './goalIcons'
 import { IconTarget } from './icons'
@@ -33,7 +34,7 @@ function levelInfo(points: number) {
 }
 
 export function ProfilePage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
@@ -123,6 +124,11 @@ export function ProfilePage() {
         <p className="mt-1 text-sm font-semibold text-muted">{t('profile.subtitle')}</p>
       </header>
 
+      {/* Foto de perfil: é o que o par vê ao lado do nome, então fica no topo */}
+      <section className="card">
+        <AvatarUpload name={profile.name} currentAvatar={profile.avatarUrl} />
+      </section>
+
       {/* Broto + nível */}
       <section className="card flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
         <Broto who="you" expr="happy" level={brotoLevel} size={120} />
@@ -148,7 +154,13 @@ export function ProfilePage() {
       </section>
 
       {/* Peso */}
-      <WeightCard weights={weights} currentWeight={currentWeight} onLogged={reload} t={t} />
+      <WeightCard
+        weights={weights}
+        currentWeight={currentWeight}
+        goal={profile.goal}
+        onLogged={reload}
+        t={t}
+      />
 
       {/* Objetivo */}
       <section className="card">
@@ -162,7 +174,7 @@ export function ProfilePage() {
             </p>
             {targetKcal != null && (
               <p className="text-[13px] font-semibold text-muted">
-                {t('profile.dailyTarget', { kcal: targetKcal.toLocaleString('pt-BR') })}
+                {t('profile.dailyTarget', { kcal: targetKcal.toLocaleString(i18n.language) })}
               </p>
             )}
           </div>
@@ -201,9 +213,13 @@ export function ProfilePage() {
             </h2>
           </div>
           <div className="grid grid-cols-3 divide-x divide-hair overflow-hidden rounded-xl border border-hair">
-            <MacroCell label={t('profile.macroProtein')} grams={tdee.proteinTargetG} tone="brand" />
+            <MacroCell
+              label={t('profile.macroProtein')}
+              grams={tdee.proteinTargetG}
+              tone="protein"
+            />
             <MacroCell label={t('profile.macroCarb')} grams={tdee.carbTargetG} tone="carb" />
-            <MacroCell label={t('profile.macroFat')} grams={tdee.fatTargetG} tone="success" />
+            <MacroCell label={t('profile.macroFat')} grams={tdee.fatTargetG} tone="fat" />
           </div>
         </section>
       )}

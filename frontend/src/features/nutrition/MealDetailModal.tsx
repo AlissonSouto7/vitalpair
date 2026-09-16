@@ -1,23 +1,13 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { FoodLog } from '../../types/nutrition'
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
+import type { FoodLog } from '@/types/nutrition'
 
 function formatTime(iso: string, locale: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-}
-
-interface MacroTone {
-  bar: string
-  dot: string
-}
-
-const TONES: Record<'brand' | 'carb' | 'success', MacroTone> = {
-  brand: { bar: 'bg-brand', dot: 'bg-brand' },
-  carb: { bar: 'bg-carb', dot: 'bg-carb' },
-  success: { bar: 'bg-success', dot: 'bg-success' },
 }
 
 interface MealDetailModalProps {
@@ -50,10 +40,10 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
   const macroCal = pCal + cCal + fCal
   const pct = (kcal: number) => (macroCal > 0 ? Math.round((kcal / macroCal) * 100) : 0)
 
-  const macros: { label: string; grams: number; pct: number; tone: keyof typeof TONES }[] = [
-    { label: t('nutrition.proteinShort'), grams: meal.proteinG, pct: pct(pCal), tone: 'brand' },
+  const macros: { label: string; grams: number; pct: number; tone: MacroTone }[] = [
+    { label: t('nutrition.proteinShort'), grams: meal.proteinG, pct: pct(pCal), tone: 'protein' },
     { label: t('nutrition.carbShort'), grams: meal.carbG, pct: pct(cCal), tone: 'carb' },
-    { label: t('nutrition.fatShort'), grams: meal.fatG, pct: pct(fCal), tone: 'success' },
+    { label: t('nutrition.fatShort'), grams: meal.fatG, pct: pct(fCal), tone: 'fat' },
   ]
 
   const time = formatTime(meal.loggedAt, i18n.language)
@@ -158,7 +148,7 @@ export function MealDetailModal({ meal, onClose, onDelete }: MealDetailModalProp
                 </div>
                 <div className="h-[7px] overflow-hidden rounded-[5px] bg-track">
                   <div
-                    className={`h-full rounded-[5px] ${TONES[m.tone].bar}`}
+                    className={`h-full rounded-[5px] ${MACRO_TONES[m.tone].bg}`}
                     style={{ width: `${m.pct}%` }}
                   />
                 </div>

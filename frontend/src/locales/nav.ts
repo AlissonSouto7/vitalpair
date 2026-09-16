@@ -14,6 +14,14 @@ export const nav = {
     profile: 'Perfil',
     settings: 'Configurações',
     logout: 'Sair',
+    seeProfile: 'ver perfil',
+    /* Cabeçalhos dos quatro grupos do menu. Eram doze itens soltos, todos com o mesmo
+       peso, e nada dizia qual deles se usa todo dia. */
+    groupToday: 'Hoje',
+    groupPair: 'Sua dupla',
+    groupPlan: 'Seu plano',
+    groupYou: 'Você',
+    paid: 'premium',
   },
   en: {
     dashboard: 'Home',
@@ -30,6 +38,12 @@ export const nav = {
     profile: 'Profile',
     settings: 'Settings',
     logout: 'Log out',
+    seeProfile: 'see profile',
+    groupToday: 'Today',
+    groupPair: 'Your pair',
+    groupPlan: 'Your plan',
+    groupYou: 'You',
+    paid: 'premium',
   },
   es: {
     dashboard: 'Inicio',
@@ -46,6 +60,12 @@ export const nav = {
     profile: 'Perfil',
     settings: 'Ajustes',
     logout: 'Salir',
+    seeProfile: 'ver perfil',
+    groupToday: 'Hoy',
+    groupPair: 'Tu pareja',
+    groupPlan: 'Tu plan',
+    groupYou: 'Tú',
+    paid: 'premium',
   },
   fr: {
     dashboard: 'Accueil',
@@ -62,5 +82,11 @@ export const nav = {
     profile: 'Profil',
     settings: 'Paramètres',
     logout: 'Déconnexion',
+    seeProfile: 'voir le profil',
+    groupToday: "Aujourd'hui",
+    groupPair: 'Ton duo',
+    groupPlan: 'Ton plan',
+    groupYou: 'Toi',
+    paid: 'premium',
   },
 } as const

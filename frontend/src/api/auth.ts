@@ -32,8 +32,16 @@ export async function resetPassword(token: string, newPassword: string): Promise
   await api.post('/auth/reset-password', { token, newPassword })
 }
 
-export async function verifyEmail(token: string): Promise<void> {
+/**
+ * Confirma o e-mail pelo token do link.
+ *
+ * Devolve `true` em vez de nada porque quem chama é um `useQuery`, e o TanStack Query v5
+ * trata uma queryFn que resolve `undefined` como falha. A API respondia 200, a confirmação
+ * acontecia no banco, e a tela mostrava o erro assim mesmo.
+ */
+export async function verifyEmail(token: string): Promise<true> {
   await api.post('/auth/verify-email', { token })
+  return true
 }
 
 export async function resendVerification(email: string): Promise<void> {

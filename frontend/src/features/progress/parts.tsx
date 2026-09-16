@@ -4,11 +4,14 @@
  * Moved out of ProgressPage verbatim, markup untouched.
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import { fmtDate, fmtKg } from './format'
 import { WeightForm } from './WeightForm'
 
+import { profileQueries } from '@/features/profile/queries'
+import { weightVerdict, weightVerdictClass } from '@/features/progress/weightVerdict'
 import type { CalorieDay, MacroAverage, WeightPoint } from '@/types/progress'
 
 /** Which panel the screen is showing. */
@@ -93,11 +96,19 @@ export function PainelPeso({
 
 export function WeightChart({ weights }: { weights: WeightPoint[] }) {
   const { t } = useTranslation()
+  /*
+   * The goal, read from the same cached query the profile screen uses, so this costs no extra
+   * request. It is what decides whether the change is good news: this product is built around
+   * a pair with opposite goals, so painting every loss green and every gain orange is
+   * guaranteed to be wrong for one of the two, every time they weigh themselves.
+   */
+  const profile = useQuery(profileQueries.profile())
   const values = weights.map((w) => w.weightKg)
   const inicio = values[0]
   const atual = values[values.length - 1]
   const delta = atual - inicio
   const perdeu = delta < 0
+  const verdict = weightVerdict(delta, profile.data?.goal)
 
   const W = 600
   const H = 200
@@ -124,9 +135,7 @@ export function WeightChart({ weights }: { weights: WeightPoint[] }) {
           {fmtKg(atual)} {t('progress.weightUnit')}
         </span>
         {Math.abs(delta) >= 0.05 && (
-          <span
-            className={`text-sm font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}
-          >
+          <span className={`text-sm font-extrabold ${weightVerdictClass(verdict)}`}>
             {t('progress.deltaSince', {
               delta: `${perdeu ? '−' : '+'}${fmtKg(Math.abs(delta))}`,
               date: fmtDate(weights[0].date),
@@ -179,7 +188,7 @@ export function PainelCalorias({
   calories: CalorieDay[]
   targetKcal: number | null
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const maxKcal = Math.max(targetKcal ?? 0, ...calories.map((d) => d.kcal), 1)
   const teto = maxKcal * 1.05
   const metaPct = targetKcal ? (targetKcal / teto) * 100 : 0
@@ -190,7 +199,7 @@ export function PainelCalorias({
         <span className="text-[13px] font-bold text-muted">{t('progress.caloriesVsGoal')}</span>
         {targetKcal != null && (
           <span className="text-[13px] font-extrabold text-ink">
-            {t('progress.kcalPerDay', { kcal: targetKcal.toLocaleString('pt-BR') })}
+            {t('progress.kcalPerDay', { kcal: targetKcal.toLocaleString(i18n.language) })}
           </span>
         )}
       </div>

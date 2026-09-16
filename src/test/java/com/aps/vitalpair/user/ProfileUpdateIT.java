@@ -79,36 +79,65 @@ class ProfileUpdateIT extends AbstractIntegrationTest {
         assertThat(response.getBody()).as("role is not part of this contract").doesNotContain("ADMIN");
     }
 
+    /**
+     * The only address this endpoint takes is the object name the upload produced.
+     *
+     * It used to accept any https URL, and this test asserted that. One person's avatar is
+     * rendered in the other's browser, so an external address is a tracker handing whoever
+     * chose it the partner's IP, user agent and the time they opened the app, on every
+     * visit. The photo goes through POST /users/me/avatar now, and this field only carries
+     * what came back from it.
+     */
     @Test
-    void anHttpsAvatarIsAccepted() {
+    void theNameOfAnUploadedPhotoIsAccepted() {
         Session user = register("Alisson");
 
+        String objectName = "9f8c2a1b4e6d7f30a5b9c8d7e6f50413.jpg";
         Map<String, Object> body = validProfile();
-        body.put("avatarUrl", "https://cdn.example.com/avatars/alisson.png");
+        body.put("avatarUrl", objectName);
 
         ResponseEntity<String> response = httpPut("/api/v1/users/me", body, user);
         assertThat(response.getStatusCode())
                 .as("update: %s", response.getBody())
                 .isEqualTo(HttpStatus.OK);
-        assertThat(data(response).path("avatarUrl").asText()).isEqualTo("https://cdn.example.com/avatars/alisson.png");
+        assertThat(data(response).path("avatarUrl").asText()).isEqualTo(objectName);
+    }
+
+    @Test
+    void clearingThePhotoIsAllowed() {
+        // The empty string is how someone removes their photo; refusing it would leave the
+        // old one with no way to take it down.
+        Session user = register("Alisson");
+
+        Map<String, Object> body = validProfile();
+        body.put("avatarUrl", "");
+
+        ResponseEntity<String> response = httpPut("/api/v1/users/me", body, user);
+        assertThat(response.getStatusCode())
+                .as("update: %s", response.getBody())
+                .isEqualTo(HttpStatus.OK);
     }
 
     /**
-     * The avatar is rendered as an image in the partner's browser, so whoever sets it chooses
-     * an address the partner's browser will fetch. Left open, an ordinary http address is a
-     * beacon returning the partner's IP and user agent to whoever picked it, and the
-     * script-bearing schemes are worse.
+     * Anything that is not an uploaded object name is refused, https included.
+     *
+     * The avatar is rendered in the partner's browser, so whoever sets it picks an address
+     * that browser will fetch. https was the wrong axis: the problem is third-party origin,
+     * not transport, so a well-formed https URL is on this list too.
      */
     @ParameterizedTest
     @ValueSource(
             strings = {
+                "https://cdn.example.com/avatars/alisson.png",
                 "http://tracker.example.com/beacon.png",
                 "javascript:alert(1)",
                 "data:image/svg+xml;base64,PHN2Zy8+",
                 "//evil.example.com/x.png",
-                "https://evil.example.com/x.png\" onerror=\"alert(1)"
+                "https://evil.example.com/x.png\" onerror=\"alert(1)",
+                "../../etc/passwd",
+                "9f8c2a1b4e6d7f30a5b9c8d7e6f50413.png"
             })
-    void anAvatarThatIsNotAnHttpsUrlIsRejected(String avatarUrl) {
+    void anAvatarThatIsNotAnUploadedNameIsRejected(String avatarUrl) {
         Session user = register("Alisson");
 
         Map<String, Object> body = validProfile();

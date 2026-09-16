@@ -30,7 +30,10 @@ export function ContactPage() {
       <main className="mx-auto max-w-[760px] px-5 pb-20 pt-6 sm:px-8">
         <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-success-soft px-3.5 py-1.5 text-xs font-extrabold text-success-ink">
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-success" aria-hidden="true">
-            <path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 3.2V6l8 5 8-5v1.2l-8 5z" />
+            <path
+              fillRule="evenodd"
+              d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm0 3.2V6l8 5 8-5v1.2l-8 5z"
+            />
           </svg>
           {t('legal.contact.badge')}
         </span>

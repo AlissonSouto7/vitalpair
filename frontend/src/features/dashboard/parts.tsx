@@ -4,6 +4,8 @@ import { BoltIcon, CheckIcon } from './icons'
 import { initial, timeAgo, type TFn } from './text'
 
 import { Avatar } from '@/components/ui/Avatar'
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
+import { flashCopy } from '@/features/missions/missionCopy'
 import type { FeedItem } from '@/types/feed'
 import type { FlashMission } from '@/types/missions'
 
@@ -23,10 +25,10 @@ export function Macro({
   label: string
   value: number
   target: number | null
-  tone: 'brand' | 'carb' | 'success'
+  tone: MacroTone
 }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : 0
-  const bar = tone === 'brand' ? 'bg-brand' : tone === 'carb' ? 'bg-carb' : 'bg-success'
+  const bar = MACRO_TONES[tone].bg
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between text-sm">
@@ -39,27 +41,6 @@ export function Macro({
       <div className="h-2.5 overflow-hidden rounded-full bg-track">
         <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
       </div>
-    </div>
-  )
-}
-
-export function StatCell({
-  value,
-  label,
-  success,
-}: {
-  value: string
-  label: string
-  success?: boolean
-}) {
-  return (
-    <div className="px-2 py-4 text-center">
-      <div
-        className={`font-display text-2xl font-semibold ${success ? 'text-success-ink' : 'text-ink'}`}
-      >
-        {value}
-      </div>
-      <div className="mt-1 text-[11px] font-bold lowercase tracking-wide text-muted">{label}</div>
     </div>
   )
 }
@@ -80,29 +61,43 @@ export function MissionCard({
       </section>
     )
   }
+  const { title, description } = flashCopy(mission, t)
   return (
-    <section className="rounded-2xl border-[1.5px] border-brand-soft bg-brand-soft p-5">
-      <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
-        <BoltIcon className="h-4 w-4 fill-brand" />
+    <section className="rounded-xl border-[1.5px] border-act-soft bg-act-soft p-5">
+      <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-act-ink">
+        <BoltIcon className="h-4 w-4 fill-act" />
         {t('dashboard.flashMission')}
       </div>
-      <p className="font-display text-lg font-semibold leading-tight text-ink">{mission.title}</p>
+      <p className="font-display text-lg font-semibold leading-tight text-ink">{title}</p>
       <p className="mt-1 text-xs font-semibold text-muted">
-        {mission.description
+        {description
           ? t('dashboard.missionRewardWithDesc', {
               reward: mission.reward,
-              desc: mission.description,
+              desc: description,
             })
           : t('dashboard.missionReward', { reward: mission.reward })}
       </p>
       {mission.accepted ? (
-        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success-ink">
+        /*
+          Leva às Missões em vez de ser um aviso morto. Topar é reversível, e o botão de
+          desistir vive lá: sem este caminho, quem clicou por engano não tinha para onde ir.
+        */
+        <Link
+          to="/missions"
+          className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success-ink transition hover:brightness-95"
+        >
           <CheckIcon className="h-4 w-4 fill-current" /> {t('dashboard.missionAccepted')}
-        </div>
+        </Link>
       ) : (
+        /*
+          Secundário, e não verde sólido. Era um botão cheio ao lado do "Registrar
+          refeição", que é a ação da tela: duas chamadas do mesmo peso em cores diferentes,
+          e quem abre o app tinha que escolher entre as duas. Verde também estava errado
+          aqui, porque significa concluído, e topar a missão é o começo dela.
+        */
         <button
           onClick={onAccept}
-          className="mt-3 w-full rounded-xl bg-success px-4 py-3 font-extrabold text-white transition hover:brightness-105"
+          className="mt-3 w-full rounded-xl bg-surface px-4 py-3 font-extrabold text-act-ink transition hover:brightness-95"
         >
           {t('dashboard.acceptMission')}
         </button>

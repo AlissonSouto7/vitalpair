@@ -41,6 +41,18 @@ RUN groupadd --system app \
 COPY --from=build --chown=app:app /app/extracted/lib/ ./lib/
 COPY --from=build --chown=app:app /app/extracted/app.jar ./app.jar
 
+# Onde as fotos de perfil são gravadas dentro da imagem.
+#
+# O default da aplicação é `target/avatars`, que serve ao desenvolvimento (o build ignora e
+# limpa) e não a um container: vira /app/target, que o usuário `app` não pode criar, e a
+# aplicação se recusa a subir. Falhar no arranque é o comportamento certo do adaptador, e o
+# que faltava era a imagem dizer onde escreve.
+#
+# Em produção um volume é montado por cima deste caminho (deploy/compose.app.yaml), então
+# este diretório é o piso e não o destino final.
+RUN mkdir -p /var/lib/vitalpair/avatars && chown -R app:app /var/lib/vitalpair
+ENV AVATAR_DIRECTORY=/var/lib/vitalpair/avatars
+
 USER app
 
 # The API and the management port. Only the first is ever mapped by the proxy.

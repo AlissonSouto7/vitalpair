@@ -3,7 +3,14 @@ import type { ReactNode } from 'react'
 import { fmtKg } from './format'
 import { type TFn } from './profileForm'
 
+import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
 import { WeightForm } from '@/features/progress/WeightForm'
+import {
+  weightVerdict,
+  weightVerdictClass,
+  type WeightVerdict,
+} from '@/features/progress/weightVerdict'
+import type { Goal } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
 
 /**
@@ -12,19 +19,36 @@ import type { WeightPoint } from '@/types/progress'
  * Moved out of ProfilePage verbatim, markup untouched.
  */
 
+/** Picks which of the three copy variants a verdict wants. */
+function verdictSuffix(verdict: WeightVerdict): 'Toward' | 'Away' | 'Plain' {
+  return verdict === 'toward' ? 'Toward' : verdict === 'away' ? 'Away' : 'Plain'
+}
+
 export function WeightCard({
   weights,
   currentWeight,
+  goal,
   onLogged,
   t,
 }: {
   weights: WeightPoint[]
   currentWeight: number | null
+  /** What the person is training for. Without it the app cannot tell progress from drift. */
+  goal: Goal | null
   onLogged: () => Promise<void>
   t: TFn
 }) {
   const delta = weights.length >= 2 ? weights[weights.length - 1].weightKg - weights[0].weightKg : 0
   const perdeu = delta < 0
+  /*
+   * Both halves of this line used to ignore the goal, and they contradicted each other. The two
+   * copy keys ended in "mandou bem", so somebody gaining against their own goal was
+   * congratulated for it, and the colour painted any gain as a warning, so somebody who had
+   * just put on the muscle they were training for read praise in the colour of a problem.
+   * One criterion decides both now, and where the app does not know the goal it says the
+   * number without a verdict rather than guessing.
+   */
+  const verdict = weightVerdict(delta, goal)
 
   return (
     <section className="card">
@@ -37,12 +61,10 @@ export function WeightCard({
             {currentWeight != null ? `${fmtKg(currentWeight)} kg` : '--'}
           </p>
           {Math.abs(delta) >= 0.05 && (
-            <p
-              className={`mt-1 text-[13px] font-extrabold ${perdeu ? 'text-success-ink' : 'text-brand-ink'}`}
-            >
-              {perdeu
-                ? t('profile.weightDown', { kg: fmtKg(Math.abs(delta)) })
-                : t('profile.weightUp', { kg: fmtKg(Math.abs(delta)) })}
+            <p className={`mt-1 text-[13px] font-extrabold ${weightVerdictClass(verdict)}`}>
+              {t(`profile.weight${perdeu ? 'Down' : 'Up'}${verdictSuffix(verdict)}`, {
+                kg: fmtKg(Math.abs(delta)),
+              })}
             </p>
           )}
         </div>
@@ -114,7 +136,7 @@ export function GoalCard({
       }`}
     >
       <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-brand text-white' : 'bg-brand-soft text-brand'}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-brand text-on-fill' : 'bg-brand-soft text-brand'}`}
       >
         {icon}
       </span>
@@ -133,10 +155,9 @@ export function MacroCell({
 }: {
   label: string
   grams: number
-  tone: 'brand' | 'carb' | 'success'
+  tone: MacroTone
 }) {
-  const color =
-    tone === 'brand' ? 'text-brand-ink' : tone === 'carb' ? 'text-carb-ink' : 'text-success-ink'
+  const color = MACRO_TONES[tone].text
   return (
     <div className="bg-surface px-3 py-4 text-center">
       <div className={`font-display text-2xl font-semibold ${color}`}>{Math.round(grams)}g</div>

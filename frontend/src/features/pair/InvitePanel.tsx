@@ -10,6 +10,7 @@ import { refreshSession } from '@/api/auth'
 import { joinPair } from '@/api/pair'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { Avatar } from '@/components/ui/Avatar'
+import { avatarUrl } from '@/shared/api/avatarUrl'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { FormError } from '@/shared/ui/form/FormError'
 import type { Pair, PairMember, RelationshipType } from '@/types/pair'
@@ -61,7 +62,7 @@ export function InvitePanel({
         </span>
 
         <div className="mb-4 flex items-center justify-center">
-          <Avatar initial={initial(me?.name)} tone="you" size={52} />
+          <Avatar initial={initial(me?.name)} tone="you" size={52} art={avatarUrl(me?.avatarUrl)} />
           <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-track text-muted">
             <IconPlus />
           </span>
@@ -85,7 +86,7 @@ export function InvitePanel({
             onClick={onCopy}
             aria-label={t('pair.copyCode')}
             className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-extrabold transition ${
-              copied ? 'bg-success text-white' : 'bg-rival text-white hover:brightness-105'
+              copied ? 'bg-success text-on-fill' : 'bg-rival text-on-fill hover:brightness-105'
             }`}
           >
             {copied ? <IconCheck /> : <IconCopy />}

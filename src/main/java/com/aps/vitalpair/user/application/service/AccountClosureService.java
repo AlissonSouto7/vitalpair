@@ -15,6 +15,7 @@ import com.aps.vitalpair.pair.domain.port.out.PairRepositoryPort;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.in.CloseAccountUseCase;
+import com.aps.vitalpair.user.domain.port.out.AvatarStoragePort;
 import com.aps.vitalpair.user.domain.port.out.PersonalDataErasurePort;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
@@ -48,18 +49,21 @@ public class AccountClosureService implements CloseAccountUseCase {
     private final LeavePairUseCase leavePairUseCase;
     private final PersonalDataErasurePort personalDataErasure;
     private final RefreshTokenStorePort refreshTokenStore;
+    private final AvatarStoragePort avatarStorage;
 
     public AccountClosureService(
             UserRepositoryPort userRepository,
             PairRepositoryPort pairRepository,
             LeavePairUseCase leavePairUseCase,
             PersonalDataErasurePort personalDataErasure,
-            RefreshTokenStorePort refreshTokenStore) {
+            RefreshTokenStorePort refreshTokenStore,
+            AvatarStoragePort avatarStorage) {
         this.userRepository = userRepository;
         this.pairRepository = pairRepository;
         this.leavePairUseCase = leavePairUseCase;
         this.personalDataErasure = personalDataErasure;
         this.refreshTokenStore = refreshTokenStore;
+        this.avatarStorage = avatarStorage;
     }
 
     @Override
@@ -90,6 +94,9 @@ public class AccountClosureService implements CloseAccountUseCase {
         // the top is stale on that column.
         User current =
                 userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        // Captured before the column is cleared, because the name is the only way to find the
+        // file afterwards.
+        String avatarBeforeErasure = current.getAvatarUrl();
         userRepository.save(current.toBuilder()
                 // Freed rather than blanked: the column is UNIQUE, so leaving the old value
                 // would lock the person out of their own address for good if they came back.
@@ -110,6 +117,13 @@ public class AccountClosureService implements CloseAccountUseCase {
                 .emailVerified(false)
                 .deletedAt(Instant.now())
                 .build());
+
+        // The column is cleared above, but the file is on disk and clearing a pointer is not
+        // erasure: the photo of a person's face would have outlived the account that asked to be
+        // closed, reachable by anyone who still had the URL.
+        if (avatarBeforeErasure != null) {
+            avatarStorage.delete(avatarBeforeErasure);
+        }
 
         // Last, so a failure above leaves the account usable rather than locked out of a
         // closure that did not finish.

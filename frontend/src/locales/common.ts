@@ -37,6 +37,7 @@ export const common = {
         'Dezembro',
       ],
     },
+    ofGoalKcal: 'de {{goal}} kcal',
   },
   en: {
     tagline: 'Train together. Compete. Level up.',
@@ -76,6 +77,7 @@ export const common = {
         'December',
       ],
     },
+    ofGoalKcal: 'of {{goal}} kcal',
   },
   es: {
     tagline: 'Entrenen juntos. Compitan. Evolucionen.',
@@ -115,6 +117,7 @@ export const common = {
         'Diciembre',
       ],
     },
+    ofGoalKcal: 'de {{goal}} kcal',
   },
   fr: {
     tagline: 'Entraînez-vous ensemble. Rivalisez. Progressez.',
@@ -154,5 +157,6 @@ export const common = {
         'Décembre',
       ],
     },
+    ofGoalKcal: 'sur {{goal}} kcal',
   },
 } as const

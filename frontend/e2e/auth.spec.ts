@@ -60,7 +60,7 @@ test.describe('signing in', () => {
     await page.goto('/login')
     const { email } = sharedAccount()
 
-    await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email)
+    await page.locator('input[autocomplete="email"]').fill(email)
     await page.getByLabel('Senha', { exact: true }).fill('wrong-password')
     await page.getByRole('button', { name: /^entrar$/i }).click()
 
@@ -76,7 +76,7 @@ test.describe('signing in', () => {
       if (request.url().includes('/api/v1/auth/login')) requests++
     })
 
-    await page.getByRole('textbox', { name: 'Email', exact: true }).fill('not-an-email')
+    await page.locator('input[autocomplete="email"]').fill('not-an-email')
     await page.getByLabel('Senha', { exact: true }).fill(PASSWORD)
     await page.getByRole('button', { name: /^entrar$/i }).click()
 

@@ -29,7 +29,7 @@ export const onboarding = {
     errorCalc:
       'Algum dado ficou estranho. Confere a data de nascimento, o peso e a altura, e tenta de novo.',
     errorJoin: 'Esse código não colou. Confere com a pessoa e tenta de novo.',
-    nameRequired: 'Como a gente te chama? Escreve teu nome.',
+    nameRequired: 'Como a gente te chama? Escreve seu nome.',
     weightInvalid: 'Peso entre 20 e 500 kg.',
     heightInvalid: 'Altura entre 50 e 300 cm.',
     birthDateInvalid: 'Escolhe dia, mês e ano.',
@@ -42,7 +42,12 @@ export const onboarding = {
     nameLabel: 'Como te chamam?',
     namePlaceholder: 'Seu nome',
     weightLabel: 'Peso',
+    /* Com o \"ex:\" na frente: um número cru dentro de um campo numérico é
+       indistinguível de um valor já preenchido, e quem abria a tela achava que tinha
+       digitado. */
+    weightPlaceholder: 'ex: 78',
     heightLabel: 'Altura',
+    heightPlaceholder: 'ex: 179',
     birthLabel: 'Nascimento',
     sexLabel: 'Sexo',
     sexPlaceholder: 'Selecione',
@@ -96,7 +101,7 @@ export const onboarding = {
     inviteLabel: 'Já tem um código de convite?',
     invitePlaceholder: 'ABCD2345',
     inviteHint:
-      'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra mandar pra ela.',
+      'Tem o código que a pessoa te mandou? Cola aí. Se ainda não tem, segue sem ele que a gente te dá um pra você mandar.',
     soloConfirm: 'Fechou. Você começa sozinho e pode chamar alguém quando bater vontade.',
 
     // passo 5 (aposta)
@@ -150,7 +155,9 @@ export const onboarding = {
     nameLabel: 'What should we call you?',
     namePlaceholder: 'Your name',
     weightLabel: 'Weight',
+    weightPlaceholder: 'e.g. 78',
     heightLabel: 'Height',
+    heightPlaceholder: 'e.g. 179',
     birthLabel: 'Birth date',
     sexLabel: 'Sex',
     sexPlaceholder: 'Select',
@@ -254,7 +261,9 @@ export const onboarding = {
     nameLabel: '¿Cómo te llaman?',
     namePlaceholder: 'Tu nombre',
     weightLabel: 'Peso',
+    weightPlaceholder: 'ej: 78',
     heightLabel: 'Altura',
+    heightPlaceholder: 'ej: 179',
     birthLabel: 'Nacimiento',
     sexLabel: 'Sexo',
     sexPlaceholder: 'Seleccionar',
@@ -358,7 +367,9 @@ export const onboarding = {
     nameLabel: 'On t’appelle comment ?',
     namePlaceholder: 'Ton nom',
     weightLabel: 'Poids',
+    weightPlaceholder: 'ex : 78',
     heightLabel: 'Taille',
+    heightPlaceholder: 'ex : 179',
     birthLabel: 'Naissance',
     sexLabel: 'Sexe',
     sexPlaceholder: 'Sélectionner',

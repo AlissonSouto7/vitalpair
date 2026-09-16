@@ -2,6 +2,7 @@ export const mealplan = {
   pt: {
     title: 'Cardápio da semana',
     subtitle: 'Montado pela IA pra bater sua meta. Não gostou de algo? Troca.',
+    subtitleLocked: 'A IA monta a semana inteira na sua meta, e você troca o que não curtir.',
     emptyTitle: 'Sem cardápio ainda',
     emptyText:
       'A IA monta uma semana inteira de comida de verdade, na sua meta e com prato de brasileiro. É um clique.',
@@ -27,6 +28,8 @@ export const mealplan = {
   en: {
     title: 'This week’s menu',
     subtitle: 'Built by AI to hit your goal. Don’t like something? Swap it.',
+    subtitleLocked:
+      'The AI builds a whole week around your goal, and you swap whatever you don’t fancy.',
     emptyTitle: 'No menu yet',
     emptyText: 'The AI builds a whole week of real food, on your goal. One click.',
     generate: 'Build my menu',
@@ -51,6 +54,7 @@ export const mealplan = {
   es: {
     title: 'Menú de la semana',
     subtitle: 'Montado por la IA para llegar a tu meta. ¿No te gustó algo? Cámbialo.',
+    subtitleLocked: 'La IA arma la semana entera según tu meta, y tú cambias lo que no te guste.',
     emptyTitle: 'Sin menú todavía',
     emptyText: 'La IA monta una semana entera de comida de verdad, según tu meta. Un clic.',
     generate: 'Montar mi menú',
@@ -75,6 +79,8 @@ export const mealplan = {
   fr: {
     title: 'Le menu de la semaine',
     subtitle: 'Conçu par l’IA pour atteindre ton objectif. Un plat ne te plaît pas ? Change-le.',
+    subtitleLocked:
+      'L’IA construit la semaine entière selon ton objectif, et tu remplaces ce qui ne te plaît pas.',
     emptyTitle: 'Pas encore de menu',
     emptyText: 'L’IA monte une semaine entière de vrais repas, sur ton objectif. Un clic.',
     generate: 'Monter mon menu',

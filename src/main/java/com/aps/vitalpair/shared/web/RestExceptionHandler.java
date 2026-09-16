@@ -3,6 +3,7 @@ package com.aps.vitalpair.shared.web;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,13 +12,16 @@ import jakarta.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.aps.vitalpair.shared.exception.BusinessRuleException;
@@ -96,6 +100,51 @@ public class RestExceptionHandler {
     public ResponseEntity<ApiResponse<ApiError>> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
         return ApiErrors.response(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso", request);
+    }
+
+    /**
+     * A method the route does not accept, such as PATCH on a collection that only takes POST.
+     *
+     * <p>Found while fixing the type mismatch below, by sending DELETE to a route that wants a
+     * longer path. Measured on a running server: {@code PATCH /api/v1/activity/logs} and
+     * {@code DELETE /api/v1/users/me/tdee} both answered 500 with a stack trace. 405 is what
+     * the status exists for, and the Allow header is what tells the caller which method to use
+     * instead of leaving them guessing.
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        ResponseEntity<ApiResponse<ApiError>> response = ApiErrors.response(
+                HttpStatus.METHOD_NOT_ALLOWED, "Método " + ex.getMethod() + " não é aceito neste endereço", request);
+        Set<HttpMethod> allowed = ex.getSupportedHttpMethods();
+        if (allowed == null || allowed.isEmpty()) {
+            return response;
+        }
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .allow(allowed.toArray(new HttpMethod[0]))
+                .body(response.getBody());
+    }
+
+    /**
+     * A path or query value Spring could not convert to the type the method wants.
+     *
+     * <p>Almost always a malformed id: {@code DELETE /api/v1/activity/logs/not-a-uuid}. Without
+     * this it fell through to the generic handler and answered 500 with a stack trace, which is
+     * the same mistake the unreadable-body case above was written to fix, on the other half of
+     * the request. Measured on a running server before the fix: 500 on the nutrition delete, the
+     * activity delete and the feed reaction endpoint, so every UUID path variable in the API.
+     *
+     * <p>The value is not echoed back. It is caller-controlled text, and a message that repeats
+     * it invites someone to look for a place it lands unescaped.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        return ApiErrors.response(
+                HttpStatus.BAD_REQUEST,
+                "Valor inválido para o parâmetro " + ex.getName(),
+                request,
+                List.of(new ApiError.FieldViolation(ex.getName(), "formato inválido")));
     }
 
     /**

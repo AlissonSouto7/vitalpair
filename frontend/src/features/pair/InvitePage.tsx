@@ -95,7 +95,7 @@ export function InvitePage() {
               <span className="flex h-14 w-14 items-center justify-center rounded-[28%] border-2 border-dashed border-brand/50 font-display text-xl font-semibold text-brand">
                 ?
               </span>
-              <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-success text-white">
+              <span className="z-10 -mx-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-success text-on-fill">
                 <IconLink />
               </span>
               <span className="flex h-14 w-14 items-center justify-center rounded-[28%] bg-rival-soft font-display text-xl font-semibold text-rival-ink">

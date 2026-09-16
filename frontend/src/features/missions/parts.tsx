@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BoltIcon, CheckIcon, UsersIcon } from './icons'
+import { flashCopy, weeklyCopy } from './missionCopy'
 import { firstName, formatRemaining, progressLabelKey, WEEKLY_ICON } from './missionText'
 
-import { acceptFlashMission } from '@/api/missions'
+import { acceptFlashMission, cancelFlashMission } from '@/api/missions'
 import { Points } from '@/components/ui/Badge'
 import type { FlashMission as FlashMissionT, WeeklyMission } from '@/types/missions'
 
@@ -23,6 +24,7 @@ export function FlashMission({
   onAccept: (m: FlashMissionT) => void
 }) {
   const { t } = useTranslation()
+  const { title, description } = flashCopy(mission, t)
   // Lazy initialiser: Date.now() runs once on mount instead of on every render.
   const [now, setNow] = useState(() => Date.now())
   const [accepting, setAccepting] = useState(false)
@@ -36,10 +38,17 @@ export function FlashMission({
   const secondsLeft = Math.max(0, Math.floor((new Date(mission.expiresAt).getTime() - now) / 1000))
   const acabou = secondsLeft <= 0
 
+  /*
+    Topar e desistir pelo mesmo botão.
+
+    Topar era mão única: quem clicasse por engano, ou mudasse de ideia, carregava a missão até
+    o dia virar. Um segundo botão ao lado daria dois controles do mesmo peso para uma decisão
+    que é uma só; o botão troca de papel conforme o estado, como o de seguir numa rede social.
+  */
   async function topar() {
     setAccepting(true)
     try {
-      const updated = await acceptFlashMission()
+      const updated = mission.accepted ? await cancelFlashMission() : await acceptFlashMission()
       onAccept(updated)
     } catch {
       // silencioso: o botão volta a "Topar"
@@ -60,10 +69,8 @@ export function FlashMission({
             ? t('missions.flashLabelOver')
             : t('missions.flashLabelLeft', { time: formatRemaining(secondsLeft) })}
         </p>
-        <p className="font-display text-lg font-semibold text-ink">{mission.title}</p>
-        {mission.description && (
-          <p className="text-xs font-semibold text-muted">{mission.description}</p>
-        )}
+        <p className="font-display text-lg font-semibold text-ink">{title}</p>
+        {description && <p className="text-xs font-semibold text-muted">{description}</p>}
       </div>
 
       <div className="shrink-0 text-right">
@@ -73,15 +80,19 @@ export function FlashMission({
         <button
           type="button"
           onClick={() => void topar()}
-          disabled={mission.accepted || acabou || accepting}
-          className="btn-primary mt-1.5 px-4 py-2 text-[13px] disabled:opacity-60"
+          disabled={acabou || accepting}
+          className={`mt-1.5 rounded-xl px-4 py-2 text-[13px] font-extrabold transition disabled:opacity-60 ${
+            mission.accepted
+              ? 'border border-edge bg-transparent text-muted hover:text-ink'
+              : 'btn-primary'
+          }`}
         >
-          {mission.accepted
-            ? t('missions.flashAccepted')
-            : acabou
-              ? t('missions.flashOver')
-              : accepting
-                ? '...'
+          {acabou
+            ? t('missions.flashOver')
+            : accepting
+              ? '...'
+              : mission.accepted
+                ? t('missions.flashCancel')
                 : t('missions.flashAccept')}
         </button>
       </div>
@@ -95,6 +106,7 @@ export function FlashMission({
 
 export function MissionCard({ mission }: { mission: WeeklyMission }) {
   const { t } = useTranslation()
+  const { title, description } = weeklyCopy(mission, t)
   const pct = Math.min(100, Math.round((mission.current / mission.target) * 100))
   const done = mission.current >= mission.target
   const Icon = WEEKLY_ICON[mission.icon]
@@ -110,10 +122,8 @@ export function MissionCard({ mission }: { mission: WeeklyMission }) {
           <Icon className={`h-[21px] w-[21px] ${done ? 'fill-white' : 'fill-success'}`} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14.5px] font-extrabold text-ink">{mission.title}</p>
-          {mission.subtitle && (
-            <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>
-          )}
+          <p className="text-[14.5px] font-extrabold text-ink">{title}</p>
+          {description && <p className="text-xs font-semibold text-muted">{description}</p>}
         </div>
         <Points value={mission.reward} />
       </div>
@@ -141,6 +151,7 @@ export function MissionCard({ mission }: { mission: WeeklyMission }) {
 
 export function PairMissionCard({ mission }: { mission: WeeklyMission }) {
   const { t } = useTranslation()
+  const { title, description } = weeklyCopy(mission, t)
   return (
     <div className="rounded-2xl border border-hair bg-surface p-[18px]">
       <div className="mb-[14px] flex items-center gap-[13px]">
@@ -148,10 +159,8 @@ export function PairMissionCard({ mission }: { mission: WeeklyMission }) {
           <UsersIcon className="h-[21px] w-[21px] fill-rival" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14.5px] font-extrabold text-ink">{mission.title}</p>
-          {mission.subtitle && (
-            <p className="text-xs font-semibold text-muted">{mission.subtitle}</p>
-          )}
+          <p className="text-[14.5px] font-extrabold text-ink">{title}</p>
+          {description && <p className="text-xs font-semibold text-muted">{description}</p>}
         </div>
         <Points value={mission.reward} />
       </div>
@@ -188,8 +197,8 @@ export function SideProgress({
   const { t } = useTranslation()
   const pct = Math.min(100, Math.round((current / total) * 100))
   const done = current >= total
-  const barCls = tone === 'you' ? 'bg-brand' : 'bg-rival'
-  const labelCls = tone === 'you' ? 'text-brand-ink' : 'text-rival-ink'
+  const barCls = tone === 'you' ? 'bg-you' : 'bg-pair'
+  const labelCls = tone === 'you' ? 'text-you-ink' : 'text-pair-ink'
 
   return (
     <div className="flex items-center gap-3">
@@ -212,12 +221,13 @@ export function SideProgress({
 
 export function DoneRow({ mission }: { mission: WeeklyMission }) {
   const { t } = useTranslation()
+  const { title } = weeklyCopy(mission, t)
   return (
     <div className="flex items-center gap-[13px] rounded-[14px] border border-hair bg-surface px-4 py-[13px] opacity-[0.72]">
       <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] bg-success-soft">
         <CheckIcon className="h-[17px] w-[17px] fill-success" />
       </span>
-      <p className="min-w-0 flex-1 text-[13.5px] font-extrabold text-ink">{mission.title}</p>
+      <p className="min-w-0 flex-1 text-[13.5px] font-extrabold text-ink">{title}</p>
       <span className="shrink-0 text-xs font-extrabold text-success-ink">
         {t('missions.rewardPts', { reward: mission.reward })}
       </span>

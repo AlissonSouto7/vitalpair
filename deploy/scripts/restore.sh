@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# Restores a dump over an environment's database.
+# Restores a dump over an environment's database, and the profile photos that go with it.
+#
+# The two are one backup: the dump holds a name per profile and the tarball holds the file it
+# names. Restoring only the dump leaves every avatar pointing at nothing. The archive is found
+# beside the dump by name, and its absence is a warning rather than a failure, because a dump
+# taken before photos existed has no matching archive.
 #
 #   deploy/scripts/restore.sh staging /var/backups/vitalpair/staging/vitalpair-20260906T120000Z.dump
 #

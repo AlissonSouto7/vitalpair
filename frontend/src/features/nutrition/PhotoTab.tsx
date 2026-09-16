@@ -180,7 +180,7 @@ export function PhotoTab({ onPick }: { onPick: (food: DetectedFood) => void }) {
                   type="button"
                   onClick={() => onPick(d)}
                   aria-label={t('nutrition.detectedCheckAdd', { name: d.foodName })}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:brightness-105"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-act-soft text-act-ink transition hover:brightness-95"
                 >
                   <PlusIcon />
                 </button>

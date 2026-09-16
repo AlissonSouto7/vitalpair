@@ -23,13 +23,23 @@ public record UpdateProfileRequest(
         @NotNull Goal goal,
         @NotNull ActivityLevel activityLevel,
         /*
-         * One person's avatar is rendered in the other's browser, so this string decides where
-         * the partner's browser makes a request. With no scheme restriction any address worked as
-         * a tracker: whoever picks the avatar receives the partner's IP and user agent every time
-         * they open the pair screen. https only, and the regex refuses "javascript:" and "data:"
-         * by construction.
+         * The photo is not set through this form any more: PUT /users/me/avatar is, and it is the
+         * only thing that writes this field. Kept in the request so a client that still sends the
+         * profile it read back does not fail validation, and constrained to a name this server
+         * generated.
+         *
+         * It used to accept any https URL, and the previous note here reasoned about the risk
+         * correctly but stopped one step short: one person's avatar is rendered in the other's
+         * browser, so an external address is a tracker that hands whoever chose it the partner's
+         * IP, user agent and the exact time they opened the app, on every visit. https was the
+         * wrong axis, because the problem is third-party origin and not transport. Verified on a
+         * running server before this change: "https://evil.example.com/beacon.png" was accepted.
+         *
+         * The pattern is the object name the storage adapter produces, which cannot express a
+         * path, a scheme or a host, so there is nowhere for it to point but here.
          */
-        @Size(max = 500) @Pattern(regexp = "^$|^https://[^\\s\"'<>]+$", message = "avatarUrl deve ser uma URL https")
+        @Size(max = 500)
+                @Pattern(regexp = "^$|^[0-9a-f]{32}\\.jpg$", message = "A foto de perfil é enviada em /users/me/avatar")
                 String avatarUrl,
         /*
          * Optional: omitting it leaves the stored preference alone, so a client that does not

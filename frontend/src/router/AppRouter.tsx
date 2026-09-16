@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { Layout } from '@/components/Layout'
 import { ProtectedRoute } from '@/router/ProtectedRoute'
+import { RequireOnboarding } from '@/router/RequireOnboarding'
 import { NotFoundPage } from '@/shared/ui/NotFoundPage'
 import { RouteFallback } from '@/shared/ui/RouteFallback'
 import { useAuthStore } from '@/store/authStore'
@@ -121,21 +122,28 @@ export function AppRouter() {
           <Route path="/invite/:code" element={<InvitePage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/nutrition" element={<NutritionPage />} />
-              <Route path="/activity" element={<ActivityPage />} />
-              <Route path="/feed" element={<FeedPage />} />
-              <Route path="/meal-plan" element={<MealPlanPage />} />
-              <Route path="/workout-plan" element={<WorkoutPlanPage />} />
-              <Route path="/season" element={<SeasonPage />} />
-              <Route path="/season-end" element={<SeasonEndPage />} />
-              <Route path="/missions" element={<MissionsPage />} />
-              <Route path="/progress" element={<ProgressPage />} />
-              <Route path="/gamification" element={<GamificationPage />} />
-              <Route path="/pair" element={<PairPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
+            {/*
+              O guard envolve as telas do app, e não o /onboarding: quem ainda não tem perfil
+              precisa poder chegar lá, e um guard por cima dele mandaria a pessoa para o
+              próprio onboarding em loop.
+            */}
+            <Route element={<RequireOnboarding />}>
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/nutrition" element={<NutritionPage />} />
+                <Route path="/activity" element={<ActivityPage />} />
+                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/meal-plan" element={<MealPlanPage />} />
+                <Route path="/workout-plan" element={<WorkoutPlanPage />} />
+                <Route path="/season" element={<SeasonPage />} />
+                <Route path="/season-end" element={<SeasonEndPage />} />
+                <Route path="/missions" element={<MissionsPage />} />
+                <Route path="/progress" element={<ProgressPage />} />
+                <Route path="/gamification" element={<GamificationPage />} />
+                <Route path="/pair" element={<PairPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
             </Route>
           </Route>
           {/* A real 404. Redirecting an unknown path to the dashboard sent a logged-out

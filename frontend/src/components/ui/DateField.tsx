@@ -81,9 +81,15 @@ export function DateField({
   // so every other language showed a translated form with "Março" inside it.
   const months: readonly string[] = t('common.date.months', { returnObjects: true })
   const monthOpts = months.map((label, i) => ({ value: String(i + 1).padStart(2, '0'), label }))
-  // de 13 anos atrás até 100 anos antes disso: faixa razoável para data de nascimento
-  const yearOpts = Array.from({ length: 100 }, (_, i) => {
-    const yy = String(thisYear - 13 - i)
+  /*
+    Do ano atual para trás, 120 anos.
+
+    Começava em `thisYear - 13`, uma idade mínima que o produto não tem: o backend valida
+    apenas `@Past`, e a lista parava em 2013 sem dizer por quê, o que parece defeito para
+    quem nasceu depois. 120 cobre qualquer pessoa viva sem virar uma lista infinita.
+  */
+  const yearOpts = Array.from({ length: 120 }, (_, i) => {
+    const yy = String(thisYear - i)
     return { value: yy, label: yy }
   })
 

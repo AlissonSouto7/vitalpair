@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.mission.domain.port.in.AcceptFlashMissionUseCase;
+import com.aps.vitalpair.mission.domain.port.in.CancelFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetWeeklyMissionsUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
@@ -26,14 +27,17 @@ public class MissionController {
 
     private final GetFlashMissionUseCase getFlashMissionUseCase;
     private final AcceptFlashMissionUseCase acceptFlashMissionUseCase;
+    private final CancelFlashMissionUseCase cancelFlashMissionUseCase;
     private final GetWeeklyMissionsUseCase getWeeklyMissionsUseCase;
 
     public MissionController(
             GetFlashMissionUseCase getFlashMissionUseCase,
             AcceptFlashMissionUseCase acceptFlashMissionUseCase,
+            CancelFlashMissionUseCase cancelFlashMissionUseCase,
             GetWeeklyMissionsUseCase getWeeklyMissionsUseCase) {
         this.getFlashMissionUseCase = getFlashMissionUseCase;
         this.acceptFlashMissionUseCase = acceptFlashMissionUseCase;
+        this.cancelFlashMissionUseCase = cancelFlashMissionUseCase;
         this.getWeeklyMissionsUseCase = getWeeklyMissionsUseCase;
     }
 
@@ -58,6 +62,18 @@ public class MissionController {
     public ResponseEntity<ApiResponse<FlashMissionResponse>> acceptFlash(
             @AuthenticationPrincipal AuthenticatedUser principal) {
         var view = acceptFlashMissionUseCase.acceptToday(principal.userId());
+        return ResponseEntity.ok(ApiResponse.ok(FlashMissionResponse.from(view)));
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "Give today's mission back",
+            description =
+                    "Clears the acceptance for the whole pair, so the mission can be accepted again on the same day. Cancelling something that was never accepted answers with today's mission, unaccepted, rather than failing.")
+    @PostMapping("/flash/cancel")
+    public ResponseEntity<ApiResponse<FlashMissionResponse>> cancelFlash(
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        var view = cancelFlashMissionUseCase.cancelToday(principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(FlashMissionResponse.from(view)));
     }
 

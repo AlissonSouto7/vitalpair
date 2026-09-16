@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { LANGUAGES } from '../i18n'
 
 export function LanguageSelect() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -20,22 +20,36 @@ export function LanguageSelect() {
 
   return (
     <div ref={ref} className="relative">
+      {/*
+        O nome acessível diz a função e o valor ("Idioma do app: Português"), e não só o
+        idioma. Antes o `title` era o rótulo puro, então o botão que abre a lista e o item
+        dentro dela se chamavam os dois "Português": para quem navega por leitor de tela ou
+        por teclado, um era indistinguível do outro.
+      */}
       <button
         onClick={() => setOpen((o) => !o)}
-        title={current.label}
-        className="flex items-center gap-1.5 rounded-lg border border-hair px-2.5 py-1.5 text-sm font-bold text-muted transition hover:text-ink"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`${t('settings.appLanguage')}: ${current.label}`}
+        className="flex items-center gap-1.5 rounded-lg border border-edge px-2.5 py-1.5 text-sm font-bold text-ink transition hover:bg-track"
       >
         <span className="text-base leading-none">{current.flag}</span>
         <span className="uppercase">{current.code}</span>
       </button>
 
       {open && (
-        <ul className="absolute right-0 z-30 mt-1.5 w-40 overflow-hidden rounded-xl border border-hair bg-surface p-1 shadow-[0_14px_36px_rgba(70,45,20,0.18)]">
+        <ul
+          role="menu"
+          aria-label={t('settings.appLanguage')}
+          className="absolute right-0 z-30 mt-1.5 w-40 overflow-hidden rounded-xl border border-hair bg-surface p-1 shadow-[0_14px_36px_rgba(70,45,20,0.18)]"
+        >
           {LANGUAGES.map((lang) => {
             const active = lang.code === current.code
             return (
-              <li key={lang.code}>
+              <li key={lang.code} role="none">
                 <button
+                  role="menuitemradio"
+                  aria-checked={active}
                   onClick={() => {
                     void i18n.changeLanguage(lang.code)
                     setOpen(false)

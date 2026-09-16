@@ -66,7 +66,7 @@ export function StepAboutYou({
                 max={500}
                 step="0.1"
                 inputMode="decimal"
-                placeholder="78"
+                placeholder={t('onboarding.weightPlaceholder')}
                 className="input pr-10"
                 {...register('weightKg', { valueAsNumber: true })}
               />
@@ -88,7 +88,7 @@ export function StepAboutYou({
                 max={300}
                 step="1"
                 inputMode="numeric"
-                placeholder="179"
+                placeholder={t('onboarding.heightPlaceholder')}
                 className="input pr-10"
                 {...register('heightCm', { valueAsNumber: true })}
               />

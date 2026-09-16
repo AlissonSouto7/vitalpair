@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState, useId } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +24,7 @@ type Mode = 'pair' | 'solo'
 
 export function OnboardingPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const inviteId = useId()
   const betId = useId()
   const navigate = useNavigate()
@@ -108,6 +110,12 @@ export function OnboardingPage() {
   async function saveProfileAndCalc(values: OnboardingValues) {
     try {
       await updateProfile(values)
+      /*
+        O perfil é lido do cache em outros lugares, e esta chamada escreve nele por fora.
+        Sem avisar, o roteador continua vendo o perfil vazio que leu na entrada e manda a
+        pessoa de volta para cá no fim do onboarding, em loop.
+      */
+      await queryClient.invalidateQueries({ queryKey: ['profile'] })
       const result = await getTdee()
       setTdee(result)
       setStep(3)

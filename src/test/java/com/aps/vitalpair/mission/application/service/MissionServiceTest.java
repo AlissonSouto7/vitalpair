@@ -3,10 +3,12 @@ package com.aps.vitalpair.mission.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -158,6 +160,49 @@ class MissionServiceTest {
         ArgumentCaptor<PairMissionState> saved = ArgumentCaptor.forClass(PairMissionState.class);
         verify(pairMissionRepository).save(saved.capture());
         assertThat(saved.getValue().getDate()).isEqualTo(today);
+    }
+
+    @Test
+    void cancellingClearsTheAcceptanceAndLetsThePairTakeItAgain() {
+        // Accepting was one-way: whoever tapped it by mistake, or changed their mind, carried
+        // a mission they would not do until the day turned.
+        givenUser();
+        givenCatalog(mission("A"));
+        LocalDate today = LocalDate.of(2026, 5, 20);
+        PairMissionState existing = PairMissionState.builder()
+                .tenantId(TENANT)
+                .missionCode("A")
+                .date(today)
+                .accepted(true)
+                .acceptedAt(Instant.parse("2026-05-20T10:00:00Z"))
+                .build();
+        when(pairMissionRepository.find(TENANT, today)).thenReturn(Optional.of(existing));
+        when(pairMissionRepository.save(any())).thenAnswer(call -> call.getArgument(0));
+
+        FlashMissionView view = serviceOn(today).cancelToday(USER);
+
+        assertThat(view.isAccepted()).isFalse();
+        ArgumentCaptor<PairMissionState> saved = ArgumentCaptor.forClass(PairMissionState.class);
+        verify(pairMissionRepository).save(saved.capture());
+        assertThat(saved.getValue().isAccepted()).isFalse();
+        // The timestamp goes with it: a row that says "not accepted" but keeps when it was
+        // would be two answers to the same question.
+        assertThat(saved.getValue().getAcceptedAt()).isNull();
+    }
+
+    @Test
+    void cancellingSomethingNeverAcceptedAnswersInsteadOfFailing() {
+        // The button reports today's mission either way. Failing here would show an error for
+        // a state the person already wanted.
+        givenUser();
+        givenCatalog(mission("A"));
+        LocalDate today = LocalDate.of(2026, 5, 20);
+        when(pairMissionRepository.find(TENANT, today)).thenReturn(Optional.empty());
+
+        FlashMissionView view = serviceOn(today).cancelToday(USER);
+
+        assertThat(view.isAccepted()).isFalse();
+        verify(pairMissionRepository, never()).save(any());
     }
 
     @Test

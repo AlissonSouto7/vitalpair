@@ -1,0 +1,10 @@
+# A paleta alinha os valores em coluna de propósito: os tokens são lidos como tabela, e é
+# assim que se percebe de relance que `act`, `you` e `pair` formam três famílias completas e
+# que nenhuma ficou sem um tom. O Prettier colapsa esse alinhamento, que é a única coisa que
+# torna o arquivo legível.
+src/index.css
+
+dist
+coverage
+playwright-report
+test-results

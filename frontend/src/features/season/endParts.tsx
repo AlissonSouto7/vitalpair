@@ -28,7 +28,7 @@ export function ScoreSide({
         <Avatar initial={initial} tone={tone} size={48} />
       </div>
       <div
-        className={`text-[11px] font-extrabold uppercase tracking-wide ${isYou ? 'text-brand-ink' : 'text-rival-ink'}`}
+        className={`text-[11px] font-extrabold uppercase tracking-wide ${isYou ? 'text-you-ink' : 'text-pair-ink'}`}
       >
         {name}
       </div>

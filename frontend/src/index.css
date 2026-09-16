@@ -9,7 +9,13 @@
      roxo  (rival)    = o par-rival, e só isso
      verde (success)  = saúde, meta batida, quem está ganhando
      dourado (carb)   = macro de carboidrato
+     teal (fat)       = macro de gordura
      neutros quentes  = estrutura/chrome
+
+   Os macros têm cor de CATEGORIA, não de julgamento: proteína usa o laranja da
+   marca, carboidrato o dourado e gordura o teal. Gordura já usou o verde de
+   success, e duas barras no mesmo percentual saíam em cores opostas, uma lida
+   como "atrasada" e a outra como "ótima". Verde ficou só para o papel dele.
    ============================================================ */
 
 @import "tailwindcss";
@@ -24,25 +30,56 @@
   --color-muted:    var(--muted);
   --color-faint:    var(--faint);
   --color-hair:     var(--hair);
+  --color-edge:     var(--edge);
   --color-track:    var(--track);
 
-  --color-brand:      var(--brand);       /* laranja = você */
-  --color-brand-ink:  var(--brand-ink);
-  --color-brand-soft: var(--brand-soft);
+  /* Ação do sistema. É a cor do botão, e de mais nada: não identifica ninguém.
+     `brand` continua existindo como apelido porque 100+ lugares o usam; os dois
+     apontam para o mesmo valor até a última tela migrar. */
+  --color-act:      var(--act);
+  --color-act-ink:  var(--act-ink);
+  --color-act-soft: var(--act-soft);
+  --color-brand:      var(--act);
+  --color-brand-ink:  var(--act-ink);
+  --color-brand-soft: var(--act-soft);
 
-  --color-rival:      var(--rival);       /* roxo = o par */
-  --color-rival-ink:  var(--rival-ink);
-  --color-rival-soft: var(--rival-soft);
+  /* Identidade das duas pessoas. Nunca viram botão: se a cor de "você" também
+     fosse a da ação, você teria peso de sistema que seu par não tem, e a disputa
+     deixaria de ser simétrica. */
+  --color-you:      var(--you);
+  --color-you-ink:  var(--you-ink);
+  --color-you-soft: var(--you-soft);
+
+  --color-pair:      var(--pair);
+  --color-pair-ink:  var(--pair-ink);
+  --color-pair-soft: var(--pair-soft);
+  /* apelido: as telas ainda dizem "rival" */
+  --color-rival:      var(--pair);
+  --color-rival-ink:  var(--pair-ink);
+  --color-rival-soft: var(--pair-soft);
 
   --color-success:      var(--success);   /* verde = saúde/meta/venceu */
   --color-success-ink:  var(--success-ink);
   --color-success-soft: var(--success-soft);
 
+  --color-protein:     var(--protein);    /* ardósia = proteína */
+  --color-protein-ink: var(--protein-ink);
+
   --color-carb:     var(--carb);          /* dourado = carboidrato */
   --color-carb-ink: var(--carb-ink);
 
+  --color-fat:     var(--fat);            /* teal = gordura */
+  --color-fat-ink: var(--fat-ink);
+
   --color-danger:      var(--danger);
   --color-danger-soft: var(--danger-soft);
+
+  /* Rótulo de botão PREENCHIDO (bg-brand, bg-success, bg-danger, bg-rival).
+     Não é branco fixo: no tema escuro os preenchimentos são claros de propósito, e branco
+     sobre eles dava 2.34:1 no laranja e 1.74:1 no verde, ilegível. Medido nos dois temas, o
+     rótulo certo é branco no claro e quase-preto no escuro. Usar `text-on-fill` em vez de
+     `text-white` em qualquer botão de fundo colorido. */
+  --color-on-fill: var(--on-fill);
 
   /* arena (placar) — theme-aware */
   --color-arena:        var(--arena);
@@ -64,44 +101,210 @@
   --font-sans:    "Nunito", sans-serif;   /* corpo, UI */
 }
 
-/* ---------- CLARO (creme quente) ---------- */
+/* ---------- CLARO (Arena: cinza-azulado frio) ----------
+
+   A paleta trocou de família em 15/09/2026. Era creme quente com laranja para "você" e
+   roxo para o par; virou cinza-azulado com azul para "você" e bordô para o par, e o
+   laranja passou a ser só a ação do sistema.
+
+   O motivo da troca não é gosto. Três coisas quebravam:
+
+     1. Uma cor fazia dois trabalhos. O laranja era ao mesmo tempo a marca, a identidade
+        de "você" e o botão. Num produto que é uma disputa entre duas pessoas, isso dava a
+        uma delas o peso visual do sistema inteiro.
+     2. O par era violeta. Violeta se confunde com azul em daltonismo, e é hoje a cor mais
+        associada a interface gerada por máquina.
+     3. Laranja contra roxo dá 2,01:1 entre si. Em escala de cinza, "você" e "seu par"
+        viravam a mesma coisa.
+
+   Azul com laranja é o par que a literatura de acessibilidade chama de padrão ouro, por
+   continuar distinguível em todos os tipos comuns de daltonismo. O bordô do par é mais
+   sóbrio que o magenta e fica longe do azul.
+
+   Ainda assim, duas cores nunca bastam: o componente de identidade carrega FORMA junto
+   (moldura na cor da pessoa, canto recortado só no par), porque cor sozinha não sobrevive
+   ao preto e branco nem a uma foto de perfil cobrindo o quadrado.
+
+   Medido pela fórmula da WCAG contra os fundos reais deste tema (surface #ffffff e canvas
+   #f2f4f6). Alvo: texto >= 4.5:1, preenchimento/barra >= 3:1, rótulo sobre botão >= 4.5:1.
+
+     act     #c2410c  branco sobre ele 5.18  no surface 5.18
+     you     #0b5fd0  branco sobre ele 5.90  no surface 5.90
+     pair    #8c1d3f  branco sobre ele 8.89  no surface 8.89
+     success #1b7a3e  branco sobre ele 5.38  no surface 5.38
+     carb    #9a5b00  no surface 5.43      fat #0f766e  no surface 5.47
+     danger  #b3261e  branco sobre ele 6.54
+     ink 18.01 > muted 5.85 > faint 5.18 no surface, e 4.70 no canvas, que é o piso real:
+     faint carrega conteúdo de verdade (horário, data, e-mail, placeholder), então tem que
+     passar como texto nos DOIS fundos, não só no mais claro.
+
+   ---------- histórico do creme, antes da troca ----------
+
+   Cada valor abaixo foi MEDIDO pela fórmula de luminância relativa da WCAG contra os fundos
+   reais deste tema (surface #ffffff e canvas #fbf6ee), não escolhido no olho. Alvo: texto
+   normal >= 4.5:1, preenchimento/barra >= 3:1, e rótulo branco sobre botão preenchido >= 4.5:1.
+
+   O tema claro reprovava quase inteiro e ninguém tinha visto, porque a varredura de telas só
+   olhou o tema escuro (que passa em tudo). O pior caso era o botão de ação primária: branco
+   sobre o laranja #ff6b2c dava 2.84:1, abaixo até do limite de texto grande, em toda tela do
+   app. Matiz preservado em todos, só a luminosidade caiu até cruzar o limite:
+
+     brand      #ff6b2c -> #c94810   branco sobre ele 2.84 -> 4.75   barra 2.32 -> 3.88
+     brand-ink  #e0561c -> #b03f0e   no creme         3.54 -> 5.48
+     success    #22c55e -> #17853f   branco sobre ele 2.28 -> 4.71   barra 1.86 -> 3.85
+     success-ink #1aa34a -> #157f39  no creme         3.06 -> 4.73
+     carb       #dd9527 -> #b0761c   barra            2.04 -> 3.15
+     carb-ink   #c9881f -> #8f6116   no creme         2.78 -> 5.02
+     fat        #0f9b8e -> #0d8b80   barra            2.81 -> 3.42
+     muted      #8a7f6d -> #6f6556   no creme         3.66 -> 5.32
+     faint      #a99a85 -> #756b5c   no creme         2.55 -> 4.86
+     danger     #d8483a -> #c93f32   branco sobre ele 4.28 -> 4.95
+
+   carb e fat não viraram fundo de botão de rótulo branco em lugar nenhum (conferido: zero
+   ocorrências de bg-carb ou bg-fat com text-white), então foram ajustados só para o papel que
+   de fato têm, que é barra e ponto. Escurecê-los além disso seria pagar contraste de um caso
+   que não existe. rival e fat-ink já passavam e não mudaram.
+
+   A hierarquia ink > muted > faint continua legível e na mesma ordem: 15.21, 5.32 e 4.86 no
+   creme. faint carrega conteúdo de verdade (horário, data de vigência da política, e-mail,
+   placeholder), então tinha que passar como texto, não como enfeite. */
 :root {
-  --canvas:#fbf6ee; --surface:#ffffff; --sidebar:#ffffff;
-  --ink:#241f17; --muted:#8a7f6d; --faint:#a99a85; --hair:#ece1cf; --track:#f1e7d8;
+  --canvas:#f2f4f6; --surface:#ffffff; --sidebar:#ffffff;
+  --ink:#12171d; --muted:#5b6672; --faint:#646e7a; --hair:#dde3e9; --track:#eaeef3;
+  /* Contorno de controle clicavel, separado de --hair.
+     --hair separa areas (divisoria, rodape) e pode ser sutil; o contorno de um botao e
+     informacao: e ele que diz onde se pode clicar. O WCAG pede 3:1 para esse limite, e o
+     --hair da 1,17:1 no claro e 1,36:1 no escuro, entao a caixa some e o controle parece
+     desligado. Medido: 3,23:1 sobre o canvas claro e 3,56:1 sobre o branco do cartao. */
+  --edge:#7d8996;
 
-  --brand:#ff6b2c;   --brand-ink:#e0561c;   --brand-soft:#fff0e4;
-  --rival:#7c3aed;   --rival-ink:#6d28d9;   --rival-soft:#f3ecff;
-  --success:#22c55e; --success-ink:#1aa34a; --success-soft:#e6f7ec;
-  --carb:#dd9527;    --carb-ink:#c9881f;
-  --danger:#d8483a;  --danger-soft:#f3d4cf;
+  --act:#c2410c;     --act-ink:#a8370a;     --act-soft:#fdefe8;
+  --you:#0b5fd0;     --you-ink:#0a53b8;     --you-soft:#e4edfb;
+  --pair:#8c1d3f;    --pair-ink:#7a1836;    --pair-soft:#fae7ec;
+  --success:#1b7a3e; --success-ink:#186e37; --success-soft:#e4f3e9;
+  --protein:#5b4b8a; --protein-ink:#524383;
+  --carb:#9a5b00;    --carb-ink:#8a5100;
+  --fat:#0f766e;     --fat-ink:#0e6b63;
+  --danger:#b3261e;  --danger-soft:#fae5e3;
+  --on-fill:#ffffff;
 
-  --arena:#ffffff; --arena-text:#241f17; --arena-muted:#8a7f6d; --arena-line:#e8dccb;
-  --arena-border:#ece1cf; --arena-track:#efe4d4; --arena-shadow:rgba(70,45,20,.1);
+  --arena:#ffffff; --arena-text:#12171d; --arena-muted:#5b6672; --arena-line:#dde3e9;
+  --arena-border:#dde3e9; --arena-track:#eaeef3; --arena-shadow:rgba(18,23,29,.1);
+  /* O brilho que atravessa a barra do placar. Mais forte no claro, porque ali ele passa
+     sobre azul e bordo cheios; no escuro as cores ja sao claras e .3 basta. */
+  --shine:rgba(255,255,255,.55);
 }
 
-/* ---------- ESCURO (carvão-âmbar aconchegante, nunca navy) ---------- */
+/* ---------- ESCURO (azul-noite, nativo e não invertido) ----------
+
+   Este tema não é o claro com as cores trocadas: ele nasceu escuro. O anterior era
+   carvão-âmbar quente, que sofre do problema de escuro quente ler como marrom. O
+   azul-noite #0d1117 dá um preto que não é preto puro (evita halo no texto) e deixa as
+   cores de identidade respirarem.
+
+   Medido contra surface #161c23 e canvas #0d1117, e passa com folga em tudo:
+
+     act 7.39   you 7.12   pair 8.55   success 10.66   carb 10.75   fat 11.59   danger 8.40
+     ink 15.24 > muted 6.99 > faint 4.68
+
+   `on-fill` é #0a1420, quase-preto azulado: no escuro os preenchimentos são claros de
+   propósito, e branco sobre eles seria ilegível.
+
+   ---------- histórico do carvão-âmbar ----------
+
+   Medido pelo mesmo critério do tema claro, e este passava em quase tudo: todos os -ink ficam
+   entre 8.1 e 10.1 e todas as barras entre 3.5 e 8.0. O único abaixo do limite era o faint,
+   com 4.18:1 no surface, então subiu de #8a7f6d para #948873 (4.72:1) e continua mais apagado
+   que o muted, que tem 5.99:1. */
 .dark {
-  --canvas:#1b1610; --surface:#251e16; --sidebar:#221b13;
-  --ink:#f7efe1; --muted:#a99a85; --faint:#8a7f6d; --hair:#352a1f; --track:#352a1f;
+  --canvas:#0d1117; --surface:#161c23; --sidebar:#11161c;
+  --ink:#eef2f6; --muted:#9aa7b4; --faint:#7b8794; --hair:#252d36; --track:#1e252d;
+  /* 3,47:1 sobre o canvas e 3,14:1 sobre a superficie do cartao: o contorno tem de se
+     enxergar nos dois, porque o mesmo controle aparece na barra e dentro de cartao. */
+  --edge:#5e6b78;
 
-  --brand:#ff8a4c;   --brand-ink:#ffa066;   --brand-soft:rgba(255,138,76,.14);
-  --rival:#a855f7;   --rival-ink:#c4a9f8;   --rival-soft:rgba(168,85,247,.16);
-  --success:#4ade80; --success-ink:#5ed98e; --success-soft:rgba(74,222,128,.14);
-  --carb:#f0b455;    --carb-ink:#f0b455;
-  --danger:#ff6a5c;  --danger-soft:rgba(255,106,92,.3);
+  --act:#ff8b4d;     --act-ink:#ffa06b;     --act-soft:rgba(255,139,77,.15);
+  --you:#6fa8ff;     --you-ink:#8fbcff;     --you-soft:rgba(111,168,255,.15);
+  --pair:#f2a0b5;    --pair-ink:#f5b3c4;    --pair-soft:rgba(242,160,181,.15);
+  --success:#7ee0a0; --success-ink:#95e7b1; --success-soft:rgba(126,224,160,.14);
+  --protein:#b9a7e8; --protein-ink:#c6b7ee;
+  --carb:#ffc34d;    --carb-ink:#ffcf70;
+  --fat:#5eead4;     --fat-ink:#7cefdd;
+  --danger:#ff9a91;  --danger-soft:rgba(255,154,145,.18);
+  --on-fill:#0a1420;
 
-  --arena:#322619; --arena-text:#ffffff; --arena-muted:#b6a288; --arena-line:rgba(255,255,255,.14);
-  --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.1); --arena-shadow:rgba(0,0,0,.4);
+  --arena:#161c23; --arena-text:#eef2f6; --arena-muted:#9aa7b4; --arena-line:rgba(255,255,255,.12);
+  --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.08); --arena-shadow:rgba(0,0,0,.5);
+  --shine:rgba(255,255,255,.3);
 }
 
 html, body, #root { height: 100%; }
 html, body { background: var(--canvas); color: var(--ink); }
+
+/* Âncora não para embaixo da barra fixa da landing: sem isto, clicar em "Preço" deixa o
+   título da seção escondido atrás dela. Vale para todo #id da página, e o inset do topo
+   entra na conta porque em telefone a barra ainda desce o que o sistema ocupa. */
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 84px); }
+
+/* Âncora não para embaixo da barra fixa da landing: sem isto, clicar em "Preço" deixa o
+   título da seção escondido atrás dela. Vale para todo #id da página, e o inset do topo
+   entra na conta porque em telefone a barra ainda desce o que o sistema ocupa. */
+
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 
 /* Tira as setinhas nativas dos inputs de número (peso/altura) — controle não estilizado. */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+/* ------------------------------------------------------------------
+   Autopreenchimento do navegador.
+
+   O Chrome pinta o campo preenchido com um amarelo-claro próprio e ignora
+   `background-color`, então no tema escuro o campo virava uma faixa branca com o texto
+   quase ilegível. Ele respeita `box-shadow`, e é por isso que a cor entra como uma sombra
+   interna do tamanho do campo em vez de um fundo.
+
+   `-webkit-text-fill-color` pela mesma razão: o `color` normal também é ignorado.
+
+   A transição longa é o segundo truque conhecido: o Chrome reaplica o estilo dele no
+   primeiro quadro, e adiar a mudança de fundo por tempo suficiente impede o flash branco
+   que aparece entre o clique na sugestão e a pintura do campo.
+   ------------------------------------------------------------------ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--ink);
+  -webkit-box-shadow: 0 0 0 1000px var(--canvas) inset;
+  box-shadow: 0 0 0 1000px var(--canvas) inset;
+  caret-color: var(--ink);
+  transition: background-color 100000s ease-in-out 0s;
+}
+
+/* ------------------------------------------------------------------
+   O aviso de que o navegador preencheu um campo.
+
+   O Chrome nem sempre dispara `input` ao preencher pela lista de sugestões, e o formulário
+   fica com o valor antigo: o campo mostra um e-mail correto e a mensagem "confere esse
+   e-mail" continua embaixo dele.
+
+   Ele dispara uma animação ao aplicar o `:-webkit-autofill`, e é esse o sinal que o
+   TextField escuta. A animação não anima nada de visível; existe só para avisar.
+   ------------------------------------------------------------------ */
+@keyframes vp-autofilled { from { } to { } }
+input:-webkit-autofill { animation-name: vp-autofilled; animation-duration: 1ms; }
+
+/* O campo com fundo de superfície (dentro de cartão) pede a cor do cartão, senão o
+   autopreenchido fica de outra cor que os campos vazios ao lado. */
+.bg-surface:-webkit-autofill,
+input.bg-surface:-webkit-autofill:hover,
+input.bg-surface:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+}
 
 /* Scrollbar temático (claro e escuro) — sem o branco padrão do navegador */
 * { scrollbar-width: thin; scrollbar-color: var(--faint) transparent; }
@@ -129,21 +332,69 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 @keyframes vp-ring-draw { from { stroke-dashoffset: 314; } to { stroke-dashoffset: var(--vp-off, 92); } }
 @keyframes vp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
-/* ---------- classes utilitárias (compat com telas ainda não migradas) ---------- */
+/* Entrada da linha do feed na vitrine da landing: sobe 4px e aparece. Curta de propósito,
+   porque a linha troca a cada 2,6s e uma transição longa viraria piscar. */
+@keyframes vp-fade-up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ------------------------------------------------------------------
+   A barra do placar, viva.
+
+   Um brilho atravessa cada lado a cada 3,6 s, alternado: o lado do par sai com metade do
+   ciclo de atraso, então os dois nunca brilham juntos e a barra lê como dois lados se
+   revezando em vez de um enfeite piscando.
+
+   Substitui a listra estática, que era decoração pura: a barra é o placar, e um placar que
+   não se mexe não conta que a outra pessoa também está jogando.
+   ------------------------------------------------------------------ */
+@keyframes vp-sweep { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(220%); } }
+
+.vp-live { position: relative; overflow: hidden; }
+.vp-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, var(--shine) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: vp-sweep 3.6s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+.vp-live.vp-delay::after { animation-delay: 1.8s; }
+
+/* O número que respira junto com a barra: um aperto de 6% no mesmo compasso, para o olho
+   voltar ao placar sem que nada pule de lugar. */
+@keyframes vp-pop { 0%, 88%, 100% { transform: scale(1); } 92% { transform: scale(1.06); } }
+.vp-pulse { animation: vp-pop 3.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-live::after { animation: none; opacity: 0; }
+  .vp-pulse { animation: none; }
+}
+
+/* ---------- classes utilitárias ----------
+
+   Estas existem para as telas ainda não migradas, e vão embora conforme cada uma passa a
+   usar <Card> e <Button>. A diferença entre as duas formas não é de estilo: uma classe é
+   um convite e um componente é um contrato. Medido antes da migração começar: 46 lugares
+   usavam .card e 38 reescreviam `border border-hair bg-surface` na mão, em 23 combinações
+   diferentes de raio, preenchimento e sombra.
+
+   Enquanto durarem, seguem os mesmos tokens do resto, para que uma tela não migrada não
+   destoe de uma migrada. */
 @layer components {
   .card {
-    @apply rounded-2xl border border-hair bg-surface p-5 shadow-[0_10px_30px_rgba(70,45,20,0.06)];
+    @apply rounded-xl border border-hair bg-surface p-4;
   }
   .label {
     @apply mb-1 block text-xs font-bold text-muted;
   }
   .input {
     @apply w-full rounded-xl border border-hair bg-canvas px-3 py-2.5 text-ink placeholder-faint
-      outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30;
+      outline-none transition focus:border-act focus:ring-2 focus:ring-act/30;
   }
+  /* text-on-fill, e não text-white: no tema escuro o preenchimento é claro de propósito, e
+     branco sobre ele dava 2,32:1, ilegível em todo botão primário do app. */
   .btn-primary {
-    @apply rounded-xl bg-brand px-4 py-2.5 font-extrabold text-white transition
-      hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply rounded-xl bg-act px-4 py-2.5 font-extrabold text-on-fill transition
+      hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-ghost {
     @apply rounded-xl border border-hair px-4 py-2.5 text-sm font-bold text-muted
@@ -154,19 +405,24 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   }
 }
 
-/* Painel "arena" (lado escuro do auth): espresso nos dois temas.
-   Sobrescreve os tokens arena localmente, então text-arena-muted etc. funcionam dentro. */
+/* Painel "arena" (lado escuro do auth): azul-noite nos dois temas.
+   Sobrescreve os tokens arena localmente, então text-arena-muted etc. funcionam dentro.
+
+   Era espresso #322619, do tempo da paleta creme. Contra o cinza-azulado de hoje ele lia
+   como uma faixa marrom colada num app frio, que é o tipo de detalhe que faz um produto
+   parecer montado por partes. Medido: texto #eef2f6 sobre #131a22 dá 15,9:1, e o muted
+   #9aa7b4 dá 7,3:1. */
 .arena-panel {
-  --arena: #322619;
-  --arena-text: #ffffff;
-  --arena-muted: #b6a288;
-  --arena-line: rgba(255, 255, 255, 0.13);
-  --arena-track: rgba(255, 255, 255, 0.1);
+  --arena: #131a22;
+  --arena-text: #eef2f6;
+  --arena-muted: #9aa7b4;
+  --arena-line: rgba(255, 255, 255, 0.12);
+  --arena-track: rgba(255, 255, 255, 0.08);
   background: var(--arena);
   color: var(--arena-text);
 }
 .dark .arena-panel {
-  --arena: #241c14;
+  --arena: #0a0e14;
 }
 
 .glow-lime {
