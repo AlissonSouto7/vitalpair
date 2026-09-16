@@ -188,7 +188,7 @@ export function PainelCalorias({
   calories: CalorieDay[]
   targetKcal: number | null
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const maxKcal = Math.max(targetKcal ?? 0, ...calories.map((d) => d.kcal), 1)
   const teto = maxKcal * 1.05
   const metaPct = targetKcal ? (targetKcal / teto) * 100 : 0
@@ -199,7 +199,7 @@ export function PainelCalorias({
         <span className="text-[13px] font-bold text-muted">{t('progress.caloriesVsGoal')}</span>
         {targetKcal != null && (
           <span className="text-[13px] font-extrabold text-ink">
-            {t('progress.kcalPerDay', { kcal: targetKcal.toLocaleString('pt-BR') })}
+            {t('progress.kcalPerDay', { kcal: targetKcal.toLocaleString(i18n.language) })}
           </span>
         )}
       </div>

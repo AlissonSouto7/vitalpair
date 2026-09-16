@@ -29,7 +29,7 @@ export const onboarding = {
     errorCalc:
       'Algum dado ficou estranho. Confere a data de nascimento, o peso e a altura, e tenta de novo.',
     errorJoin: 'Esse código não colou. Confere com a pessoa e tenta de novo.',
-    nameRequired: 'Como a gente te chama? Escreve teu nome.',
+    nameRequired: 'Como a gente te chama? Escreve seu nome.',
     weightInvalid: 'Peso entre 20 e 500 kg.',
     heightInvalid: 'Altura entre 50 e 300 cm.',
     birthDateInvalid: 'Escolhe dia, mês e ano.',

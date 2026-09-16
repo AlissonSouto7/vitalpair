@@ -346,7 +346,7 @@ export const legal = {
       sentTitle: 'Seu e-mail abriu com a mensagem pronta',
       sentText:
         'É só conferir e enviar. Se nada abriu, manda direto pra {{mail}}: a gente responde em até um dia útil.',
-      nameRequired: 'Escreve teu nome pra gente saber com quem fala.',
+      nameRequired: 'Escreve seu nome pra gente saber com quem fala.',
       emailInvalid: 'Confere esse e-mail: falta algo nele.',
       messageRequired: 'Conta o que rolou. A mensagem não pode ficar vazia.',
       sendAnother: 'Mandar outra',

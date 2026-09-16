@@ -49,7 +49,7 @@ export const profile = {
       'É ele que decide quando seu dia vira. Registrou 23h? Conta pra hoje, não pra amanhã.',
     timeZoneMismatch: 'Seu aparelho está em {{detected}}, e sua conta em {{current}}.',
     timeZoneUse: 'Usar {{detected}}',
-    nameRequired: 'Como a gente te chama? Escreve teu nome.',
+    nameRequired: 'Como a gente te chama? Escreve seu nome.',
     birthDateInvalid: 'Escolhe uma data de nascimento válida.',
     heightInvalid: 'Altura entre 50 e 300 cm.',
     weightInvalid: 'Peso entre 20 e 500 kg.',

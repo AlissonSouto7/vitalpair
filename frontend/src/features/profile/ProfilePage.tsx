@@ -34,7 +34,7 @@ function levelInfo(points: number) {
 }
 
 export function ProfilePage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
@@ -174,7 +174,7 @@ export function ProfilePage() {
             </p>
             {targetKcal != null && (
               <p className="text-[13px] font-semibold text-muted">
-                {t('profile.dailyTarget', { kcal: targetKcal.toLocaleString('pt-BR') })}
+                {t('profile.dailyTarget', { kcal: targetKcal.toLocaleString(i18n.language) })}
               </p>
             )}
           </div>

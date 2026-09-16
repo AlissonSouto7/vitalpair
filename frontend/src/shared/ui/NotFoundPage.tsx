@@ -24,7 +24,7 @@ export function NotFoundPage() {
       <p className="max-w-md font-semibold text-muted">{t('errors.notFound.description')}</p>
       <Link
         to="/"
-        className="mt-2 rounded-xl bg-brand px-6 py-3 font-extrabold text-on-fill transition hover:brightness-105"
+        className="mt-2 rounded-xl bg-act px-6 py-3 font-extrabold text-on-fill transition hover:brightness-110"
       >
         {t('errors.notFound.backHome')}
       </Link>
