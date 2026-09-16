@@ -26,6 +26,19 @@ declare global {
 export function GoogleLoginButton({ onError }: { onError?: (message: string) => void }) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
+  /*
+    O `t` vive num ref porque o efeito não pode depender dele. Incluí-lo nas deps faria o
+    efeito rodar a cada troca de idioma e reinicializar o widget do Google, que é um script
+    externo: o botão pisca e o estado dele se perde. E deixá-lo fora das deps sem o ref
+    congelaria a mensagem de erro no idioma em que a tela montou. O ref é lido só quando o
+    login falha, então pega sempre a tradução atual.
+  */
+  const tRef = useRef(t)
+  // A escrita vai num efeito próprio, e não no corpo do componente, porque mexer num ref
+  // durante o render é o que quebra o render concorrente (o React pode descartar a passada).
+  useEffect(() => {
+    tRef.current = t
+  }, [t])
   const navigate = useNavigate()
   const setSession = useAuthStore((s) => s.setSession)
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -52,7 +65,7 @@ export function GoogleLoginButton({ onError }: { onError?: (message: string) => 
               setSession({ accessToken: token.accessToken, userId: token.userId })
               void navigate('/dashboard')
             } catch {
-              onError?.(t('auth.errorGoogle'))
+              onError?.(tRef.current('auth.errorGoogle'))
             }
           })()
         },

@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
- * Anel de calorias — elemento-assinatura. Verde = saúde/meta.
+ * Anel de calorias, elemento-assinatura. Verde = saúde/meta.
  */
 export function CalorieRing({
   current,
@@ -12,6 +13,7 @@ export function CalorieRing({
   goal: number
   size?: number
 }) {
+  const { t, i18n } = useTranslation()
   const pct = goal > 0 ? Math.min(1, current / goal) : 0
   const circumference = 314 // 2π·50
   const offset = circumference * (1 - pct)
@@ -40,11 +42,13 @@ export function CalorieRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="font-display text-[30px] font-semibold leading-none text-ink">
-          {current.toLocaleString('pt-BR')}
+        <div className="font-display text-[30px] font-semibold leading-none tabular-nums text-ink">
+          {current.toLocaleString(i18n.language)}
         </div>
-        <div className="text-[10.5px] font-extrabold tracking-wide text-muted">
-          de {goal.toLocaleString('pt-BR')} kcal
+        {/* "de" estava escrito em português dentro do componente, e o número formatado em
+            pt-BR fixo: o anel dizia "de 2.211 kcal" no meio de uma tela em inglês. */}
+        <div className="text-[10.5px] font-extrabold tracking-wide tabular-nums text-muted">
+          {t('common.ofGoalKcal', { goal: goal.toLocaleString(i18n.language) })}
         </div>
       </div>
     </div>

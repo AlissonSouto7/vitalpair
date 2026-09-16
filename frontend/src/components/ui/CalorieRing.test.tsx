@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest'
 
 import { CalorieRing } from './CalorieRing'
 
+import i18n from '@/i18n'
+import { renderWithProviders } from '@/test/render'
+
 /** The arc's length: the ring is drawn by moving the dash offset along this circumference. */
 const CIRCUMFERENCE = 314
 
@@ -14,12 +17,23 @@ function arc(container: HTMLElement) {
 
 describe('CalorieRing', () => {
   it('shows the numbers a person reads off it', () => {
-    render(<CalorieRing current={1234} goal={2100} />)
+    renderWithProviders(<CalorieRing current={1234} goal={2100} />)
 
-    // Grouped the Brazilian way, because that is the product's language and "1234 kcal"
-    // reads as a different number at a glance.
+    // Agrupado, porque "1234 kcal" se lê como outro número de relance.
     expect(screen.getByText('1.234')).toBeInTheDocument()
     expect(screen.getByText(/2\.100 kcal/)).toBeInTheDocument()
+  })
+
+  it('groups and words itself in the interface language', async () => {
+    // O rótulo era "de {{goal}} kcal" escrito em português dentro do componente, e o número
+    // formatado em pt-BR fixo: o anel dizia "de 2.100 kcal" no meio de uma tela em inglês.
+    renderWithProviders(<CalorieRing current={1234} goal={2100} />)
+    await i18n.changeLanguage('en')
+
+    expect(await screen.findByText('1,234')).toBeInTheDocument()
+    expect(await screen.findByText(/of 2,100 kcal/)).toBeInTheDocument()
+
+    await i18n.changeLanguage('pt')
   })
 
   it('draws nothing at zero and the full ring at the goal', () => {
