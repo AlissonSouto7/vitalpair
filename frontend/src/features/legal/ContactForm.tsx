@@ -65,7 +65,7 @@ export function ContactForm() {
         <button
           type="button"
           onClick={() => setSent(false)}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-hair bg-surface px-4 py-2.5 text-[13.5px] font-extrabold text-ink transition hover:border-brand"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2.5 text-[13.5px] font-extrabold text-ink transition hover:border-brand"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
             <path d="M12 5V2L7 7l5 5V9a5 5 0 11-5 5H5a7 7 0 107-7z" />

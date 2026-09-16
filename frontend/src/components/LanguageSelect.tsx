@@ -31,7 +31,7 @@ export function LanguageSelect() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`${t('settings.appLanguage')}: ${current.label}`}
-        className="flex items-center gap-1.5 rounded-lg border border-hair px-2.5 py-1.5 text-sm font-bold text-muted transition hover:text-ink"
+        className="flex items-center gap-1.5 rounded-lg border border-edge px-2.5 py-1.5 text-sm font-bold text-ink transition hover:bg-track"
       >
         <span className="text-base leading-none">{current.flag}</span>
         <span className="uppercase">{current.code}</span>

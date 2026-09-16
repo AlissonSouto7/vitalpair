@@ -91,12 +91,23 @@ const FILL_TOKENS = ['act', 'you', 'pair', 'success', 'protein', 'carb', 'fat', 
  */
 const FILLED_BUTTON_TOKENS = ['act', 'success', 'danger']
 
+/**
+ * O contorno de um controle clicável, que é informação e não decoração.
+ *
+ * `--hair` separa áreas (uma divisória, a linha do rodapé) e pode ser sutil. O contorno de
+ * um botão é o que diz onde se pode clicar, então cai na regra de 3:1 de elemento gráfico.
+ * Medido em 15/09/2026: os botões de tema e idioma da landing usavam `--hair`, que dá
+ * 1,17:1 no claro e 1,36:1 no escuro, e a caixa desaparecia: os controles pareciam
+ * desligados ao lado do "Entrar", que tem borda no tom do texto.
+ */
+const EDGE_TOKENS = ['edge']
+
 describe.each([
   ['light', LIGHT],
   ['dark', DARK],
 ])('%s theme', (name, tokens) => {
   it('defines every token the tests measure', () => {
-    for (const token of [...TEXT_TOKENS, ...FILL_TOKENS, 'on-fill']) {
+    for (const token of [...TEXT_TOKENS, ...FILL_TOKENS, ...EDGE_TOKENS, 'on-fill']) {
       expect(tokens[token], `${name}: --${token} is missing or not a 6-digit hex`).toMatch(
         /^#[0-9a-f]{6}$/,
       )
@@ -110,6 +121,16 @@ describe.each([
         ratio,
         `${name}: --${token} ${tokens[token]} on --${bg} ${tokens[bg]} is ${ratio.toFixed(2)}:1, under 4.5`,
       ).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it.each(EDGE_TOKENS)('%s outlines a control visibly on both backgrounds', (token) => {
+    for (const bg of ['surface', 'canvas'] as const) {
+      const ratio = contrast(tokens[token], tokens[bg])
+      expect(
+        ratio,
+        `${name}: --${token} ${tokens[token]} on --${bg} ${tokens[bg]} is ${ratio.toFixed(2)}:1, under 3`,
+      ).toBeGreaterThanOrEqual(3)
     }
   })
 

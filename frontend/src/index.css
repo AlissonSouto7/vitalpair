@@ -30,6 +30,7 @@
   --color-muted:    var(--muted);
   --color-faint:    var(--faint);
   --color-hair:     var(--hair);
+  --color-edge:     var(--edge);
   --color-track:    var(--track);
 
   /* Ação do sistema. É a cor do botão, e de mais nada: não identifica ninguém.
@@ -170,6 +171,12 @@
 :root {
   --canvas:#f2f4f6; --surface:#ffffff; --sidebar:#ffffff;
   --ink:#12171d; --muted:#5b6672; --faint:#646e7a; --hair:#dde3e9; --track:#eaeef3;
+  /* Contorno de controle clicavel, separado de --hair.
+     --hair separa areas (divisoria, rodape) e pode ser sutil; o contorno de um botao e
+     informacao: e ele que diz onde se pode clicar. O WCAG pede 3:1 para esse limite, e o
+     --hair da 1,17:1 no claro e 1,36:1 no escuro, entao a caixa some e o controle parece
+     desligado. Medido: 3,23:1 sobre o canvas claro e 3,56:1 sobre o branco do cartao. */
+  --edge:#7d8996;
 
   --act:#c2410c;     --act-ink:#a8370a;     --act-soft:#fdefe8;
   --you:#0b5fd0;     --you-ink:#0a53b8;     --you-soft:#e4edfb;
@@ -183,6 +190,9 @@
 
   --arena:#ffffff; --arena-text:#12171d; --arena-muted:#5b6672; --arena-line:#dde3e9;
   --arena-border:#dde3e9; --arena-track:#eaeef3; --arena-shadow:rgba(18,23,29,.1);
+  /* O brilho que atravessa a barra do placar. Mais forte no claro, porque ali ele passa
+     sobre azul e bordo cheios; no escuro as cores ja sao claras e .3 basta. */
+  --shine:rgba(255,255,255,.55);
 }
 
 /* ---------- ESCURO (azul-noite, nativo e não invertido) ----------
@@ -209,6 +219,9 @@
 .dark {
   --canvas:#0d1117; --surface:#161c23; --sidebar:#11161c;
   --ink:#eef2f6; --muted:#9aa7b4; --faint:#7b8794; --hair:#252d36; --track:#1e252d;
+  /* 3,47:1 sobre o canvas e 3,14:1 sobre a superficie do cartao: o contorno tem de se
+     enxergar nos dois, porque o mesmo controle aparece na barra e dentro de cartao. */
+  --edge:#5e6b78;
 
   --act:#ff8b4d;     --act-ink:#ffa06b;     --act-soft:rgba(255,139,77,.15);
   --you:#6fa8ff;     --you-ink:#8fbcff;     --you-soft:rgba(111,168,255,.15);
@@ -222,16 +235,76 @@
 
   --arena:#161c23; --arena-text:#eef2f6; --arena-muted:#9aa7b4; --arena-line:rgba(255,255,255,.12);
   --arena-border:rgba(255,255,255,.07); --arena-track:rgba(255,255,255,.08); --arena-shadow:rgba(0,0,0,.5);
+  --shine:rgba(255,255,255,.3);
 }
 
 html, body, #root { height: 100%; }
 html, body { background: var(--canvas); color: var(--ink); }
+
+/* Âncora não para embaixo da barra fixa da landing: sem isto, clicar em "Preço" deixa o
+   título da seção escondido atrás dela. Vale para todo #id da página, e o inset do topo
+   entra na conta porque em telefone a barra ainda desce o que o sistema ocupa. */
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 84px); }
+
+/* Âncora não para embaixo da barra fixa da landing: sem isto, clicar em "Preço" deixa o
+   título da seção escondido atrás dela. Vale para todo #id da página, e o inset do topo
+   entra na conta porque em telefone a barra ainda desce o que o sistema ocupa. */
+
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 
 /* Tira as setinhas nativas dos inputs de número (peso/altura) — controle não estilizado. */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+/* ------------------------------------------------------------------
+   Autopreenchimento do navegador.
+
+   O Chrome pinta o campo preenchido com um amarelo-claro próprio e ignora
+   `background-color`, então no tema escuro o campo virava uma faixa branca com o texto
+   quase ilegível. Ele respeita `box-shadow`, e é por isso que a cor entra como uma sombra
+   interna do tamanho do campo em vez de um fundo.
+
+   `-webkit-text-fill-color` pela mesma razão: o `color` normal também é ignorado.
+
+   A transição longa é o segundo truque conhecido: o Chrome reaplica o estilo dele no
+   primeiro quadro, e adiar a mudança de fundo por tempo suficiente impede o flash branco
+   que aparece entre o clique na sugestão e a pintura do campo.
+   ------------------------------------------------------------------ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--ink);
+  -webkit-box-shadow: 0 0 0 1000px var(--canvas) inset;
+  box-shadow: 0 0 0 1000px var(--canvas) inset;
+  caret-color: var(--ink);
+  transition: background-color 100000s ease-in-out 0s;
+}
+
+/* ------------------------------------------------------------------
+   O aviso de que o navegador preencheu um campo.
+
+   O Chrome nem sempre dispara `input` ao preencher pela lista de sugestões, e o formulário
+   fica com o valor antigo: o campo mostra um e-mail correto e a mensagem "confere esse
+   e-mail" continua embaixo dele.
+
+   Ele dispara uma animação ao aplicar o `:-webkit-autofill`, e é esse o sinal que o
+   TextField escuta. A animação não anima nada de visível; existe só para avisar.
+   ------------------------------------------------------------------ */
+@keyframes vp-autofilled { from { } to { } }
+input:-webkit-autofill { animation-name: vp-autofilled; animation-duration: 1ms; }
+
+/* O campo com fundo de superfície (dentro de cartão) pede a cor do cartão, senão o
+   autopreenchido fica de outra cor que os campos vazios ao lado. */
+.bg-surface:-webkit-autofill,
+input.bg-surface:-webkit-autofill:hover,
+input.bg-surface:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+}
 
 /* Scrollbar temático (claro e escuro) — sem o branco padrão do navegador */
 * { scrollbar-width: thin; scrollbar-color: var(--faint) transparent; }
@@ -258,6 +331,43 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 @keyframes vp-ring-draw { from { stroke-dashoffset: 314; } to { stroke-dashoffset: var(--vp-off, 92); } }
 @keyframes vp-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* Entrada da linha do feed na vitrine da landing: sobe 4px e aparece. Curta de propósito,
+   porque a linha troca a cada 2,6s e uma transição longa viraria piscar. */
+@keyframes vp-fade-up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ------------------------------------------------------------------
+   A barra do placar, viva.
+
+   Um brilho atravessa cada lado a cada 3,6 s, alternado: o lado do par sai com metade do
+   ciclo de atraso, então os dois nunca brilham juntos e a barra lê como dois lados se
+   revezando em vez de um enfeite piscando.
+
+   Substitui a listra estática, que era decoração pura: a barra é o placar, e um placar que
+   não se mexe não conta que a outra pessoa também está jogando.
+   ------------------------------------------------------------------ */
+@keyframes vp-sweep { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(220%); } }
+
+.vp-live { position: relative; overflow: hidden; }
+.vp-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, var(--shine) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: vp-sweep 3.6s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+.vp-live.vp-delay::after { animation-delay: 1.8s; }
+
+/* O número que respira junto com a barra: um aperto de 6% no mesmo compasso, para o olho
+   voltar ao placar sem que nada pule de lugar. */
+@keyframes vp-pop { 0%, 88%, 100% { transform: scale(1); } 92% { transform: scale(1.06); } }
+.vp-pulse { animation: vp-pop 3.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-live::after { animation: none; opacity: 0; }
+  .vp-pulse { animation: none; }
+}
 
 /* ---------- classes utilitárias ----------
 

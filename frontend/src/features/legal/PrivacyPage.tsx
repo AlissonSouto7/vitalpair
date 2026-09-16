@@ -192,7 +192,7 @@ export function LegalHeader() {
         </Link>
         <Link
           to="/"
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-hair bg-surface px-4 py-2 text-[13.5px] font-extrabold text-ink transition hover:border-brand"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-edge bg-surface px-4 py-2 text-[13.5px] font-extrabold text-ink transition hover:border-brand"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
             <path d="M14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6z" />
