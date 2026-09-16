@@ -36,7 +36,7 @@ function initialOf(side: Side): string {
 }
 
 /**
- * Placar da temporada — a assinatura visual do produto.
+ * Placar da temporada, a assinatura visual do produto.
  * Você (laranja) vs. par (roxo); a barra é cabo-de-guerra; quem lidera = verde.
  * O fundo (bg-arena) é theme-aware: claro no modo claro, espresso no escuro.
  *

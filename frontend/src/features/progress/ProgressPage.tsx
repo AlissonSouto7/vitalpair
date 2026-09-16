@@ -7,7 +7,7 @@ import { PainelCalorias, PainelMacros, PainelPeso, Tabs, type Tab } from './part
 import { getProgress } from '@/api/progress'
 
 /**
- * Progresso — peso, calorias e macros ao longo do tempo (dados reais).
+ * Progresso, peso, calorias e macros ao longo do tempo (dados reais).
  * Lei das cores: laranja = você/peso/proteína, dourado = carbo, verde = saúde/dentro da meta.
  */
 

@@ -7,7 +7,7 @@ import type { Badge, BadgeCategory, EarnedBadge, Streak } from '../../types/gami
 import { gamificationQueries } from './queries'
 
 /**
- * Conquistas — medalhas e sequências (streaks), dados reais.
+ * Conquistas, medalhas e sequências (streaks), dados reais.
  * O placar/temporada vive em /season; missões em /missions.
  */
 /** A ordem em que as famílias aparecem: do que a pessoa faz todo dia ao que é raro. */

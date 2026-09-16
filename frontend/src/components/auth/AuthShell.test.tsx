@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { AuthShell } from './AuthShell'
 
+import i18n from '@/i18n'
 import { renderWithProviders } from '@/test/render'
 
 /** Os três quadrados de confirmação da coluna da esquerda. */
@@ -46,5 +47,32 @@ describe('AuthShell', () => {
     )
     expect(fills).toEqual(['bg-act', 'bg-success', 'bg-pair'])
     expect(new Set(fills).size).toBe(3)
+  })
+
+  it('offers a way back to the landing, at any width', () => {
+    /*
+      Quem abria /login direto, ou desistia de criar conta, ficava sem saída: a marca vive na
+      coluna da esquerda, que some abaixo de lg, então no telefone não havia nada clicável na
+      tela inteira.
+
+      Dois caminhos, e os dois para "/": o botão de voltar, que aparece sempre, e a marca,
+      que é o que se espera ao clicar num logo.
+    */
+    const { container } = renderWithProviders(
+      <AuthShell>
+        <span />
+      </AuthShell>,
+    )
+
+    const paraCasa = [...container.querySelectorAll('a')].filter(
+      (a) => a.getAttribute('href') === '/',
+    )
+    expect(paraCasa.length).toBeGreaterThanOrEqual(2)
+
+    // O botão é nomeado, porque o ícone sozinho não diz nada a um leitor de tela.
+    const voltar = paraCasa.find((a) => a.getAttribute('aria-label'))
+    expect(voltar).toHaveAccessibleName(i18n.t('auth.backHome'))
+    // E não some em largura de telefone, que era o caso que deixava a tela sem saída.
+    expect(voltar?.className.split(/\s+/)).not.toContain('hidden')
   })
 })

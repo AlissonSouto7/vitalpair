@@ -101,7 +101,7 @@ export function FlashMission({
 }
 
 /* ============================================================
-   Missão semanal (SELF) — progresso em verde
+   Missão semanal (SELF), progresso em verde
    ============================================================ */
 
 export function MissionCard({ mission }: { mission: WeeklyMission }) {
@@ -146,7 +146,7 @@ export function MissionCard({ mission }: { mission: WeeklyMission }) {
 }
 
 /* ============================================================
-   Missão do par — roxo (o par). Dois lados.
+   Missão do par, roxo (o par). Dois lados.
    ============================================================ */
 
 export function PairMissionCard({ mission }: { mission: WeeklyMission }) {
@@ -216,7 +216,7 @@ export function SideProgress({
 }
 
 /* ============================================================
-   Já concluídas — verde, esmaecidas
+   Já concluídas, verde, esmaecidas
    ============================================================ */
 
 export function DoneRow({ mission }: { mission: WeeklyMission }) {
