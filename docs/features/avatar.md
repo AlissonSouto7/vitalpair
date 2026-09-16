@@ -55,6 +55,14 @@ on the wire, which the proxy's 12 MB body limit already accommodates.
 | `users.avatar_url`              | The object name, not a URL. Column exists since `V1`; what changed is what may go in it                        |
 | Docker volume `<stack>_avatars` | The files, mounted at `/var/lib/vitalpair/avatars` (`AVATAR_DIRECTORY`). Declared in `deploy/compose.app.yaml` |
 
+The image sets `AVATAR_DIRECTORY=/var/lib/vitalpair/avatars` and creates the directory owned
+by `app`, so it starts with no configuration at all. The application's own default is
+`target/avatars`, which suits development and not a container: inside the image it resolves
+to `/app/target`, which the unprivileged user cannot create, and the adapter refuses to start
+rather than failing on the first upload. Found by the CI smoke test on 16/09/2026, which runs
+the image with the minimum environment; production was never affected, because the compose
+file has always set the variable.
+
 The volume is the only durable state outside Postgres, which is why
 `backup.sh` archives it beside the dump and `restore.sh` puts it back. A
 database restore on its own brings back profiles pointing at files that are not
