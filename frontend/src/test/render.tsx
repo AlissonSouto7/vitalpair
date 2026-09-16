@@ -18,7 +18,16 @@ import i18n from '@/i18n'
  * Retries are off. A test that expects a failure would otherwise wait through three
  * retries with exponential backoff before seeing it.
  */
-export function renderWithProviders(ui: ReactElement, options?: RenderOptions) {
+export function renderWithProviders(
+  ui: ReactElement,
+  options?: RenderOptions & {
+    /**
+     * A rota em que a tela abre, para quem lê a query string ou um parâmetro do caminho.
+     * O padrão é "/", que serve para a maioria.
+     */
+    route?: string
+  },
+) {
   void i18n.changeLanguage('pt')
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -27,7 +36,7 @@ export function renderWithProviders(ui: ReactElement, options?: RenderOptions) {
   const result = render(
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter>{ui}</MemoryRouter>
+        <MemoryRouter initialEntries={[options?.route ?? '/']}>{ui}</MemoryRouter>
       </QueryClientProvider>
     </I18nextProvider>,
     options,
