@@ -42,7 +42,7 @@ async function signedInAs(
   const page = await context.newPage()
   await withPortugueseUi(page)
   await page.goto('/login')
-  await page.getByRole('textbox', { name: 'Email', exact: true }).fill(account.email)
+  await page.locator('input[autocomplete="email"]').fill(account.email)
   await page.getByLabel('Senha', { exact: true }).fill(account.password)
   await page.getByRole('button', { name: /^entrar$/i }).click()
   await expect(page).toHaveURL(/\/(onboarding|dashboard)/)

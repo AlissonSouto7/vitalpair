@@ -83,8 +83,10 @@ test.describe('navigation', () => {
   })
 
   test('switching language changes the interface', async ({ page }) => {
-    // The stored preference is what the app reads on startup, so setting it and reloading
-    // is the same path a person takes through the language selector.
+    // Escreve a preferência direto no storage, que é o que o app lê ao iniciar: cobre a
+    // partida em cada idioma, inclusive antes do login, onde não há seletor na tela. Quem
+    // cobre o caminho da pessoa pelo seletor, e o texto que vem do servidor, é
+    // language.spec.ts.
     await page.goto('/login')
     await page.evaluate(() => window.localStorage.setItem('vitalpair-lang', 'pt'))
     await page.reload()

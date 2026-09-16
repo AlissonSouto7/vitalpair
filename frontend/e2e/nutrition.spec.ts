@@ -10,7 +10,7 @@ test.describe('logging a meal', () => {
     const email = uniqueEmail('refeicao')
     await page.goto('/register')
     await page.getByRole('textbox', { name: 'Como te chamam?' }).fill('Refeicao')
-    await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email)
+    await page.locator('input[autocomplete="email"]').fill(email)
     await page.getByLabel('Senha', { exact: true }).fill(PASSWORD)
     await page.getByRole('button', { name: /criar conta/i }).click()
     await expect(page).toHaveURL(/\/(onboarding|dashboard)/)
