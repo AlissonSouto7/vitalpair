@@ -34,8 +34,19 @@ const ICONS: Record<string, ReactNode> = {
   chart: <path d="M3 3h2v18H3zm4 10h3v8H7zm5-6h3v14h-3zm5 3h3v11h-3z" />,
   heart: <path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z" />,
   user: <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z" />,
+  /*
+    Engrenagem de dentes retangulares.
+
+    O desenho anterior fazia os dentes com bicos finos, e a 18px eles somavam num asterisco:
+    a 4 pixels de distância ninguém lia "configurações". Dentes largos e um furo central
+    grande é o que mantém a silhueta reconhecível nesse tamanho.
+  */
   gear: (
-    <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4-2.1-.6a7 7 0 0 0-.6-1.5l1.1-1.9-1.4-1.4-1.9 1.1a7 7 0 0 0-1.5-.6L14 3h-2l-.6 2.1a7 7 0 0 0-1.5.6L8 4.6 6.6 6l1.1 1.9a7 7 0 0 0-.6 1.5L5 10v4l2.1.6a7 7 0 0 0 .6 1.5L6.6 18 8 19.4l1.9-1.1a7 7 0 0 0 1.5.6L12 21h2l.6-2.1a7 7 0 0 0 1.5-.6l1.9 1.1 1.4-1.4-1.1-1.9a7 7 0 0 0 .6-1.5L21 14z" />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M10.4 2h3.2l.35 2.3a8 8 0 0 1 1.62.94l2.17-.87 1.6 2.77-1.82 1.45a8 8 0 0 1 0 1.87l1.82 1.45-1.6 2.77-2.17-.87a8 8 0 0 1-1.62.94L13.6 18h-3.2l-.35-2.3a8 8 0 0 1-1.62-.94l-2.17.87-1.6-2.77 1.82-1.45a8 8 0 0 1 0-1.87L4.66 7.14l1.6-2.77 2.17.87a8 8 0 0 1 1.62-.94L10.4 2zm1.6 5.6a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z"
+    />
   ),
 }
 
@@ -192,23 +203,44 @@ export function Layout() {
             <NavIcon name="gear" />
             {t('nav.settings')}
           </NavLink>
-          <button
-            onClick={() => void handleLogout()}
-            className="flex w-full items-center gap-3 rounded-xl bg-surface px-3 py-2.5 text-left transition hover:bg-track"
-          >
-            <Avatar
-              initial={me?.name?.trim().charAt(0).toUpperCase() || '?'}
-              tone="you"
-              size={36}
-              art={avatarUrl(me?.avatarUrl)}
-            />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-extrabold text-ink">
-                {t('nav.logout')}
+          {/*
+            A identidade e o sair são duas coisas, e eram um botão só.
+
+            O cartão inteiro, foto e nome incluídos, disparava o logout: clicar na própria
+            foto derrubava a sessão, e nada na tela dizia isso. Agora o bloco leva ao perfil,
+            que é o que se espera ao clicar no próprio rosto, e sair é um botão à parte, do
+            tamanho da ação que ele é.
+          */}
+          <div className="flex items-center gap-2 rounded-xl bg-surface px-3 py-2.5">
+            <NavLink to="/profile" className="flex min-w-0 flex-1 items-center gap-3 text-left">
+              <Avatar
+                initial={me?.name?.trim().charAt(0).toUpperCase() || '?'}
+                tone="you"
+                size={36}
+                art={avatarUrl(me?.avatarUrl)}
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-extrabold text-ink">
+                  {me?.name ?? 'VitalPair'}
+                </span>
+                <span className="block truncate text-xs text-muted">{t('nav.seeProfile')}</span>
               </span>
-              <span className="block truncate text-xs text-muted">{me?.name ?? 'VitalPair'}</span>
-            </span>
-          </button>
+            </NavLink>
+            <button
+              onClick={() => void handleLogout()}
+              title={t('nav.logout')}
+              aria-label={t('nav.logout')}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-track hover:text-ink"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-[18px] w-[18px] fill-current"
+                aria-hidden="true"
+              >
+                <path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2H5V5h5V3zm5.6 3.6L14.2 8l3 3H9v2h8.2l-3 3 1.4 1.4L21 12l-5.4-5.4z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </aside>
 
