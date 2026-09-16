@@ -30,7 +30,9 @@ test.describe('landing', () => {
     // A vitrine é o placar se movendo: é o que mostra o produto em vez de descrevê-lo.
     await page.goto('/')
 
-    const board = page.getByText('Alisson', { exact: true }).first()
+    // Pelos dois lados genéricos: o lado azul dizia "Alisson", que é o nome de outra pessoa
+    // para quem abre a página.
+    const board = page.getByText('Você', { exact: true }).first()
     await expect(board).toBeVisible()
 
     const first = await page.locator('[class*="text-[40px]"]').first().innerText()
