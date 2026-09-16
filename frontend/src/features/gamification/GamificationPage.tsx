@@ -35,11 +35,18 @@ export function GamificationPage() {
     )
 
   const earnedCodes = new Set(earned.map((e) => e.badge.code))
-  const byCategory = catalog.reduce((map, badge) => {
-    const list = map.get(badge.category) ?? []
-    list.push(badge)
-    return map.set(badge.category, list)
-  }, new Map<BadgeCategory, Badge[]>())
+  /*
+    Conquistadas primeiro, depois pela ordem das famílias.
+
+    A tela é sobre o que a pessoa já fez: com as bloqueadas no meio, quem tinha três medalhas
+    precisava caçar quais eram as verdes. O desempate por família mantém juntas as que se
+    parecem.
+  */
+  const ordered = [...catalog].sort((a, b) => {
+    const mine = Number(earnedCodes.has(b.code)) - Number(earnedCodes.has(a.code))
+    if (mine !== 0) return mine
+    return CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category)
+  })
 
   return (
     <div className="space-y-7">
@@ -83,28 +90,20 @@ export function GamificationPage() {
           </p>
         ) : (
           /*
-            Agrupado por categoria, e não o catálogo inteiro numa grade só.
+            Uma grade só, densa, com a categoria escrita em cada medalha.
 
-            Vinte medalhas conquistadas e bloqueadas na mesma malha, na ordem que o servidor
-            mandou, viravam uma parede onde a pessoa tinha que caçar visualmente quais eram
-            verdes. As cinco categorias já vinham no dado e serviam só pra escolher o ícone.
+            O agrupamento por seção vinha de um catálogo imaginado com vinte medalhas, em que
+            uma malha única viraria uma parede. São cinco, espalhadas em cinco categorias:
+            cada seção abria uma linha de três colunas para pôr uma medalha nela, e dois
+            terços de cada faixa ficavam vazios. A pessoa rolava muito para ver pouco.
+
+            A família continua legível, só que dentro do cartão, onde ela pertence ao objeto
+            em vez de virar um cabeçalho que ocupa uma linha inteira. Em ordem: primeiro as
+            conquistadas, porque a tela é sobre o que a pessoa já fez.
           */
-          <div className="space-y-5">
-            {CATEGORY_ORDER.filter((c) => byCategory.has(c)).map((category) => (
-              <div key={category}>
-                <h3 className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-faint">
-                  {t(`gamification.category.${category}`)}
-                </h3>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {byCategory.get(category)?.map((badge) => (
-                    <BadgeTile
-                      key={badge.code}
-                      badge={badge}
-                      unlocked={earnedCodes.has(badge.code)}
-                    />
-                  ))}
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {ordered.map((badge) => (
+              <BadgeTile key={badge.code} badge={badge} unlocked={earnedCodes.has(badge.code)} />
             ))}
           </div>
         )}
@@ -181,13 +180,23 @@ function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
         unlocked ? 'border-success-soft bg-success-soft' : 'border-hair bg-surface'
       }`}
     >
-      <span
-        className={`mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl ${
-          unlocked ? 'bg-success' : 'bg-track'
-        }`}
-      >
-        <Icon className={`h-[22px] w-[22px] ${unlocked ? 'fill-white' : 'fill-muted'}`} />
-      </span>
+      <div className="mb-2.5 flex items-start justify-between gap-2">
+        <span
+          className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
+            unlocked ? 'bg-success' : 'bg-track'
+          }`}
+        >
+          <Icon className={`h-[22px] w-[22px] ${unlocked ? 'fill-on-fill' : 'fill-muted'}`} />
+        </span>
+        {/*
+          A família, no canto do próprio cartão. Era um cabeçalho de seção que abria uma
+          linha inteira de grade para uma ou duas medalhas; aqui ela pertence ao objeto e
+          não custa espaço nenhum.
+        */}
+        <span className="mt-0.5 shrink-0 text-[9.5px] font-extrabold uppercase tracking-[0.1em] text-faint">
+          {t(`gamification.category.${badge.category}`)}
+        </span>
+      </div>
       <p className={`text-sm font-extrabold ${unlocked ? 'text-success-ink' : 'text-muted'}`}>
         {name}
       </p>

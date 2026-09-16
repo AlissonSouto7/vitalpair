@@ -80,16 +80,44 @@ describe('GamificationPage', () => {
     expect(screen.queryByText(/gamification\.badge/)).not.toBeInTheDocument()
   })
 
-  it('groups the medals by family instead of one long wall', async () => {
+  it('names the family on each medal, without a heading for every one', async () => {
+    /*
+      O agrupamento por seção vinha de um catálogo imaginado com vinte medalhas. São cinco,
+      espalhadas em cinco famílias: cada seção abria uma linha de grade inteira para pôr uma
+      medalha nela, e dois terços de cada faixa ficavam vazios. Medido: a página caiu de
+      1074px para 708px quando a família passou para dentro do cartão.
+    */
     theServerAnswers()
 
     renderWithProviders(<GamificationPage />)
+    await screen.findByText('Primeira refeição')
 
+    expect(screen.getByText(i18n.t('gamification.category.NUTRITION'))).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('gamification.category.SOCIAL'))).toBeInTheDocument()
+    // E nenhum cabeçalho de seção por família, que era o que custava a linha.
     expect(
-      await screen.findByRole('heading', { name: i18n.t('gamification.category.NUTRITION') }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: i18n.t('gamification.category.SOCIAL') }),
-    ).toBeInTheDocument()
+      screen.queryByRole('heading', { name: i18n.t('gamification.category.NUTRITION') }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('puts what the person already earned in front', async () => {
+    // A tela é sobre o que a pessoa fez: com as bloqueadas no meio, quem tinha três medalhas
+    // precisava caçar quais eram as verdes.
+    server.use(
+      http.get(path('/gamification/streaks'), () => ok([])),
+      http.get(path('/gamification/badges'), () =>
+        ok([{ badge: CATALOG[1], earnedAt: '2026-09-16T00:00:00Z' }]),
+      ),
+      http.get(path('/gamification/badges/catalog'), () => ok(CATALOG)),
+    )
+
+    const { container } = renderWithProviders(<GamificationPage />)
+    await screen.findByText('Dupla formada')
+
+    // Pelos nomes das medalhas, na ordem em que a grade os desenha.
+    const nomes = CATALOG.map((b) => screen.getByText(b.name))
+    const posicoes = nomes.map((el) => [...container.querySelectorAll('*')].indexOf(el))
+    const primeira = CATALOG[posicoes.indexOf(Math.min(...posicoes))]
+    expect(primeira.name).toBe('Dupla formada')
   })
 })

@@ -3,12 +3,55 @@ import type { Page } from '@playwright/test'
 
 import { signInWithoutPinningLanguage } from './support/accounts'
 
-/** Troca para inglês pelo seletor, como a pessoa faz, e espera a tela já traduzida. */
-async function switchToEnglish(page: Page) {
+/**
+ * Os três idiomas além do português, com o que cada um tem de próprio.
+ *
+ * `confirm` é o nome acessível que o seletor passa a ter depois da troca, e serve de espera:
+ * é o sinal de que o bundle novo já está na tela. Os outros campos são texto que o servidor
+ * manda em pt-BR e que o cliente traduz pelo código, que é o que se quer provar.
+ */
+const LANGUAGES = [
+  {
+    code: 'en',
+    option: /english/i,
+    confirm: /app language: english/i,
+    badge: 'First meal',
+    // A semanal, e não a relâmpago: esta é sorteada por dia, e prender o teste a uma delas
+    // o faz falhar na virada da data sem que nada tenha quebrado.
+    mission: 'Log meals on 5 days',
+    stake: 'Loser buys dinner',
+  },
+  {
+    code: 'es',
+    option: /español/i,
+    confirm: /idioma de la app: español/i,
+    badge: 'Primera comida',
+    mission: 'Registra comidas 5 días',
+    stake: 'El que pierde paga la cena',
+  },
+  {
+    code: 'fr',
+    option: /français/i,
+    confirm: /langue de l.app\s*: français/i,
+    badge: 'Premier repas',
+    mission: 'Enregistre tes repas 5 jours',
+    stake: 'Le perdant paie le dîner',
+  },
+] as const
+
+/** Troca de idioma pelo seletor, como a pessoa faz, e espera a tela já traduzida. */
+async function switchTo(page: Page, lang: (typeof LANGUAGES)[number]) {
   await page.goto('/settings')
   await page.getByRole('button', { name: /idioma do app: português/i }).click()
-  await page.getByRole('menuitemradio', { name: /english/i }).click()
-  await expect(page.getByRole('button', { name: /app language: english/i })).toBeVisible()
+  await page.getByRole('menuitemradio', { name: lang.option }).click()
+  await expect(page.getByRole('button', { name: lang.confirm })).toBeVisible()
+}
+
+const EN = LANGUAGES[0]
+
+/** O caminho mais percorrido, e por isso o que os testes gerais usam. */
+async function switchToEnglish(page: Page) {
+  await switchTo(page, EN)
 }
 
 /**
@@ -69,9 +112,9 @@ test.describe('language', () => {
     await expect(page.getByText('Primeira refeição', { exact: true })).toHaveCount(0)
 
     await page.goto('/missions')
-    await expect(page.getByText('Log 3 meals today', { exact: true })).toBeVisible()
     await expect(page.getByText('Log meals on 5 days', { exact: true })).toBeVisible()
-    await expect(page.getByText('Registre 3 refeições hoje', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('Train 3x this week', { exact: true })).toBeVisible()
+    await expect(page.getByText('Registre refeições em 5 dias', { exact: true })).toHaveCount(0)
 
     await page.goto('/season')
     await expect(page.getByText('Loser buys dinner', { exact: true })).toBeVisible()
@@ -95,4 +138,25 @@ test.describe('language', () => {
       )
     }
   })
+
+  for (const lang of LANGUAGES) {
+    test(`catalogue text reaches the screen in ${lang.code}`, async ({ page }) => {
+      // Um por idioma, e não um teste só com um laço dentro: assim a falha diz qual idioma
+      // quebrou, em vez de apontar para a primeira asserção de uma sequência.
+      await signInWithoutPinningLanguage(page)
+      await switchTo(page, lang)
+
+      await page.goto('/gamification')
+      await expect(page.getByText(lang.badge, { exact: true })).toBeVisible()
+
+      await page.goto('/missions')
+      await expect(page.getByText(lang.mission, { exact: true })).toBeVisible()
+
+      await page.goto('/season')
+      await expect(page.getByText(lang.stake, { exact: true })).toBeVisible()
+
+      // O texto em português não pode sobrar em canto nenhum das três telas.
+      await expect(page.getByText('Quem perder paga o jantar', { exact: true })).toHaveCount(0)
+    })
+  }
 })
