@@ -39,7 +39,55 @@ const ICONS: Record<string, ReactNode> = {
   ),
 }
 
-const NAV = [
+/**
+ * O menu, em quatro grupos.
+ *
+ * Eram doze itens numa lista plana, todos com o mesmo peso: mesma fonte, mesmo ícone, mesmo
+ * espaçamento. Nada dizia que Início é o centro e Conquistas é periférico, e nada avisava
+ * que cinco deles levam a uma tela vazia enquanto não existe uma dupla ou um plano.
+ *
+ * Medido antes: das doze telas, só duas são de uso diário (registrar comida e atividade).
+ * As outras dez são consulta, e ocupavam exatamente o mesmo espaço.
+ *
+ * Os grupos estão na ordem em que a pessoa usa: o que ela faz hoje, o que a dupla mostra,
+ * o que vem no plano, e o que é dela.
+ */
+const NAV_GROUPS = [
+  {
+    label: 'nav.groupToday',
+    items: [
+      { to: '/dashboard', label: 'nav.dashboard', icon: 'home' },
+      { to: '/nutrition', label: 'nav.log', icon: 'meal' },
+      { to: '/activity', label: 'nav.activity', icon: 'activity' },
+    ],
+  },
+  {
+    label: 'nav.groupPair',
+    items: [
+      { to: '/feed', label: 'nav.feed', icon: 'feed' },
+      { to: '/season', label: 'nav.season', icon: 'flag' },
+      { to: '/missions', label: 'nav.missions', icon: 'target' },
+      { to: '/pair', label: 'nav.relationship', icon: 'heart' },
+    ],
+  },
+  {
+    label: 'nav.groupPlan',
+    items: [
+      { to: '/meal-plan', label: 'nav.mealPlan', icon: 'book', paid: true },
+      { to: '/workout-plan', label: 'nav.workout', icon: 'dumbbell', paid: true },
+    ],
+  },
+  {
+    label: 'nav.groupYou',
+    items: [
+      { to: '/progress', label: 'nav.progress', icon: 'chart' },
+      { to: '/gamification', label: 'nav.achievements', icon: 'medal' },
+      { to: '/profile', label: 'nav.profile', icon: 'user' },
+    ],
+  },
+] as const
+
+const NAV_LEGACY = [
   { to: '/dashboard', label: 'nav.dashboard', icon: 'home' },
   { to: '/nutrition', label: 'nav.log', icon: 'meal' },
   { to: '/activity', label: 'nav.activity', icon: 'activity' },
@@ -86,19 +134,36 @@ export function Layout() {
     void navigate('/login')
   }
 
-  const navLinks = NAV.map((item) => (
-    <NavLink
-      key={item.to}
-      to={item.to}
-      className={({ isActive }) =>
-        `flex items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-bold transition ${
-          isActive ? 'bg-brand-soft text-brand-ink' : 'text-muted hover:bg-surface hover:text-ink'
-        }`
-      }
-    >
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-bold transition ${
+      isActive ? 'bg-act-soft text-act-ink' : 'text-muted hover:bg-surface hover:text-ink'
+    }`
+
+  /* A faixa horizontal do celular, onde cabeçalho de grupo não cabe. */
+  const navLinks = NAV_LEGACY.map((item) => (
+    <NavLink key={item.to} to={item.to} className={linkClass}>
       <NavIcon name={item.icon} />
       {t(item.label)}
     </NavLink>
+  ))
+
+  const groupedNav = NAV_GROUPS.map((group) => (
+    <div key={group.label}>
+      <p className="px-3 pb-1.5 pt-4 text-[10px] font-extrabold uppercase tracking-[0.12em] text-faint">
+        {t(group.label)}
+      </p>
+      {group.items.map((item) => (
+        <NavLink key={item.to} to={item.to} className={linkClass}>
+          <NavIcon name={item.icon} />
+          <span className="flex-1">{t(item.label)}</span>
+          {'paid' in item && item.paid && (
+            <span className="text-[9px] font-extrabold uppercase tracking-wide text-faint">
+              {t('nav.paid')}
+            </span>
+          )}
+        </NavLink>
+      ))}
+    </div>
   ))
 
   return (
@@ -109,7 +174,9 @@ export function Layout() {
           <BrandLockup size={36} />
         </div>
 
-        <nav className="mt-6 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">{navLinks}</nav>
+        <nav className="mt-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+          {groupedNav}
+        </nav>
 
         <div className="mt-4 space-y-3 border-t border-hair pt-4">
           <NavLink
