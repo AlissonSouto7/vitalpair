@@ -42,8 +42,17 @@ function mount(entitlement: Entitlement = premiumEntitlementFixture) {
 }
 
 describe('NutritionPage photo tab and the paid plan', () => {
-  it('shows the paid-plan notice instead of the camera to a free account', async () => {
-    mount(freeEntitlementFixture)
+  it('does not open a free account on the tab that is locked', async () => {
+    const { user } = mount(freeEntitlementFixture)
+
+    // A aba Foto era a padrão para todo mundo, então quem entrava para registrar uma
+    // refeição batia de cara num cadeado, sob um subtítulo que ainda dizia que a foto era o
+    // jeito mais rápido. A tela abre no caminho que a pessoa pode usar.
+    expect(await screen.findByPlaceholderText(n('searchInputPlaceholder'))).toBeInTheDocument()
+    expect(screen.queryByTestId('premium-callout')).not.toBeInTheDocument()
+
+    // E o aviso continua lá para quem for até a aba, que é o que este teste protegia.
+    await user.click(screen.getByRole('button', { name: n('tabPhoto') }))
 
     expect(await screen.findByTestId('premium-callout')).toBeInTheDocument()
     expect(screen.queryByText(n('photoDropTitle'))).not.toBeInTheDocument()
