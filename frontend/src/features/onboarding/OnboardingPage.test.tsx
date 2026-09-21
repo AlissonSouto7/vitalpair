@@ -18,6 +18,9 @@ function mount() {
   )
   server.use(
     handler,
+    // O onboarding lê o perfil para não perguntar de novo o nome que a pessoa acabou de
+    // digitar no cadastro.
+    http.get(path('/users/me'), () => ok(profileFixture)),
     http.get(path('/users/me/tdee'), () => ok(tdeeFixture)),
   )
   return { calls, ...renderWithProviders(<OnboardingPage />) }
@@ -44,17 +47,23 @@ const continueButton = () => screen.getByRole('button', { name: i18n.t('onboardi
 
 /** Fills step 1 with ordinary values: nothing here is an edge case. */
 async function fillAboutYou(user: User) {
-  await user.type(screen.getByLabelText(i18n.t('onboarding.nameLabel')), 'Novato')
+  /*
+   * Esperar o nome do cadastro chegar, e só então limpar.
+   *
+   * O campo vem preenchido pela query do perfil, que resolve depois do primeiro render. Um
+   * `clear` antes disso apaga um campo que ainda está vazio, e o nome chega em seguida, na
+   * frente do que foi digitado: o perfil era enviado como "Ana SouzaNovato".
+   */
+  const nome = screen.getByLabelText(i18n.t('onboarding.nameLabel'))
+  await waitFor(() => expect(nome).toHaveValue('Ana Souza'))
+  await user.clear(nome)
+  await user.type(nome, 'Novato')
   await user.type(screen.getByLabelText(i18n.t('onboarding.weightLabel')), '78')
   await user.type(screen.getByLabelText(i18n.t('onboarding.heightLabel')), '179')
 
-  // The group carries the name; its three dropdowns have none of their own, since a
-  // combobox is named by its author rather than by its contents. Taken in order.
-  const birth = within(screen.getByRole('group', { name: i18n.t('onboarding.birthLabel') }))
-  const [day, month, year] = birth.getAllByRole('combobox')
-  await choose(user, day, '15')
-  await choose(user, month, 'Maio')
-  await choose(user, year, '1995')
+  // Um campo só, o seletor nativo do aparelho. Eram três dropdowns onde cabiam 6 opções
+  // por vez, e chegar em 1998 custava 1044px de rolagem com o dedo.
+  await user.type(screen.getByLabelText(i18n.t('onboarding.birthLabel')), '1995-05-15')
 
   await choose(
     user,
@@ -69,6 +78,13 @@ async function fillAboutYou(user: User) {
 describe('OnboardingPage step 1', () => {
   it('refuses to advance with the form empty, and says which fields are missing', async () => {
     const { user, calls } = mount()
+
+    // O nome chega preenchido do cadastro, então apagar é o que deixa o formulário
+    // realmente vazio, que é o caso deste teste.
+    await waitFor(() => {
+      expect(screen.getByLabelText(i18n.t('onboarding.nameLabel'))).toHaveValue('Ana Souza')
+    })
+    await user.clear(screen.getByLabelText(i18n.t('onboarding.nameLabel')))
 
     await user.click(continueButton())
 
@@ -157,5 +173,16 @@ describe('OnboardingPage step 2', () => {
         activityLevel: 'MODERATE',
       },
     ])
+  })
+
+  it('já vem com o nome que a pessoa deu no cadastro', async () => {
+    mount()
+
+    // Perguntar "Como te chamam?" outra vez, dez segundos depois de a pessoa ter digitado
+    // o nome para criar a conta, era a primeira coisa que o app fazia. O servidor já sabe
+    // a resposta: o cadastro gravou o nome.
+    await waitFor(() => {
+      expect(screen.getByLabelText(i18n.t('onboarding.nameLabel'))).toHaveValue('Ana Souza')
+    })
   })
 })
