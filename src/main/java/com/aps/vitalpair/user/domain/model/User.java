@@ -39,6 +39,15 @@ public class User {
     private final String avatarUrl;
 
     /**
+     * The look of this person's creature, or null while they have not chosen.
+     *
+     * <p>Not derived from {@link Sex}: the mascot is a pet, not a portrait, and someone who
+     * marked OTHER would have no answer. Null rather than a default in the database, so that
+     * "never chose" stays distinguishable from "chose the first option".
+     */
+    private final Mascot mascot;
+
+    /**
      * The zone the user's day is measured in, as an IANA identifier.
      *
      * <p>Everything the product calls "today" is a question about this user's day, not the

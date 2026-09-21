@@ -1,44 +1,22 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Select } from './Select'
-
-interface DateParts {
-  d: string
-  m: string
-  y: string
-}
-
-const EMPTY: DateParts = { d: '', m: '', y: '' }
-
-function split(iso: string): DateParts {
-  if (!iso) return EMPTY
-  const [y = '', m = '', d = ''] = iso.split('-')
-  return { d, m, y }
-}
-
-/** The ISO form, or `''` while any part is still missing. */
-function join({ d, m, y }: DateParts): string {
-  return d && m && y ? `${y}-${m}-${d}` : ''
-}
-
 /**
- * A date as three dropdowns: day, month and year, without the browser's own calendar and
- * without letting anyone pick a date in the future. value and onChange use ISO
- * `yyyy-mm-dd`, or `''` while the date is still incomplete.
+ * Uma data, no seletor que o próprio aparelho oferece.
  *
- * Three controls cannot share one label, so the group carries the name instead and each
- * dropdown announces its own placeholder under it. Pointing a single `<label htmlFor>` at
- * the group does not do that: a label names a form control, and a `role="group"` div is
- * not one, so the group came out anonymous and a screen reader read three unnamed
- * dropdowns. `aria-labelledby` is what actually names a group, which is why `labelId` is
- * required rather than optional.
+ * Eram três dropdowns feitos à mão (dia, mês, ano). Medido num iPhone de 390px: a lista
+ * abre com `max-h-60` (240px) e cada opção tem 36px, então **cabem 6 por vez**. Para achar
+ * 1998 na lista de 120 anos era preciso rolar até a 29ª posição, ou seja **1044px de
+ * rolagem dentro de um popup de 240px**, com o dedo, para informar a data de nascimento.
+ * No cadastro, antes de a pessoa ter visto qualquer valor do produto.
  *
- * The three parts are held here rather than derived from `value` on every render. A date
- * with only the day chosen has no ISO form, so a component that read its state back out
- * of `value` alone would show the placeholder again the instant someone picked a day, and
- * the date could never be completed. `value` still wins whenever it names a different
- * date, so a parent that resets or loads a profile is obeyed.
+ * `type="date"` entrega isso ao sistema: no celular abre a roleta nativa, no computador o
+ * calendário do navegador, e quem usa leitor de tela ganha um controle que ele já sabe
+ * narrar. O formato mostrado é o do idioma do aparelho; o valor continua sendo ISO
+ * `yyyy-mm-dd`, que é o que a API espera, então nada muda para quem chama.
+ *
+ * `max` é hoje: uma data de nascimento no futuro não existe, e o navegador recusa antes de
+ * o formulário precisar dizer isso. Não há `min`, porque o backend valida apenas `@Past` e
+ * inventar uma idade mínima aqui seria uma regra que o produto não tem.
  */
 export function DateField({
   id,
@@ -46,84 +24,33 @@ export function DateField({
   value,
   onChange,
   'aria-describedby': describedBy,
+  'aria-invalid': invalid,
 }: {
   id?: string
-  /** The id of the element whose text names this group. */
-  labelId: string
+  /** O id do elemento cujo texto nomeia este campo. */
+  labelId?: string
   value: string
   onChange: (iso: string) => void
   'aria-describedby'?: string
+  'aria-invalid'?: boolean
 }) {
   const { t } = useTranslation()
-  const [parts, setParts] = useState(() => split(value))
-
-  // Loading a profile or clearing the form has to win over what is on screen, so a value
-  // the parent changed on its own replaces the parts. Adjusting during render rather than
-  // in an effect is React's own answer to deriving state from a prop: an effect would paint
-  // the stale date first and then correct it. `lastValue` is what distinguishes a change
-  // made out there from the one this component just reported: mid-fill the parent holds ''
-  // while the parts hold a day, and that pair has to survive.
-  const [lastValue, setLastValue] = useState(value)
-  if (value !== lastValue) {
-    setLastValue(value)
-    setParts(split(value))
-  }
-
-  const { d, m, y } = parts
-  const thisYear = new Date().getFullYear()
-
-  const dayOpts = Array.from({ length: 31 }, (_, i) => {
-    const dd = String(i + 1).padStart(2, '0')
-    return { value: dd, label: String(i + 1) }
-  })
-  // The month names come from the bundle, in the reading order of the current language.
-  // They were hardcoded in Portuguese, in a component the onboarding and the profile share,
-  // so every other language showed a translated form with "Março" inside it.
-  const months: readonly string[] = t('common.date.months', { returnObjects: true })
-  const monthOpts = months.map((label, i) => ({ value: String(i + 1).padStart(2, '0'), label }))
-  /*
-    Do ano atual para trás, 120 anos.
-
-    Começava em `thisYear - 13`, uma idade mínima que o produto não tem: o backend valida
-    apenas `@Past`, e a lista parava em 2013 sem dizer por quê, o que parece defeito para
-    quem nasceu depois. 120 cobre qualquer pessoa viva sem virar uma lista infinita.
-  */
-  const yearOpts = Array.from({ length: 120 }, (_, i) => {
-    const yy = String(thisYear - i)
-    return { value: yy, label: yy }
-  })
-
-  function set(next: DateParts) {
-    setParts(next)
-    onChange(join(next))
-  }
+  const hoje = new Date().toISOString().slice(0, 10)
 
   return (
-    <div
+    <input
       id={id}
-      role="group"
+      type="date"
+      className="input"
+      value={value}
+      max={hoje}
+      onChange={(e) => onChange(e.target.value)}
       aria-labelledby={labelId}
       aria-describedby={describedBy}
-      className="grid grid-cols-[1fr_1.4fr_1fr] gap-2"
-    >
-      <Select
-        value={d}
-        onChange={(nd) => set({ ...parts, d: nd })}
-        options={dayOpts}
-        placeholder={t('common.date.day')}
-      />
-      <Select
-        value={m}
-        onChange={(nm) => set({ ...parts, m: nm })}
-        options={monthOpts}
-        placeholder={t('common.date.month')}
-      />
-      <Select
-        value={y}
-        onChange={(ny) => set({ ...parts, y: ny })}
-        options={yearOpts}
-        placeholder={t('common.date.year')}
-      />
-    </div>
+      aria-invalid={invalid}
+      // Safari no iOS não mostra placeholder em input[type=date]; o rótulo acima é quem
+      // nomeia o campo, e o aria-label cobre o caso de ele ser lido isolado.
+      aria-label={labelId ? undefined : t('common.date.birthDate')}
+    />
   )
 }

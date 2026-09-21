@@ -19,6 +19,7 @@ export const common = {
     or: 'ou',
     today: 'Hoje',
     date: {
+      birthDate: 'Data de nascimento',
       day: 'Dia',
       month: 'Mês',
       year: 'Ano',
@@ -59,6 +60,7 @@ export const common = {
     or: 'or',
     today: 'Today',
     date: {
+      birthDate: 'Date of birth',
       day: 'Day',
       month: 'Month',
       year: 'Year',
@@ -99,6 +101,7 @@ export const common = {
     or: 'o',
     today: 'Hoy',
     date: {
+      birthDate: 'Fecha de nacimiento',
       day: 'Día',
       month: 'Mes',
       year: 'Año',
@@ -139,6 +142,7 @@ export const common = {
     or: 'ou',
     today: "Aujourd'hui",
     date: {
+      birthDate: 'Date de naissance',
       day: 'Jour',
       month: 'Mois',
       year: 'Année',

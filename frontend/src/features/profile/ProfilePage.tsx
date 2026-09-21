@@ -6,6 +6,7 @@ import { AvatarUpload } from './AvatarUpload'
 import { EditForm } from './EditForm'
 import { GOAL_ICON } from './goalIcons'
 import { IconTarget } from './icons'
+import { MascotPicker } from './MascotPicker'
 import { GoalCard, MacroCell, WeightCard } from './parts'
 import { activityLabel, GOAL_VALUES, goalLabel, sexLabel } from './profileForm'
 import { profileQueries } from './queries'
@@ -129,9 +130,15 @@ export function ProfilePage() {
         <AvatarUpload name={profile.name} currentAvatar={profile.avatarUrl} />
       </section>
 
+      {/*
+        A escolha do bicho fica logo acima dele, para quem procurar "como troco isso?" achar
+        no primeiro lugar em que olharia.
+      */}
+      <MascotPicker current={profile.mascot} level={brotoLevel} />
+
       {/* Broto + nível */}
       <section className="card flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-        <Broto who="you" expr="happy" level={brotoLevel} size={120} />
+        <Broto who="you" expr="happy" level={brotoLevel} size={120} mascot={profile.mascot} />
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-brand-ink">
             {t('profile.yourCreature')}

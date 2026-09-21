@@ -14,7 +14,9 @@ import com.aps.vitalpair.tdee.domain.model.TdeeInput;
 import com.aps.vitalpair.tdee.domain.model.TdeeResult;
 import com.aps.vitalpair.tdee.domain.port.in.CalculateTargetsUseCase;
 import com.aps.vitalpair.user.application.dto.UpdateProfileCommand;
+import com.aps.vitalpair.user.domain.model.Mascot;
 import com.aps.vitalpair.user.domain.model.User;
+import com.aps.vitalpair.user.domain.port.in.ChooseMascotUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetProfileUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetTdeeUseCase;
 import com.aps.vitalpair.user.domain.port.in.UpdateProfileUseCase;
@@ -25,7 +27,8 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
  * macros through {@link CalculateTargetsUseCase} (the tdee feature).
  */
 @Service
-public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCase, GetTdeeUseCase {
+public class UserProfileService
+        implements GetProfileUseCase, UpdateProfileUseCase, GetTdeeUseCase, ChooseMascotUseCase {
 
     private final UserRepositoryPort userRepository;
     private final CalculateTargetsUseCase calculateTargets;
@@ -122,5 +125,20 @@ public class UserProfileService implements GetProfileUseCase, UpdateProfileUseCa
             throw new BusinessRuleException(
                     "Complete seu perfil (nascimento, sexo, altura, peso, nível de atividade e objetivo) para calcular o TDEE");
         }
+    }
+
+    /**
+     * Grava a aparência escolhida para o mascote.
+     *
+     * <p>Só este campo muda. O mascote era decidido pelo papel no par, dentro do componente
+     * de desenho: quem era "você" recebia um rosto e o par recebia o outro, sem escolha. A
+     * primeira usuária do app marcou sexo feminino, viu o rosto masculino e perguntou como
+     * trocar.
+     */
+    @Override
+    @Transactional
+    public void chooseMascot(UUID userId, Mascot mascot) {
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        userRepository.save(user.toBuilder().mascot(mascot).build());
     }
 }

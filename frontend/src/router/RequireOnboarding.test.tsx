@@ -28,6 +28,7 @@ function profile(over: Partial<UserProfile> = {}): UserProfile {
     carbTargetG: null,
     fatTargetG: null,
     avatarUrl: null,
+    mascot: null,
     timeZone: 'America/Sao_Paulo',
     createdAt: '2026-09-01T00:00:00Z',
     updatedAt: '2026-09-01T00:00:00Z',

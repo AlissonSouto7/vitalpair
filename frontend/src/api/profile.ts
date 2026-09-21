@@ -50,3 +50,13 @@ export async function setAvatar(imageBase64: string): Promise<string> {
 export async function removeAvatar(): Promise<void> {
   await api.delete('/users/me/avatar')
 }
+
+/**
+ * Escolhe a aparência do mascote.
+ *
+ * Endereço próprio, e não um campo no PUT do perfil: trocar de bicho é uma ação de um toque,
+ * e juntá-la ao formulário obrigaria a mandar nome, peso e altura junto.
+ */
+export async function chooseMascot(mascot: 'SPROUT' | 'BLOSSOM'): Promise<void> {
+  await api.put('/users/me/mascot', { mascot })
+}

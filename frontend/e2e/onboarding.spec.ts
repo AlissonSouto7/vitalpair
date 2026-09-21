@@ -20,11 +20,11 @@ import { registerThroughTheUi } from './support/accounts'
  * clicks a row. The row is a button inside the option, which is why the click targets the
  * button rather than the option.
  *
- * The list is scoped to the dropdown that owns it: the three date dropdowns sit side by
- * side and their options overlap (a day and a year are both plain numbers), so an
- * unscoped lookup can find the wrong list. The assertion at the end is what makes the
- * helper honest, since clicking a row that is on its way out of the DOM succeeds without
- * selecting anything.
+ * The list is scoped to the dropdown that owns it, which mattered when three date
+ * dropdowns sat side by side with overlapping options; the date is a native field now and
+ * only the sex dropdown is left, but scoping costs nothing and keeps the helper correct if
+ * another one appears. The assertion at the end is what makes it honest, since clicking a
+ * row that is on its way out of the DOM succeeds without selecting anything.
  */
 async function chooseFrom(trigger: Locator, option: string) {
   const dropdown = trigger.locator('..')
@@ -35,15 +35,21 @@ async function chooseFrom(trigger: Locator, option: string) {
 
 /** Fills the "about you" step. The values are ordinary on purpose: nothing here is an edge case. */
 async function fillAboutYou(page: Page, name: string) {
+  /*
+   * `fill` e não `type`: o campo já vem com o nome que a pessoa deu no cadastro, lido do
+   * perfil, e digitar por cima acrescentaria ao que está lá. Perguntar o nome de novo, dez
+   * segundos depois, era a primeira coisa que o app fazia.
+   */
+  await expect(page.getByLabel('Como te chamam?')).toHaveValue(name)
   await page.getByLabel('Como te chamam?').fill(name)
   await page.getByLabel('Peso').fill('78')
   await page.getByLabel('Altura').fill('179')
 
-  // The date is three dropdowns rather than a native picker, chosen the way a person does.
-  const birth = page.getByRole('group', { name: 'Nascimento' })
-  await chooseFrom(birth.getByRole('combobox').nth(0), '15')
-  await chooseFrom(birth.getByRole('combobox').nth(1), 'Maio')
-  await chooseFrom(birth.getByRole('combobox').nth(2), '1995')
+  /*
+   * A data é o seletor nativo do aparelho, não três dropdowns. Eram 1044px de rolagem com o
+   * dedo dentro de um popup de 240px para achar um ano na lista de 120.
+   */
+  await page.getByLabel('Nascimento').fill('1995-05-15')
 
   await chooseFrom(page.getByRole('combobox', { name: 'Sexo' }), 'Masculino')
 
@@ -85,6 +91,11 @@ test.describe('onboarding', () => {
   test('onboarding refuses to advance with the form empty', async ({ page }) => {
     await registerThroughTheUi(page, 'Apressado', { profile: 'empty' })
     await expect(page).toHaveURL(/\/onboarding/)
+
+    // O nome chega preenchido do cadastro, então apagar é o que deixa o formulário
+    // realmente vazio, que é o caso deste teste.
+    await expect(page.getByLabel('Como te chamam?')).toHaveValue('Apressado')
+    await page.getByLabel('Como te chamam?').fill('')
 
     await page.getByRole('button', { name: /continuar/i }).click()
 

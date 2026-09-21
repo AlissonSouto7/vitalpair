@@ -15,7 +15,7 @@ import type {
 import { usePartnerName } from '../pair/usePartnerName'
 
 import { DayList } from './DayList'
-import type { Draft } from './draft'
+import { type Draft, draftFromDetected, draftFromProduct, emptyDraft, round } from './draft'
 import { FavoritesTab } from './FavoritesTab'
 import { CameraIcon, SearchIcon, StarIcon } from './icons'
 import { MealDetailModal } from './MealDetailModal'
@@ -24,10 +24,11 @@ import { mealForHour } from './mealForHour'
 import { TabButton } from './parts'
 import { PhotoTab } from './PhotoTab'
 import { nutritionQueries } from './queries'
-import { SaveBar } from './SaveBar'
 import { SearchTab } from './SearchTab'
+import { useScrollToEditor } from './useScrollToEditor'
 
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { premiumQueries } from '@/features/premium/queries'
 import { getApiErrorMessage } from '@/shared/api/errors'
 
 const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
@@ -35,24 +36,33 @@ const MEAL_VALUES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
 type Tab = 'foto' | 'buscar' | 'favoritos'
 
 const num = (v: string) => (v.trim() === '' ? 0 : Number(v))
-const round = (v: number) => Math.round(v * 10) / 10
-
-// Converte valores totais de uma porção (gramas + kcal/macros daquela porção) para o
-// formato por-100g que o editor usa, mantendo o mesmo total ao recalcular.
-function per100(value: number, grams: number) {
-  return grams > 0 ? round(value / (grams / 100)) : round(value)
-}
 
 export function NutritionPage() {
   const { t, i18n } = useTranslation()
   const foodNameId = useId()
   const mealLabel = (m: MealType) => t(`nutrition.mealShort.${m}`)
   const queryClient = useQueryClient()
-  const [tab, setTab] = useState<Tab>('foto')
+  /*
+   * Which tab opens first.
+   *
+   * It used to be 'foto', always. The photo tab is behind the paid plan, so somebody who came
+   * here to log a meal landed on a padlock reading "Disponível no plano pago", under a
+   * subtitle still telling them a photo is the fastest way. The first screen of the main
+   * action in the app was a wall.
+   *
+   * `null` until the entitlement answers, so the tabs do not flip under the person's finger
+   * between the first paint and the response.
+   */
+  const entitlement = useQuery(premiumQueries.entitlement())
+  const aiAccess = entitlement.data?.aiAccess ?? null
+  const [chosenTab, setChosenTab] = useState<Tab | null>(null)
+  const tab: Tab = chosenTab ?? (aiAccess === false ? 'buscar' : 'foto')
+  const setTab = setChosenTab
   const [meal, setMeal] = useState<MealType>(() => mealForHour(new Date().getHours()))
   const [draft, setDraft] = useState<Draft | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<FoodLog | null>(null)
+  const editorRef = useScrollToEditor(draft ? `${draft.source}:${draft.name}` : null)
 
   const logsQuery = useQuery(nutritionQueries.logs())
   const summaryQuery = useQuery(nutritionQueries.summary())
@@ -81,50 +91,15 @@ export function NutritionPage() {
   const saving = logMealMutation.isPending && addingFav === null
 
   function startFromProduct(p: FoodProduct) {
-    setDraft({
-      name: p.name,
-      barcode: p.barcode,
-      kcalPer100: p.caloriesPer100g != null ? String(p.caloriesPer100g) : '',
-      proteinPer100: p.proteinPer100g != null ? String(p.proteinPer100g) : '',
-      carbPer100: p.carbPer100g != null ? String(p.carbPer100g) : '',
-      fatPer100: p.fatPer100g != null ? String(p.fatPer100g) : '',
-      grams: '100',
-      mealType: meal,
-      isPrivate: false,
-      source: 'OPEN_FOOD_FACTS',
-    })
+    setDraft(draftFromProduct(p, meal))
   }
 
-  // Abre o editor pré-preenchido a partir de valores totais (Foto-IA).
   function startFromDetected(d: DetectedFood) {
-    const grams = round(d.quantityG) || 100
-    setDraft({
-      name: d.foodName,
-      barcode: null,
-      kcalPer100: String(per100(d.caloriesKcal, grams)),
-      proteinPer100: String(per100(d.proteinG, grams)),
-      carbPer100: String(per100(d.carbG, grams)),
-      fatPer100: String(per100(d.fatG, grams)),
-      grams: String(grams),
-      mealType: meal,
-      isPrivate: false,
-      source: 'MANUAL',
-    })
+    setDraft(draftFromDetected(d, meal))
   }
 
   function startManual() {
-    setDraft({
-      name: '',
-      barcode: null,
-      kcalPer100: '',
-      proteinPer100: '',
-      carbPer100: '',
-      fatPer100: '',
-      grams: '100',
-      mealType: meal,
-      isPrivate: false,
-      source: 'MANUAL',
-    })
+    setDraft(emptyDraft(meal))
   }
 
   // Favorito: registra na hora (1 toque), sem abrir editor.
@@ -210,7 +185,14 @@ export function NutritionPage() {
         <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
           {t('nutrition.pageTitle')}
         </h1>
-        <p className="mt-1 text-sm font-semibold text-muted">{t('nutrition.pageSubtitle')}</p>
+        {/*
+          Sem o plano pago, o subtítulo não anuncia a foto: ele dizia "Foto é o jeito mais
+          rápido" logo acima de um cadeado, ou seja, vendia como atalho justamente o caminho
+          que estava fechado.
+        */}
+        <p className="mt-1 text-sm font-semibold text-muted">
+          {t(aiAccess === false ? 'nutrition.pageSubtitleFree' : 'nutrition.pageSubtitle')}
+        </p>
       </header>
 
       {/*
@@ -312,20 +294,28 @@ export function NutritionPage() {
         )}
       </section>
 
-      {/* Editor do item */}
+      {/*
+        Editor do item.
+
+        O wrapper existe pela rolagem: medido num iPhone, o editor era inserido a 2190px do
+        topo numa tela de 844px, ou seja 1346px abaixo do que a pessoa estava vendo, e nada
+        a levava até lá. Ela tocava no "+", a tela não mudava, e ela tocava de novo.
+      */}
       {draft && computed && (
-        <MealEditor
-          t={t}
-          draft={draft}
-          setDraft={setDraft}
-          computed={computed}
-          foodNameId={foodNameId}
-          mealLabel={mealLabel}
-          mealValues={MEAL_VALUES}
-          onSave={() => void save()}
-          onDiscard={() => setDraft(null)}
-          saving={saving}
-        />
+        <div ref={editorRef}>
+          <MealEditor
+            t={t}
+            draft={draft}
+            setDraft={setDraft}
+            computed={computed}
+            foodNameId={foodNameId}
+            mealLabel={mealLabel}
+            mealValues={MEAL_VALUES}
+            onSave={() => void save()}
+            onDiscard={() => setDraft(null)}
+            saving={saving}
+          />
+        </div>
       )}
 
       {/* Refeições de hoje */}
@@ -338,18 +328,15 @@ export function NutritionPage() {
         onRemove={(id) => setToDelete(logs.find((l) => l.id === id) ?? null)}
       />
 
-      {/* Barra fixa "vai entrar" */}
-      {draft && computed && computed.calories > 0 && (
-        <SaveBar
-          t={t}
-          calories={computed.calories}
-          mealType={draft.mealType}
-          mealLabel={mealLabel}
-          disabled={saving || !draft.name}
-          saving={saving}
-          onSave={() => void save()}
-        />
-      )}
+      {/*
+        A barra fixa "vai entrar" saiu junto com o editor em passos.
+
+        Ela e o botão dentro do editor chamavam o mesmo `save()`, então eram dois botões
+        para a mesma ação, um deles por cima do formulário. Com o editor perguntando uma
+        coisa por vez e carregando o próprio rodapé, a barra passou a competir com o passo
+        em vez de ajudar: na tela de "qual refeição?" ela já oferecia registrar, antes de a
+        pergunta ter sido respondida.
+      */}
 
       {selected && (
         <MealDetailModal

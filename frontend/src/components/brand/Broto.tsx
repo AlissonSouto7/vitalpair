@@ -8,6 +8,8 @@ import React from 'react'
  * size: altura em px
  */
 type Who = 'you' | 'partner'
+/** As aparências que a pessoa pode escolher. Espelha o enum do backend. */
+export type Mascot = 'SPROUT' | 'BLOSSOM'
 type Expr = 'happy' | 'smug' | 'sad' | 'strong'
 type Colors = {
   body: string
@@ -261,15 +263,27 @@ export function Broto({
   level = 6,
   size = 120,
   className,
+  mascot,
 }: {
   who?: Who
   expr?: Expr
   level?: number
   size?: number
   className?: string
+  /**
+   * A aparência escolhida pela pessoa.
+   *
+   * O rosto vinha de `who`: quem era "você" recebia cílios ou sobrancelhas grossas conforme
+   * o PAPEL no par, não conforme a própria pessoa. A primeira usuária marcou sexo feminino,
+   * viu o rosto masculino e perguntou como trocar; não havia como, porque o desenho nem
+   * olhava para o perfil.
+   *
+   * Sem escolha, mantém o desenho de antes, para quem já usava não ver o bicho mudar sozinho.
+   */
+  mascot?: Mascot | null
 }) {
   const c = who === 'partner' ? PURPLE : ORANGE
-  const g: 'm' | 'f' = who === 'partner' ? 'f' : 'm'
+  const g: 'm' | 'f' = mascot ? (mascot === 'BLOSSOM' ? 'f' : 'm') : who === 'partner' ? 'f' : 'm'
   // useId gives a stable per-instance id. A module-level counter would break under
   // React's double render in strict mode and under any concurrent rendering.
   const id = `broto${React.useId().replace(/:/g, '')}`

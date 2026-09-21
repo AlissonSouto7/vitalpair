@@ -5,6 +5,10 @@ import { Broto } from './Broto'
 /**
  * Marca VitalPair: o mascote Broto. Sozinho (BrandMark) usa o seu Broto (laranja);
  * o lockup usa os dois Brotos (você + o par) + a palavra VitalPair + slogan.
+ *
+ * Sem `mascot` de propósito: aqui o Broto é o logotipo do produto, não o bicho da pessoa.
+ * A escolha feita no perfil muda o bicho dela nas telas que são dela; o logotipo é o mesmo
+ * para todo mundo, como qualquer marca.
  */
 export function BrandMark({ size = 40 }: { size?: number }) {
   return <Broto who="you" expr="happy" level={6} size={size} />

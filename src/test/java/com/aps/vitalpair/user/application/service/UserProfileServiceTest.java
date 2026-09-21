@@ -3,6 +3,7 @@ package com.aps.vitalpair.user.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,6 +27,7 @@ import com.aps.vitalpair.tdee.domain.port.in.CalculateTargetsUseCase;
 import com.aps.vitalpair.user.application.dto.UpdateProfileCommand;
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.Mascot;
 import com.aps.vitalpair.user.domain.model.Sex;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
@@ -149,5 +152,62 @@ class UserProfileServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getProfile(USER_ID)).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    /**
+     * A escolha do mascote, que antes não existia.
+     *
+     * <p>O bicho era desenhado a partir do papel no par ("você" tinha um rosto, o par tinha
+     * outro), dentro do componente. A primeira usuária marcou sexo feminino, viu o rosto
+     * masculino e perguntou como trocar; não havia como.
+     */
+    @Test
+    void chooseMascotGravaAescolha() {
+        UUID id = UUID.randomUUID();
+        User user = User.builder()
+                .id(id)
+                .tenantId(UUID.randomUUID())
+                .email("bel@example.com")
+                .name("Bel")
+                .build();
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.chooseMascot(id, Mascot.BLOSSOM);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getMascot()).isEqualTo(Mascot.BLOSSOM);
+    }
+
+    @Test
+    void chooseMascotNaoMexeNoRestoDoPerfil() {
+        UUID id = UUID.randomUUID();
+        User user = User.builder()
+                .id(id)
+                .tenantId(UUID.randomUUID())
+                .email("bel@example.com")
+                .name("Bel")
+                .sex(Sex.FEMALE)
+                .build();
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.chooseMascot(id, Mascot.SPROUT);
+
+        // O mascote é escolha, não consequência do sexo: alguém que marcou FEMALE pode
+        // querer o SPROUT, e quem marcou OTHER precisa poder escolher os dois.
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getSex()).isEqualTo(Sex.FEMALE);
+        assertThat(captor.getValue().getName()).isEqualTo("Bel");
+    }
+
+    @Test
+    void chooseMascotDeContaInexistenteEhNotFound() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.chooseMascot(id, Mascot.SPROUT)).isInstanceOf(ResourceNotFoundException.class);
     }
 }

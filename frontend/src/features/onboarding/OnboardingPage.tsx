@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
-import { useState, useId } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState, useId } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -10,6 +10,7 @@ import { getTdee, updateProfile } from '../../api/profile'
 import { BrandMark } from '../../components/brand/BrandMark'
 import { useTheme } from '../../hooks/useTheme'
 import type { Tdee } from '../../types/profile'
+import { profileQueries } from '../profile/queries'
 
 import { ABOUT_YOU_FIELDS, onboardingSchema, type OnboardingValues } from './onboardingForm'
 import { buildActivityOptions, buildGoalOptions, buildSexOptions, buildStepLabels } from './options'
@@ -44,11 +45,37 @@ export function OnboardingPage() {
 
   // Steps 1 and 2 are one form: the profile, sent in a single request when step 2 is
   // left. It lives here rather than in the steps so that going back shows what was typed.
+  /*
+   * O nome já foi dito no cadastro, então ele vem preenchido.
+   *
+   * Pedir "Como te chamam?" outra vez, dez segundos depois de a pessoa ter digitado o nome
+   * para criar a conta, é a primeira coisa que o app faz. O servidor já sabe a resposta:
+   * `POST /auth/register` grava o nome, e esta é a mesma query que o resto do app lê.
+   *
+   * `values` e não `defaultValues`: a query resolve depois do primeiro render, e
+   * `defaultValues` só é lido uma vez, então o campo continuaria vazio. `values` reaplica
+   * quando o dado chega, e o que a pessoa digitar por cima continua valendo, porque só muda
+   * quando a própria origem muda.
+   */
+  const profileQuery = useQuery(profileQueries.profile())
   const form = useForm<OnboardingValues>({
     resolver: zodResolver(onboardingSchema),
     mode: 'onTouched',
     defaultValues: { name: '', birthDate: '' },
   })
+
+  /*
+   * A query resolve depois do primeiro render, então o valor entra aqui e não em
+   * `defaultValues`, que só é lido uma vez. `shouldDirty: false` para o campo não contar
+   * como "mexido pela pessoa", e a checagem de `isDirty` para nunca escrever por cima do
+   * que ela estiver digitando se a resposta chegar atrasada.
+   */
+  const nomeDoPerfil = profileQuery.data?.name
+  useEffect(() => {
+    if (!nomeDoPerfil) return
+    if (form.getFieldState('name').isDirty) return
+    form.setValue('name', nomeDoPerfil, { shouldDirty: false })
+  }, [nomeDoPerfil, form])
   const { isSubmitting: calculating } = form.formState
 
   // passo 3 (resultado)
@@ -167,29 +194,6 @@ export function OnboardingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-ink">
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={theme === 'dark' ? t('onboarding.themeToLight') : t('onboarding.themeToDark')}
-        className="fixed right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-xl border border-hair bg-surface text-muted transition hover:text-ink"
-      >
-        {theme === 'dark' ? (
-          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" aria-hidden="true">
-            <path
-              d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" aria-hidden="true">
-            <path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z" />
-          </svg>
-        )}
-      </button>
-
       <div className="mx-auto flex w-full max-w-[540px] flex-1 flex-col px-6 pb-10 pt-9 sm:px-7">
         {/* topo: marca + progresso */}
         <div className="mb-6 flex items-center gap-3">
@@ -207,6 +211,45 @@ export function OnboardingPage() {
               label: STEP_LABELS[step - 1],
             })}
           </span>
+          {/*
+            O botão de tema é um item desta linha, e não um elemento flutuante.
+
+            Como `fixed right-4 top-4` ele passava por cima do "1 de 5 · Você": medido num
+            iPhone de 390px, o botão ocupava x 328-364 e o texto x 284-356, ou seja 28px de
+            sobreposição, e o passo em que a pessoa estava ficava ilegível.
+          */}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={
+              theme === 'dark' ? t('onboarding.themeToLight') : t('onboarding.themeToDark')
+            }
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-hair bg-surface text-muted transition hover:text-ink"
+          >
+            {theme === 'dark' ? (
+              <svg
+                viewBox="0 0 24 24"
+                className="h-[18px] w-[18px] fill-current"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                className="h-[18px] w-[18px] fill-current"
+                aria-hidden="true"
+              >
+                <path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z" />
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* One form around every step, so Enter in a field advances the way the button
@@ -272,8 +315,18 @@ export function OnboardingPage() {
               </p>
             )}
 
-            {/* rodapé: voltar / avançar */}
-            <div className="mt-5 flex items-center gap-3">
+            {/*
+              Rodapé fixo, e não no fim do conteúdo.
+
+              Medido num iPhone 390x844 com o passo 1 inteiro preenchido: o "Continuar"
+              caía em y=867, ou seja 23px abaixo da borda da tela, sem nada indicando que
+              existisse. A pessoa preenchia tudo e travava, achando que a validação tinha
+              recusado. Eu mesmo só consegui avançar depois de rolar até ele.
+
+              `pb-[env(safe-area-inset-bottom)]` porque no iPhone a faixa do gesto de home
+              fica por cima de qualquer coisa colada no fim da tela.
+            */}
+            <div className="sticky bottom-0 z-10 -mx-6 mt-5 flex items-center gap-3 border-t border-hair bg-canvas px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:-mx-7 sm:px-7">
               {step > 1 && (
                 <button
                   type="button"

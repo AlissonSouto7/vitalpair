@@ -18,6 +18,8 @@ export interface UserProfile {
   carbTargetG: number | null
   fatTargetG: number | null
   avatarUrl: string | null
+  /** Aparência escolhida para o mascote, ou null enquanto a pessoa não escolheu. */
+  mascot: 'SPROUT' | 'BLOSSOM' | null
   /** IANA identifier, e.g. "America/Sao_Paulo". Decides where this user's day starts. */
   timeZone: string
   createdAt: string

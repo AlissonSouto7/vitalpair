@@ -19,6 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 import com.aps.vitalpair.shared.security.Role;
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.Mascot;
 import com.aps.vitalpair.user.domain.model.Plan;
 import com.aps.vitalpair.user.domain.model.Sex;
 
@@ -101,6 +102,16 @@ public class UserJpaEntity {
 
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    /**
+     * Aparência do mascote escolhida pela pessoa, ou null enquanto ela não escolheu.
+     *
+     * <p>Sem valor padrão no banco de propósito: um default gravado aqui seria indistinguível
+     * de uma escolha real, e a tela precisa saber a diferença para oferecer a escolha.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mascot", length = 16)
+    private Mascot mascot;
 
     /**
      * IANA zone identifier. Stored as text rather than mapped to {@link java.time.ZoneId}, so
