@@ -1,6 +1,7 @@
 package com.aps.vitalpair.nutrition.infrastructure.client;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,7 +81,22 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
                 toBigDecimal(n != null ? n.fat100g() : null));
     }
 
+    /**
+     * One decimal place, which is all a food label ever carries.
+     *
+     * <p>Open Food Facts sends these as JSON numbers that arrive as a double, and
+     * {@code BigDecimal.valueOf(double)} faithfully preserves the binary rounding error that
+     * comes with them. So a bread whose label says 1.2 g of protein reached the screen as
+     * {@code 1.2000000476837158}, inside an editable field, and a search result read
+     * "76.5999984741211 kcal". Measured against the live API on 21/09/2026: 2 of the 20
+     * results for "pao" came back like that.
+     *
+     * <p>Rounded here, at the boundary where the foreign number enters, rather than in each
+     * screen that shows it: the value is stored and recalculated per portion downstream, so
+     * rounding late would leave the error in the database and in every arithmetic it feeds.
+     * HALF_UP because this is a quantity a person reads, not an accounting figure.
+     */
     private static BigDecimal toBigDecimal(Double value) {
-        return value != null ? BigDecimal.valueOf(value) : null;
+        return value != null ? BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP) : null;
     }
 }
