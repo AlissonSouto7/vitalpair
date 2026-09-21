@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { type ReactElement, useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
@@ -9,9 +9,8 @@ import { DateField } from './DateField'
 import i18n from '@/i18n'
 
 /**
- * A controlled wrapper, the way both real callers use it: the parent owns the ISO string
- * and hands it back. Testing the component with a fixed `value` would hide the bug this
- * file exists for, because the bug is that a partial date has nowhere to live.
+ * Um invólucro controlado, como os dois chamadores reais usam: o pai é dono da string ISO
+ * e devolve o que recebeu.
  */
 function Harness() {
   const [value, setValue] = useState('')
@@ -24,132 +23,90 @@ function Harness() {
   )
 }
 
-/**
- * The component reads its month names and placeholders from the bundle, so every render
- * needs the provider. Portuguese unless a test says otherwise, matching the product's
- * reference language.
- */
 function renderIn(ui: ReactElement) {
   return render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>)
 }
 
-async function pick(user: ReturnType<typeof userEvent.setup>, index: number, label: string) {
-  const trigger = screen.getAllByRole('combobox')[index]
-  await user.click(trigger)
-  const listbox = screen.getByRole('listbox')
-  await user.click(within(listbox).getByRole('button', { name: label }))
-}
-
+/**
+ * O campo de data, que passou a ser o seletor nativo do aparelho.
+ *
+ * Eram três dropdowns feitos à mão. Medido num iPhone de 390px: cabiam 6 opções por vez, e
+ * chegar em 1998 na lista de 120 anos custava 1044px de rolagem dentro de um popup de
+ * 240px, com o dedo. Os dois testes que sumiram daqui cobriam uma data "pela metade" (dia
+ * escolhido, mês ainda não), um estado que só existia porque eram três controles: com um
+ * campo só, o navegador nunca emite uma data incompleta.
+ */
 describe('DateField', () => {
-  // The language is global to the i18n instance, so a test that changes it would otherwise
-  // decide what the next one reads. Back to the reference language before each.
   beforeEach(async () => {
     await i18n.changeLanguage('pt')
   })
 
-  it('keeps each part on screen while the date is still incomplete', async () => {
+  it('devolve a data em ISO, que é o formato que a API espera', async () => {
     const user = userEvent.setup()
     renderIn(<Harness />)
 
-    await pick(user, 0, '15')
+    await user.type(screen.getByLabelText('Nascimento'), '1995-05-15')
 
-    // The day the person just chose has to stay visible. It used to fall back to the
-    // placeholder, because a partial date could not be represented and the component
-    // read its state back out of a value that was still empty.
-    expect(screen.getAllByRole('combobox')[0]).toHaveTextContent('15')
-  })
-
-  it('emits an ISO date only once all three parts are chosen', async () => {
-    const user = userEvent.setup()
-    renderIn(<Harness />)
-
-    await pick(user, 0, '15')
-    await pick(user, 1, 'Maio')
-    expect(screen.getByTestId('iso')).toHaveTextContent('')
-
-    await pick(user, 2, '1995')
     expect(screen.getByTestId('iso')).toHaveTextContent('1995-05-15')
   })
 
-  it('follows the parent when the parent changes the date', async () => {
+  it('mostra a data que recebeu', () => {
+    renderIn(
+      <>
+        <span id="b2">Nascimento</span>
+        <DateField labelId="b2" value="1990-03-07" onChange={() => {}} />
+      </>,
+    )
+
+    expect(screen.getByLabelText('Nascimento')).toHaveValue('1990-03-07')
+  })
+
+  it('segue o pai quando o pai troca a data', async () => {
     const user = userEvent.setup()
 
     function Controlled() {
-      const [value, setValue] = useState('')
+      const [value, setValue] = useState('1995-05-15')
       return (
         <>
-          <span id="birth">Nascimento</span>
-          <DateField labelId="birth" value={value} onChange={setValue} />
-          <button type="button" onClick={() => setValue('1980-01-02')}>
-            carregar
-          </button>
-          <button type="button" onClick={() => setValue('')}>
-            limpar
+          <span id="b3">Nascimento</span>
+          <DateField labelId="b3" value={value} onChange={setValue} />
+          <button type="button" onClick={() => setValue('2000-01-02')}>
+            carregar perfil
           </button>
         </>
       )
     }
-
     renderIn(<Controlled />)
-    await pick(user, 0, '15')
-    expect(screen.getAllByRole('combobox')[0]).toHaveTextContent('15')
 
-    // Loading a profile has to win over whatever was half typed.
-    await user.click(screen.getByRole('button', { name: 'carregar' }))
-    const [day, month, year] = screen.getAllByRole('combobox')
-    expect(day).toHaveTextContent('2')
-    expect(month).toHaveTextContent('Janeiro')
-    expect(year).toHaveTextContent('1980')
+    await user.click(screen.getByRole('button', { name: 'carregar perfil' }))
 
-    // And so does clearing it.
-    await user.click(screen.getByRole('button', { name: 'limpar' }))
-    expect(screen.getAllByRole('combobox')[0]).toHaveTextContent('Dia')
+    // Carregar um perfil ou limpar o formulário tem que vencer o que está na tela.
+    expect(screen.getByLabelText('Nascimento')).toHaveValue('2000-01-02')
   })
 
-  it('shows the parts of a date it was given', () => {
-    renderIn(
-      <>
-        <span id="birth">Nascimento</span>
-        <DateField labelId="birth" value="1995-05-15" onChange={() => {}} />
-      </>,
-    )
+  it('não aceita uma data de nascimento no futuro', () => {
+    renderIn(<Harness />)
 
-    const [day, month, year] = screen.getAllByRole('combobox')
-    expect(day).toHaveTextContent('15')
-    expect(month).toHaveTextContent('Maio')
-    expect(year).toHaveTextContent('1995')
+    // O navegador recusa antes de o formulário precisar dizer qualquer coisa. Nascer
+    // amanhã não é um caso de validação, é uma impossibilidade.
+    const hoje = new Date().toISOString().slice(0, 10)
+    expect(screen.getByLabelText('Nascimento')).toHaveAttribute('max', hoje)
   })
 
-  /**
-   * The months and the three placeholders were hardcoded in Portuguese, in a component the
-   * onboarding and the profile both use, so a person reading the product in any other
-   * language met "Março" and "Dia" inside a form that was otherwise translated.
-   */
-  it('speaks the language the rest of the interface speaks', async () => {
-    await i18n.changeLanguage('en')
-    render(
-      <I18nextProvider i18n={i18n}>
-        <span id="birth">Date of birth</span>
-        <DateField labelId="birth" value="1995-05-15" onChange={() => {}} />
-      </I18nextProvider>,
-    )
+  it('é nomeado pelo rótulo do formulário', () => {
+    renderIn(<Harness />)
 
-    expect(screen.getAllByRole('combobox')[1]).toHaveTextContent('May')
-    expect(screen.queryByText('Maio')).not.toBeInTheDocument()
+    // Um `<label htmlFor>` apontando para um grupo não nomeava nada, porque um
+    // `role="group"` não é um controle de formulário. Agora é um input de verdade.
+    expect(screen.getByLabelText('Nascimento')).toBeInTheDocument()
   })
 
-  it('names each dropdown in the current language when empty', async () => {
-    await i18n.changeLanguage('fr')
-    render(
-      <I18nextProvider i18n={i18n}>
-        <span id="birth">Date de naissance</span>
-        <DateField labelId="birth" value="" onChange={() => {}} />
-      </I18nextProvider>,
-    )
+  it('usa o seletor de data do aparelho, e não uma lista feita à mão', () => {
+    renderIn(<Harness />)
 
-    const [day, month, year] = screen.getAllByRole('combobox')
-    expect(day).toHaveTextContent('Jour')
-    expect(month).toHaveTextContent('Mois')
-    expect(year).toHaveTextContent('Année')
+    // O ponto da mudança: quem decide como escolher a data é o sistema operacional, que no
+    // celular abre a roleta nativa em vez de uma lista de 120 anos com scroll interno.
+    expect(screen.getByLabelText('Nascimento')).toHaveAttribute('type', 'date')
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
   })
 })
