@@ -15,6 +15,7 @@ import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 import com.aps.vitalpair.user.application.dto.UpdateProfileCommand;
+import com.aps.vitalpair.user.domain.port.in.ChooseMascotUseCase;
 import com.aps.vitalpair.user.domain.port.in.CloseAccountUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetProfileUseCase;
 import com.aps.vitalpair.user.domain.port.in.GetTdeeUseCase;
@@ -34,16 +35,19 @@ public class UserController {
     private final UpdateProfileUseCase updateProfileUseCase;
     private final GetTdeeUseCase getTdeeUseCase;
     private final CloseAccountUseCase closeAccountUseCase;
+    private final ChooseMascotUseCase chooseMascotUseCase;
 
     public UserController(
             GetProfileUseCase getProfileUseCase,
             UpdateProfileUseCase updateProfileUseCase,
             GetTdeeUseCase getTdeeUseCase,
-            CloseAccountUseCase closeAccountUseCase) {
+            CloseAccountUseCase closeAccountUseCase,
+            ChooseMascotUseCase chooseMascotUseCase) {
         this.getProfileUseCase = getProfileUseCase;
         this.updateProfileUseCase = updateProfileUseCase;
         this.getTdeeUseCase = getTdeeUseCase;
         this.closeAccountUseCase = closeAccountUseCase;
+        this.chooseMascotUseCase = chooseMascotUseCase;
     }
 
     @StandardApiResponses
@@ -92,6 +96,18 @@ public class UserController {
                         : java.time.ZoneId.of(request.timeZone()));
         var user = updateProfileUseCase.updateProfile(principal.userId(), command);
         return ResponseEntity.ok(ApiResponse.ok(UserProfileResponse.from(user), "Perfil atualizado"));
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "Choose the mascot",
+            description =
+                    "Sets how this person's creature looks. The look used to be decided by the role in the pair, inside the drawing component, so whoever was \"you\" always got the same face and there was no way to change it.")
+    @PutMapping("/me/mascot")
+    public ResponseEntity<ApiResponse<Void>> chooseMascot(
+            @AuthenticationPrincipal AuthenticatedUser principal, @Valid @RequestBody ChooseMascotRequest request) {
+        chooseMascotUseCase.chooseMascot(principal.userId(), request.mascot());
+        return ResponseEntity.ok(ApiResponse.ok(null, "Mascote escolhido"));
     }
 
     @StandardApiResponses

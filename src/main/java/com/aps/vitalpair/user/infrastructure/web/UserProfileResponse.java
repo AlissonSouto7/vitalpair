@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.aps.vitalpair.user.domain.model.ActivityLevel;
 import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.Mascot;
 import com.aps.vitalpair.user.domain.model.Sex;
 import com.aps.vitalpair.user.domain.model.User;
 
@@ -27,6 +28,8 @@ public record UserProfileResponse(
         Integer carbTargetG,
         Integer fatTargetG,
         String avatarUrl,
+        /** Aparência do mascote, ou null enquanto a pessoa não escolheu. */
+        Mascot mascot,
         /** IANA identifier, e.g. "America/Sao_Paulo". Decides where this user's day starts. */
         String timeZone,
         Instant createdAt,
@@ -49,6 +52,7 @@ public record UserProfileResponse(
                 user.getCarbTargetG(),
                 user.getFatTargetG(),
                 user.getAvatarUrl(),
+                user.getMascot(),
                 user.zone().getId(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
