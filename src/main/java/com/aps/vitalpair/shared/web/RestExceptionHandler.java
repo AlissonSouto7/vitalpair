@@ -19,6 +19,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -100,6 +101,27 @@ public class RestExceptionHandler {
     public ResponseEntity<ApiResponse<ApiError>> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
         return ApiErrors.response(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso", request);
+    }
+
+    /**
+     * A required query parameter the caller did not send.
+     *
+     * <p>Found on 21/09/2026 while testing the food search by hand: {@code GET
+     * /api/v1/nutrition/foods/search} with no {@code q} answered 500 with a stack trace, for
+     * a request that is simply incomplete. Same mistake as the malformed id and the wrong
+     * method already handled here, on a third kind of input, and the last of the three that
+     * Spring raises before a controller is ever reached.
+     *
+     * <p>The parameter is named, because "which one?" is the only thing the caller needs.
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<ApiError>> handleMissingParameter(
+            MissingServletRequestParameterException ex, HttpServletRequest request) {
+        return ApiErrors.response(
+                HttpStatus.BAD_REQUEST,
+                "Faltou o parâmetro " + ex.getParameterName(),
+                request,
+                List.of(new ApiError.FieldViolation(ex.getParameterName(), "obrigatório")));
     }
 
     /**

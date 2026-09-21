@@ -1,6 +1,7 @@
 package com.aps.vitalpair.shared.web;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,9 +14,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.support.ControllerSliceTest;
@@ -51,6 +54,12 @@ class RestExceptionHandlerTest extends ControllerSliceTest {
         @PostMapping("/probe-typed")
         TypedBody echoTyped(@RequestBody TypedBody body) {
             return body;
+        }
+
+        /** Takes a required query parameter, so omitting it exercises that handler. */
+        @GetMapping("/probe/search")
+        String search(@RequestParam String q) {
+            return q;
         }
 
         /** Takes a UUID so a malformed one exercises the type-mismatch handler. */
@@ -171,5 +180,21 @@ class RestExceptionHandlerTest extends ControllerSliceTest {
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(header().string("Allow", org.hamcrest.Matchers.containsString("POST")))
                 .andExpect(jsonPath("$.success").value(false));
+    }
+
+    /**
+     * A required query parameter the caller left out is their mistake, not a server fault.
+     *
+     * <p>Measured on a running server before this handler existed: {@code GET
+     * /api/v1/nutrition/foods/search} with no {@code q} answered 500.
+     */
+    @Test
+    @WithVitalPairUser
+    void amissingRequiredParameterIsA400NotA500() throws Exception {
+        mockMvc.perform(get("/probe/search"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                // Names the parameter, because "which one?" is all the caller needs.
+                .andExpect(jsonPath("$.data.violations[0].field").value("q"));
     }
 }
