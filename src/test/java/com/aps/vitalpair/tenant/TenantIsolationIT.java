@@ -48,9 +48,16 @@ class TenantIsolationIT extends AbstractIntegrationTest {
 
     /** Controllers whose data is not owned by a tenant, with the reason each is exempt. */
     private static final Map<String, String> NOT_TENANT_SCOPED = Map.of(
-            "AuthController", "unauthenticated by design; covered by AuthFlowIT",
-            "AdminStatsController", "role-guarded, deliberately global; covered by AdminStatsControllerTest",
-            "NutritionPhotoController", "stateless analysis, stores nothing");
+            "AuthController",
+            "unauthenticated by design; covered by AuthFlowIT",
+            "AdminStatsController",
+            "role-guarded, deliberately global; covered by AdminStatsControllerTest",
+            "NutritionPhotoController",
+            "stateless analysis, stores nothing",
+            "AdminPlanController",
+            "role-guarded and deliberately global: granting a plan crosses tenants by design,"
+                    + " which is why the ADMIN role is what stands between it and any account;"
+                    + " covered by AdminPlanControllerTest");
 
     @Autowired
     private JdbcTemplate jdbc;
