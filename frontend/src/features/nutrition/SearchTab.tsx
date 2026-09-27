@@ -76,9 +76,18 @@ export function SearchTab({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-extrabold text-ink">{p.name}</p>
                 <p className="text-[11.5px] font-semibold text-muted">
-                  {p.caloriesPer100g != null
-                    ? t('nutrition.per100Source')
-                    : t('nutrition.noInfoSource')}
+                  {/*
+                    Um alimento do catálogo do app não pode dizer "Open Food Facts": a
+                    procedência é o que diz à pessoa se aquele número veio de uma tabela
+                    nutricional ou de um rótulo que alguém cadastrou, e trocar as duas é
+                    mentir sobre a fonte. O código de barras é o que separa: quem tem veio
+                    de um produto embalado, quem não tem é alimento da nossa tabela.
+                  */}
+                  {p.caloriesPer100g == null
+                    ? t('nutrition.noInfoSource')
+                    : p.barcode == null
+                      ? t('nutrition.per100Table')
+                      : t('nutrition.per100Source')}
                 </p>
               </div>
               {p.caloriesPer100g != null && (

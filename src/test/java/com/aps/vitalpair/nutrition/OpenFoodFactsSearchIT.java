@@ -28,7 +28,16 @@ import com.github.tomakehurst.wiremock.http.Fault;
 class OpenFoodFactsSearchIT extends AbstractIntegrationTest {
 
     private static final String SEARCH_UPSTREAM = WireMockSupport.OFF_SEARCH_PREFIX + "/search";
-    private static final String SEARCH = "/api/v1/nutrition/foods/search?q=banana";
+    /**
+     * Um termo que o catálogo brasileiro não conhece.
+     *
+     * <p>Era "banana", que este arquivo passou a encontrar sozinho quando o catálogo próprio
+     * entrou na frente da Open Food Facts: a busca deixou de devolver lista vazia com a API
+     * fora, o que é a melhoria, e estes testes pararam de medir o que dizem medir. Com uma
+     * palavra que só existe como produto de marca, eles voltam a exercitar exatamente o
+     * comportamento da API.
+     */
+    private static final String SEARCH = "/api/v1/nutrition/foods/search?q=nescau";
 
     @Test
     void searchReturnsOnlyNamedProductsAndSendsTheRequiredUserAgent() {
@@ -58,7 +67,7 @@ class OpenFoodFactsSearchIT extends AbstractIntegrationTest {
         // Open Food Facts blocks callers without an identifying User-Agent.
         WireMockSupport.server()
                 .verify(getRequestedFor(urlPathEqualTo(SEARCH_UPSTREAM))
-                        .withQueryParam("q", equalTo("banana"))
+                        .withQueryParam("q", equalTo("nescau"))
                         .withQueryParam("page_size", equalTo("20"))
                         .withHeader("User-Agent", matching("VitalPair/.*")));
     }
