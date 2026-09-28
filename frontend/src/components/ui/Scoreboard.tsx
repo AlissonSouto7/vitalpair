@@ -28,7 +28,7 @@ function SideAvatar({
  * A letra do quadrado, tirada do nome de quem ele representa.
  *
  * O padrão era 'V' e 'C', letras fixas que não eram a inicial de ninguém: no placar da dupla
- * Alisson & Bel apareciam um "V" e um "C". Derivar do nome resolve sem que cada tela precise
+ * Alisson & Célia apareciam um "V" e um "C". Derivar do nome resolve sem que cada tela precise
  * lembrar de passar a inicial.
  */
 function initialOf(side: Side): string {

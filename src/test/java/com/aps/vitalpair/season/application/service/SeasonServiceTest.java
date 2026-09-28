@@ -311,7 +311,7 @@ class SeasonServiceTest {
                         User.builder().id(YOU).tenantId(TENANT).name("Alisson").build()));
         when(userRepository.findById(RIVAL))
                 .thenReturn(Optional.of(
-                        User.builder().id(RIVAL).tenantId(TENANT).name("Bel").build()));
+                        User.builder().id(RIVAL).tenantId(TENANT).name("Célia").build()));
         when(pairRepository.findById(TENANT))
                 .thenReturn(Optional.of(Pair.builder()
                         .id(TENANT)

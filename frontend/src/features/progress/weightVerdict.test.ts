@@ -15,7 +15,7 @@ describe('weightVerdict', () => {
   })
 
   it('reads a gain as progress for somebody bulking', () => {
-    // The case from the sweep: Bel, GAIN_MUSCLE, 58.20 to 59.80 kg, which the app painted
+    // The case from the sweep: Célia, GAIN_MUSCLE, 58.20 to 59.80 kg, which the app painted
     // orange as if it were a problem.
     expect(weightVerdict(1.6, 'GAIN_MUSCLE')).toBe('toward')
   })

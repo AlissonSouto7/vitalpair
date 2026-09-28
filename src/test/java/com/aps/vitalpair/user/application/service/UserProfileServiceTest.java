@@ -167,8 +167,8 @@ class UserProfileServiceTest {
         User user = User.builder()
                 .id(id)
                 .tenantId(UUID.randomUUID())
-                .email("bel@example.com")
-                .name("Bel")
+                .email("celia@example.com")
+                .name("Célia")
                 .build();
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -186,8 +186,8 @@ class UserProfileServiceTest {
         User user = User.builder()
                 .id(id)
                 .tenantId(UUID.randomUUID())
-                .email("bel@example.com")
-                .name("Bel")
+                .email("celia@example.com")
+                .name("Célia")
                 .sex(Sex.FEMALE)
                 .build();
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
@@ -200,7 +200,7 @@ class UserProfileServiceTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         assertThat(captor.getValue().getSex()).isEqualTo(Sex.FEMALE);
-        assertThat(captor.getValue().getName()).isEqualTo("Bel");
+        assertThat(captor.getValue().getName()).isEqualTo("Célia");
     }
 
     @Test

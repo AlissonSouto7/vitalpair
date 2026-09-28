@@ -48,7 +48,7 @@ const PAIR = weekly({
   icon: 'USERS',
   scope: 'PAIR',
   target: 3,
-  partnerName: 'Bel',
+  partnerName: 'Célia',
   partnerCurrent: 1,
 })
 
@@ -117,7 +117,7 @@ describe('MissionsPage', () => {
     expect(within(doneSection).getByText('Treine 3x essa semana')).toBeInTheDocument()
 
     expect(
-      screen.getByRole('heading', { name: i18n.t('missions.sectionPair', { partner: 'Bel' }) }),
+      screen.getByRole('heading', { name: i18n.t('missions.sectionPair', { partner: 'Célia' }) }),
     ).toBeInTheDocument()
   })
 
