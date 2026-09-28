@@ -2,7 +2,7 @@
 
 - **Status**: shipped; nobody can buy it yet
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-11
+- **Last updated**: 2026-09-27
 
 ## What it is and where it lives
 
@@ -41,6 +41,7 @@ nothing imports it back, so no cycle joins the six the ArchUnit rule freezes.
 | Method | Path                      | Action                              | Who can call it |
 | ------ | ------------------------- | ----------------------------------- | --------------- |
 | GET    | `/api/v1/entitlements/me` | `{ plan, aiAccess }` for the caller | signed-in user  |
+| PUT    | `/api/v1/admin/plans`     | Grant or remove a plan by e-mail    | ADMIN only      |
 
 And the four that now answer **402** without a plan: `POST /api/v1/meal-plan/generate`,
 `POST /api/v1/meal-plan/swap`, `POST /api/v1/workout-plan/generate`,
@@ -80,9 +81,9 @@ finishing a workout stay open: they cost nothing and belong to the person.
 
 ### Open
 
-| ID  | Severity | File      | What happens                                                                                     | Measured impact                         | Why it is still open                                                                                                                                           |
-| --- | -------- | --------- | ------------------------------------------------------------------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P-9 | Info     | (no file) | Granting a plan is a SQL statement on the machine; there is no admin endpoint and no audit trail | Two accounts, by hand, documented below | Billing does not exist. The day it does, it writes the columns and logs who paid; an admin endpoint before that would be an endpoint with no product behind it |
+| ID  | Severity | File                                      | What happens                                                                                                                                                                                                                                                                                                                                              | Measured impact                                                            | Why it is still open                                                                                                                                                                                                                                              |
+| --- | -------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P-9 | Info     | `AdminPlanController`, `GrantPlanService` | **Closed on 27/09/2026.** Granting a plan was a SQL statement typed on the machine: it needed SSH, left no trace of who granted it, and had to be repeated per account. The reasoning for leaving it open ("an admin endpoint before billing would have no product behind it") stopped holding once two people needed the paid mode on a phone to test it | Two accounts, by hand, and no way to answer "why is this account premium?" | `PUT /api/v1/admin/plans`, behind `hasRole('ADMIN')`, logging the grant with the request id. Verified on a running server: a normal account asking for premium for itself gets 403 and nothing reaches the use case; removing the role guard makes that test fail |
 
 ## Tests
 
@@ -131,14 +132,15 @@ UPDATE users SET plan = 'PREMIUM', plan_expires_at = NULL WHERE email = 'someone
 
 ## Known debt
 
-| Item                   | Impact                                           | When it is meant to be addressed |
-| ---------------------- | ------------------------------------------------ | -------------------------------- |
-| No way to buy the plan | The notice says "not on sale yet", and it is not | Billing, after the launch        |
-| P-9, grants by SQL     | No audit trail of who was given what             | With billing                     |
+| Item                                  | Impact                                                                                                                                                   | When it is meant to be addressed |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| No way to buy the plan                | The notice says "not on sale yet", and it is not                                                                                                         | Billing, after the launch        |
+| The first ADMIN is still a SQL update | `role` is granted by a database statement and never through the API, on purpose: an endpoint that hands out ADMIN is an endpoint that can hand out ADMIN | Stays this way                   |
 
 ## History
 
-| Date       | Change                                                                                                                                                                                                                                                                                                             | Pull request           |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
-| 2026-09-11 | Created: the plan on the user (V28), the entitlement feature, the four endpoints behind 402, the notice in the three screens, and the rule that the plan follows the payer and is shared while the pair lasts                                                                                                      | #95                    |
-| 2026-09-11 | Live on staging: V28 applied, the two test accounts granted a lifetime plan, the Anthropic key put on the server. Proved from outside: a free account gets 402 on all three AI endpoints, a premium account generated a real workout in 15s, and the notice renders on the three screens for the free account only | `docs/deploy-findings` |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                                                                 | Pull request           |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| 2026-09-27 | `PUT /api/v1/admin/plans` closes P-9: granting the paid plan was a SQL statement that needed SSH and left no trace. Two people needed the paid mode on their phones to test it, and doing that by hand per account, per environment, was the wrong shape. The first ADMIN is still granted by a database update, deliberately: an endpoint that hands out ADMIN is an endpoint that can hand out ADMIN | `fix/premium-admin`    |
+| 2026-09-11 | Created: the plan on the user (V28), the entitlement feature, the four endpoints behind 402, the notice in the three screens, and the rule that the plan follows the payer and is shared while the pair lasts                                                                                                                                                                                          | #95                    |
+| 2026-09-11 | Live on staging: V28 applied, the two test accounts granted a lifetime plan, the Anthropic key put on the server. Proved from outside: a free account gets 402 on all three AI endpoints, a premium account generated a real workout in 15s, and the notice renders on the three screens for the free account only                                                                                     | `docs/deploy-findings` |
