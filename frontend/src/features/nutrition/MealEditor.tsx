@@ -25,6 +25,17 @@ import type { MealType } from '@/types/nutrition'
  * o que comeu, e o ponto da mudança é dar um caminho rápido a quem não sabe, não tirar o
  * caminho exato de quem sabe.
  */
+/**
+ * Os dias que a tela oferece, do mais recente para trás.
+ *
+ * Fora do componente: é uma constante, e declarar dentro recriaria o array em cada render.
+ */
+const DAY_CHOICES: { key: 'today' | 'yesterday' | 'dayBefore'; daysAgo: number }[] = [
+  { key: 'today', daysAgo: 0 },
+  { key: 'yesterday', daysAgo: 1 },
+  { key: 'dayBefore', daysAgo: 2 },
+]
+
 export function MealEditor({
   t,
   draft,
@@ -57,8 +68,25 @@ export function MealEditor({
   const [step, setStep] = useState<'meal' | 'amount'>(manual ? 'amount' : 'meal')
   const [tweaking, setTweaking] = useState(manual)
 
-  const portions = portionsFor(draft.name)
+  const portions = portionsFor(draft.name, draft.category)
   const gramsNow = draft.grams.trim()
+
+  /**
+   * A caloria de cada porção, ao lado do peso.
+   *
+   * Antes o botão dizia só "1 pão · 50 g", e as calorias daquela escolha apareciam no cartão
+   * abaixo, depois do toque. Ou seja: para comparar meio pão com dois pães a pessoa tinha de
+   * tocar, olhar para baixo, voltar e tocar no outro. Quem está escolhendo a porção está
+   * decidindo quanto vai comer, e é a caloria que responde isso.
+   *
+   * Vazio quando o alimento não tem caloria conhecida, que é o caso do item sem informação
+   * nutricional: mostrar "0 kcal" ali afirmaria que a porção não tem caloria nenhuma.
+   */
+  const kcalPer100 = Number(draft.kcalPer100.trim())
+  const kcalFor = (grams: number) =>
+    draft.kcalPer100.trim() === '' || Number.isNaN(kcalPer100)
+      ? null
+      : Math.round((kcalPer100 * grams) / 100)
 
   /**
    * Por que a refeição não pode ser saltada.
@@ -165,9 +193,19 @@ export function MealEditor({
                   >
                     {portionLabel(t, p.key)}
                     <span
-                      className={`text-[12.5px] font-bold tabular-nums ${active ? 'text-act-ink' : 'text-muted'}`}
+                      className={`shrink-0 text-right text-[12.5px] font-bold tabular-nums ${active ? 'text-act-ink' : 'text-muted'}`}
                     >
-                      {p.grams} g
+                      {/*
+                        A caloria em primeiro e com mais peso, o peso em gramas embaixo: a
+                        pergunta de quem escolhe a porção é "quanto isso me custa", e o grama
+                        é a unidade em que a resposta foi calculada, não a resposta.
+                      */}
+                      {kcalFor(p.grams) != null && (
+                        <span className="block font-display text-[15px] font-semibold">
+                          {kcalFor(p.grams)} kcal
+                        </span>
+                      )}
+                      <span className="block text-[11.5px] font-bold text-muted">{p.grams} g</span>
                     </span>
                   </button>
                 )
@@ -175,9 +213,19 @@ export function MealEditor({
             </div>
           )}
 
-          {/* O total, que muda junto com a porção escolhida. */}
+          {/*
+            O total, que muda junto com a porção escolhida.
+
+            Com a caloria agora aparecendo em cada botão de porção, este número deixou de ser o
+            único "N kcal" da tela: um leitor de tela lia quatro números iguais sem dizer qual
+            era o total, e é este que vai para o diário. O rótulo diz o que ele é.
+          */}
           <div className="mt-4 rounded-xl border border-hair bg-canvas px-4 py-3">
-            <div className="font-display text-2xl font-semibold tabular-nums text-ink">
+            <div
+              role="status"
+              aria-label={t('nutrition.totalLabel', { kcal: computed.calories })}
+              className="font-display text-2xl font-semibold tabular-nums text-ink"
+            >
               {computed.calories} kcal
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] font-bold text-muted">
@@ -190,6 +238,25 @@ export function MealEditor({
               <span className="inline-flex items-center gap-1.5">
                 <Dot tone="fat" /> G {computed.fat}g
               </span>
+            </div>
+            {/*
+              A procedência aqui, e não na lista da busca.
+
+              Ela morava embaixo do nome de cada resultado, junto da família, e medido num iPhone
+              12 as duas juntas truncavam nos cinco primeiros resultados. Este é o lugar certo de
+              qualquer forma: a procedência diz se o número veio de uma tabela nutricional ou de
+              um rótulo que alguém cadastrou, o que é a pergunta de quem está conferindo o
+              número, não de quem está escolhendo o alimento. Está ao lado do número.
+
+              Nada para quem digitou à mão: o número é dela, e "por 100g · tabela TACO" seria
+              falso.
+            */}
+            <div className="mt-2 text-[11px] font-bold text-faint">
+              {draft.source === 'MANUAL'
+                ? null
+                : draft.barcode == null
+                  ? t('nutrition.per100Table')
+                  : t('nutrition.per100Source')}
             </div>
           </div>
 
@@ -260,6 +327,46 @@ export function MealEditor({
               </div>
             )}
           </details>
+
+          {/*
+            Que dia foi isso.
+
+            Sem isto, quem esquecia de registrar o jantar e abria o aplicativo na manhã seguinte
+            não tinha como dizer: a refeição entrava como comida hoje, e a sequência, o placar e
+            a competição da semana são contados por data. O caminho existia na API desde sempre e
+            nenhuma tela o alcançava.
+
+            Três botões e não um calendário: quem registra atrasado registra o de ontem, não o de
+            três semanas atrás. Um seletor de data abriria o teclado nativo e pediria duas
+            decisões (mês, dia) para responder "ontem". O dia útil para trás pára em anteontem
+            porque além disso a refeição já não muda o placar da semana corrente em nada que a
+            pessoa esteja olhando.
+          */}
+          <div className="mt-4">
+            <span className="mb-2 block text-[11px] font-extrabold uppercase tracking-wide text-muted">
+              {t('nutrition.whenLabel')}
+            </span>
+            <div className="flex gap-2">
+              {DAY_CHOICES.map(({ key, daysAgo }) => {
+                const active = draft.daysAgo === daysAgo
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setDraft({ ...draft, daysAgo })}
+                    className={`flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-extrabold transition ${
+                      active
+                        ? 'border-act bg-act-soft text-act-ink'
+                        : 'border-hair bg-surface text-muted hover:text-ink'
+                    }`}
+                  >
+                    {t(`nutrition.day.${key}`)}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
           <label className="mt-3 flex items-center gap-2 text-sm font-bold text-muted">
             <input

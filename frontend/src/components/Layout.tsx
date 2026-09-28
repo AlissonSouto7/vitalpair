@@ -5,6 +5,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../hooks/useAuth'
 
+import { BottomBar } from './BottomBar'
 import { BrandLockup } from './brand/BrandMark'
 import { NotificationsBell } from './NotificationsBell'
 import { Avatar } from './ui/Avatar'
@@ -99,21 +100,6 @@ const NAV_GROUPS = [
   },
 ] as const
 
-const NAV_LEGACY = [
-  { to: '/dashboard', label: 'nav.dashboard', icon: 'home' },
-  { to: '/nutrition', label: 'nav.log', icon: 'meal' },
-  { to: '/activity', label: 'nav.activity', icon: 'activity' },
-  { to: '/feed', label: 'nav.feed', icon: 'feed' },
-  { to: '/meal-plan', label: 'nav.mealPlan', icon: 'book' },
-  { to: '/workout-plan', label: 'nav.workout', icon: 'dumbbell' },
-  { to: '/season', label: 'nav.season', icon: 'flag' },
-  { to: '/missions', label: 'nav.missions', icon: 'target' },
-  { to: '/gamification', label: 'nav.achievements', icon: 'medal' },
-  { to: '/progress', label: 'nav.progress', icon: 'chart' },
-  { to: '/pair', label: 'nav.relationship', icon: 'heart' },
-  { to: '/profile', label: 'nav.profile', icon: 'user' },
-] as const
-
 function NavIcon({ name }: { name: string }) {
   return (
     <svg viewBox="0 0 24 24" width={20} height={20} fill="currentColor" aria-hidden="true">
@@ -130,7 +116,7 @@ export function Layout() {
    * Who is signed in, for the card at the foot of the menu.
    *
    * The avatar and the name below it were the literals "A" and "VitalPair", so every account
-   * saw somebody else's initial: signing in as Bel showed an orange "A". In a product built
+   * saw somebody else's initial: signing in as Célia showed an orange "A". In a product built
    * around two people whose colours mean "you" and "your partner", an avatar bearing the wrong
    * initial is exactly the detail that makes someone doubt which account is open.
    *
@@ -150,14 +136,6 @@ export function Layout() {
     `flex items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-bold transition ${
       isActive ? 'bg-act-soft text-act-ink' : 'text-muted hover:bg-surface hover:text-ink'
     }`
-
-  /* A faixa horizontal do celular, onde cabeçalho de grupo não cabe. */
-  const navLinks = NAV_LEGACY.map((item) => (
-    <NavLink key={item.to} to={item.to} className={linkClass}>
-      <NavIcon name={item.icon} />
-      {t(item.label)}
-    </NavLink>
-  ))
 
   const groupedNav = NAV_GROUPS.map((group) => (
     <div key={group.label}>
@@ -263,13 +241,19 @@ export function Layout() {
             <NotificationsBell />
           </div>
         </header>
-        <nav className="flex gap-1 overflow-x-auto border-b border-hair bg-sidebar px-3 py-2 md:hidden">
-          {navLinks}
-        </nav>
-
         <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 md:px-8 md:py-8">
           <Outlet />
         </main>
+
+        {/*
+          A navegação do celular embaixo, e não a tira de doze itens que ficava aqui em cima.
+
+          A tira rolava horizontalmente com os doze destinos do menu, todos do mesmo tamanho, no
+          topo da tela. Registrar o que comeu, que é a ação de todo dia, dependia de achar um
+          item entre doze e ficava longe do polegar. São quatro destinos e uma ação agora; o menu
+          inteiro continua na lateral, que é onde uma lista de doze funciona.
+        */}
+        <BottomBar />
       </div>
     </div>
   )

@@ -143,6 +143,7 @@ export const foodProductsFixture: FoodProduct[] = [
     proteinPer100g: 3.5,
     carbPer100g: 4.7,
     fatPer100g: 3.3,
+    category: 'DAIRY',
   },
 ]
 

@@ -1,4 +1,10 @@
-import type { DetectedFood, FoodProduct, FoodSource, MealType } from '@/types/nutrition'
+import type {
+  DetectedFood,
+  FoodCategory,
+  FoodProduct,
+  FoodSource,
+  MealType,
+} from '@/types/nutrition'
 
 /**
  * A meal being edited before it is saved.
@@ -20,6 +26,16 @@ export interface Draft {
   mealType: MealType
   isPrivate: boolean
   source: FoodSource
+  /** A família do alimento, que decide as porções oferecidas e o ícone do cabeçalho. */
+  category: FoodCategory
+  /**
+   * Quantos dias atrás a refeição foi comida. 0 é hoje, que é quase sempre o caso.
+   *
+   * Guardado como número de dias e não como data porque a pergunta na tela é "hoje, ontem ou
+   * anteontem", e uma data absoluta calculada quando o editor abre estaria errada para quem
+   * deixa a tela aberta atravessando a meia-noite.
+   */
+  daysAgo: number
 }
 
 /** Uma casa decimal, que é o quanto um rótulo de alimento carrega. */
@@ -31,6 +47,23 @@ export const round = (v: number) => Math.round(v * 10) / 10
  */
 export function per100(value: number, grams: number) {
   return grams > 0 ? round(value / (grams / 100)) : round(value)
+}
+
+/**
+ * O instante a mandar para o servidor quando a refeição foi de um dia anterior.
+ *
+ * A hora é a de agora, só a data volta. Meia-noite parece a escolha natural e está errada:
+ * quem está num fuso atrás do UTC, o que inclui o Brasil inteiro, teria a refeição gravada no
+ * dia anterior ao que escolheu, porque 00:00 em São Paulo é 03:00 do mesmo dia em UTC, mas
+ * 00:00 é o limite e qualquer arredondamento cai para trás. Usando a hora corrente, a refeição
+ * cai no meio do dia escolhido em qualquer fuso.
+ *
+ * @param daysAgo quantos dias atrás, sempre maior que zero (hoje não manda nada)
+ */
+export function instantDaysAgo(daysAgo: number, now: Date = new Date()): string {
+  const when = new Date(now)
+  when.setDate(when.getDate() - daysAgo)
+  return when.toISOString()
 }
 
 /** Um rascunho a partir de um item da Open Food Facts. Os campos vazios são "não sei". */
@@ -46,6 +79,8 @@ export function draftFromProduct(p: FoodProduct, mealType: MealType): Draft {
     mealType,
     isPrivate: false,
     source: 'OPEN_FOOD_FACTS',
+    category: p.category,
+    daysAgo: 0,
   }
 }
 
@@ -63,6 +98,9 @@ export function draftFromDetected(d: DetectedFood, mealType: MealType): Draft {
     mealType,
     isPrivate: false,
     source: 'MANUAL',
+    // A IA diz o que viu no prato, não a que família aquilo pertence. "Outros" é o que se sabe.
+    category: 'OTHER',
+    daysAgo: 0,
   }
 }
 
@@ -79,5 +117,7 @@ export function emptyDraft(mealType: MealType): Draft {
     mealType,
     isPrivate: false,
     source: 'MANUAL',
+    category: 'OTHER',
+    daysAgo: 0,
   }
 }

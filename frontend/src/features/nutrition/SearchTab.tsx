@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CategoryIcon } from './categories'
 import { PlusIcon, SearchIcon } from './icons'
 import { nutritionQueries } from './queries'
 
@@ -73,21 +74,35 @@ export function SearchTab({
               key={`${p.barcode ?? p.name}-${i}`}
               className="flex items-center gap-3 rounded-xl border border-hair bg-surface px-4 py-3"
             >
+              {/*
+                O ícone da família à esquerda, fora do bloco de texto: é o que a pessoa vê
+                antes de ler. Oito linhas de nome parecido obrigam a ler todas para achar a
+                sua; um desenho por linha resolve a triagem antes da leitura.
+              */}
+              <CategoryIcon category={p.category} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-extrabold text-ink">{p.name}</p>
-                <p className="text-[11.5px] font-semibold text-muted">
+                <p className="truncate text-[11.5px] font-semibold text-muted">
                   {/*
-                    Um alimento do catálogo do app não pode dizer "Open Food Facts": a
-                    procedência é o que diz à pessoa se aquele número veio de uma tabela
-                    nutricional ou de um rótulo que alguém cadastrou, e trocar as duas é
-                    mentir sobre a fonte. O código de barras é o que separa: quem tem veio
-                    de um produto embalado, quem não tem é alimento da nossa tabela.
+                    A família, e só ela.
+
+                    Aqui havia família e procedência juntas ("Base do prato · por 100g · tabela
+                    TACO"). Medido num iPhone 12: os cinco primeiros resultados truncaram, então
+                    a procedência aparecia cortada e às vezes comia o fim da própria família.
+                    Duas informações numa linha que só caiba uma não são duas informações.
+
+                    Fica a família, porque a pergunta de quem está escolhendo é "é isso que eu
+                    quero?". A procedência responde de onde vem o número, que é a pergunta de
+                    quem já escolheu, e ela aparece no editor, onde a pessoa confere.
+
+                    A exceção é o alimento sem informação nutricional: esse aviso não é
+                    procedência, é o que decide a escolha, porque leva a um caminho diferente
+                    (preencher na mão em vez de só confirmar). Esse cabe, porque substitui a
+                    família em vez de somar a ela.
                   */}
                   {p.caloriesPer100g == null
-                    ? t('nutrition.noInfoSource')
-                    : p.barcode == null
-                      ? t('nutrition.per100Table')
-                      : t('nutrition.per100Source')}
+                    ? t('nutrition.noInfo')
+                    : t(`nutrition.category.${p.category}`)}
                 </p>
               </div>
               {p.caloriesPer100g != null && (
