@@ -22,9 +22,15 @@ test.describe('logging a meal', () => {
     await page.getByLabel('kcal /100g').fill('130')
     await page.getByLabel('Gramas').fill('200')
 
-    // 130 kcal per 100 g over 200 g. The bar only appears once the page has worked the
-    // total out, so seeing it is the proof the arithmetic ran on what was typed.
-    await expect(page.getByText('260 kcal', { exact: true })).toBeVisible()
+    /*
+     * 130 kcal per 100 g over 200 g. Seeing the total is the proof the arithmetic ran on what
+     * was typed.
+     *
+     * By role, not by text: since each portion button carries its own calories, "260 kcal" is
+     * on screen twice, once on the "Prato cheio" button and once as the total. The total is
+     * what reaches the diary, so it is the one this asserts on.
+     */
+    await expect(page.getByRole('status')).toHaveText('260 kcal')
     await page.getByRole('button', { name: /registrar/i }).click()
 
     // On the day's list, which is the read path: a 201 nobody reads back proves less. This
