@@ -4,9 +4,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -25,6 +30,7 @@ import com.aps.vitalpair.nutrition.domain.port.in.GetDailySummaryUseCase;
 import com.aps.vitalpair.nutrition.domain.port.in.GetFavoriteFoodsUseCase;
 import com.aps.vitalpair.nutrition.domain.port.in.LogMealUseCase;
 import com.aps.vitalpair.nutrition.domain.port.in.SearchFoodUseCase;
+import com.aps.vitalpair.nutrition.domain.port.out.FoodCatalogPort;
 import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
 import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
 import com.aps.vitalpair.shared.event.MealDeletedEvent;
@@ -45,10 +51,19 @@ public class NutritionService
                 GetDailySummaryUseCase,
                 GetFavoriteFoodsUseCase {
 
+    /**
+     * Quantos alimentos do catálogo entram antes dos produtos de marca.
+     *
+     * <p>Seis cabem na tela de um celular sem rolar, e quem não achou entre os seis primeiros
+     * não vai achar no décimo: vai digitar outra palavra.
+     */
+    private static final int CATALOG_LIMIT = 6;
+
     private static final int FAVORITES_LIMIT = 8;
 
     private final FoodLogRepositoryPort foodLogRepository;
     private final OpenFoodFactsPort openFoodFacts;
+    private final FoodCatalogPort catalog;
     private final UserRepositoryPort userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -56,16 +71,46 @@ public class NutritionService
             FoodLogRepositoryPort foodLogRepository,
             OpenFoodFactsPort openFoodFacts,
             UserRepositoryPort userRepository,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            FoodCatalogPort catalog) {
         this.foodLogRepository = foodLogRepository;
         this.openFoodFacts = openFoodFacts;
+        this.catalog = catalog;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
     }
 
+    /**
+     * Busca alimentos, começando pelo que se come no Brasil.
+     *
+     * <p>O catálogo próprio vem primeiro porque é onde estão as respostas certas para o caso
+     * comum: quem digita "frango" quer peito de frango grelhado. Medido em 27/09/2026, a Open
+     * Food Facts devolvia para esse termo "Mint Chocolates" duas vezes e um item chamado
+     * "Comida", porque cataloga produtos embalados de marca e alimento simples não está lá.
+     *
+     * <p>A Open Food Facts continua logo abaixo, e é ela que responde por produto de marca
+     * ("Nescau", "Danone morango") e por código de barras. Se ela estiver fora, e esteve
+     * durante a medição, a busca ainda responde com o catálogo em vez de uma lista vazia.
+     *
+     * <p>Resultado repetido some: um produto da Open Food Facts com nome igual ao de um
+     * alimento do catálogo é a mesma coisa dita duas vezes, e a lista já foi criticada por
+     * mostrar "Mint Chocolates" duas vezes seguidas.
+     */
     @Override
     public List<FoodProduct> search(String query) {
-        return openFoodFacts.searchByName(query);
+        List<FoodProduct> doCatalogo = catalog.search(query, CATALOG_LIMIT);
+
+        Set<String> jaListados = doCatalogo.stream()
+                .map(f -> f.name().toLowerCase(Locale.ROOT))
+                .collect(Collectors.toCollection(HashSet::new));
+
+        List<FoodProduct> resultado = new ArrayList<>(doCatalogo);
+        for (FoodProduct produto : openFoodFacts.searchByName(query)) {
+            if (produto.name() != null && jaListados.add(produto.name().toLowerCase(Locale.ROOT))) {
+                resultado.add(produto);
+            }
+        }
+        return resultado;
     }
 
     @Override

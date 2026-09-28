@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth'
 import { BrandLockup } from './brand/BrandMark'
 import { NotificationsBell } from './NotificationsBell'
 import { Avatar } from './ui/Avatar'
+import { ThemeToggle } from './ui/ThemeToggle'
 
 import { profileQueries } from '@/features/profile/queries'
 import { avatarUrl } from '@/shared/api/avatarUrl'
@@ -250,7 +251,15 @@ export function Layout() {
           <div className="md:hidden">
             <BrandLockup size={30} />
           </div>
-          <div className="ml-auto flex items-center">
+          {/*
+            O botão de tema mora aqui, e não só em Ajustes.
+
+            Trocar entre claro e escuro é decisão da luz do ambiente, não de preferência: a
+            pessoa faz isso ao sair para o sol ou apagar a luz do quarto. Custava abrir
+            Ajustes, rolar até "Aparência" e voltar, três toques para uma coisa que é um.
+          */}
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
             <NotificationsBell />
           </div>
         </header>

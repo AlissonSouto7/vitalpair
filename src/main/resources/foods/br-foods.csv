@@ -1,0 +1,129 @@
+# Alimentos brasileiros, por 100 g.
+#
+# Fonte dos valores: TACO, Tabela Brasileira de Composição de Alimentos, 4ª edição revisada e
+# ampliada (NEPA/UNICAMP, 2011), disponível em https://nepa.unicamp.br. Os números são de
+# domínio público e estão aqui transcritos; os nomes foram reescritos como a pessoa fala, não
+# como a tabela cataloga ("Peito de frango grelhado", não "Frango, peito, sem pele, grelhado").
+#
+# Por que este arquivo existe: buscar "frango" no Open Food Facts devolvia "Mint Chocolates",
+# e "ovo" devolvia "Quorn Schnitzel" e espinafre, medido em 27/09/2026. Aquele banco cataloga
+# produtos embalados de marca, do mundo inteiro, e quem abre o app para registrar o almoço
+# quer arroz, feijão e frango grelhado. Esses alimentos não existem lá.
+#
+# Colunas: nome | busca (termos extras, separados por ;) | kcal | proteína | carboidrato | gordura
+# A coluna de busca carrega o que a pessoa digita e não está no nome: erro sem acento, apelido
+# regional, sinônimo. Vazio quando o nome já basta.
+nome;busca;kcal;proteina;carboidrato;gordura
+# ---------- arroz, feijão e a base do prato ----------
+Arroz branco cozido;arroz;128;2.5;28.1;0.2
+Arroz integral cozido;;124;2.6;25.8;1.0
+Feijão carioca cozido;feijao;76;4.8;13.6;0.5
+Feijão preto cozido;feijao preto;77;4.5;14.0;0.5
+Macarrão cozido;massa;111;3.4;23.0;0.4
+Purê de batata;pure;101;1.7;14.0;4.3
+Batata cozida;;52;1.2;11.9;0.0
+Batata frita;;267;5.1;35.8;11.5
+Mandioca cozida;aipim;125;0.6;30.1;0.3
+Farofa pronta;farofa de mandioca;405;2.6;76.4;10.8
+Polenta cozida;;104;1.9;22.5;0.8
+# ---------- carnes, ovo e peixe ----------
+Peito de frango grelhado;frango grelhado;159;32.0;0.0;2.5
+Coxa de frango assada;frango assado;215;28.5;0.0;10.5
+Frango à passarinho;frango frito;244;27.6;0.0;14.2
+Bife de alcatra grelhado;carne grelhada;241;32.0;0.0;11.9
+Carne moída refogada;carne moida;212;26.7;0.0;11.0
+Costela bovina assada;;373;28.8;0.0;27.8
+Picanha grelhada;;282;29.0;0.0;17.8
+Lombo de porco assado;;210;32.0;0.0;8.3
+Linguiça de porco frita;linguica;296;18.9;0.0;24.0
+Bacon frito;;541;27.0;0.0;47.9
+Ovo cozido;ovo;146;13.3;0.6;9.5
+Ovo frito;;240;15.6;1.2;18.6
+Ovo mexido;;196;13.6;1.7;14.7
+Tilápia grelhada;peixe grelhado;96;20.1;0.0;1.7
+Salmão grelhado;;243;23.9;0.0;15.8
+Sardinha em lata;;171;24.6;0.0;7.9
+Atum em lata;;166;26.2;0.0;6.0
+Camarão cozido;;90;18.6;0.0;1.2
+# ---------- pães, biscoitos e o café da manhã ----------
+Pão francês;pao;300;8.0;58.6;3.1
+Pão de forma;pao de forma;253;7.9;49.9;2.5
+Pão integral;;253;9.4;43.9;3.9
+Pão de queijo;;363;5.0;38.0;20.8
+Tapioca;beiju;240;0.0;60.0;0.0
+Cuscuz de milho;;113;2.2;25.3;0.5
+Bolacha de água e sal;biscoito salgado;432;10.1;68.7;13.2
+Biscoito recheado;bolacha recheada;472;5.7;71.0;19.6
+Granola;;471;9.5;63.9;19.6
+Aveia em flocos;;394;13.9;66.6;8.5
+Tapioca com queijo;;296;8.5;44.0;9.2
+# ---------- leite, queijo e derivados ----------
+Leite integral;leite;61;2.9;4.3;3.2
+Leite desnatado;;35;2.9;4.9;0.2
+Iogurte natural;;51;4.1;1.9;3.0
+Iogurte grego;;97;8.8;3.9;5.0
+Queijo minas frescal;queijo minas;264;17.4;3.2;20.2
+Queijo mussarela;mussarela;330;22.6;3.0;25.2
+Requeijão cremoso;requeijao;257;9.6;3.4;22.0
+Manteiga;;726;0.4;0.1;82.4
+Margarina;;596;0.0;0.0;67.0
+Doce de leite;;306;5.5;59.5;5.3
+# ---------- frutas ----------
+Banana prata;banana;98;1.3;26.0;0.1
+Maçã;maca;56;0.3;15.2;0.0
+Laranja;;45;1.0;11.5;0.1
+Mamão papaia;mamao;40;0.5;10.4;0.1
+Manga;;64;0.4;16.7;0.2
+Melancia;;33;0.9;8.1;0.0
+Abacaxi;abacaxi;48;0.9;12.3;0.1
+Uva;;53;0.7;13.6;0.2
+Morango;;30;0.9;6.8;0.3
+Abacate;;96;1.2;6.0;8.4
+Açaí polpa;acai;58;0.8;6.2;3.5
+# ---------- legumes, verduras e salada ----------
+Alface;;11;1.3;1.7;0.2
+Tomate;;15;1.1;3.1;0.2
+Cenoura crua;cenoura;34;1.3;7.7;0.2
+Brócolis cozido;brocolis;25;2.1;4.4;0.5
+Couve refogada;couve;90;3.3;5.9;6.6
+Abobrinha cozida;;19;1.1;2.9;0.6
+Beterraba cozida;;32;1.3;7.2;0.1
+Chuchu cozido;;19;0.4;4.8;0.1
+Pepino;;10;0.9;2.0;0.0
+Cebola;;39;1.7;8.9;0.1
+Espinafre refogado;espinafre;24;2.7;3.0;0.5
+# ---------- lanches, doces e bebidas ----------
+Pizza de mussarela;pizza;269;12.1;28.5;11.9
+Hambúrguer de carne;hamburguer;215;16.5;5.0;14.1
+Coxinha de frango;coxinha;282;7.0;29.1;15.2
+Pastel de carne frito;pastel;409;9.7;33.9;26.0
+Salgadinho de pacote;;513;6.5;60.3;27.4
+Chocolate ao leite;chocolate;540;7.2;59.6;30.3
+Brigadeiro;;389;3.9;58.0;16.1
+Pudim de leite;;180;5.0;28.0;5.2
+Sorvete de creme;sorvete;180;3.5;23.0;8.4
+Refrigerante de cola;refrigerante;39;0.0;10.2;0.0
+Suco de laranja natural;suco de laranja;37;0.5;8.6;0.1
+Cerveja;;41;0.6;3.0;0.0
+Café coado sem açúcar;cafe;2;0.2;0.3;0.0
+Água;agua;0;0.0;0.0;0.0
+# ---------- pratos prontos que a gente come ----------
+Feijoada;;117;8.7;7.7;5.9
+Strogonoff de frango;estrogonofe;153;11.0;5.0;9.8
+Lasanha à bolonhesa;lasanha;162;9.1;15.7;6.7
+Escondidinho de carne;;140;7.6;14.7;5.9
+Arroz carreteiro;;154;9.0;16.4;5.3
+Baião de dois;;139;6.4;18.3;4.4
+Virado à paulista;;180;9.8;18.0;7.8
+Macarrão à bolonhesa;;133;6.3;17.4;4.2
+Sopa de legumes;sopa;38;1.6;6.0;0.9
+Salada de maionese;maionese de batata;153;2.1;12.0;10.8
+Panqueca de carne;;205;10.6;17.8;10.1
+Quibe assado;;204;15.4;15.8;8.9
+Sanduíche natural;;216;10.8;24.0;8.6
+Misto quente;;282;14.3;28.5;12.4
+Omelete simples;omelete;190;13.0;1.5;14.8
+# ---------- suplementos ----------
+Whey protein;whey;400;80.0;10.0;5.0
+Barra de proteína;;350;30.0;35.0;10.0
+Creatina;;0;0.0;0.0;0.0
