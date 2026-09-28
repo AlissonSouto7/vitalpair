@@ -11,7 +11,7 @@
 	<groupId>com.aps</groupId>
 	<artifactId>vitalpair</artifactId>
 	<!-- Managed by release-please: the release pull request bumps it. Do not edit by hand. -->
-	<version>0.4.0</version><!-- {x-release-please-version} -->
+	<version>0.5.0</version><!-- {x-release-please-version} -->
 	<name>vitalpair</name>
 	<description>VitalPair - Health and fitness app for couples</description>
 
@@ -365,7 +365,7 @@
 								<requireMavenVersion>
 									<version>[3.9,)</version>
 								</requireMavenVersion>
-								<banDuplicatePomDependencyVersions />
+								<banDuplicatePomDependencyVersions/>
 							</rules>
 						</configuration>
 					</execution>
