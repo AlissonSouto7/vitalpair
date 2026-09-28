@@ -26,6 +26,24 @@ const schema = z.object({
 
 type RegisterForm = z.infer<typeof schema>
 
+/**
+ * O que cada nota vale, em cor e em palavra.
+ *
+ * Vermelho para o que não serve, âmbar para o que passa mas não impressiona, verde só no topo.
+ * É a mesma lei do resto do produto: verde é resultado bom e concreto, e gastá-lo numa senha
+ * fraca ensina o código de cores errado.
+ *
+ * A nota 0 usa o mesmo vermelho da 1: as duas são "isso não entra", e a diferença entre sete e
+ * oito caracteres ruins não interessa a ninguém.
+ */
+const FORCA = [
+  { barra: 'bg-danger', texto: 'text-danger', rotulo: 'auth.strengthWeak' },
+  { barra: 'bg-danger', texto: 'text-danger', rotulo: 'auth.strengthWeak' },
+  { barra: 'bg-carb', texto: 'text-carb-ink', rotulo: 'auth.strengthOk' },
+  { barra: 'bg-carb', texto: 'text-carb-ink', rotulo: 'auth.strengthGood' },
+  { barra: 'bg-success', texto: 'text-success-ink', rotulo: 'auth.strengthStrong' },
+] as const
+
 function strength(pw: string): number {
   let s = 0
   if (pw.length >= 8) s++
@@ -123,14 +141,40 @@ export function RegisterPage() {
             error={errors.password && t('auth.passwordTooShort')}
             {...register('password')}
           />
-          <div className="mt-2 flex gap-1.5" aria-hidden="true">
-            {[0, 1, 2, 3].map((i) => (
-              <span
-                key={i}
-                className={`h-1 flex-1 rounded-full transition-colors ${i < score ? 'bg-success' : 'bg-track'}`}
-              />
-            ))}
-          </div>
+          {/*
+            A força da senha, em cor e em palavra.
+
+            As quatro barras eram todas `bg-success`, então "senha123" recebia duas barras do
+            mesmo verde de uma senha forte. Verde quer dizer aprovado no resto do produto, e dar
+            esse sinal para uma senha fraca é dizer que está bom quando não está. Agora a cor
+            acompanha o que ela vale: vermelho, âmbar, âmbar, verde.
+
+            E a palavra ao lado, porque quatro tracinhos sem legenda não dizem nada, e porque
+            cor sozinha não é informação para quem não distingue vermelho de verde. Com
+            `aria-live` para quem não vê nenhum dos dois ouvir a mudança.
+          */}
+          {password.length > 0 && (
+            <div className="mt-2">
+              <div className="flex gap-1.5" aria-hidden="true">
+                {/*
+                  `Math.max(score, 1)`: a nota 0 acendia zero barras, então uma senha de três
+                  caracteres mostrava quatro tracinhos cinzentos ao lado da palavra "Senha
+                  fraca". A palavra dizia que era ruim e as barras diziam que nada tinha sido
+                  avaliado, e o vermelho, que é o sinal mais visível dos dois, nunca aparecia.
+                  Uma barra acesa em vermelho é o pior resultado possível, não a ausência dele.
+                */}
+                {[0, 1, 2, 3].map((i) => (
+                  <span
+                    key={i}
+                    className={`h-1 flex-1 rounded-full transition-colors ${i < Math.max(score, 1) ? FORCA[score].barra : 'bg-track'}`}
+                  />
+                ))}
+              </div>
+              <p aria-live="polite" className={`mt-1.5 text-xs font-bold ${FORCA[score].texto}`}>
+                {t(FORCA[score].rotulo)}
+              </p>
+            </div>
+          )}
         </div>
 
         <FormError message={error} />
