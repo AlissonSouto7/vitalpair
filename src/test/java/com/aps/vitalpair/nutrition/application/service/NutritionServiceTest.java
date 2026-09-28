@@ -3,6 +3,7 @@ package com.aps.vitalpair.nutrition.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.aps.vitalpair.nutrition.application.dto.DailySummary;
 import com.aps.vitalpair.nutrition.application.dto.LogMealCommand;
+import com.aps.vitalpair.nutrition.domain.model.FoodCategory;
 import com.aps.vitalpair.nutrition.domain.model.FoodLog;
+import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 import com.aps.vitalpair.nutrition.domain.model.FoodSource;
 import com.aps.vitalpair.nutrition.domain.model.MealType;
 import com.aps.vitalpair.nutrition.domain.port.out.FoodLogRepositoryPort;
@@ -48,6 +51,9 @@ class NutritionServiceTest {
 
     @Mock
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private com.aps.vitalpair.nutrition.domain.port.out.FoodCatalogPort catalog;
 
     @InjectMocks
     private NutritionService service;
@@ -127,5 +133,70 @@ class NutritionServiceTest {
 
     private static BigDecimal bd(double value) {
         return BigDecimal.valueOf(value);
+    }
+
+    /** Um alimento do catálogo: sem código de barras, com os números da tabela. */
+    private static FoodProduct doCatalogo(String nome) {
+        return new FoodProduct(
+                nome, null, new BigDecimal("128"), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, FoodCategory.STAPLE);
+    }
+
+    /** Um produto de marca. Calorias nulas quer dizer que ninguém preencheu a tabela dele. */
+    private static FoodProduct deMarca(String nome, boolean comNumeros) {
+        return new FoodProduct(
+                nome,
+                "789" + nome.hashCode(),
+                comNumeros ? new BigDecimal("350") : null,
+                null,
+                null,
+                null,
+                FoodCategory.OTHER);
+    }
+
+    @Test
+    void theSearchIsCappedSoTheResultsDoNotPushTheEditorOffTheScreen() {
+        when(catalog.search(eq("arroz"), anyInt())).thenReturn(List.of(doCatalogo("Arroz branco cozido")));
+        when(openFoodFacts.searchByName("arroz"))
+                .thenReturn(java.util.stream.IntStream.range(0, 30)
+                        .mapToObj(i -> deMarca("Marca " + i, true))
+                        .toList());
+
+        List<FoodProduct> resultado = service.search("arroz");
+
+        /*
+         * Medido num iPhone 12 em 28/09/2026: "arroz" devolvia 20 itens, 3 do catálogo e 17
+         * produtos de marca, e a lista empurrava o editor para muito abaixo do que a pessoa
+         * estava vendo. Quem quer registrar arroz não escolhe entre dezessete embalagens.
+         */
+        assertThat(resultado).hasSize(10);
+        assertThat(resultado.get(0).name()).isEqualTo("Arroz branco cozido");
+    }
+
+    @Test
+    void afoodWithNoNumbersGoesToTheBottomOfTheList() {
+        when(catalog.search(eq("arroz"), anyInt())).thenReturn(List.of());
+        when(openFoodFacts.searchByName("arroz"))
+                .thenReturn(List.of(deMarca("Sem tabela", false), deMarca("Com tabela", true)));
+
+        List<FoodProduct> resultado = service.search("arroz");
+
+        /*
+         * Escolher um item sem tabela custa preencher os números na mão, então ele fica abaixo
+         * de todos os que já vêm prontos. Continua na lista porque alguém pode querer aquela
+         * marca exata; o que muda é a ordem, não a existência.
+         */
+        assertThat(resultado.stream().map(FoodProduct::name)).containsExactly("Com tabela", "Sem tabela");
+    }
+
+    @Test
+    void theCatalogueStillComesFirstAndDuplicatesStillDisappear() {
+        when(catalog.search(eq("arroz"), anyInt())).thenReturn(List.of(doCatalogo("Arroz branco cozido")));
+        when(openFoodFacts.searchByName("arroz"))
+                .thenReturn(List.of(deMarca("arroz branco cozido", true), deMarca("Arroz Tio João", true)));
+
+        List<FoodProduct> resultado = service.search("arroz");
+
+        // O teto e a reordenação não podem ter desfeito o que a busca já garantia.
+        assertThat(resultado.stream().map(FoodProduct::name)).containsExactly("Arroz branco cozido", "Arroz Tio João");
     }
 }

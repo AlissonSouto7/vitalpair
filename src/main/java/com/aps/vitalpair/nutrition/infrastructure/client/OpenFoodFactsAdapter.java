@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
+import com.aps.vitalpair.nutrition.domain.model.FoodCategory;
 import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 import com.aps.vitalpair.nutrition.domain.port.out.OpenFoodFactsPort;
 
@@ -78,7 +79,14 @@ public class OpenFoodFactsAdapter implements OpenFoodFactsPort {
                 toBigDecimal(n != null ? n.energyKcal100g() : null),
                 toBigDecimal(n != null ? n.proteins100g() : null),
                 toBigDecimal(n != null ? n.carbohydrates100g() : null),
-                toBigDecimal(n != null ? n.fat100g() : null));
+                toBigDecimal(n != null ? n.fat100g() : null),
+                /*
+                 * OTHER, sempre. A Open Food Facts tem categorias próprias, de produto embalado
+                 * de marca, que não correspondem às famílias que esta tela mostra. Traduzir as
+                 * deles nas nossas pelo nome do produto seria inventar a informação; dizer
+                 * "outros" é o que se sabe.
+                 */
+                FoodCategory.OTHER);
     }
 
     /**

@@ -59,6 +59,16 @@ public class NutritionService
      */
     private static final int CATALOG_LIMIT = 6;
 
+    /**
+     * Quantos alimentos a busca devolve no total.
+     *
+     * <p>A Open Food Facts entrava sem teto. Medido em 28/09/2026 num iPhone 12: "arroz"
+     * devolvia 20 itens, 3 do catálogo e 17 produtos de marca, e a lista empurrava o editor
+     * para muito abaixo do que a pessoa estava vendo. Quem quer registrar arroz não precisa de
+     * dezessete embalagens para escolher, e quem quer uma delas acha digitando a marca.
+     */
+    private static final int SEARCH_LIMIT = 10;
+
     private static final int FAVORITES_LIMIT = 8;
 
     private final FoodLogRepositoryPort foodLogRepository;
@@ -105,12 +115,22 @@ public class NutritionService
                 .collect(Collectors.toCollection(HashSet::new));
 
         List<FoodProduct> resultado = new ArrayList<>(doCatalogo);
+        /*
+         * Os que não têm informação nutricional ficam para o fim.
+         *
+         * Eles não são lixo: alguém pode querer justamente aquela marca e preencher os números
+         * na mão, e é por isso que continuam na lista. Mas escolher um custa mais trabalho que
+         * escolher qualquer outro, então ficam abaixo de todos os que já vêm com os números.
+         */
+        List<FoodProduct> semNumeros = new ArrayList<>();
         for (FoodProduct produto : openFoodFacts.searchByName(query)) {
-            if (produto.name() != null && jaListados.add(produto.name().toLowerCase(Locale.ROOT))) {
-                resultado.add(produto);
+            if (produto.name() == null || !jaListados.add(produto.name().toLowerCase(Locale.ROOT))) {
+                continue;
             }
+            (produto.caloriesPer100g() == null ? semNumeros : resultado).add(produto);
         }
-        return resultado;
+        resultado.addAll(semNumeros);
+        return resultado.size() > SEARCH_LIMIT ? List.copyOf(resultado.subList(0, SEARCH_LIMIT)) : resultado;
     }
 
     @Override
