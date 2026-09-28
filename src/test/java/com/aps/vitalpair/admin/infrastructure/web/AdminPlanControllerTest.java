@@ -57,7 +57,7 @@ class AdminPlanControllerTest extends ControllerSliceTest {
                 .id(UUID.randomUUID())
                 .tenantId(UUID.randomUUID())
                 .email(email)
-                .name("Bel")
+                .name("Célia")
                 .plan(plan)
                 .planExpiresAt(expira)
                 .build();
@@ -74,12 +74,12 @@ class AdminPlanControllerTest extends ControllerSliceTest {
     @Test
     @WithVitalPairUser(role = "ADMIN")
     void umAdminConcedeOplanoSemPrazo() throws Exception {
-        when(grantPlanUseCase.grantPlan(eq("bel@example.com"), eq(Plan.PREMIUM), eq(null)))
-                .thenReturn(conta("bel@example.com", Plan.PREMIUM, null));
+        when(grantPlanUseCase.grantPlan(eq("celia@example.com"), eq(Plan.PREMIUM), eq(null)))
+                .thenReturn(conta("celia@example.com", Plan.PREMIUM, null));
 
         mockMvc.perform(put("/api/v1/admin/plans")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(corpo("bel@example.com", "PREMIUM", null)))
+                        .content(corpo("celia@example.com", "PREMIUM", null)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.plan").value("PREMIUM"))
                 // Sem prazo é o plano das contas de teste: premium que não vence sozinho no
@@ -116,7 +116,7 @@ class AdminPlanControllerTest extends ControllerSliceTest {
 
         mockMvc.perform(put("/api/v1/admin/plans")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(corpo("bel@example.com", "PREMIUM", ontem)))
+                        .content(corpo("celia@example.com", "PREMIUM", ontem)))
                 .andExpect(status().isBadRequest());
 
         // Conceder algo já vencido não é um pedido, é erro de digitação.
@@ -137,12 +137,12 @@ class AdminPlanControllerTest extends ControllerSliceTest {
     @Test
     @WithVitalPairUser(role = "ADMIN")
     void retirarOplanoDevolveAcontaComoFree() throws Exception {
-        when(grantPlanUseCase.grantPlan(eq("bel@example.com"), eq(Plan.FREE), eq(null)))
-                .thenReturn(conta("bel@example.com", Plan.FREE, null));
+        when(grantPlanUseCase.grantPlan(eq("celia@example.com"), eq(Plan.FREE), eq(null)))
+                .thenReturn(conta("celia@example.com", Plan.FREE, null));
 
         mockMvc.perform(put("/api/v1/admin/plans")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(corpo("bel@example.com", "FREE", null)))
+                        .content(corpo("celia@example.com", "FREE", null)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.plan").value("FREE"));
     }
@@ -150,11 +150,12 @@ class AdminPlanControllerTest extends ControllerSliceTest {
     @Test
     @WithVitalPairUser(role = "ADMIN")
     void aRespostaNaoCarregaOperfilDaPessoa() throws Exception {
-        when(grantPlanUseCase.grantPlan(any(), any(), any())).thenReturn(conta("bel@example.com", Plan.PREMIUM, null));
+        when(grantPlanUseCase.grantPlan(any(), any(), any()))
+                .thenReturn(conta("celia@example.com", Plan.PREMIUM, null));
 
         mockMvc.perform(put("/api/v1/admin/plans")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(corpo("bel@example.com", "PREMIUM", null)))
+                        .content(corpo("celia@example.com", "PREMIUM", null)))
                 .andExpect(status().isOk())
                 // Um endereço de administração que devolvesse o perfil daria a um ADMIN uma
                 // forma de ler dado de qualquer conta passando por uma operação de escrita.

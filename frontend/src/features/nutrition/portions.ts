@@ -1,5 +1,7 @@
 import type { TFunction } from 'i18next'
 
+import type { FoodCategory } from '@/types/nutrition'
+
 /**
  * As porções que a tela oferece, em vez de pedir gramas.
  *
@@ -100,9 +102,56 @@ const DEFAULT_PORTIONS: Portion[] = [
   { key: 'lots', grams: 200 },
 ]
 
-export function portionsFor(foodName: string): Portion[] {
-  const found = FAMILIES.find((f) => f.match.test(foodName))
-  return found ? found.portions : DEFAULT_PORTIONS
+/**
+ * As porções de cada família, agora que o catálogo diz a família de cada alimento.
+ *
+ * Isto era a dívida declarada no topo deste arquivo: reconhecer a comida por expressão regular
+ * sobre o nome acerta "Pão francês" e erra "Bisnaguinha", porque depende de a palavra estar
+ * escrita. A categoria vem do arquivo do catálogo, onde alguém olhou a comida e a classificou.
+ *
+ * O nome continua sendo consultado primeiro, e não por preguiça: uma família é mais grossa que
+ * a porção. `TREAT` cobre biscoito e refrigerante, e a porção de um não serve ao outro; `FRUIT`
+ * cobre banana (uma unidade) e uva (um punhado). Onde o nome reconhece, ele é mais específico;
+ * onde não reconhece, a família é melhor que o padrão genérico.
+ */
+const BY_CATEGORY: Partial<Record<FoodCategory, Portion[]>> = {
+  STAPLE: [
+    { key: 'spoon', grams: 45 },
+    { key: 'plateHalf', grams: 100 },
+    { key: 'plateFull', grams: 200 },
+  ],
+  PROTEIN: [
+    { key: 'smallPiece', grams: 60 },
+    { key: 'piece', grams: 120 },
+    { key: 'bigPiece', grams: 200 },
+  ],
+  BREAD: [
+    { key: 'halfUnit', grams: 25 },
+    { key: 'unit', grams: 50 },
+    { key: 'twoUnits', grams: 100 },
+  ],
+  FRUIT: [
+    { key: 'halfUnit', grams: 60 },
+    { key: 'unit', grams: 120 },
+    { key: 'twoUnits', grams: 240 },
+  ],
+  DAIRY: [
+    { key: 'glassSmall', grams: 150 },
+    { key: 'glass', grams: 250 },
+    { key: 'bottle', grams: 500 },
+  ],
+  DISH: [
+    { key: 'plateHalf', grams: 150 },
+    { key: 'plateFull', grams: 300 },
+    { key: 'lots', grams: 450 },
+  ],
+}
+
+export function portionsFor(foodName: string, category?: FoodCategory): Portion[] {
+  const byName = FAMILIES.find((f) => f.match.test(foodName))
+  if (byName) return byName.portions
+  const byCategory = category ? BY_CATEGORY[category] : undefined
+  return byCategory ?? DEFAULT_PORTIONS
 }
 
 /**

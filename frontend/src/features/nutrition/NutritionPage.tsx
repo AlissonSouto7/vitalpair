@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 
 import { deleteLog, logMeal } from '../../api/nutrition'
 import { Card } from '../../components/ui/Card'
@@ -15,7 +16,14 @@ import type {
 import { usePartnerName } from '../pair/usePartnerName'
 
 import { DayList } from './DayList'
-import { type Draft, draftFromDetected, draftFromProduct, emptyDraft, round } from './draft'
+import {
+  type Draft,
+  draftFromDetected,
+  draftFromProduct,
+  emptyDraft,
+  instantDaysAgo,
+  round,
+} from './draft'
 import { FavoritesTab } from './FavoritesTab'
 import { CameraIcon, SearchIcon, StarIcon } from './icons'
 import { MealDetailModal } from './MealDetailModal'
@@ -55,7 +63,18 @@ export function NutritionPage() {
    */
   const entitlement = useQuery(premiumQueries.entitlement())
   const aiAccess = entitlement.data?.aiAccess ?? null
-  const [chosenTab, setChosenTab] = useState<Tab | null>(null)
+  /*
+   * `?tab=` na rota, que é como o "+" da barra de baixo chega aqui já na busca.
+   *
+   * Lido só na primeira renderização, e não a cada mudança: depois disso quem manda é o toque
+   * da pessoa, e reagir ao endereço faria a aba voltar sozinha para a da rota assim que ela
+   * escolhesse outra. Um valor que não é uma aba é ignorado, em vez de deixar a tela em branco.
+   */
+  const [params] = useSearchParams()
+  const [chosenTab, setChosenTab] = useState<Tab | null>(() => {
+    const asked = params.get('tab')
+    return asked === 'foto' || asked === 'buscar' || asked === 'favoritos' ? asked : null
+  })
   const tab: Tab = chosenTab ?? (aiAccess === false ? 'buscar' : 'foto')
   const setTab = setChosenTab
   const [meal, setMeal] = useState<MealType>(() => mealForHour(new Date().getHours()))
@@ -151,6 +170,15 @@ export function NutritionPage() {
         mealType: draft.mealType,
         source: draft.source,
         isPrivate: draft.isPrivate,
+        /*
+         * Só quando não é hoje. Omitir deixa o servidor usar o instante da requisição, que é o
+         * certo para o caso comum; mandar sempre significaria fixar a data no relógio do
+         * aparelho em troca de nada.
+         *
+         * A hora escolhida é a de agora, no dia de trás: uma refeição gravada às 00:00 cairia
+         * no dia anterior para quem está num fuso atrás do UTC, que é o caso do Brasil.
+         */
+        loggedAt: draft.daysAgo > 0 ? instantDaysAgo(draft.daysAgo) : undefined,
       })
       setDraft(null)
     } catch (err) {

@@ -20,7 +20,7 @@ describe('Scoreboard', () => {
     // lê como "50% concluído", que é o que uma barra preenchida significa em toda outra
     // tela. E acontecia no dia 1 de toda temporada, quando os dois estão em zero.
     const { container } = renderWithProviders(
-      <Scoreboard you={{ name: 'Você', score: 0 }} rival={{ name: 'Bel', score: 0 }} />,
+      <Scoreboard you={{ name: 'Você', score: 0 }} rival={{ name: 'Célia', score: 0 }} />,
     )
 
     const { top, main } = bars(container)
@@ -33,7 +33,7 @@ describe('Scoreboard', () => {
 
   it('splits by the score once there are points on the board', () => {
     const { container } = renderWithProviders(
-      <Scoreboard you={{ name: 'Você', score: 30 }} rival={{ name: 'Bel', score: 10 }} />,
+      <Scoreboard you={{ name: 'Você', score: 30 }} rival={{ name: 'Célia', score: 10 }} />,
     )
 
     const { top, main } = bars(container)
@@ -46,7 +46,7 @@ describe('Scoreboard', () => {
     // O caso que um `sum > 0` mal escrito quebraria: 12 a 0 tem placar, e a barra deve
     // ficar inteira de um lado, não sumir junto com o 0 a 0.
     const { container } = renderWithProviders(
-      <Scoreboard you={{ name: 'Você', score: 12 }} rival={{ name: 'Bel', score: 0 }} />,
+      <Scoreboard you={{ name: 'Você', score: 12 }} rival={{ name: 'Célia', score: 0 }} />,
     )
 
     const { main } = bars(container)
@@ -58,14 +58,14 @@ describe('Scoreboard', () => {
     // A divisão é desenhada com largura e cor, então sem rótulo um leitor de tela não
     // recebe nada do que é a informação principal do card.
     const empty = renderWithProviders(
-      <Scoreboard you={{ name: 'Você', score: 0 }} rival={{ name: 'Bel', score: 0 }} />,
+      <Scoreboard you={{ name: 'Você', score: 0 }} rival={{ name: 'Célia', score: 0 }} />,
     )
     expect(
       empty.container.querySelector(`[aria-label="${i18n.t('dashboard.barEmpty')}"]`),
     ).not.toBeNull()
 
     const playing = renderWithProviders(
-      <Scoreboard you={{ name: 'Você', score: 30 }} rival={{ name: 'Bel', score: 10 }} />,
+      <Scoreboard you={{ name: 'Você', score: 30 }} rival={{ name: 'Célia', score: 10 }} />,
     )
     expect(
       playing.container.querySelector(
@@ -85,7 +85,7 @@ describe('Scoreboard', () => {
       garante e o jsdom não executa; aqui o que se verifica é que as classes chegam.
     */
     const { container } = renderWithProviders(
-      <Scoreboard you={{ name: 'Você', score: 30 }} rival={{ name: 'Bel', score: 10 }} />,
+      <Scoreboard you={{ name: 'Você', score: 30 }} rival={{ name: 'Célia', score: 10 }} />,
     )
 
     const [mine, theirs] = [...bars(container).main.children] as HTMLElement[]
@@ -112,13 +112,13 @@ describe('Scoreboard', () => {
 
   it('letters each square with the initial of whoever it stands for', () => {
     // O padrão era 'V' e 'C', letras fixas que não eram a inicial de ninguém: no placar da
-    // dupla Alisson & Bel apareciam um "V" e um "C".
+    // dupla Alisson & Célia apareciam um "V" e um "C".
     const { container } = renderWithProviders(
-      <Scoreboard you={{ name: 'Bel', score: 10 }} rival={{ name: 'Alisson', score: 0 }} />,
+      <Scoreboard you={{ name: 'Célia', score: 10 }} rival={{ name: 'Alisson', score: 0 }} />,
     )
 
     const squares = [...container.querySelectorAll('span[class*="bg-you"], span[class*="bg-pair"]')]
-    expect(squares.map((el) => el.textContent)).toEqual(['B', 'A'])
+    expect(squares.map((el) => el.textContent)).toEqual(['C', 'A'])
   })
 
   it('shows the two people by colour, not by the mascot', () => {
@@ -129,7 +129,7 @@ describe('Scoreboard', () => {
       se pergunta é quem é quem.
     */
     const { container } = renderWithProviders(
-      <Scoreboard you={{ name: 'Bel', score: 10 }} rival={{ name: 'Alisson', score: 0 }} />,
+      <Scoreboard you={{ name: 'Célia', score: 10 }} rival={{ name: 'Alisson', score: 0 }} />,
     )
 
     const squares = [...container.querySelectorAll('span[class*="bg-you"], span[class*="bg-pair"]')]

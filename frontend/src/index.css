@@ -386,8 +386,14 @@ input.bg-surface:-webkit-autofill:focus {
   .label {
     @apply mb-1 block text-xs font-bold text-muted;
   }
+  /* border-edge e bg-surface, não border-hair e bg-canvas.
+     Medido na tela de entrar, num iPhone 12: o campo tinha o mesmo fundo da página (contraste
+     1,00) e borda de 1,17:1, abaixo do 3:1 que o WCAG pede para o limite de um controle. Ou
+     seja, a caixa onde se digita não se distinguia do papel: parecia um campo desligado, na
+     primeira tela que qualquer pessoa vê. O --edge existe desde o redesign por esse exato
+     motivo e nunca tinha chegado ao .input. */
   .input {
-    @apply w-full rounded-xl border border-hair bg-canvas px-3 py-2.5 text-ink placeholder-faint
+    @apply w-full rounded-xl border border-edge bg-surface px-3 py-2.5 text-ink placeholder-faint
       outline-none transition focus:border-act focus:ring-2 focus:ring-act/30;
   }
   /* text-on-fill, e não text-white: no tema escuro o preenchimento é claro de propósito, e
@@ -396,8 +402,11 @@ input.bg-surface:-webkit-autofill:focus {
     @apply rounded-xl bg-act px-4 py-2.5 font-extrabold text-on-fill transition
       hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60;
   }
+  /* Mesmo motivo do .input: o contorno de um botão é o que diz onde se pode clicar, e a
+     1,17:1 do --hair ele desaparece. A pílula fica com --hair porque não é clicável: é um
+     rótulo, e ali o contorno só separa do fundo. */
   .btn-ghost {
-    @apply rounded-xl border border-hair px-4 py-2.5 text-sm font-bold text-muted
+    @apply rounded-xl border border-edge px-4 py-2.5 text-sm font-bold text-muted
       transition hover:bg-surface;
   }
   .chip {

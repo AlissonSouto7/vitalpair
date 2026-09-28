@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import com.aps.vitalpair.nutrition.domain.model.FoodCategory;
 import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 import com.aps.vitalpair.nutrition.domain.port.out.FoodCatalogPort;
 
@@ -47,6 +48,9 @@ public class BrazilianFoodCatalog implements FoodCatalogPort {
 
     private static final String ARQUIVO = "foods/br-foods.csv";
 
+    /** A linha que abre uma seção e diz a família dos alimentos até a próxima. */
+    private static final String DIRETIVA_CATEGORIA = "# categoria:";
+
     /** Um alimento do catálogo, já com os termos de busca normalizados. */
     private record Entry(FoodProduct food, String nomeNormalizado, List<String> termos) {}
 
@@ -58,12 +62,18 @@ public class BrazilianFoodCatalog implements FoodCatalogPort {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new ClassPathResource(ARQUIVO).getInputStream(), StandardCharsets.UTF_8))) {
             String linha;
+            // A família vale da diretiva até a próxima, então é estado da leitura do arquivo.
+            FoodCategory categoria = FoodCategory.OTHER;
             while ((linha = reader.readLine()) != null) {
+                if (linha.startsWith(DIRETIVA_CATEGORIA)) {
+                    categoria = categoriaDe(linha);
+                    continue;
+                }
                 // Comentários explicam a fonte e as escolhas; o cabeçalho nomeia as colunas.
                 if (linha.isBlank() || linha.startsWith("#") || linha.startsWith("nome;")) {
                     continue;
                 }
-                parse(linha).ifPresent(lidos::add);
+                parse(linha, categoria).ifPresent(lidos::add);
             }
         } catch (IOException e) {
             log.error(
@@ -76,7 +86,25 @@ public class BrazilianFoodCatalog implements FoodCatalogPort {
         log.info("Catálogo de alimentos carregado: {} itens", entries.size());
     }
 
-    private java.util.Optional<Entry> parse(String linha) {
+    /**
+     * A família declarada por uma diretiva de seção.
+     *
+     * <p>Um valor que não existe no enum vira {@link FoodCategory#OTHER} e um aviso, pela mesma
+     * razão que uma linha torta não derruba a busca: um erro de digitação num arquivo de
+     * catálogo não deve tirar o aplicativo do ar. O custo é uma seção sem ícone, visível na
+     * tela e no log.
+     */
+    private static FoodCategory categoriaDe(String linha) {
+        String valor = linha.substring(DIRETIVA_CATEGORIA.length()).trim();
+        try {
+            return FoodCategory.valueOf(valor.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            log.warn("Categoria desconhecida no catálogo de alimentos, os itens abaixo vão sem família: {}", valor);
+            return FoodCategory.OTHER;
+        }
+    }
+
+    private java.util.Optional<Entry> parse(String linha, FoodCategory categoria) {
         String[] c = linha.split(";", -1);
         if (c.length < 6) {
             // Uma linha torta é um erro de edição do arquivo, não do aplicativo: registra e
@@ -93,7 +121,8 @@ public class BrazilianFoodCatalog implements FoodCatalogPort {
                     new BigDecimal(c[2].trim()),
                     new BigDecimal(c[3].trim()),
                     new BigDecimal(c[4].trim()),
-                    new BigDecimal(c[5].trim()));
+                    new BigDecimal(c[5].trim()),
+                    categoria);
 
             List<String> termos = new ArrayList<>();
             termos.add(normalize(nome));

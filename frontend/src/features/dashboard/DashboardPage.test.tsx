@@ -39,7 +39,7 @@ function dashboard(over: Partial<DayProgress> = {}): Dashboard {
     me: day(over),
     partner: {
       userId: PARTNER,
-      name: 'Bel',
+      name: 'Célia',
       avatarUrl: null,
       calorieTarget: 2000,
       consumedCalories: 900,
@@ -68,7 +68,7 @@ function theServerAnswers(dash: Dashboard = dashboard()) {
         inviteCode: null,
         members: [
           { userId: ME, name: 'Alisson', email: 'a@x.app', avatarUrl: null },
-          { userId: PARTNER, name: 'Bel', email: 'b@x.app', avatarUrl: null },
+          { userId: PARTNER, name: 'Célia', email: 'b@x.app', avatarUrl: null },
         ],
       }),
     ),

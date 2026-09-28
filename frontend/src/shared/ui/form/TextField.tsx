@@ -42,27 +42,61 @@ export function TextField({ label, error, action, ...input }: TextFieldProps) {
     input.onAnimationStart?.(event)
   }
 
-  return (
-    <div>
-      <div className={action ? 'mb-1 flex items-center justify-between' : undefined}>
-        <label htmlFor={id} className={action ? 'label mb-0' : 'label'}>
+  /*
+    Sem `action`, a estrutura simples: rótulo, campo, erro.
+
+    Com `action`, tudo vira uma grade de uma coluna em que o link é escrito depois do campo e
+    volta para cima pelo `order`. Escrito antes, como estava, ele entrava no meio do formulário
+    para quem navega por teclado: medido na tela de entrar, a sequência do Tab era e-mail ->
+    "Esqueci" -> senha, ou seja, o caminho para sair da página passava entre os dois campos que
+    a pessoa está preenchendo, e um toque a mais no Tab a tirava dali sem ela querer. Quem usa
+    teclado ou leitor de tela segue a ordem do HTML; quem usa o olho segue a desenhada. As duas
+    passam a dizer a mesma coisa.
+  */
+  const campo = (
+    <input
+      {...input}
+      id={id}
+      onAnimationStart={onAnimationStart}
+      className="input"
+      aria-invalid={error ? true : undefined}
+      aria-describedby={error ? errorId : undefined}
+    />
+  )
+  const mensagem = error && (
+    <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-danger">
+      {error}
+    </p>
+  )
+
+  if (!action) {
+    return (
+      <div>
+        <label htmlFor={id} className="label">
           {label}
         </label>
-        {action}
+        {campo}
+        {mensagem}
       </div>
-      <input
-        {...input}
-        id={id}
-        onAnimationStart={onAnimationStart}
-        className="input"
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-      />
-      {error && (
-        <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-danger">
-          {error}
-        </p>
-      )}
+    )
+  }
+
+  return (
+    <div className="flex flex-wrap items-center">
+      {/*
+        A ordem do HTML é rótulo, campo, link; a ordem desenhada é rótulo, link, campo.
+
+        `order` muda só o desenho, e é por isso que serve aqui: a ordem do Tab e a leitura de um
+        leitor de tela continuam seguindo o HTML, onde o link vem depois do campo, que é onde
+        ele faz sentido. O `basis-full` em rótulo e campo os força a ocupar a linha inteira, e o
+        link sobra no canto da primeira.
+      */}
+      <label htmlFor={id} className="label order-1 mb-1 mr-auto">
+        {label}
+      </label>
+      <div className="order-3 mb-0 basis-full">{campo}</div>
+      <div className="order-2 mb-1">{action}</div>
+      {mensagem && <div className="order-4 basis-full">{mensagem}</div>}
     </div>
   )
 }

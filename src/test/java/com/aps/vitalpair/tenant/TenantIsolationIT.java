@@ -87,6 +87,10 @@ class TenantIsolationIT extends AbstractIntegrationTest {
         // Real data on both sides, so a leak has something recognisable to leak.
         logMeal(owner, label + " breakfast", 500);
         logMeal(joined, label + " partner lunch", 600);
+        // A cart item per side, labelled like the meals, so a leak reads as the wrong food
+        // name and not merely as a missing id.
+        addToCart(owner, label + " cart rice");
+        addToCart(joined, label + " partner cart beans");
         logActivity(owner, 45);
         httpPost("/api/v1/progress/weight", Map.of("weightKg", 80), owner);
         httpPut("/api/v1/season/stake", Map.of("stake", label + " stake"), owner);
@@ -108,6 +112,7 @@ class TenantIsolationIT extends AbstractIntegrationTest {
                 "/api/v1/nutrition/logs",
                 "/api/v1/nutrition/summary",
                 "/api/v1/nutrition/favorites",
+                "/api/v1/nutrition/cart",
                 "/api/v1/activity/logs",
                 "/api/v1/activity/summary",
                 "/api/v1/progress",
@@ -208,6 +213,41 @@ class TenantIsolationIT extends AbstractIntegrationTest {
         // The owner logged a 500 kcal meal today; the partner logged 600 of their own.
         assertThat(dashboard.path("me").path("consumedCalories").asInt()).isEqualTo(500);
         assertThat(dashboard.path("partner").path("consumedCalories").asInt()).isEqualTo(600);
+    }
+
+    /**
+     * The cart is narrower than a tenant: it belongs to one person.
+     *
+     * <p>Everything else here is shared by the pair on purpose, so the rest of this class only
+     * proves that one pair cannot see another. The cart is the plate somebody is still
+     * building, and the partner has no business reading it, let alone confirming it. That is
+     * a stronger promise than tenant scoping and needs its own proof.
+     */
+    @Test
+    void theCartIsNotSharedWithThePartner() {
+        JsonNode mine = data(httpGet("/api/v1/nutrition/cart", alpha.owner()));
+        JsonNode partners = data(httpGet("/api/v1/nutrition/cart", alpha.partner()));
+
+        assertThat(mine.toString()).contains("Alpha cart rice");
+        assertThat(mine.toString()).doesNotContain("partner cart beans");
+        assertThat(partners.toString()).contains("Alpha partner cart beans");
+        assertThat(partners.toString()).doesNotContain("Alpha cart rice");
+    }
+
+    /** Someone else's cart item answers as a missing item, even inside the same pair. */
+    @Test
+    void removingThePartnersCartItemFails() {
+        String victimItem = data(httpGet("/api/v1/nutrition/cart", alpha.partner()))
+                .path(0)
+                .path("id")
+                .asText();
+
+        ResponseEntity<String> response = httpDelete("/api/v1/nutrition/cart/items/" + victimItem, alpha.owner());
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(data(httpGet("/api/v1/nutrition/cart", alpha.partner())).toString())
+                .as("the partner's item must still be there")
+                .contains("Alpha partner cart beans");
     }
 
     // ---- writes on another tenant's rows ----
@@ -341,6 +381,32 @@ class TenantIsolationIT extends AbstractIntegrationTest {
                         40,
                         "fatG",
                         10,
+                        "mealType",
+                        "LUNCH",
+                        "source",
+                        "MANUAL",
+                        "isPrivate",
+                        false),
+                session);
+        assertThat(response.getStatusCode()).as(response.getBody()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    private void addToCart(Session session, String food) {
+        ResponseEntity<String> response = httpPost(
+                "/api/v1/nutrition/cart/items",
+                Map.of(
+                        "foodName",
+                        food,
+                        "quantityG",
+                        150,
+                        "caloriesKcal",
+                        200,
+                        "proteinG",
+                        5,
+                        "carbG",
+                        40,
+                        "fatG",
+                        2,
                         "mealType",
                         "LUNCH",
                         "source",

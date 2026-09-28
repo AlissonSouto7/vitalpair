@@ -1,4 +1,4 @@
 #
-#Sun Sep 27 12:03:33 BRT 2026
-slices\ matching\ 'com.aps.vitalpair.(*)..'\ should\ be\ free\ of\ cycles=7f007dac-1540-4d28-a425-2f36f3dfa74a
-no\ classes\ that\ reside\ in\ a\ package\ '..domain..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ '..application..',\ because\ a\ port\ whose\ type\ lives\ outside\ the\ domain\ inverts\ the\ dependency\ it\ declares=03940223-61e6-43ba-a15d-891034650880
+#Mon Sep 28 13:51:50 BRT 2026
+slices\ matching\ 'com.aps.vitalpair.(*)..'\ should\ be\ free\ of\ cycles=268c6787-0719-41b4-856a-b62f4f22078d
+no\ classes\ that\ reside\ in\ a\ package\ '..domain..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ '..application..',\ because\ a\ port\ whose\ type\ lives\ outside\ the\ domain\ inverts\ the\ dependency\ it\ declares=778f7a1d-83c6-497b-83cb-b4296aba6b32

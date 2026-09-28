@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.aps.vitalpair.nutrition.domain.model.FoodCategory;
 import com.aps.vitalpair.nutrition.domain.model.FoodProduct;
 
 /**
@@ -137,6 +138,46 @@ class BrazilianFoodCatalogTest {
         // refeições afirmando que o frango não tem calorias.
         assertThat(frango.caloriesPer100g().intValue()).isEqualTo(159);
         assertThat(frango.proteinPer100g().intValue()).isEqualTo(32);
+    }
+
+    @Test
+    void cadaAlimentoVemComAfamiliaDaSuaSecao() {
+        /*
+         * A família vem da seção em que o alimento está escrito no arquivo, e é ela que decide o
+         * ícone na tela. Um alimento que caísse na família errada mostraria o desenho errado, o
+         * que é pior que não mostrar nenhum: a pessoa passa a desconfiar da lista inteira.
+         *
+         * Um de cada seção, porque o erro plausível não é uma linha isolada, é a diretiva não
+         * valer até a próxima seção e todo mundo herdar a primeira.
+         */
+        assertThat(categoriaDe("Arroz branco cozido")).isEqualTo(FoodCategory.STAPLE);
+        assertThat(categoriaDe("Ovo cozido")).isEqualTo(FoodCategory.PROTEIN);
+        assertThat(categoriaDe("Pão francês")).isEqualTo(FoodCategory.BREAD);
+        assertThat(categoriaDe("Queijo mussarela")).isEqualTo(FoodCategory.DAIRY);
+        assertThat(categoriaDe("Banana prata")).isEqualTo(FoodCategory.FRUIT);
+        assertThat(categoriaDe("Alface")).isEqualTo(FoodCategory.VEGETABLE);
+        assertThat(categoriaDe("Whey protein")).isEqualTo(FoodCategory.SUPPLEMENT);
+    }
+
+    @Test
+    void nenhumAlimentoDoCatalogoFicaSemFamilia() {
+        // OTHER é para produto de marca da Open Food Facts. Um alimento nosso sem família quer
+        // dizer que alguém escreveu uma linha fora de qualquer seção.
+        assertThat(catalog.search("a", 200)).isEmpty();
+        List<FoodProduct> todos = new java.util.ArrayList<>();
+        for (String termo : List.of("arroz", "ovo", "pao", "queijo", "banana", "alface", "whey")) {
+            todos.addAll(catalog.search(termo, 20));
+        }
+        assertThat(todos).isNotEmpty();
+        assertThat(todos).allSatisfy(f -> assertThat(f.category()).isNotEqualTo(FoodCategory.OTHER));
+    }
+
+    private FoodCategory categoriaDe(String nome) {
+        return catalog.search(nome, 10).stream()
+                .filter(f -> f.name().equals(nome))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("alimento não encontrado no catálogo: " + nome))
+                .category();
     }
 
     @Test

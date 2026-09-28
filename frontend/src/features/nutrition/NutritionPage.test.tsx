@@ -31,14 +31,14 @@ const n = (key: LeafKeys<TranslationBundle['nutrition']>, vars?: Record<string, 
  * and the entitlement the photo tab (the default tab) asks before offering the camera. Tabs
  * add their own on top.
  */
-function mount(entitlement: Entitlement = premiumEntitlementFixture) {
+function mount(entitlement: Entitlement = premiumEntitlementFixture, route?: string) {
   server.use(
     http.get(path('/nutrition/logs'), () => ok(foodLogsFixture)),
     http.get(path('/nutrition/summary'), () => ok(dailySummaryFixture)),
     http.get(path('/pair'), () => ok(pairActiveFixture)),
     http.get(path('/entitlements/me'), () => ok(entitlement)),
   )
-  return renderWithProviders(<NutritionPage />)
+  return renderWithProviders(<NutritionPage />, route ? { route } : undefined)
 }
 
 describe('NutritionPage photo tab and the paid plan', () => {
@@ -241,6 +241,40 @@ describe('NutritionPage search tab', () => {
       (el) => el.className.includes('bg-act') && !el.className.includes('bg-act-soft'),
     )
     expect(filled).toHaveLength(0)
+  })
+
+  it('opens on the search tab when the address asks for it', async () => {
+    /*
+     * É assim que o "+" da barra de baixo chega aqui. Sem isto ele abriria na aba da foto, que
+     * é paga: quem toca no botão de registrar comida cairia num cadeado.
+     */
+    server.use(http.get(path('/nutrition/foods/search'), () => ok(foodProductsFixture)))
+    mount(premiumEntitlementFixture, '/nutrition?tab=buscar')
+
+    expect(await screen.findByPlaceholderText(n('searchInputPlaceholder'))).toBeInTheDocument()
+  })
+
+  it('ignores a tab the address invented', async () => {
+    // Um valor que não é aba deixaria a tela sem nenhuma, em branco, se fosse aceito como está.
+    mount(premiumEntitlementFixture, '/nutrition?tab=nao-existe')
+
+    expect(await screen.findByText(n('photoDropTitle'))).toBeInTheDocument()
+  })
+
+  it('shows the family of each food, so the list can be skimmed', async () => {
+    /*
+     * Oito linhas de nome parecido obrigam a ler todas para achar a sua. A família responde "é
+     * isso que eu quero?" antes da leitura, e vem antes da procedência, que é a pergunta de quem
+     * já escolheu.
+     */
+    server.use(http.get(path('/nutrition/foods/search'), () => ok(foodProductsFixture)))
+    const { user } = mount()
+
+    await user.click(await screen.findByRole('button', { name: new RegExp(n('tabSearch')) }))
+    await user.type(screen.getByPlaceholderText(n('searchInputPlaceholder')), 'iogurte')
+    await screen.findByText('Iogurte natural')
+
+    expect(screen.getByText(new RegExp(loose('nutrition.category.DAIRY')))).toBeInTheDocument()
   })
 
   it('does not search on one letter', async () => {

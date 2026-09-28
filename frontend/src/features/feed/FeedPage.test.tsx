@@ -59,7 +59,7 @@ function theServerAnswers(items: FeedItem[]) {
         inviteCode: null,
         members: [
           { userId: ME, name: 'Alisson', email: 'a@x.app', avatarUrl: null },
-          { userId: PARTNER, name: 'Bel', email: 'b@x.app', avatarUrl: null },
+          { userId: PARTNER, name: 'Célia', email: 'b@x.app', avatarUrl: null },
         ],
       }),
     ),
@@ -84,7 +84,7 @@ describe('FeedPage', () => {
       item({
         id: 'dela',
         userId: PARTNER,
-        actorName: 'Bel',
+        actorName: 'Célia',
         foodName: 'Salada com atum',
         points: 15,
       }),
@@ -120,13 +120,13 @@ describe('FeedPage', () => {
     useAuthStore.setState({ userId: ME })
     theServerAnswers([
       item({ id: 'meu', foodName: 'Meu almoço' }),
-      item({ id: 'dela', userId: PARTNER, actorName: 'Bel', foodName: 'Almoço dela' }),
+      item({ id: 'dela', userId: PARTNER, actorName: 'Célia', foodName: 'Almoço dela' }),
     ])
 
     renderWithProviders(<FeedPage />)
     await screen.findByText(/Meu almoço/)
 
     expect(within(card('Meu almoço')).getByText('A').className).toContain('bg-you')
-    expect(within(card('Almoço dela')).getByText('B').className).toContain('bg-pair')
+    expect(within(card('Almoço dela')).getByText('C').className).toContain('bg-pair')
   })
 })

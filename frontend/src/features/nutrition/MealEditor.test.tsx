@@ -31,6 +31,8 @@ function pao(over: Partial<Draft> = {}): Draft {
     mealType: 'BREAKFAST',
     isPrivate: false,
     source: 'OPEN_FOOD_FACTS',
+    category: 'BREAD',
+    daysAgo: 0,
     ...over,
   }
 }
@@ -100,17 +102,74 @@ describe('MealEditor', () => {
     expect(screen.getByRole('button', { name: /2 unidades/ })).toBeInTheDocument()
   })
 
+  it('cada porção já mostra quanto custa, antes do toque', async () => {
+    const { user } = mount(pao())
+    await user.click(screen.getByRole('button', { name: n('mealShort.BREAKFAST') }))
+
+    /*
+     * O botão dizia só o peso, e a caloria daquela escolha aparecia embaixo depois do toque.
+     * Para comparar meio pão com dois pães a pessoa tocava, olhava para baixo, voltava e tocava
+     * no outro. Quem escolhe a porção está decidindo quanto vai comer, e é a caloria que
+     * responde isso.
+     */
+    expect(screen.getByRole('button', { name: /1 unidade/ })).toHaveTextContent('150 kcal')
+    expect(screen.getByRole('button', { name: /2 unidades/ })).toHaveTextContent('300 kcal')
+    expect(screen.getByRole('button', { name: /1 unidade/ })).toHaveTextContent('50 g')
+  })
+
+  it('não inventa caloria para o alimento que não tem informação nutricional', async () => {
+    const { user } = mount(pao({ kcalPer100: '' }))
+    await user.click(screen.getByRole('button', { name: n('mealShort.BREAKFAST') }))
+
+    // "0 kcal" no botão afirmaria que a porção não tem caloria nenhuma, que é diferente de
+    // "ninguém sabe quantas". O peso continua, porque esse é conhecido.
+    const botao = screen.getByRole('button', { name: /1 unidade/ })
+    expect(botao).not.toHaveTextContent('kcal')
+    expect(botao).toHaveTextContent('50 g')
+  })
+
+  it('deixa dizer que a refeição foi de ontem', async () => {
+    const { user } = mount(pao())
+    await user.click(screen.getByRole('button', { name: n('mealShort.BREAKFAST') }))
+
+    /*
+     * Quem esquecia de registrar o jantar e abria o aplicativo na manhã seguinte não tinha como
+     * dizer: a refeição entrava como comida hoje, e a sequência, o placar e a competição da
+     * semana são contados por data. O caminho existia na API desde sempre e nenhuma tela o
+     * alcançava.
+     */
+    const ontem = screen.getByRole('button', { name: n('day.yesterday') })
+    expect(screen.getByRole('button', { name: n('day.today') })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(ontem).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(ontem)
+
+    expect(ontem).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: n('day.today') })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+  })
+
   it('recalcula o total quando a porção muda', async () => {
     const { user } = mount(pao())
     await user.click(screen.getByRole('button', { name: n('mealShort.BREAKFAST') }))
 
+    /*
+     * Pelo papel e não pelo texto: desde que cada botão de porção mostra a própria caloria,
+     * "300 kcal" aparece no botão da porção de 100g e no total, e um `getByText` casava com os
+     * dois. O total é o que vai para o diário, então é ele que este teste tem de olhar.
+     */
     // 100g a 300 kcal/100g
-    expect(screen.getByText('300 kcal')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('300 kcal')
 
     await user.click(screen.getByRole('button', { name: /1 unidade/ }))
 
     // 50g é metade
-    expect(screen.getByText('150 kcal')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('150 kcal')
   })
 
   it('mantém o caminho de digitar os números', async () => {
@@ -126,7 +185,7 @@ describe('MealEditor', () => {
     await user.clear(kcal)
     await user.type(kcal, '250')
 
-    expect(screen.getByText('250 kcal')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('250 kcal')
   })
 
   it('salva com a refeição escolhida no primeiro passo', async () => {
