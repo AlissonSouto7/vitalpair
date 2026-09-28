@@ -194,8 +194,12 @@ Database constraints, not just application rules: `meal_type IN ('BREAKFAST',
   "Banana" and "banana" are two entries. No test asserts either behaviour.
 - **A very large day.** No test covers a user with hundreds of logs in one day; the summary
   loads them all into memory.
-- **The frontend nutrition page.** Covered by no Playwright test. The browser suite exercises
-  authentication, navigation and accessibility only.
+- **The frontend nutrition page, beyond one path.** `e2e/nutrition.spec.ts` covers logging a
+  meal by hand end to end, which is the path that must survive Open Food Facts being down.
+  Nothing in the browser suite touches the search, the photo tab, the favourites, the portion
+  buttons or the day picker. That one test is also what caught the ambiguity the portion
+  calories introduced, which no unit test could see: "260 kcal" appearing twice on a real
+  screen.
 - **The bottom bar has no test.** Its position, size and centring were measured in a browser
   on an iPhone 12 and recorded above, but nothing asserts them on every build: a change to the
   layout could move the "+" off centre and no test would fail.
