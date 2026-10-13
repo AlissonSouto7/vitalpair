@@ -27,6 +27,11 @@ public class SeasonPersistenceAdapter implements SeasonRepositoryPort {
     }
 
     @Override
+    public Season saveAndFlush(Season season) {
+        return mapper.toDomain(repository.saveAndFlush(mapper.toEntity(season)));
+    }
+
+    @Override
     public Optional<Season> findActiveByTenant(UUID tenantId) {
         return repository.findByTenantIdAndStatus(tenantId, SeasonStatus.ACTIVE).map(mapper::toDomain);
     }

@@ -202,7 +202,16 @@ public class SeasonService implements GetSeasonUseCase, RecordPointUseCase, Upda
         Instant winEnd = ended.getEndDate().atStartOfDay(zone()).toInstant();
         UUID winner = winnerByLedger(ended.getTenantId(), winStart, winEnd);
 
-        seasonRepository.save(ended.toBuilder()
+        /*
+         * `saveAndFlush`, e não `save`: o índice uq_seasons_active_per_tenant garante uma só
+         * temporada ACTIVE por par, e fechar esta e abrir a próxima são duas escritas da mesma
+         * transação. Com o save comum as duas ficam na memória do Hibernate e descem juntas no
+         * fim, então por um instante existem duas ACTIVE e o banco recusa: medido em
+         * 28/09/2026, ler a temporada depois do trigésimo dia respondia 500 com
+         * "duplicate key value violates unique constraint". O produto tem temporadas de 30
+         * dias, então isto aconteceria com todo mundo, uma vez por mês.
+         */
+        seasonRepository.saveAndFlush(ended.toBuilder()
                 .status(SeasonStatus.CLOSED)
                 .winnerUserId(winner)
                 .build());

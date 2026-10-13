@@ -78,6 +78,9 @@ class SeasonServiceTest {
         LocalDate pairedOn = LocalDate.of(2026, 3, 10);
         when(seasonRepository.findActiveByTenant(TENANT)).thenReturn(Optional.empty());
         when(seasonRepository.save(any())).thenAnswer(call -> call.getArgument(0));
+        // O fechamento usa saveAndFlush: o índice de uma ACTIVE por par recusa as duas
+        // escritas descendo juntas, e o flush é o que faz o banco ver uma de cada vez.
+        when(seasonRepository.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
 
         serviceOn(pairedOn.plusDays(5)).ensureCurrentSeason(pairOn(pairedOn));
 
@@ -108,6 +111,9 @@ class SeasonServiceTest {
         LocalDate end = start.plusDays(30);
         when(seasonRepository.findActiveByTenant(TENANT)).thenReturn(Optional.of(season(1, start, end)));
         when(seasonRepository.save(any())).thenAnswer(call -> call.getArgument(0));
+        // O fechamento usa saveAndFlush: o índice de uma ACTIVE por par recusa as duas
+        // escritas descendo juntas, e o flush é o que faz o banco ver uma de cada vez.
+        when(seasonRepository.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
         when(pointEventRepository.sumByUser(any(), any(), any()))
                 .thenReturn(List.of(new UserPoints(YOU, 120L), new UserPoints(RIVAL, 90L)));
 
@@ -128,16 +134,20 @@ class SeasonServiceTest {
         LocalDate start = LocalDate.of(2026, 1, 1);
         when(seasonRepository.findActiveByTenant(TENANT)).thenReturn(Optional.of(season(1, start, start.plusDays(30))));
         when(seasonRepository.save(any())).thenAnswer(call -> call.getArgument(0));
+        // O fechamento usa saveAndFlush: o índice de uma ACTIVE por par recusa as duas
+        // escritas descendo juntas, e o flush é o que faz o banco ver uma de cada vez.
+        when(seasonRepository.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
         when(pointEventRepository.sumByUser(any(), any(), any())).thenReturn(List.of());
 
-        // Ninety days later: seasons 1, 2 and 3 are all over. Four saves, three of them
-        // closing a season and three opening one, with the last open season covering today.
+        // Noventa dias depois: as temporadas 1, 2 e 3 acabaram. Três fechamentos (por
+        // saveAndFlush) e três aberturas (por save), com a última cobrindo hoje.
         Season current = serviceOn(start.plusDays(95)).ensureCurrentSeason(pairOn(start));
 
         assertThat(current.getNumber()).isEqualTo(4);
         assertThat(current.getStartDate()).isEqualTo(start.plusDays(90));
         assertThat(current.getEndDate()).isAfter(start.plusDays(95));
-        verify(seasonRepository, times(6)).save(any());
+        verify(seasonRepository, times(3)).saveAndFlush(any());
+        verify(seasonRepository, times(3)).save(any());
     }
 
     @Test
@@ -146,6 +156,9 @@ class SeasonServiceTest {
         LocalDate end = start.plusDays(30);
         when(seasonRepository.findActiveByTenant(TENANT)).thenReturn(Optional.of(season(1, start, end)));
         when(seasonRepository.save(any())).thenAnswer(call -> call.getArgument(0));
+        // O fechamento usa saveAndFlush: o índice de uma ACTIVE por par recusa as duas
+        // escritas descendo juntas, e o flush é o que faz o banco ver uma de cada vez.
+        when(seasonRepository.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
         when(pointEventRepository.sumByUser(any(), any(), any())).thenReturn(List.of());
 
         serviceOn(end).ensureCurrentSeason(pairOn(start));
@@ -163,6 +176,9 @@ class SeasonServiceTest {
                 .build();
         when(seasonRepository.findActiveByTenant(TENANT)).thenReturn(Optional.of(active));
         when(seasonRepository.save(any())).thenAnswer(call -> call.getArgument(0));
+        // O fechamento usa saveAndFlush: o índice de uma ACTIVE por par recusa as duas
+        // escritas descendo juntas, e o flush é o que faz o banco ver uma de cada vez.
+        when(seasonRepository.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
         when(pointEventRepository.sumByUser(any(), any(), any())).thenReturn(List.of());
 
         Season current = serviceOn(end).ensureCurrentSeason(pairOn(start));
@@ -185,10 +201,21 @@ class SeasonServiceTest {
         assertThat(event.getValue().getSource()).isEqualTo(PointSource.MEAL);
     }
 
+    /**
+     * Tudo o que foi gravado, pelos dois caminhos.
+     *
+     * <p>Abrir uma temporada usa `save` e fechar usa `saveAndFlush`: o índice de uma ACTIVE
+     * por par recusa as duas escritas descendo juntas, e o flush é o que faz o banco ver uma
+     * de cada vez. Para quem lê o teste, as duas são "foi gravado".
+     */
     private List<Season> savedSeasons() {
-        ArgumentCaptor<Season> saved = ArgumentCaptor.forClass(Season.class);
-        verify(seasonRepository, org.mockito.Mockito.atLeastOnce()).save(saved.capture());
-        return saved.getAllValues();
+        ArgumentCaptor<Season> abertas = ArgumentCaptor.forClass(Season.class);
+        ArgumentCaptor<Season> fechadas = ArgumentCaptor.forClass(Season.class);
+        verify(seasonRepository, org.mockito.Mockito.atLeast(0)).save(abertas.capture());
+        verify(seasonRepository, org.mockito.Mockito.atLeast(0)).saveAndFlush(fechadas.capture());
+        List<Season> todas = new java.util.ArrayList<>(fechadas.getAllValues());
+        todas.addAll(abertas.getAllValues());
+        return todas;
     }
 
     private static Pair pairOn(LocalDate created) {
