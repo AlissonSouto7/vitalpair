@@ -13,12 +13,12 @@ total daily expenditure, a calorie target and a macro split come out.
 The arithmetic lives in its own package, `tdee`, which has no controller, no
 table and no port to the outside. It is a calculator that `user` calls.
 
-|                   |                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------- |
-| Frontend routes   | `/profile`, `/onboarding`, `/settings`                                                            |
-| Who can access it | authenticated user, their own profile only                                                        |
-| Backend packages  | `com.aps.vitalpair.user` (19 classes, 612 lines), `com.aps.vitalpair.tdee` (5 classes, 127 lines) |
-| Feature flag      | none                                                                                              |
+|                   |                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| Frontend routes   | `/profile`, `/onboarding`, `/settings`                                                              |
+| Who can access it | authenticated user, their own profile only                                                          |
+| Backend packages  | `com.aps.vitalpair.user` (41 classes, 1,991 lines), `com.aps.vitalpair.tdee` (5 classes, 134 lines) |
+| Feature flag      | none                                                                                                |
 
 ## Architecture
 

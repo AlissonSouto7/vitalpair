@@ -20,7 +20,7 @@ that.
 | ----------------- | ------------------------------------------------------------------------- |
 | Frontend routes   | `/meal-plan`, `/workout-plan`                                             |
 | Who can access it | authenticated user; the plan is the caller's own                          |
-| Backend package   | `com.aps.vitalpair.ai` (64 classes, 2,276 lines, the largest feature)     |
+| Backend package   | `com.aps.vitalpair.ai` (64 classes, 2,323 lines, the largest feature)     |
 | Feature flag      | none, but the whole feature returns 503 when `ANTHROPIC_API_KEY` is blank |
 
 ## Architecture

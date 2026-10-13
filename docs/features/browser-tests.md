@@ -52,7 +52,9 @@ npm --prefix frontend run e2e:report   # open the last report
   proves the guard at the production numbers and `RateLimitFilterTest` proves the
   configuration is read. Measured before the change: two consecutive runs of the
   suite already failed, with no new tests, and nobody had seen it because nobody
-  ran it twice in a row. After: three consecutive runs, 19 tests passing in each.
+  ran it twice in a row. After: three consecutive runs, 19 tests passing in each
+  (the suite had 19 then and has 31 now; `npx playwright test --list` is the count
+  that is true today).
 - **The suite is serial, on purpose.** Every test signs in as the same account
   against one backend, and registration is rate-limited to five a minute per
   address. Measured: 10 of 12 passing in parallel against 12 of 12 serially. The

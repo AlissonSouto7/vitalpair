@@ -14,7 +14,7 @@ scoreboard, the feed and the partner's notification.
 | ----------------- | ---------------------------------------------------- |
 | Frontend route    | `/activity`                                          |
 | Who can access it | authenticated user, their own logs only              |
-| Backend package   | `com.aps.vitalpair.activity` (19 classes, 532 lines) |
+| Backend package   | `com.aps.vitalpair.activity` (20 classes, 657 lines) |
 | Feature flag      | none                                                 |
 
 ## Architecture

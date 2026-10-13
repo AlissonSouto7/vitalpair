@@ -17,7 +17,7 @@ estimate costs a correction rather than a wrong row.
 | ----------------- | ------------------------------------------------------- |
 | Frontend route    | `/nutrition`, the photo tab                             |
 | Who can access it | authenticated user                                      |
-| Backend package   | `com.aps.vitalpair.mealvision` (27 classes, 620 lines)  |
+| Backend package   | `com.aps.vitalpair.mealvision` (27 classes, 650 lines)  |
 | Feature flag      | none, but returns 503 when `ANTHROPIC_API_KEY` is blank |
 
 ## Architecture

@@ -17,7 +17,7 @@ It is the second screen anybody sees, and the only time they answer any of this.
 | ----------------- | --------------------------------------------------------------------------------------------------------- |
 | Frontend route    | `/onboarding`                                                                                             |
 | Who can access it | any signed-in account; `RequireOnboarding` sends people here while `profile.goal` is null                 |
-| Frontend package  | `frontend/src/features/onboarding` (1,275 lines)                                                          |
+| Frontend package  | `frontend/src/features/onboarding` (1,446 lines)                                                          |
 | Backend           | no package of its own: it writes through `PUT /users/me` (`user`) and reads `GET /users/me/tdee` (`tdee`) |
 | i18n namespace    | `onboarding`                                                                                              |
 
@@ -110,7 +110,7 @@ npm --prefix frontend exec -- playwright test onboarding
 | Item                                                                    | Impact                                                                                                         | When it is meant to be addressed |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `onboarding.themeToLight/Dark` and `header.light/dark` are now orphaned | Four unused keys across four languages. The parity test does not complain about unused keys, so nothing breaks | Next time either file is touched |
-| `OnboardingPage.tsx` is 353 lines                                       | Above the 300-line lint warning, which is a warning here rather than an error                                  | If another step is added         |
+| `OnboardingPage.tsx` is 357 lines                                       | Above the 300-line lint warning, which is a warning here rather than an error                                  | If another step is added         |
 
 ## History
 

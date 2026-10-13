@@ -19,7 +19,7 @@ comes up, the answer is whatever `nutrition` does.
 | ----------------- | ------------------------------------------------------- |
 | Frontend route    | `/nutrition`                                            |
 | Who can access it | authenticated user; every endpoint requires a token     |
-| Backend package   | `com.aps.vitalpair.nutrition` (57 classes, 2,432 lines) |
+| Backend package   | `com.aps.vitalpair.nutrition` (58 classes, 2,554 lines) |
 | Feature flag      | none                                                    |
 
 ## Architecture
@@ -33,7 +33,7 @@ comes up, the answer is whatever `nutrition` does.
 | Persistence     | `FoodLogJpaEntity`, `FoodLogJpaRepository`, `FoodLogPersistenceAdapter`, `FoodLogPersistenceMapper` (MapStruct); the same four for `CartItem`                                            |
 | Scheduler       | `nutrition/application/scheduler/CartCleanupScheduler.java`, hourly, drops expired carts                                                                                                 |
 | External client | `OpenFoodFactsHttpClient` (RestClient), `OpenFoodFactsAdapter`, `OffResponses`                                                                                                           |
-| Frontend page   | `frontend/src/features/nutrition/NutritionPage.tsx` (368 lines) and `MealDetailModal.tsx`                                                                                                |
+| Frontend page   | `frontend/src/features/nutrition/NutritionPage.tsx` (390 lines) and `MealDetailModal.tsx`                                                                                                |
 | i18n namespace  | `nutrition`                                                                                                                                                                              |
 
 ### Endpoints

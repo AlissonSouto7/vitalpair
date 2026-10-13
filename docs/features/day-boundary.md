@@ -124,8 +124,8 @@ bound as a parameter.
   The window carries no owner, and changing the signature to the window alone
   would have dropped the filter.
 - **Nobody reads another person's zone**: `UserDayUseCase` is only ever called
-  with the authenticated caller's own id, and `TenantIsolationIT` (30 tests) stays
-  green.
+  with the authenticated caller's own id, and `TenantIsolationIT` (34 cases: 11 tests
+  plus the 23 authenticated reads it runs one by one) stays green.
 - **The preference is not sensitive data**: a zone does not identify anyone on its
   own, and it only reaches the log when it is invalid, in which case the rejected
   value is the problem itself.

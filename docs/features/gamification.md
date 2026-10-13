@@ -19,7 +19,7 @@ another's service.
 | ----------------- | ------------------------------------------------------------------ |
 | Frontend route    | `/gamification`, plus the scoreboard and the level on `/dashboard` |
 | Who can access it | authenticated user                                                 |
-| Backend package   | `com.aps.vitalpair.gamification` (41 classes, 1,188 lines)         |
+| Backend package   | `com.aps.vitalpair.gamification` (46 classes, 1,380 lines)         |
 | Feature flag      | none                                                               |
 
 ## Architecture

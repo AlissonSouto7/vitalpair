@@ -18,7 +18,7 @@ reader's language.
 | ----------------- | --------------------------------------------------------------------------------- |
 | Frontend          | the bell in the header, on every authenticated screen; preferences on `/settings` |
 | Who can access it | authenticated user, their own notifications                                       |
-| Backend package   | `com.aps.vitalpair.notification` (31 classes, 971 lines)                          |
+| Backend package   | `com.aps.vitalpair.notification` (31 classes, 987 lines)                          |
 | Feature flag      | none; each automatic type has a per-user preference                               |
 
 ## Architecture

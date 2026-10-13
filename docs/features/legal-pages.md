@@ -27,7 +27,7 @@ promise somebody can be held to.
 | -------------- | ------------------------------------------------------------------------- |
 | Pages          | `features/legal/{PrivacyPage,TermsPage,ContactPage}.tsx`                  |
 | Mail client    | `features/legal/mailto.ts`                                                |
-| Content        | `locales/legal.ts`, 1,430 lines, four languages side by side              |
+| Content        | `locales/legal.ts`, 1,446 lines, four languages side by side              |
 | Loading        | `shared/i18n/useLegalNamespace.ts`, `locales/index.ts#loadLegalNamespace` |
 | i18n namespace | `legal`, loaded on demand                                                 |
 

@@ -182,6 +182,7 @@ findings per feature, fixed and open, are in [docs/features/](docs/features/).
 
 | Document                                     | What it holds                                                                         |
 | -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [docs/](docs/README.md)                      | Index: which kind of writing goes where                                               |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organised and why                                                     |
 | [docs/features/](docs/features/)             | One living document per feature: rules, security findings, tests, what is not covered |
 | [docs/adr/](docs/adr/)                       | Architecture decision records                                                         |
@@ -190,6 +191,7 @@ findings per feature, fixed and open, are in [docs/features/](docs/features/).
 | [SECURITY.md](SECURITY.md)                   | How to report a vulnerability                                                         |
 | [deploy/README.md](deploy/README.md)         | Running it on a server: TLS, backups, deploy with rollback                            |
 | [docs/design/](docs/design/)                 | Mockups, the colour law, voice and tone                                               |
+| [docs/runbooks/](docs/runbooks/)             | What to do on the server: deploy, rollback, restore, certificates                     |
 
 ## Workflow
 

@@ -17,7 +17,7 @@ codebase with no `tenant_id`, and that is deliberate.
 | ----------------- | ---------------------------------------------------- |
 | Frontend route    | `/progress`                                          |
 | Who can access it | authenticated user, their own data only              |
-| Backend package   | `com.aps.vitalpair.progress` (19 classes, 591 lines) |
+| Backend package   | `com.aps.vitalpair.progress` (19 classes, 632 lines) |
 | Feature flag      | none                                                 |
 
 ## Architecture

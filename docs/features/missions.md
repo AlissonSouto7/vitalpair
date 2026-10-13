@@ -19,7 +19,7 @@ Weekly progress is never stored. It is counted from `food_logs` and
 | ----------------- | --------------------------------------------------------- |
 | Frontend route    | `/missions`, plus the flash card on `/dashboard`          |
 | Who can access it | authenticated user; the flash mission belongs to the pair |
-| Backend package   | `com.aps.vitalpair.mission` (36 classes, 1,010 lines)     |
+| Backend package   | `com.aps.vitalpair.mission` (44 classes, 1,535 lines)     |
 | Feature flag      | none                                                      |
 
 ## Architecture

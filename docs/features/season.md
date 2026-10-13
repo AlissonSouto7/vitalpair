@@ -16,12 +16,12 @@ re-summed from `point_events`, the ledger `gamification` writes at the same mome
 it updates the scoreboard. That is the design: one place records what happened, and
 the season derives everything from it.
 
-|                   |                                                    |
-| ----------------- | -------------------------------------------------- |
-| Frontend routes   | `/season`, `/season-end`                           |
-| Who can access it | authenticated user                                 |
-| Backend package   | `com.aps.vitalpair.season` (26 classes, 931 lines) |
-| Feature flag      | none                                               |
+|                   |                                                      |
+| ----------------- | ---------------------------------------------------- |
+| Frontend routes   | `/season`, `/season-end`                             |
+| Who can access it | authenticated user                                   |
+| Backend package   | `com.aps.vitalpair.season` (26 classes, 1,037 lines) |
+| Feature flag      | none                                                 |
 
 ## Architecture
 

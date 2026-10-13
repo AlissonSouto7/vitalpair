@@ -6,8 +6,10 @@ needs the shape of it before reading any single file.
 For what the product is, see the [README](../README.md). This document is about
 the code.
 
-Measured on 2026-09-12: 495 backend classes across 20 feature packages, 16,647
-lines of Java, 28 migrations, 23 mapped tables, 189 frontend modules.
+Measured on 2026-10-13: 546 backend classes across 20 feature packages, 20,219
+lines of Java, 33 migrations, 25 mapped tables, 262 frontend modules. These are
+an order of magnitude, not a fact to maintain: they drift with every commit, and
+`scripts/count-code.sh` recounts them rather than anybody updating them by hand.
 
 ## The shape
 

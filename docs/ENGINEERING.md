@@ -170,10 +170,21 @@ cd frontend && npm ci && npm run dev   # frontend on :5173
 Tests:
 
 ```bash
-./mvnw test                   # unit tests
+./mvnw test                   # unit tests only
 ./mvnw verify                 # full build, including integration tests
 cd frontend && npm run build  # type check and production build
 ```
+
+`verify` is the one that counts. Measured on 2026-10-13: `test` runs 354 unit
+tests and `verify` adds 207 more across 30 integration tests, each booting the
+application against Postgres, Redis and Mailpit in Testcontainers. Calling a
+change green on `test` alone leaves more than a third of the suite unrun, and
+that is how CI has rejected work that passed locally.
+
+Run the frontend suite on an otherwise idle machine. Several of its tests rely
+on `waitFor`, whose default allowance is one second, and the slowest take over
+900 ms with nothing competing for the CPU; running them alongside `./mvnw
+verify` fails four of them for lack of time rather than for any defect.
 
 With `MAIL_ENABLED=false` (the default in development) no e-mail leaves the
 machine and the reset and verification links are not written anywhere. To
