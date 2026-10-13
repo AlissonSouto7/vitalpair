@@ -405,9 +405,12 @@ input.bg-surface:-webkit-autofill:focus {
   /* Mesmo motivo do .input: o contorno de um botão é o que diz onde se pode clicar, e a
      1,17:1 do --hair ele desaparece. A pílula fica com --hair porque não é clicável: é um
      rótulo, e ali o contorno só separa do fundo. */
+  /* min-h-11 (44px): medido em 42px no onboarding, dois pixels abaixo do alvo de toque que
+     um dedo precisa. O preenchimento sozinho não garante altura, porque ela depende da
+     fonte; a altura mínima garante, e não muda nada onde o botão já era maior. */
   .btn-ghost {
-    @apply rounded-xl border border-edge px-4 py-2.5 text-sm font-bold text-muted
-      transition hover:bg-surface;
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl border border-edge px-4
+      py-2.5 text-sm font-bold text-muted transition hover:bg-surface;
   }
   .chip {
     @apply rounded-full border border-hair px-3 py-1 text-xs font-bold text-muted;

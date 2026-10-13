@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
-import { useTheme } from '../../hooks/useTheme'
 import { BrandLockup } from '../brand/BrandMark'
+import { ThemeToggle } from '../ui/ThemeToggle'
 
 /**
  * Layout das telas de auth: split-screen.
@@ -12,7 +12,6 @@ import { BrandLockup } from '../brand/BrandMark'
  */
 export function AuthShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
-  const { theme, toggle } = useTheme()
 
   return (
     <div className="relative flex min-h-screen bg-canvas">
@@ -33,13 +32,17 @@ export function AuthShell({ children }: { children: ReactNode }) {
         {t('auth.backHome')}
       </Link>
 
-      <button
-        onClick={toggle}
-        aria-label={theme === 'dark' ? t('header.light') : t('header.dark')}
-        className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-xl border border-hair bg-surface text-muted transition hover:text-ink"
-      >
-        {theme === 'dark' ? '☀' : '☾'}
-      </button>
+      {/*
+        O componente, e não uma terceira cópia do botão.
+
+        Havia três desenhos do mesmo controle, e eles já tinham divergido: aqui um emoji (☾)
+        de 36px com borda de --hair, no onboarding um SVG de 36px, e no componente um SVG de
+        44px com borda de --edge. O emoji ainda muda de forma conforme o sistema. Os 36px
+        estavam abaixo do alvo de toque, medidos nas duas telas.
+      */}
+      <div className="absolute right-5 top-5 z-20">
+        <ThemeToggle />
+      </div>
 
       {/* Esquerda: arena */}
       <aside className="arena-panel relative hidden w-[34%] max-w-[480px] flex-col justify-between overflow-hidden px-10 py-12 lg:flex">

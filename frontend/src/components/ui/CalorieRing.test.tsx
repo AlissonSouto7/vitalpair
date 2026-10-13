@@ -24,6 +24,18 @@ describe('CalorieRing', () => {
     expect(screen.getByText(/2\.100 kcal/)).toBeInTheDocument()
   })
 
+  it('lets the caller say what the number is, instead of always "de N kcal"', () => {
+    /*
+     * O anel nasceu para o painel do dia, onde "1.336 de 1.336" quer dizer que a pessoa comeu
+     * a meta inteira. O onboarding o reusa cheio para comemorar a meta recém-calculada, e ali
+     * a mesma legenda afirma que ela já comeu tudo antes da primeira refeição.
+     */
+    renderWithProviders(<CalorieRing current={1336} goal={1336} legenda="kcal por dia" />)
+
+    expect(screen.getByText('kcal por dia')).toBeInTheDocument()
+    expect(screen.queryByText(/de 1\.336/)).not.toBeInTheDocument()
+  })
+
   it('groups and words itself in the interface language', async () => {
     // O rótulo era "de {{goal}} kcal" escrito em português dentro do componente, e o número
     // formatado em pt-BR fixo: o anel dizia "de 2.100 kcal" no meio de uma tela em inglês.
