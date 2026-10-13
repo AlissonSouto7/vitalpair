@@ -10,8 +10,20 @@ import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
  * which makes them the part that can leave without the steps having to be untangled first.
  */
 
+/**
+ * O corpo de um passo, com espaço para o rodapé fixo não cobrir o fim.
+ *
+ * O rodapé de "Voltar" e "Continuar" é `sticky bottom-0`, então ele flutua sobre o conteúdo.
+ * Medido num iPhone 12 depois de o campo de peso-alvo entrar no passo 1: o campo ficava em
+ * y=917 numa tela de 844, e o rodapé ocupava de 767 a 844 por cima do que estava atrás. Quem
+ * rolasse até o fim encontrava o último campo escondido sob os botões.
+ *
+ * O padding reserva a altura do rodapé em vez de mexer nele, porque ele tem de continuar
+ * colado embaixo: foi assim que o "Continuar" saiu de y=867, fora da tela, quando este passo
+ * foi montado.
+ */
 export function StepWrap({ children }: { children: ReactNode }) {
-  return <div>{children}</div>
+  return <div className="pb-24">{children}</div>
 }
 
 export function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {

@@ -8,11 +8,16 @@ import { useNavigate } from 'react-router-dom'
 import { joinPair } from '../../api/pair'
 import { getTdee, updateProfile } from '../../api/profile'
 import { BrandMark } from '../../components/brand/BrandMark'
-import { useTheme } from '../../hooks/useTheme'
+import { ThemeToggle } from '../../components/ui/ThemeToggle'
 import type { Tdee } from '../../types/profile'
 import { profileQueries } from '../profile/queries'
 
-import { ABOUT_YOU_FIELDS, onboardingSchema, type OnboardingValues } from './onboardingForm'
+import {
+  ABOUT_YOU_FIELDS,
+  onboardingSchema,
+  targetWeightProblem,
+  type OnboardingValues,
+} from './onboardingForm'
 import { buildActivityOptions, buildGoalOptions, buildSexOptions, buildStepLabels } from './options'
 import { StepAboutYou } from './StepAboutYou'
 import { StepBet, StepPartner, StepRoutine, StepTargets } from './Steps'
@@ -29,7 +34,6 @@ export function OnboardingPage() {
   const inviteId = useId()
   const betId = useId()
   const navigate = useNavigate()
-  const { theme, toggle } = useTheme()
 
   const STEP_LABELS = buildStepLabels(t)
   const SEX_OPTIONS = buildSexOptions(t)
@@ -95,10 +99,28 @@ export function OnboardingPage() {
   async function goNext() {
     setError(null)
 
-    // Only this step's fields: the routine is not on screen yet, so it cannot be answered.
-    if (step === 1 && !(await form.trigger(ABOUT_YOU_FIELDS))) {
-      setError(t('onboarding.errorStep1'))
-      return
+    /*
+     * Os campos deste passo, e as regras que cruzam dois deles.
+     *
+     * `trigger` com uma lista de campos checa cada um contra a própria regra e não executa o
+     * `superRefine` do esquema, que é uma regra de objeto: medido, um alvo de 90 kg para quem
+     * pesa 78 e quer emagrecer passava pelo passo 1 sem aviso e só era recusado pelo servidor,
+     * duas telas depois. Aqui o objeto inteiro é validado e só os erros deste passo importam,
+     * porque a rotina ainda não está na tela para ser respondida.
+     */
+    if (step === 1) {
+      await form.trigger(ABOUT_YOU_FIELDS)
+      const doPasso = ABOUT_YOU_FIELDS.some((campo) => form.getFieldState(campo).error)
+      // Pela função, e não pelo esquema inteiro: o zod só executa refinamentos de objeto
+      // depois que todos os campos passam, e a rotina ainda não foi respondida aqui.
+      const contradiz = targetWeightProblem(form.getValues())
+      if (contradiz) {
+        form.setError('targetWeightKg', { type: 'custom', message: contradiz })
+      }
+      if (doPasso || contradiz) {
+        setError(t('onboarding.errorStep1'))
+        return
+      }
     }
 
     // Leaving step 2 saves the profile and computes the target. The whole form is checked
@@ -218,38 +240,8 @@ export function OnboardingPage() {
             iPhone de 390px, o botão ocupava x 328-364 e o texto x 284-356, ou seja 28px de
             sobreposição, e o passo em que a pessoa estava ficava ilegível.
           */}
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={
-              theme === 'dark' ? t('onboarding.themeToLight') : t('onboarding.themeToDark')
-            }
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-hair bg-surface text-muted transition hover:text-ink"
-          >
-            {theme === 'dark' ? (
-              <svg
-                viewBox="0 0 24 24"
-                className="h-[18px] w-[18px] fill-current"
-                aria-hidden="true"
-              >
-                <path
-                  d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              </svg>
-            ) : (
-              <svg
-                viewBox="0 0 24 24"
-                className="h-[18px] w-[18px] fill-current"
-                aria-hidden="true"
-              >
-                <path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z" />
-              </svg>
-            )}
-          </button>
+          {/* O componente, e não uma segunda cópia: ver a nota no AuthShell. */}
+          <ThemeToggle />
         </div>
 
         {/* One form around every step, so Enter in a field advances the way the button
@@ -309,8 +301,20 @@ export function OnboardingPage() {
               )}
             </div>
 
+            {/*
+              `role="alert"`: sem ele, esta mensagem aparecia em silêncio.
+
+              Medido no passo da parceria com um código errado: o servidor responde 404, a
+              tela escreve "Convite inválido" e o formulário não avança. Para quem vê, o
+              vermelho explica; para quem usa leitor de tela, o botão simplesmente não fez
+              nada. É o único aviso de erro do onboarding inteiro, então cobre também a falha
+              ao calcular a meta e o campo que faltou.
+            */}
             {error && (
-              <p className="mt-4 rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger">
+              <p
+                role="alert"
+                className="mt-4 rounded-xl bg-danger-soft px-3 py-2 text-sm font-semibold text-danger"
+              >
                 {error}
               </p>
             )}

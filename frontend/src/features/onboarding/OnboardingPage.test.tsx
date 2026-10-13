@@ -135,6 +135,42 @@ describe('OnboardingPage step 1', () => {
       screen.getByRole('button', { name: new RegExp(i18n.t('onboarding.goalLoseLabel')) }),
     ).toHaveAttribute('aria-pressed', 'true')
   })
+
+  it('asks where the person wants to get to, once the goal is about weight', async () => {
+    const { user } = mount()
+    await fillAboutYou(user)
+
+    /*
+     * Sem esta resposta o produto sabe que a pessoa quer perder peso e não sabe quanto, então
+     * não tem como mostrar progresso: o painel mostrava o peso de hoje e uma frase pedindo para
+     * registrar de novo, mesmo para quem já tinha registrado seis dias seguidos.
+     */
+    expect(screen.getByLabelText(i18n.t('onboarding.targetWeightLabel'))).toBeInTheDocument()
+  })
+
+  it('does not ask for a target weight from somebody keeping their weight', async () => {
+    const { user } = mount()
+    await fillAboutYou(user)
+
+    await user.click(
+      screen.getByRole('button', { name: new RegExp(i18n.t('onboarding.goalMaintainLabel')) }),
+    )
+
+    // "Manter o peso" não tem alvo: perguntar seria uma pergunta que nunca foi feita.
+    expect(screen.queryByLabelText(i18n.t('onboarding.targetWeightLabel'))).not.toBeInTheDocument()
+  })
+
+  it('refuses a target that contradicts the goal, before the round trip', async () => {
+    const { user, calls } = mount()
+    await fillAboutYou(user)
+
+    // Quer perder peso e digita um alvo acima do peso de hoje: provavelmente trocou os números.
+    await user.type(screen.getByLabelText(i18n.t('onboarding.targetWeightLabel')), '90')
+    await user.click(continueButton())
+
+    expect(await screen.findByText(i18n.t('onboarding.targetAboveCurrent'))).toBeInTheDocument()
+    expect(calls).toHaveLength(0)
+  })
 })
 
 describe('OnboardingPage step 2', () => {
@@ -169,6 +205,10 @@ describe('OnboardingPage step 2', () => {
         sex: 'MALE',
         heightCm: 179,
         weightKg: 78,
+        // Quem não respondeu o peso-alvo manda null, e não o campo ausente: o servidor trata
+        // ausente como "deixa como está", que é o certo para um formulário parcial e o errado
+        // aqui, onde a pessoa passou pela pergunta e escolheu não responder.
+        targetWeightKg: null,
         goal: 'LOSE_WEIGHT',
         activityLevel: 'MODERATE',
       },

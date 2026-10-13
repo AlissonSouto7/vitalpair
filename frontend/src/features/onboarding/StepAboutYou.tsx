@@ -32,8 +32,11 @@ export function StepAboutYou({
   const {
     register,
     control,
+    watch,
     formState: { errors },
   } = useFormContext<OnboardingValues>()
+  // O campo do alvo só faz sentido para quem persegue um peso.
+  const objetivo = watch('goal')
 
   return (
     <StepWrap>
@@ -177,6 +180,59 @@ export function StepAboutYou({
           />
         )}
       </Field>
+
+      {/*
+        Aonde ela quer chegar, perguntado só a quem tem para onde ir.
+        
+        Sem esta resposta o produto sabe que a pessoa quer perder peso e não sabe quanto, então
+        não tem como mostrar progresso: o painel mostrava o peso de hoje e uma frase pedindo
+        para registrar de novo, mesmo para quem já tinha registrado seis dias seguidos. Havia
+        esforço medido e nenhum avanço mostrado.
+
+        Quem escolheu manter o peso ou melhorar o condicionamento não vê o campo: ali um
+        peso-alvo não quer dizer nada, e perguntar seria uma pergunta que nunca foi feita.
+        Opcional mesmo para quem vê, porque nem todo mundo quer dizer um número.
+      */}
+      {(objetivo === 'LOSE_WEIGHT' || objetivo === 'GAIN_MUSCLE') && (
+        <div className="mt-4">
+          <Field
+            label={t('onboarding.targetWeightLabel')}
+            hint={t('onboarding.targetWeightHint')}
+            error={
+              errors.targetWeightKg &&
+              t(
+                errors.targetWeightKg.message === 'targetBelowCurrent'
+                  ? 'onboarding.targetBelowCurrent'
+                  : errors.targetWeightKg.message === 'targetAboveCurrent'
+                    ? 'onboarding.targetAboveCurrent'
+                    : 'onboarding.targetWeightInvalid',
+              )
+            }
+          >
+            {(field) => (
+              <Unit unit="kg">
+                <input
+                  id={field.id}
+                  aria-describedby={field['aria-describedby']}
+                  aria-invalid={field['aria-invalid']}
+                  type="number"
+                  min={20}
+                  max={500}
+                  step="0.1"
+                  inputMode="decimal"
+                  placeholder={t('onboarding.targetWeightPlaceholder')}
+                  className="input pr-10"
+                  {...register('targetWeightKg', {
+                    // Vazio é "não quis dizer", e não zero: `valueAsNumber` sozinho devolve
+                    // NaN para campo vazio, que falharia a validação de quem só não respondeu.
+                    setValueAs: (v) => (v === '' || v == null ? null : Number(v)),
+                  })}
+                />
+              </Unit>
+            )}
+          </Field>
+        </div>
+      )}
     </StepWrap>
   )
 }

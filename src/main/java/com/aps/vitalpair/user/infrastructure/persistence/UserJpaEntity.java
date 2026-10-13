@@ -81,6 +81,9 @@ public class UserJpaEntity {
     @Column(name = "weight_kg")
     private BigDecimal weightKg;
 
+    @Column(name = "target_weight_kg")
+    private BigDecimal targetWeightKg;
+
     @Enumerated(EnumType.STRING)
     private Goal goal;
 

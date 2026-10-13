@@ -24,6 +24,7 @@ export const profileFixture: UserProfile = {
   sex: 'MALE',
   heightCm: 175,
   weightKg: 78,
+  targetWeightKg: null,
   goal: 'LOSE_WEIGHT',
   activityLevel: 'MODERATE',
   dailyCalorieTarget: 2100,

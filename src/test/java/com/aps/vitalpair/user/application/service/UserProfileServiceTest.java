@@ -68,6 +68,9 @@ class UserProfileServiceTest {
                 Sex.FEMALE,
                 BigDecimal.valueOf(165),
                 BigDecimal.valueOf(65),
+                // Sem peso-alvo: estes testes são sobre o cálculo da meta, e a barra de
+                // progresso do objetivo tem os seus próprios.
+                null,
                 Goal.LOSE_WEIGHT,
                 ActivityLevel.LIGHT,
                 null,
@@ -129,6 +132,9 @@ class UserProfileServiceTest {
                 Sex.FEMALE,
                 BigDecimal.valueOf(165),
                 BigDecimal.valueOf(65),
+                // Sem peso-alvo: estes testes são sobre o cálculo da meta, e a barra de
+                // progresso do objetivo tem os seus próprios.
+                null,
                 Goal.LOSE_WEIGHT,
                 ActivityLevel.LIGHT,
                 null,
