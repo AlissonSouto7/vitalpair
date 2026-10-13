@@ -7,11 +7,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { fmtDate, fmtKg } from './format'
+import { fmtDate } from './format'
 import { WeightForm } from './WeightForm'
 
 import { profileQueries } from '@/features/profile/queries'
 import { weightVerdict, weightVerdictClass } from '@/features/progress/weightVerdict'
+import { fmtKg } from '@/shared/format/weight'
 import type { CalorieDay, MacroAverage, WeightPoint } from '@/types/progress'
 
 /** Which panel the screen is showing. */

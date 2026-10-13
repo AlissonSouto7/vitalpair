@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 
-import { BoltIcon, CheckIcon } from './icons'
-import { initial, timeAgo, type TFn } from './text'
+import { BoltIcon } from './icons'
+import { timeAgo, type TFn } from './text'
 
 import { Avatar } from '@/components/ui/Avatar'
+import { CheckIcon } from '@/components/ui/icons'
 import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
 import { feedHeadline } from '@/features/feed/headline'
 import { flashCopy } from '@/features/missions/missionCopy'
+import { initial } from '@/shared/format/name'
 import type { FeedItem } from '@/types/feed'
 import type { FlashMission } from '@/types/missions'
 

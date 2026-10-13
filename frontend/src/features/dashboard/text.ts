@@ -18,10 +18,6 @@ export function greeting(t: TFn): string {
   return t('dashboard.greetingEvening')
 }
 
-export function initial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || 'A'
-}
-
 /**
  * The day, written the way the reader's language writes it.
  *

@@ -2,6 +2,6 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["e2e/**/*.spec.ts", "e2e/support/*.setup.ts"],
   "project": ["src/**/*.{ts,tsx}", "e2e/**/*.ts"],
-  "ignore": ["src/components/ui/Button.tsx"],
+  "ignore": ["src/i18next.d.ts"],
   "ignoreExportsUsedInFile": true
 }

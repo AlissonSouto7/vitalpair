@@ -5,8 +5,11 @@ import { Link } from 'react-router-dom'
 import type { SeasonHistoryItem, SeasonView } from '../../types/season'
 import { profileQueries } from '../profile/queries'
 
-import { BowlIcon, Confetti, ScopedStyles, ScoreSide, StarIcon, TrophyIcon } from './endParts'
-import { initial, lowerFirst } from './endText'
+import { BowlIcon, Confetti, ScopedStyles, ScoreSide, TrophyIcon } from './endParts'
+import { lowerFirst } from './endText'
+import { StarIcon } from './icons'
+
+import { initial } from '@/shared/format/name'
 
 /**
  * Fim de temporada, a ÚNICA tela de celebração do app (dados reais).
@@ -115,7 +118,7 @@ export function SeasonEndPage() {
             />
 
             <div className="flex flex-col items-center gap-1 px-2">
-              <StarIcon />
+              <StarIcon className="h-[26px] w-[26px] fill-success" />
               <span className="whitespace-nowrap text-[10px] font-extrabold text-success-ink">
                 {tie ? t('seasonEnd.tieShort') : t('seasonEnd.lead', { lead })}
               </span>

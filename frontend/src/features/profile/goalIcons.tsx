@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 
-import { IconDown, IconEqual, IconMuscle, IconSpark } from './icons'
+import { IconDown, IconEqual, IconMuscle } from './icons'
 
+import { IconSpark } from '@/components/ui/icons'
 import type { Goal } from '@/types/profile'
 
 /**

@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BoltIcon, CheckIcon, UsersIcon } from './icons'
+import { BoltIcon, UsersIcon } from './icons'
 import { flashCopy, weeklyCopy } from './missionCopy'
-import { firstName, formatRemaining, progressLabelKey, WEEKLY_ICON } from './missionText'
+import { formatRemaining, progressLabelKey, WEEKLY_ICON } from './missionText'
 
 import { acceptFlashMission, cancelFlashMission } from '@/api/missions'
 import { Points } from '@/components/ui/Badge'
+import { CheckIcon } from '@/components/ui/icons'
+import { firstName } from '@/shared/format/name'
 import type { FlashMission as FlashMissionT, WeeklyMission } from '@/types/missions'
 
 /**

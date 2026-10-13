@@ -1,9 +1,13 @@
 /**
  * The celebration screen's own pieces.
  *
- * Moved out of SeasonEndPage verbatim, markup untouched. Its TrophyIcon, StarIcon and
- * initial look like duplicates of the ones next door and are not: the fallback initial here
- * is 'P' where the other is '?', and the icons differ too.
+ * Moved out of SeasonEndPage verbatim, markup untouched. A note here used to claim its
+ * TrophyIcon, StarIcon and initial only looked like duplicates of the ones next door.
+ * Measured, one of the three was true: `TrophyIcon` really is a different drawing, a
+ * different path and not a copy, so it stays. `StarIcon` had a byte-identical path and the
+ * screen now takes it from ./icons, passing in the green this screen fixed by hand; `initial` was the same two lines with 'P'
+ * as the fallback, which read as the initial of a person named P, and it comes from
+ * shared/format/name with '?'.
  */
 
 import { Avatar } from '@/components/ui/Avatar'
@@ -76,14 +80,6 @@ export function TrophyIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <path d="M18 2H6v2H3a1 1 0 0 0-1 1v2a4 4 0 0 0 4 4 6 6 0 0 0 5 3.91V18H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-3.09A6 6 0 0 0 18 11a4 4 0 0 0 4-4V5a1 1 0 0 0-1-1h-3V2ZM4 7V6h2v3a2 2 0 0 1-2-2Zm16 0a2 2 0 0 1-2 2V6h2v1ZM7 21a1 1 0 0 0 0 2h10a1 1 0 0 0 0-2H7Z" />
-    </svg>
-  )
-}
-
-export function StarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-success" aria-hidden="true">
-      <path d="M12 2l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17l-5.8 3 1.1-6.5L2.6 8.8l6.5-.9z" />
     </svg>
   )
 }

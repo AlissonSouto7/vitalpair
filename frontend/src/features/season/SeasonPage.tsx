@@ -8,11 +8,11 @@ import { pairQueries } from '../pair/queries'
 import { profileQueries } from '../profile/queries'
 
 import { ClockIcon, DishIcon, MedalIcon, TrophyIcon } from './icons'
-import { firstName, initial } from './names'
 import { BreakdownRow, DayChart, HistoryRow, Legend, Stat } from './parts'
 import { stakeText } from './stake'
 
 import { avatarUrl } from '@/shared/api/avatarUrl'
+import { firstName, initial } from '@/shared/format/name'
 
 export function SeasonPage() {
   const { t } = useTranslation()

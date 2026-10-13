@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-import { fmtKg } from './format'
 import { type TFn } from './profileForm'
 
 import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
@@ -10,6 +9,7 @@ import {
   weightVerdictClass,
   type WeightVerdict,
 } from '@/features/progress/weightVerdict'
+import { fmtKg } from '@/shared/format/weight'
 import type { Goal } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
 

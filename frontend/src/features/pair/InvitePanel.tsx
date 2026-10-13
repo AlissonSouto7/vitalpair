@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { initial, type TFn } from './pairText'
+import { type TFn } from './pairText'
 import { IconCheck, IconCopy, IconKey, IconPlus, IconQuestion, RelationCard } from './shared'
 
 import { refreshSession } from '@/api/auth'
@@ -12,6 +12,7 @@ import { BrandMark } from '@/components/brand/BrandMark'
 import { Avatar } from '@/components/ui/Avatar'
 import { avatarUrl } from '@/shared/api/avatarUrl'
 import { getApiErrorMessage } from '@/shared/api/errors'
+import { initial } from '@/shared/format/name'
 import { FormError } from '@/shared/ui/form/FormError'
 import type { Pair, PairMember, RelationshipType } from '@/types/pair'
 
