@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
@@ -15,7 +16,15 @@ import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Sex;
 
 public record UpdateProfileRequest(
-        @NotNull @Size(min = 1, max = 100) String name,
+        /*
+         * @NotBlank, not @Size(min = 1): a name of one space has length 1 and used to pass.
+         * Measured against this very record before the change: " ", "   " and "\t" all
+         * validated with zero violations, while registration, which uses @NotBlank, refuses
+         * them. The service writes the value through without trimming, so the blank reached
+         * the database and every screen that shows an initial fell back to a placeholder
+         * letter for a name the person could not see or fix.
+         */
+        @NotBlank @Size(max = 100) String name,
         @NotNull @Past LocalDate birthDate,
         @NotNull Sex sex,
         @NotNull @DecimalMin("50.0") @DecimalMax("300.0") BigDecimal heightCm,
