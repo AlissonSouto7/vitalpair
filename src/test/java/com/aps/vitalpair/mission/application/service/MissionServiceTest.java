@@ -58,9 +58,13 @@ class MissionServiceTest {
     @Mock
     private UserRepositoryPort userRepository;
 
+    @Mock
+    private MissionRewardService rewardService;
+
     private MissionService serviceOn(LocalDate today) {
         Clock fixed = Clock.fixed(today.atTime(9, 0).atZone(SAO_PAULO).toInstant(), SAO_PAULO);
-        return new MissionService(catalogRepository, pairMissionRepository, userRepository, fixed, SAO_PAULO.getId());
+        return new MissionService(
+                catalogRepository, pairMissionRepository, userRepository, rewardService, fixed, SAO_PAULO.getId());
     }
 
     @Test

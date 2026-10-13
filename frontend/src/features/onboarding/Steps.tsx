@@ -57,10 +57,17 @@ export function StepTargets({ t, tdee }: { t: TFunction; tdee: Tdee }) {
         <p className="mb-5 text-sm font-semibold text-muted">{t('onboarding.step3Subtitle')}</p>
 
         <div className="mb-5 flex justify-center">
+          {/*
+            O anel cheio comemora a meta recém-calculada, mas a legenda padrão dele é a do
+            painel do dia: "1.336 de 1.336 kcal" afirma que a pessoa já comeu tudo, antes de
+            ela ter registrado a primeira refeição. Aqui o número é a meta, e a legenda diz
+            isso.
+          */}
           <CalorieRing
             current={tdee.dailyCalorieTarget}
             goal={tdee.dailyCalorieTarget}
             size={200}
+            legenda={t('onboarding.targetPerDay')}
           />
         </div>
 
@@ -194,13 +201,19 @@ export function StepBet({
         className="input mb-3.5 border-brand focus:border-brand"
       />
 
+      {/*
+        `min-h-11` e `border-edge`: medidas num iPhone 12, estas sugestões tinham 34px de
+        altura, dez abaixo do alvo que um dedo acerta, e a borda de --hair que some contra o
+        fundo. São três pílulas lado a lado numa tela estreita, ou seja exatamente onde errar
+        o alvo escreve a aposta errada na tela.
+      */}
       <div className="mb-6 flex flex-wrap gap-2">
         {betSuggestions.map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => setBet(t('onboarding.betPrefix', { bet: s }))}
-            className="rounded-full border border-hair bg-surface px-3 py-2 text-xs font-bold text-ink transition hover:border-brand/60"
+            className="inline-flex min-h-11 items-center rounded-full border border-edge bg-surface px-3.5 py-2 text-xs font-bold text-ink transition hover:border-brand/60"
           >
             {s}
           </button>

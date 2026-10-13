@@ -11,6 +11,14 @@ export interface UserProfile {
   sex: Sex | null
   heightCm: number | null
   weightKg: number | null
+  /**
+   * Quanto a pessoa quer chegar a pesar.
+   *
+   * Nulo é um estado legítimo: quem escolheu manter o peso não tem alvo, e quem não quis
+   * dizer também não. A tela mostra a barra de progresso quando existe e oferece defini-lo
+   * quando não existe, em vez de inventar um a partir de IMC.
+   */
+  targetWeightKg: number | null
   goal: Goal | null
   activityLevel: ActivityLevel | null
   dailyCalorieTarget: number | null
@@ -32,6 +40,8 @@ export interface UpdateProfilePayload {
   sex: Sex
   heightCm: number
   weightKg: number
+  /** Opcional: quem escolheu manter o peso não tem alvo. Omitir deixa o guardado como está. */
+  targetWeightKg?: number | null
   goal: Goal
   activityLevel: ActivityLevel
   avatarUrl?: string | null

@@ -20,6 +20,11 @@ public record UpdateProfileRequest(
         @NotNull Sex sex,
         @NotNull @DecimalMin("50.0") @DecimalMax("300.0") BigDecimal heightCm,
         @NotNull @DecimalMin("20.0") @DecimalMax("500.0") BigDecimal weightKg,
+        /*
+         * Opcional: quem escolheu manter o peso não tem alvo, e quem não quis dizer também
+         * não. A faixa é a mesma do peso atual, porque é a mesma grandeza.
+         */
+        @DecimalMin("20.0") @DecimalMax("500.0") BigDecimal targetWeightKg,
         @NotNull Goal goal,
         @NotNull ActivityLevel activityLevel,
         /*

@@ -21,6 +21,7 @@ function profile(over: Partial<UserProfile> = {}): UserProfile {
     sex: null,
     heightCm: null,
     weightKg: null,
+    targetWeightKg: null,
     goal: null,
     activityLevel: null,
     dailyCalorieTarget: null,

@@ -1,5 +1,6 @@
 package com.aps.vitalpair.user.application.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import com.aps.vitalpair.tdee.domain.model.TdeeInput;
 import com.aps.vitalpair.tdee.domain.model.TdeeResult;
 import com.aps.vitalpair.tdee.domain.port.in.CalculateTargetsUseCase;
 import com.aps.vitalpair.user.application.dto.UpdateProfileCommand;
+import com.aps.vitalpair.user.domain.model.Goal;
 import com.aps.vitalpair.user.domain.model.Mascot;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.in.ChooseMascotUseCase;
@@ -62,12 +64,15 @@ public class UserProfileService
                 command.activityLevel(),
                 command.goal()));
 
+        BigDecimal alvo = resolveTargetWeight(command, user);
+
         User updated = user.toBuilder()
                 .name(command.name())
                 .birthDate(command.birthDate())
                 .sex(command.sex())
                 .heightCm(command.heightCm())
                 .weightKg(command.weightKg())
+                .targetWeightKg(alvo)
                 .goal(command.goal())
                 .activityLevel(command.activityLevel())
                 // Same rule as the zone below, and it was missing here. The photo is set by its
@@ -108,6 +113,38 @@ public class UserProfileService
                 user.getWeightKg(),
                 user.getActivityLevel(),
                 user.getGoal()));
+    }
+
+    /**
+     * O peso que a pessoa quer atingir, quando ele faz sentido.
+     *
+     * <p>Ausente quer dizer "deixa como está", pela mesma razão do fuso e da foto acima: um
+     * cliente que não manda o campo é um cliente que ainda não o conhece, e ele não pode
+     * apagar o que a pessoa definiu em outro lugar.
+     *
+     * <p>Um alvo que contradiz o objetivo é recusado com o motivo, e não corrigido em
+     * silêncio: quem quer perder peso e digita um alvo maior que o atual provavelmente
+     * trocou os números de lugar, e o aplicativo escolher por ela daria um objetivo que ela
+     * não pediu. Manter o peso e melhorar o condicionamento não têm alvo de peso, então um
+     * valor ali é uma pergunta que nunca foi feita: some junto com o objetivo.
+     */
+    private BigDecimal resolveTargetWeight(UpdateProfileCommand command, User user) {
+        BigDecimal pedido = command.targetWeightKg() != null ? command.targetWeightKg() : user.getTargetWeightKg();
+        if (pedido == null) {
+            return null;
+        }
+        Goal objetivo = command.goal();
+        if (objetivo == Goal.MAINTAIN || objetivo == Goal.IMPROVE_FITNESS) {
+            return null;
+        }
+        BigDecimal atual = command.weightKg();
+        if (objetivo == Goal.LOSE_WEIGHT && pedido.compareTo(atual) >= 0) {
+            throw new BusinessRuleException("Pra perder peso, o alvo precisa ser menor que seu peso de hoje.");
+        }
+        if (objetivo == Goal.GAIN_MUSCLE && pedido.compareTo(atual) <= 0) {
+            throw new BusinessRuleException("Pra ganhar massa, o alvo precisa ser maior que seu peso de hoje.");
+        }
+        return pedido;
     }
 
     private int ageFrom(LocalDate birthDate) {

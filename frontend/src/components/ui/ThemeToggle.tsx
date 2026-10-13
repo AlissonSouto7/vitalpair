@@ -22,7 +22,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={theme === 'dark' ? t('common.themeToLight') : t('common.themeToDark')}
-      className="flex h-9 w-9 items-center justify-center rounded-xl border border-edge text-ink transition hover:bg-track"
+      className="flex h-11 w-11 items-center justify-center rounded-xl border border-edge text-ink transition hover:bg-track"
     >
       {theme === 'dark' ? (
         /*

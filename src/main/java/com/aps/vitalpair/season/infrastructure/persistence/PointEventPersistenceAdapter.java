@@ -42,4 +42,11 @@ public class PointEventPersistenceAdapter implements PointEventRepositoryPort {
     public List<SourceUserPoints> sumBySourceAndUser(UUID tenantId, Instant start, Instant end) {
         return repository.sumBySourceAndUser(tenantId, start, end);
     }
+
+    @Override
+    public long sumLifetime(UUID userId) {
+        // SUM de nada é nulo, e quem nunca pontuou tem zero, não "não sei".
+        Long total = repository.sumLifetimeByUser(userId);
+        return total != null ? total : 0L;
+    }
 }

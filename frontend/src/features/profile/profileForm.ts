@@ -51,6 +51,14 @@ export const profileSchema = z.object({
   sex: z.enum(SEX_VALUES),
   heightCm: z.number().min(50).max(300),
   weightKg: z.number().min(20).max(500),
+  /**
+   * Quanto a pessoa quer chegar a pesar.
+   *
+   * Opcional aqui, e não no esquema de quem tem objetivo de peso: quem escolheu manter o peso
+   * ou melhorar o condicionamento não tem alvo, e exigir um seria uma pergunta que nunca foi
+   * feita. A coerência com o objetivo é checada onde o objetivo existe, logo abaixo.
+   */
+  targetWeightKg: z.number().min(20).max(500).nullable().optional(),
 })
 
 export const editSchema = profileSchema.extend({

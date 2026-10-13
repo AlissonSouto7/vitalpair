@@ -5,6 +5,7 @@ import { initial, timeAgo, type TFn } from './text'
 
 import { Avatar } from '@/components/ui/Avatar'
 import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
+import { feedHeadline } from '@/features/feed/headline'
 import { flashCopy } from '@/features/missions/missionCopy'
 import type { FeedItem } from '@/types/feed'
 import type { FlashMission } from '@/types/missions'
@@ -137,7 +138,13 @@ export function FeedPreview({
                 size={34}
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-ink">{it.title}</p>
+                {/*
+                  Pela mesma função da tela do mural, e não por `it.title`: aquele é o campo
+                  legado, nulo em todo item novo. Medido em 28/09/2026, quatro refeições
+                  recém-registradas apareciam aqui sem nome nenhum, enquanto a API devolvia
+                  "Arroz branco cozido" e "Feijão carioca cozido" corretamente.
+                */}
+                <p className="truncate text-[13px] font-bold text-ink">{feedHeadline(it, t)}</p>
                 <p className="text-[11px] font-semibold text-muted">{timeAgo(it.createdAt, t)}</p>
               </div>
             </div>

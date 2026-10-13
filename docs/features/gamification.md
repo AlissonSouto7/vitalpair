@@ -2,20 +2,25 @@
 
 - **Status**: shipped
 - **Owner**: @AlissonSouto7
-- **Last updated**: 2026-09-06
+- **Last updated**: 2026-10-13
 
 ## What it is and where it lives
 
-The points, the streaks, the badges and the weekly scoreboard. Nothing here is
-triggered by a request: the feature listens for meals, activities and pair
-formation, and reacts. That is why the endpoints are all reads.
+The points, the streaks, the badges, the level and the weekly scoreboard. Almost
+nothing here is triggered by a request: the feature listens for meals, activities
+and pair formation, and reacts. That is why the endpoints are all reads.
 
-|                   |                                                            |
-| ----------------- | ---------------------------------------------------------- |
-| Frontend route    | `/gamification`, plus the scoreboard on `/dashboard`       |
-| Who can access it | authenticated user                                         |
-| Backend package   | `com.aps.vitalpair.gamification` (41 classes, 1,188 lines) |
-| Feature flag      | none                                                       |
+The one thing another feature calls directly is `AwardPointsUseCase`, which the
+mission reward uses. It exists as a port because there is now a second place that
+grants points, and the architecture rule forbids one feature reaching into
+another's service.
+
+|                   |                                                                    |
+| ----------------- | ------------------------------------------------------------------ |
+| Frontend route    | `/gamification`, plus the scoreboard and the level on `/dashboard` |
+| Who can access it | authenticated user                                                 |
+| Backend package   | `com.aps.vitalpair.gamification` (41 classes, 1,188 lines)         |
+| Feature flag      | none                                                               |
 
 ## Architecture
 
@@ -39,6 +44,10 @@ All reads, all authenticated.
 | GET    | `/api/v1/gamification/competition`    | This week's scoreboard for the pair |
 | GET    | `/api/v1/gamification/badges`         | Badges the caller has earned        |
 | GET    | `/api/v1/gamification/badges/catalog` | Every badge that exists             |
+| GET    | `/api/v1/gamification/level`          | The caller's level and what is left |
+
+The level endpoint is the only read that owns no table: it sums `point_events`,
+which belongs to `season`.
 
 ### Events
 
@@ -55,6 +64,9 @@ and a ledger write.
 
 ### Data
 
+The level has no table of its own: it is `Level.of(sum(point_events.points))` for
+the caller, and `point_events` belongs to `season`.
+
 | Table                | Created in                    | Notes                                                                                    |
 | -------------------- | ----------------------------- | ---------------------------------------------------------------------------------------- |
 | `user_streaks`       | `V4__create_gamification.sql` | `UNIQUE (user_id, type)`, `type IN ('NUTRITION_LOG','ACTIVITY')`                         |
@@ -65,21 +77,24 @@ and a ledger write.
 
 ## Business rules
 
-| #    | Rule                                                                                          | Why                                                                                                                                                                                          |
-| ---- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R-1  | A meal is 10 points, an activity 15                                                           | Activity is harder to do than to log                                                                                                                                                         |
-| R-2  | Only the **first** record of a type per day scores                                            | Otherwise logging breakfast ten times farms points. This is the only defence against that, and it lives in `StreakService.registerActivity` returning empty when the day has already counted |
-| R-3  | A backdated record never scores                                                               | Same guard, same line: `!date.isAfter(last)` covers both today and any earlier date                                                                                                          |
-| R-4  | A streak continues only on the immediately following day; any larger gap resets it to 1       | That is what a streak means                                                                                                                                                                  |
-| R-5  | The longest streak never decreases                                                            | It is a personal record, not a current state                                                                                                                                                 |
-| R-6  | Every seventh consecutive day is worth 50 extra points                                        | It is a modulo, not a threshold, so it fires at 7, 14, 21 and onward                                                                                                                         |
-| R-7  | Badges are idempotent: awarding one already held does nothing                                 | Enforced twice, in the service and by `UNIQUE (user_id, badge_id)`                                                                                                                           |
-| R-8  | An unknown badge code is a no-op, not an exception                                            | A typo in a code must not fail the listener and lose the whole award                                                                                                                         |
-| R-9  | The week runs Monday to Sunday                                                                | `TemporalAdjusters.previousOrSame(MONDAY)`, matching the season and the plans                                                                                                                |
-| R-10 | A tie has no weekly winner: `winner_id` stays null                                            | There is no tie-break, and inventing one would be arbitrary                                                                                                                                  |
-| R-11 | The scoreboard and the ledger are written at the same point, in the same order                | The season screen never reads the scoreboard; it re-sums `point_events`. The two must agree, which is only true if they are written together                                                 |
-| R-12 | The overtake notification fires on the transition only, and goes to the person who was passed | Notifying on every point would be noise; notifying the person who moved ahead would be pointless                                                                                             |
-| R-13 | A listener failure never rolls back the meal or activity that triggered it                    | `AFTER_COMMIT` with `REQUIRES_NEW`. Losing points is bad; losing the meal the person logged is worse                                                                                         |
+| #    | Rule                                                                                          | Why                                                                                                                                                                                                                                                                                |
+| ---- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-1  | A meal is 10 points, an activity 15                                                           | Activity is harder to do than to log                                                                                                                                                                                                                                               |
+| R-2  | Only the **first** record of a type per day scores                                            | Otherwise logging breakfast ten times farms points. This is the only defence against that, and it lives in `StreakService.registerActivity` returning empty when the day has already counted                                                                                       |
+| R-3  | A backdated record never scores                                                               | Same guard, same line: `!date.isAfter(last)` covers both today and any earlier date                                                                                                                                                                                                |
+| R-4  | A streak continues only on the immediately following day; any larger gap resets it to 1       | That is what a streak means                                                                                                                                                                                                                                                        |
+| R-5  | The longest streak never decreases                                                            | It is a personal record, not a current state                                                                                                                                                                                                                                       |
+| R-6  | Every seventh consecutive day is worth 50 extra points                                        | It is a modulo, not a threshold, so it fires at 7, 14, 21 and onward                                                                                                                                                                                                               |
+| R-7  | Badges are idempotent: awarding one already held does nothing                                 | Enforced twice, in the service and by `UNIQUE (user_id, badge_id)`                                                                                                                                                                                                                 |
+| R-8  | An unknown badge code is a no-op, not an exception                                            | A typo in a code must not fail the listener and lose the whole award                                                                                                                                                                                                               |
+| R-9  | The week runs Monday to Sunday                                                                | `TemporalAdjusters.previousOrSame(MONDAY)`, matching the season and the plans                                                                                                                                                                                                      |
+| R-10 | A tie has no weekly winner: `winner_id` stays null                                            | There is no tie-break, and inventing one would be arbitrary                                                                                                                                                                                                                        |
+| R-11 | The scoreboard and the ledger are written at the same point, in the same order                | The season screen never reads the scoreboard; it re-sums `point_events`. The two must agree, which is only true if they are written together                                                                                                                                       |
+| R-12 | The overtake notification fires on the transition only, and goes to the person who was passed | Notifying on every point would be noise; notifying the person who moved ahead would be pointless                                                                                                                                                                                   |
+| R-13 | A listener failure never rolls back the meal or activity that triggered it                    | `AFTER_COMMIT` with `REQUIRES_NEW`. Losing points is bad; losing the meal the person logged is worse                                                                                                                                                                               |
+| R-14 | The level is summed from the whole ledger, with no season and no tenant filter                | It is the effort somebody accumulated. It must not reset when a season closes or when they change partner, which is exactly what the browser-side sum did: it added the current season to the history the API chose to return, so a paginated history would have dropped the level |
+| R-15 | The level is computed on read rather than stored in a column                                  | A column would be a second place saying what the ledger already says, and the two would disagree the first time points were granted through a path that forgot to update it. If the sum ever costs, the column is fed from this one point                                          |
+| R-16 | The curve is the one that was in the browser, threshold for threshold                         | Moving it to the server must not move anybody's level. The first eight are handmade, because that is where one level to the next is felt; from the ninth it is 1,500 points each                                                                                                   |
 
 ## Security findings
 
@@ -121,14 +136,17 @@ and a ledger write.
 ./mvnw verify -Dit.test=ConcurrentScoringIT
 ```
 
+| `LevelTest` (24 cases) | unit | R-16: the curve threshold by threshold, matching the one that was in the browser; how much is left; the bar measuring the current level and not the whole journey; zero, negative and the ceiling |
+| `LevelIT` (4 cases) | integration | R-14 and R-15 against a real database: a new account at level 1, the number following what the ledger holds, the bar moving as somebody logs, and the level surviving a season rolling over |
+
 ### What is not covered
 
-- **`GamificationEventListener` has no unit test.** Every constant that defines the point
-  economy, the milestone modulo, the ledger mirroring and the overtake predicate lives in
-  an untested class. Changing `MEAL_POINTS` to 100 breaks no test. `ConcurrentScoringIT`
-  exercises it end to end and pins the 10-point award, which is the only coverage it has.
+Two entries were removed here on 2026-10-13: they said `GamificationEventListener`
+had no unit test and that the milestone bonus was untested, while the table above
+had listed `GamificationEventListenerTest` and its twelve cases since 2026-09-11.
+The section had not been updated with the test that closed it.
+
 - **The tie case**, R-10, has no test.
-- **The milestone bonus**, R-6, is not tested: no test builds a seven-day streak.
 - **`CompetitionService.currentScoreOf` and `partnerOf`** have no tests.
 - **`getCurrentCompetition`** is untested; its user lookup is mocked and never stubbed.
 - **The badge catalogue endpoint** escapes the tenant isolation sweep, which matches on the
@@ -156,19 +174,20 @@ SELECT count(*) FROM point_events WHERE points < 0;
 
 ## Known debt
 
-| Item                                                      | Impact                                           | When it is meant to be addressed                 |
-| --------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------ |
-| The listener that owns the point economy has no unit test | Any constant can change silently                 | Highest-value test to write next in this feature |
-| G-1, scoring is not lock-protected                        | Not observed in practice, real in the code shape | With G-3, as one change to the scoring core      |
-| G-3, no idempotency key on the ledger                     | A duplicate would be permanent and undetectable  | Same change                                      |
-| G-2, points can be negative                               | Latent                                           | With the above                                   |
-| G-4, dead `WEIGHT` badge category                         | Weight logging grants nothing                    | Product backlog                                  |
-| G-5, the scoreboard response is slot-based                | The client has to correlate                      | Align with `SeasonResponse`                      |
+| Item | Impact | When it is meant to be addressed |
+| ---- | ------ | -------------------------------- |
+
+| G-1, scoring is not lock-protected | Not observed in practice, real in the code shape | With G-3, as one change to the scoring core |
+| G-3, no idempotency key on the ledger | A duplicate would be permanent and undetectable | Same change |
+| G-2, points can be negative | Latent | With the above |
+| G-4, dead `WEIGHT` badge category | Weight logging grants nothing | Product backlog |
+| G-5, the scoreboard response is slot-based | The client has to correlate | Align with `SeasonResponse` |
 
 ## History
 
-| Date       | Change                                                                                                                                                                  | Pull request               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 2026-09-11 | Future-dated logs refused (`@NotInFuture`), closing the streak/score exploit; `BackdatedScoringIT` added                                                                | `fix/security-findings-v2` |
-| 2026-09-11 | The event listener got the test this document called the highest-value one left to write: twelve cases over the whole points economy, including the overtake transition | `fix/audit-loose-ends`     |
-| 2026-09-06 | `ConcurrentScoringIT` added, document created                                                                                                                           | #32                        |
+| Date       | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Pull request               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-13 | The level moved from the browser to the server. It was summed from what the season endpoint returned, so it depended on the API continuing to return the whole history; now it is summed from the ledger, which keeps everything since the first log and survives a season closing or a change of partner. The curve is the same one, threshold for threshold, so nobody changed level in the move. `AwardPointsUseCase` also appeared, because the mission reward is now a second place that grants points | pending                    |
+| 2026-09-11 | Future-dated logs refused (`@NotInFuture`), closing the streak/score exploit; `BackdatedScoringIT` added                                                                                                                                                                                                                                                                                                                                                                                                    | `fix/security-findings-v2` |
+| 2026-09-11 | The event listener got the test this document called the highest-value one left to write: twelve cases over the whole points economy, including the overtake transition                                                                                                                                                                                                                                                                                                                                     | `fix/audit-loose-ends`     |
+| 2026-09-06 | `ConcurrentScoringIT` added, document created                                                                                                                                                                                                                                                                                                                                                                                                                                                               | #32                        |

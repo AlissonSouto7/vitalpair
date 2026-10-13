@@ -22,4 +22,13 @@ public interface PointEventRepositoryPort {
 
     /** Points summed per source and user within [start, end). */
     List<SourceUserPoints> sumBySourceAndUser(UUID tenantId, Instant start, Instant end);
+
+    /**
+     * Tudo o que esta pessoa somou, desde sempre.
+     *
+     * <p>Sem janela e sem tenant, ao contrário das outras três: o nível é o esforço acumulado
+     * de quem usa, e ele não pode zerar quando uma temporada fecha nem quando alguém troca de
+     * dupla.
+     */
+    long sumLifetime(UUID userId);
 }

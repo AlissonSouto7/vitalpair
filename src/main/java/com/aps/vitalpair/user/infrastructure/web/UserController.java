@@ -86,6 +86,7 @@ public class UserController {
                 request.sex(),
                 request.heightCm(),
                 request.weightKg(),
+                request.targetWeightKg(),
                 request.goal(),
                 request.activityLevel(),
                 request.avatarUrl(),

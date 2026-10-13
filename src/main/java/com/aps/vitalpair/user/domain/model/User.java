@@ -30,6 +30,17 @@ public class User {
     private final Sex sex;
     private final BigDecimal heightCm;
     private final BigDecimal weightKg;
+
+    /**
+     * Quanto a pessoa quer chegar a pesar.
+     *
+     * <p>Nulo é um estado legítimo, e não um dado faltando: quem escolheu manter o peso não
+     * tem alvo, e quem não quis dizer também não. A tela mostra a barra de progresso quando
+     * existe e oferece defini-lo quando não existe, em vez de inventar um a partir de IMC,
+     * que seria o aplicativo decidindo o corpo da pessoa por ela.
+     */
+    private final BigDecimal targetWeightKg;
+
     private final Goal goal;
     private final ActivityLevel activityLevel;
     private final Integer dailyCalorieTarget;

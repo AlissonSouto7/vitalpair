@@ -15,6 +15,7 @@ public record UpdateProfileCommand(
         Sex sex,
         BigDecimal heightCm,
         BigDecimal weightKg,
+        BigDecimal targetWeightKg,
         Goal goal,
         ActivityLevel activityLevel,
         String avatarUrl,

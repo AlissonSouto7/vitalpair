@@ -6,6 +6,7 @@ import { DashboardPage } from './DashboardPage'
 
 import i18n from '@/i18n'
 import { useAuthStore } from '@/store/authStore'
+import { profileFixture } from '@/test/fixtures'
 import { ok, path } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { renderWithProviders } from '@/test/render'
@@ -80,6 +81,15 @@ function theServerAnswers(dash: Dashboard = dashboard()) {
     http.get(path('/pair/feed'), () => ok({ content: [], page: 0, size: 4, totalElements: 0 })),
     http.get(path('/missions/flash'), () => ok(null)),
     http.get(path('/season'), () => ok(null)),
+    // O que a barra do objetivo lê. Nenhuma delas bloqueia a tela, então um teste que não se
+    // importa com o objetivo continua passando sem declarar nada sobre elas.
+    http.get(path('/users/me'), () => ok(profileFixture)),
+    http.get(path('/gamification/level'), () =>
+      ok({ level: 3, points: 470, pointsToNext: 330, percent: 64 }),
+    ),
+    http.get(path('/progress'), () =>
+      ok({ weights: [], targetKcal: 2100, calories: [], macros: [] }),
+    ),
   )
 }
 
@@ -198,6 +208,52 @@ describe('DashboardPage', () => {
     const over = within(container).getByText('180')
     expect(over.className).toContain('text-carb-ink')
     expect(over.className).not.toContain('text-act')
+  })
+
+  it('names what happened in the feed preview, instead of showing nothing', async () => {
+    /*
+     * O resumo lia `item.title`, que é o campo legado e é nulo em todo item novo. Medido em
+     * 28/09/2026 contra o servidor: quatro refeições recém-registradas apareciam aqui sem nome
+     * nenhum, enquanto a API devolvia "Arroz branco cozido" e "Feijão carioca cozido"
+     * corretamente. A frase é montada pela mesma função da tela do mural.
+     */
+    theServerAnswers()
+    server.use(
+      http.get(path('/pair/feed'), () =>
+        ok({
+          content: [
+            {
+              id: 'f1',
+              userId: ME,
+              actorName: 'Alisson',
+              type: 'MEAL_LOGGED',
+              title: null,
+              subtitle: null,
+              foodName: 'Arroz branco cozido',
+              mealType: 'LUNCH',
+              calories: 192,
+              proteinG: null,
+              carbG: null,
+              fatG: null,
+              activityType: null,
+              durationMinutes: null,
+              points: 0,
+              isPrivate: false,
+              createdAt: new Date().toISOString(),
+              reactionCounts: {},
+              myReactions: [],
+            },
+          ],
+          page: 0,
+          size: 4,
+          totalElements: 1,
+        }),
+      ),
+    )
+
+    renderWithProviders(<DashboardPage />)
+
+    expect(await screen.findByText(/Arroz branco cozido/)).toBeInTheDocument()
   })
 
   it('still renders when the enrichment calls fail', async () => {

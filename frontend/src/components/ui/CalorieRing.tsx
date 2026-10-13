@@ -8,10 +8,20 @@ export function CalorieRing({
   current,
   goal,
   size = 134,
+  legenda,
 }: {
   current: number
   goal: number
   size?: number
+  /**
+   * Substitui o "de N kcal" de baixo.
+   *
+   * O anel nasceu para o painel do dia, onde "1.336 de 1.336" quer dizer que a pessoa comeu
+   * a meta inteira. O onboarding o reusa cheio, para comemorar a meta recém-calculada, e ali
+   * a mesma legenda afirma que ela já comeu tudo antes de registrar a primeira refeição.
+   * Quem chama diz o que aquele número é.
+   */
+  legenda?: string
 }) {
   const { t, i18n } = useTranslation()
   const pct = goal > 0 ? Math.min(1, current / goal) : 0
@@ -48,7 +58,7 @@ export function CalorieRing({
         {/* "de" estava escrito em português dentro do componente, e o número formatado em
             pt-BR fixo: o anel dizia "de 2.211 kcal" no meio de uma tela em inglês. */}
         <div className="text-[10.5px] font-extrabold tracking-wide tabular-nums text-muted">
-          {t('common.ofGoalKcal', { goal: goal.toLocaleString(i18n.language) })}
+          {legenda ?? t('common.ofGoalKcal', { goal: goal.toLocaleString(i18n.language) })}
         </div>
       </div>
     </div>

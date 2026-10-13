@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 interface Option<T extends string> {
   value: T
@@ -32,14 +32,31 @@ export function Select<T extends string>({
   'aria-invalid'?: boolean
 }) {
   const [open, setOpen] = useState(false)
+  /**
+   * Qual opção está destacada enquanto a lista está aberta pelo teclado.
+   *
+   * -1 é "nenhuma", que é como a lista abre quando ninguém escolheu nada ainda. Medido antes
+   * disto: abrir com Enter funcionava e as setas não moviam nada, então quem usa teclado
+   * tinha de dar Tab por cada opção, e quem usa leitor de tela ouvia um botão sem relação
+   * com a lista que acabara de aparecer.
+   */
+  const [destacada, setDestacada] = useState(-1)
   const ref = useRef<HTMLDivElement>(null)
+  const listaId = useId()
+  const itemId = (i: number) => `${listaId}-op-${i}`
 
   useEffect(() => {
     function onDocClick(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false)
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false)
+        setDestacada(-1)
+      }
     }
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key === 'Escape') {
+        setOpen(false)
+        setDestacada(-1)
+      }
     }
     document.addEventListener('mousedown', onDocClick)
     document.addEventListener('keydown', onKey)
@@ -56,11 +73,53 @@ export function Select<T extends string>({
       <button
         id={id}
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setOpen((o) => !o)
+          setDestacada(options.findIndex((o) => o.value === value))
+        }}
+        /*
+          As setas movem entre as opções, como um combobox deve fazer. Enter e Espaço já
+          abriam, porque isto é um <button>; o que faltava era navegar depois de aberto, e
+          era isso que obrigava quem usa teclado a dar Tab por cada item da lista.
+        */
+        onKeyDown={(event) => {
+          const ultima = options.length - 1
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault()
+            if (!open) {
+              setOpen(true)
+              setDestacada(
+                Math.max(
+                  0,
+                  options.findIndex((o) => o.value === value),
+                ),
+              )
+              return
+            }
+            setDestacada((i) =>
+              event.key === 'ArrowDown' ? (i >= ultima ? 0 : i + 1) : i <= 0 ? ultima : i - 1,
+            )
+          } else if (event.key === 'Home' && open) {
+            event.preventDefault()
+            setDestacada(0)
+          } else if (event.key === 'End' && open) {
+            event.preventDefault()
+            setDestacada(ultima)
+          } else if ((event.key === 'Enter' || event.key === ' ') && open && destacada >= 0) {
+            // Só confirma quando há um destaque: sem isso, Enter numa lista recém-aberta
+            // escolheria a primeira opção sem a pessoa ter olhado para ela.
+            event.preventDefault()
+            onChange(options[destacada].value)
+            setOpen(false)
+            setDestacada(-1)
+          }
+        }}
         className="input flex items-center justify-between gap-2 text-left"
         role="combobox"
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-controls={open ? listaId : undefined}
+        aria-activedescendant={open && destacada >= 0 ? itemId(destacada) : undefined}
         aria-describedby={describedBy}
         aria-invalid={invalid}
       >
@@ -82,22 +141,29 @@ export function Select<T extends string>({
 
       {open && (
         <ul
+          id={listaId}
           role="listbox"
           className="absolute z-30 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-hair bg-surface p-1 shadow-xl shadow-[0_14px_36px_rgba(70,45,20,0.18)]"
         >
-          {options.map((o) => {
+          {options.map((o, i) => {
             const active = o.value === value
+            const emFoco = i === destacada
             return (
-              <li key={o.value} role="option" aria-selected={active}>
+              <li key={o.value} id={itemId(i)} role="option" aria-selected={active}>
                 <button
                   type="button"
                   onClick={() => {
                     onChange(o.value)
                     setOpen(false)
+                    setDestacada(-1)
                   }}
+                  // O destaque do teclado é um anel, e não a mesma cor de "escolhido": são
+                  // duas coisas diferentes, e pintá-las igual faria a pessoa achar que já
+                  // escolheu ao apenas passar por cima.
+                  onMouseEnter={() => setDestacada(i)}
                   className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                     active ? 'bg-brand-soft font-bold text-brand-ink' : 'text-ink hover:bg-track'
-                  }`}
+                  } ${emFoco ? 'ring-2 ring-act/50' : ''}`}
                 >
                   {o.label}
                   {active && (
