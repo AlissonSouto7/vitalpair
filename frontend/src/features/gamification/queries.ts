@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 
-import { getBadgeCatalog, getBadges, getStreaks } from '@/api/gamification'
+import { getBadgeCatalog, getBadges, getLevel, getStreaks } from '@/api/gamification'
 
 /**
  * What the achievements screen reads.
@@ -15,6 +15,13 @@ export const gamificationQueries = {
     queryOptions({
       queryKey: ['gamification', 'streaks'],
       queryFn: getStreaks,
+    }),
+
+  /** O nível, somado do histórico inteiro de pontos no servidor. */
+  level: () =>
+    queryOptions({
+      queryKey: ['gamification', 'level'],
+      queryFn: getLevel,
     }),
 
   earned: () =>

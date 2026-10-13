@@ -2,7 +2,8 @@ import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
-import { CameraIcon, FlameIcon } from './icons'
+import { GoalProgress } from './GoalProgress'
+import { CameraIcon } from './icons'
 import { FeedPreview, Macro, MissionCard } from './parts'
 import { dateLabel, greeting } from './text'
 
@@ -13,6 +14,8 @@ import { Card } from '@/components/ui/Card'
 import { Scoreboard } from '@/components/ui/Scoreboard'
 import { Stat } from '@/components/ui/Stat'
 import { dashboardQueries } from '@/features/dashboard/queries'
+import { gamificationQueries } from '@/features/gamification/queries'
+import { profileQueries } from '@/features/profile/queries'
 import { avatarUrl } from '@/shared/api/avatarUrl'
 import { useAuthStore } from '@/store/authStore'
 
@@ -32,6 +35,9 @@ export function DashboardPage() {
     feedQuery,
     missionQuery,
     seasonQuery,
+    profileQuery,
+    levelQuery,
+    progressQuery,
   ] = useQueries({
     queries: [
       dashboardQueries.summary(),
@@ -42,6 +48,11 @@ export function DashboardPage() {
       dashboardQueries.recentFeed(),
       dashboardQueries.flashMission(),
       dashboardQueries.season(),
+      // O que a barra do objetivo precisa: o alvo (perfil), o esforço acumulado (nível) e de
+      // onde a jornada começou (primeira pesagem). Nenhuma delas bloqueia a tela.
+      profileQueries.profile(),
+      gamificationQueries.level(),
+      profileQueries.progress(),
     ],
   })
 
@@ -68,6 +79,37 @@ export function DashboardPage() {
   const mission = missionQuery.data ?? null
   const feed = feedQuery.data?.content ?? []
   const streak = (streaksQuery.data ?? []).reduce((max, s) => Math.max(max, s.currentCount), 0)
+  const perfil = profileQuery.data ?? null
+  /*
+   * A primeira pesagem, que é de onde a jornada começou.
+   *
+   * O peso do perfil não serve de partida: ele é atualizado a cada pesagem, então a barra
+   * mediria de "hoje" até o alvo e nunca sairia do lugar, por mais que a pessoa avançasse.
+   * A série vem ordenada da mais recente para a mais antiga.
+   */
+  const pesagens = progressQuery.data?.weights ?? []
+  const pesoAtual = pesagens.length > 0 ? pesagens[0].weightKg : (perfil?.weightKg ?? null)
+  /*
+   * A partida é o peso mais distante do alvo entre o primeiro registro e o do perfil.
+   *
+   * Parece arbitrário e não é. Salvar o perfil grava uma pesagem do dia, e só cabe uma por
+   * dia: quem informa 62 no onboarding e pesa 60,5 na mesma tarde fica com uma série de um
+   * ponto só, o de 60,5, e a barra media de 60,5 até 58 dizendo 0% depois de a pessoa já ter
+   * perdido 1,5 kg. Medido no navegador: o cartão mostrava "60,5 → 58,0" e a barra vazia.
+   *
+   * Pegar o mais distante resolve os dois casos sem inventar um terceiro campo: com série
+   * longa, o primeiro registro é naturalmente o mais distante; com série de um dia, o peso do
+   * perfil é que guarda de onde ela saiu.
+   */
+  const primeiroRegistro = pesagens.length > 0 ? pesagens[pesagens.length - 1].weightKg : null
+  const alvo = perfil?.targetWeightKg ?? null
+  const candidatos = [primeiroRegistro, perfil?.weightKg ?? null].filter(
+    (p): p is number => p != null,
+  )
+  const pesoInicial =
+    alvo == null || candidatos.length === 0
+      ? (primeiroRegistro ?? perfil?.weightKg ?? null)
+      : candidatos.reduce((mais, p) => (Math.abs(p - alvo) > Math.abs(mais - alvo) ? p : mais))
   const workouts = (activitiesQuery.data ?? []).filter((a) => a.activityType !== 'STEPS').length
   const me = dash.me
   const remaining = me.remainingCalories
@@ -111,16 +153,28 @@ export function DashboardPage() {
             {meName ? `, ${meName.split(' ')[0]}` : ''} · {dateLabel(dash.date, i18n.language)}
           </p>
         </div>
-        {streak > 0 && (
-          <div className="flex shrink-0 items-center gap-2 rounded-full bg-act-soft px-4 py-2">
-            <FlameIcon className="h-[18px] w-[18px] fill-act" />
-            <span className="text-sm font-extrabold tabular-nums text-act-ink">{streak}</span>
-            <span className="hidden text-xs font-bold text-muted sm:inline">
-              {t('dashboard.streakDays', { count: streak })}
-            </span>
-          </div>
-        )}
+        {/*
+          A chama saiu daqui e virou um selo do cartão do objetivo, junto do nível: os três
+          contam a mesma história (o objetivo, o esforço acumulado, a constância) e separados
+          eles competiam pelo mesmo canto da tela.
+        */}
       </header>
+
+      {/*
+        O que o painel não dizia: que ela está progredindo.
+
+        A tela falava só de hoje, e seis dias de uso com peso caindo e sequência de seis
+        mostravam só quanto ela tinha comido. A barra responde "quanto falta", o nível responde
+        "quanto já fiz" e a chama responde "há quantos dias não paro".
+      */}
+      <GoalProgress
+        goal={perfil?.goal ?? null}
+        startWeightKg={pesoInicial}
+        currentWeightKg={pesoAtual}
+        targetWeightKg={perfil?.targetWeightKg ?? null}
+        level={levelQuery.data ?? null}
+        streakDays={streak}
+      />
 
       {me.calorieTarget == null && (
         <Link
