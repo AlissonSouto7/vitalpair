@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.mission.domain.port.in.AcceptFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.CancelFlashMissionUseCase;
+import com.aps.vitalpair.mission.domain.port.in.CompleteFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetWeeklyMissionsUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
@@ -28,16 +29,19 @@ public class MissionController {
     private final GetFlashMissionUseCase getFlashMissionUseCase;
     private final AcceptFlashMissionUseCase acceptFlashMissionUseCase;
     private final CancelFlashMissionUseCase cancelFlashMissionUseCase;
+    private final CompleteFlashMissionUseCase completeFlashMissionUseCase;
     private final GetWeeklyMissionsUseCase getWeeklyMissionsUseCase;
 
     public MissionController(
             GetFlashMissionUseCase getFlashMissionUseCase,
             AcceptFlashMissionUseCase acceptFlashMissionUseCase,
             CancelFlashMissionUseCase cancelFlashMissionUseCase,
+            CompleteFlashMissionUseCase completeFlashMissionUseCase,
             GetWeeklyMissionsUseCase getWeeklyMissionsUseCase) {
         this.getFlashMissionUseCase = getFlashMissionUseCase;
         this.acceptFlashMissionUseCase = acceptFlashMissionUseCase;
         this.cancelFlashMissionUseCase = cancelFlashMissionUseCase;
+        this.completeFlashMissionUseCase = completeFlashMissionUseCase;
         this.getWeeklyMissionsUseCase = getWeeklyMissionsUseCase;
     }
 
@@ -63,6 +67,18 @@ public class MissionController {
             @AuthenticationPrincipal AuthenticatedUser principal) {
         var view = acceptFlashMissionUseCase.acceptToday(principal.userId());
         return ResponseEntity.ok(ApiResponse.ok(FlashMissionResponse.from(view)));
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "Mark today's mission as done",
+            description =
+                    "Records that the caller completed today's mission and pays the reward. Declared rather than measured: the app cannot tell how much water somebody drank, and paying for merely accepting would be paying for a tap. Requires having accepted first, and pays once a day: asking twice answers the same thing without paying again.")
+    @PostMapping("/flash/complete")
+    public ResponseEntity<ApiResponse<FlashMissionResponse>> completeFlash(
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        var view = completeFlashMissionUseCase.completeToday(principal.userId());
+        return ResponseEntity.ok(ApiResponse.ok(FlashMissionResponse.from(view), "Missão concluída"));
     }
 
     @StandardApiResponses

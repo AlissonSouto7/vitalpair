@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
+import com.aps.vitalpair.gamification.domain.port.in.AwardPointsUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetCompetitionUseCase;
 import com.aps.vitalpair.gamification.domain.port.out.CompetitionScoreRepositoryPort;
 import com.aps.vitalpair.pair.domain.model.Pair;
@@ -18,7 +19,7 @@ import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 @Service
-public class CompetitionService implements GetCompetitionUseCase {
+public class CompetitionService implements GetCompetitionUseCase, AwardPointsUseCase {
 
     private final CompetitionScoreRepositoryPort competitionRepository;
     private final PairRepositoryPort pairRepository;
@@ -41,6 +42,17 @@ public class CompetitionService implements GetCompetitionUseCase {
         return competitionRepository
                 .findByTenantAndWeek(user.getTenantId(), week)
                 .orElseGet(() -> emptyScore(user.getTenantId(), week));
+    }
+
+    /**
+     * A porta, para quem está fora desta feature.
+     *
+     * <p>Delega para {@link #addPoints}, que continua público porque o listener desta mesma
+     * feature o chama direto. São o mesmo caminho com dois nomes: o de dentro e o contrato.
+     */
+    @Override
+    public void awardPoints(UUID tenantId, UUID userId, int points, LocalDate date) {
+        addPoints(tenantId, userId, points, date);
     }
 
     @Transactional

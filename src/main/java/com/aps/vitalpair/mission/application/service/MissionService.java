@@ -18,19 +18,26 @@ import com.aps.vitalpair.mission.domain.model.MissionKind;
 import com.aps.vitalpair.mission.domain.model.PairMissionState;
 import com.aps.vitalpair.mission.domain.port.in.AcceptFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.CancelFlashMissionUseCase;
+import com.aps.vitalpair.mission.domain.port.in.CompleteFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.in.GetFlashMissionUseCase;
 import com.aps.vitalpair.mission.domain.port.out.MissionCatalogRepositoryPort;
 import com.aps.vitalpair.mission.domain.port.out.PairMissionRepositoryPort;
+import com.aps.vitalpair.shared.exception.BusinessRuleException;
 import com.aps.vitalpair.shared.exception.ResourceNotFoundException;
 import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 @Service
-public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissionUseCase, CancelFlashMissionUseCase {
+public class MissionService
+        implements GetFlashMissionUseCase,
+                AcceptFlashMissionUseCase,
+                CancelFlashMissionUseCase,
+                CompleteFlashMissionUseCase {
 
     private final MissionCatalogRepositoryPort catalogRepository;
     private final PairMissionRepositoryPort pairMissionRepository;
     private final UserRepositoryPort userRepository;
+    private final MissionRewardService rewardService;
 
     /**
      * Which day the flash mission belongs to, and when it expires.
@@ -46,11 +53,13 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
             MissionCatalogRepositoryPort catalogRepository,
             PairMissionRepositoryPort pairMissionRepository,
             UserRepositoryPort userRepository,
+            MissionRewardService rewardService,
             Clock clock,
             @Value("${vitalpair.scheduling.zone}") String zone) {
         this.catalogRepository = catalogRepository;
         this.pairMissionRepository = pairMissionRepository;
         this.userRepository = userRepository;
+        this.rewardService = rewardService;
         this.clock = clock.withZone(ZoneId.of(zone));
     }
 
@@ -64,7 +73,7 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
                 .find(tenantId, today)
                 .map(PairMissionState::isAccepted)
                 .orElse(false);
-        return view(mission, today, accepted);
+        return view(mission, today, accepted, userId);
     }
 
     @Override
@@ -89,7 +98,7 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
                         .build());
 
         PairMissionState saved = pairMissionRepository.save(state);
-        return view(mission, today, saved.isAccepted());
+        return view(mission, today, saved.isAccepted(), userId);
     }
 
     @Override
@@ -106,8 +115,8 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
                 .find(tenantId, today)
                 .map(existing -> pairMissionRepository.save(
                         existing.toBuilder().accepted(false).acceptedAt(null).build()))
-                .map(saved -> view(mission, today, saved.isAccepted()))
-                .orElseGet(() -> view(mission, today, false));
+                .map(saved -> view(mission, today, saved.isAccepted(), userId))
+                .orElseGet(() -> view(mission, today, false, userId));
     }
 
     private UUID resolveTenant(UUID userId) {
@@ -125,14 +134,47 @@ public class MissionService implements GetFlashMissionUseCase, AcceptFlashMissio
         return flash.get(index);
     }
 
-    private FlashMissionView view(Mission mission, LocalDate date, boolean accepted) {
+    private FlashMissionView view(Mission mission, LocalDate date, boolean accepted, UUID userId) {
         Instant expiresAt =
                 date.atTime(LocalTime.of(23, 59, 59)).atZone(clock.getZone()).toInstant();
+        // Feito é de quem pergunta: a recompensa paga hoje é a prova, e ela é por pessoa.
+        boolean done = rewardService.alreadyAwarded(userId, date).contains(mission.getCode());
         return FlashMissionView.builder()
                 .mission(mission)
                 .date(date)
                 .accepted(accepted)
+                .done(done)
                 .expiresAt(expiresAt)
                 .build();
+    }
+
+    /**
+     * Marca a missão de hoje como cumprida e paga a recompensa.
+     *
+     * <p>Declarado pela pessoa, e não medido: o aplicativo não tem como saber quantos litros
+     * de água alguém bebeu. Pagar por topar seria dar cinquenta pontos por tocar num botão de
+     * manhã, o que é pior do que não pagar: transformaria o placar em número de toques.
+     *
+     * <p>Exige ter topado antes. Marcar como feito algo que nunca foi aceito não é um estado
+     * que a tela oferece, e aceitá-lo aqui abriria o caminho de ganhar a recompensa sem nem
+     * ver o desafio.
+     */
+    @Override
+    @Transactional
+    public FlashMissionView completeToday(UUID userId) {
+        UUID tenantId = resolveTenant(userId);
+        LocalDate today = LocalDate.now(clock);
+        Mission mission = missionOfDay(today);
+
+        boolean accepted = pairMissionRepository
+                .find(tenantId, today)
+                .map(PairMissionState::isAccepted)
+                .orElse(false);
+        if (!accepted) {
+            throw new BusinessRuleException("Topa a missão antes de marcar como feita.");
+        }
+
+        rewardService.awardIfNew(tenantId, userId, mission.getCode(), today, mission.getRewardPoints());
+        return view(mission, today, true, userId);
     }
 }

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +32,13 @@ import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 @Service
 public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(WeeklyMissionService.class);
+
     private final WeeklyMissionCatalogRepositoryPort catalogRepository;
     private final WeeklyMissionMetricsRepositoryPort metricsRepository;
     private final PairRepositoryPort pairRepository;
     private final UserRepositoryPort userRepository;
+    private final MissionRewardService rewardService;
 
     /**
      * Where the mission week starts and ends.
@@ -50,17 +55,28 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
             WeeklyMissionMetricsRepositoryPort metricsRepository,
             PairRepositoryPort pairRepository,
             UserRepositoryPort userRepository,
+            MissionRewardService rewardService,
             Clock clock,
             @Value("${vitalpair.scheduling.zone}") String zone) {
         this.catalogRepository = catalogRepository;
         this.metricsRepository = metricsRepository;
         this.pairRepository = pairRepository;
         this.userRepository = userRepository;
+        this.rewardService = rewardService;
         this.clock = clock.withZone(ZoneId.of(zone));
     }
 
+    /**
+     * O progresso da semana, pagando o que tiver ficado pronto.
+     *
+     * <p>Não é `readOnly`: as missões semanais não guardam progresso, ele é contado dos
+     * registros reais a cada leitura, então não existe um instante de "acabou de completar"
+     * para escutar. A leitura é o único momento em que dá para saber, e por isso é aqui que a
+     * recompensa é paga. Pagar duas vezes é impedido pela chave única da tabela de
+     * recompensas, não por esta ordem de chamadas.
+     */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<WeeklyMissionProgress> getCurrentWeek(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
 
@@ -107,7 +123,42 @@ public class WeeklyMissionService implements GetWeeklyMissionsUseCase {
                         .build());
             }
         }
+
+        awardCompleted(user.getTenantId(), userId, today, result);
         return result;
+    }
+
+    /**
+     * Paga o que está completo e ainda não foi pago.
+     *
+     * <p>A chave do período é a segunda-feira da semana: cumprir de novo na semana seguinte é
+     * uma recompensa nova, abrir a tela dez vezes na mesma semana não é.
+     *
+     * <p>Uma falha aqui não pode custar a leitura da tela à pessoa. A missão continua
+     * completa, e a próxima leitura tenta pagar de novo, porque a trava é o que já foi pago e
+     * não o fato de já se ter tentado.
+     */
+    private void awardCompleted(UUID tenantId, UUID userId, LocalDate today, List<WeeklyMissionProgress> progresso) {
+        LocalDate semana = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        for (WeeklyMissionProgress p : progresso) {
+            if (!p.isCompleted()) {
+                continue;
+            }
+            try {
+                rewardService.awardIfNew(
+                        tenantId,
+                        userId,
+                        p.getMission().getCode(),
+                        semana,
+                        p.getMission().getReward());
+            } catch (RuntimeException e) {
+                log.warn(
+                        "Não foi possível pagar a recompensa da missão {} para {}",
+                        p.getMission().getCode(),
+                        userId,
+                        e);
+            }
+        }
     }
 
     private int count(WeeklyMissionMetric metric, UUID userId, Instant start, Instant end) {
