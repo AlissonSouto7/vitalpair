@@ -52,4 +52,17 @@ public interface PointEventJpaRepository extends JpaRepository<PointEventJpaEnti
             """)
     List<SourceUserPoints> sumBySourceAndUser(
             @Param("tenantId") UUID tenantId, @Param("start") Instant start, @Param("end") Instant end);
+
+    /**
+     * Tudo o que esta pessoa já somou, desde sempre.
+     *
+     * <p>Sem janela e sem tenant, ao contrário das outras três: o nível é o esforço acumulado
+     * de quem usa, e ele não pode zerar quando uma temporada fecha nem quando alguém troca de
+     * dupla. É a única pergunta do ledger que atravessa esses dois limites.
+     *
+     * <p>Devolve nulo para quem nunca pontuou, porque {@code SUM} de nada é nulo. Quem chama
+     * trata como zero.
+     */
+    @Query("SELECT SUM(p.points) FROM PointEventJpaEntity p WHERE p.userId = :userId")
+    Long sumLifetimeByUser(@Param("userId") UUID userId);
 }

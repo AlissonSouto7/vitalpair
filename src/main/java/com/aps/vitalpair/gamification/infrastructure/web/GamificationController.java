@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aps.vitalpair.gamification.domain.port.in.GetBadgeCatalogUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetCompetitionUseCase;
+import com.aps.vitalpair.gamification.domain.port.in.GetLevelUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetStreaksUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetUserBadgesUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
@@ -25,16 +26,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class GamificationController {
 
     private final GetStreaksUseCase getStreaksUseCase;
+    private final GetLevelUseCase getLevelUseCase;
     private final GetCompetitionUseCase getCompetitionUseCase;
     private final GetUserBadgesUseCase getUserBadgesUseCase;
     private final GetBadgeCatalogUseCase getBadgeCatalogUseCase;
 
     public GamificationController(
             GetStreaksUseCase getStreaksUseCase,
+            GetLevelUseCase getLevelUseCase,
             GetCompetitionUseCase getCompetitionUseCase,
             GetUserBadgesUseCase getUserBadgesUseCase,
             GetBadgeCatalogUseCase getBadgeCatalogUseCase) {
         this.getStreaksUseCase = getStreaksUseCase;
+        this.getLevelUseCase = getLevelUseCase;
         this.getCompetitionUseCase = getCompetitionUseCase;
         this.getUserBadgesUseCase = getUserBadgesUseCase;
         this.getBadgeCatalogUseCase = getBadgeCatalogUseCase;
@@ -52,6 +56,16 @@ public class GamificationController {
                 .map(StreakResponse::from)
                 .toList();
         return ResponseEntity.ok(ApiResponse.ok(streaks));
+    }
+
+    @StandardApiResponses
+    @Operation(
+            summary = "The caller's level",
+            description =
+                    "Summed from the points ledger, which is append-only and keeps everything since the first log. Not from the season: a level is the effort somebody accumulated, and it must not reset when a season closes or when they change partner.")
+    @GetMapping("/level")
+    public ResponseEntity<ApiResponse<LevelResponse>> level(@AuthenticationPrincipal AuthenticatedUser principal) {
+        return ResponseEntity.ok(ApiResponse.ok(LevelResponse.from(getLevelUseCase.getLevel(principal.userId()))));
     }
 
     @StandardApiResponses
