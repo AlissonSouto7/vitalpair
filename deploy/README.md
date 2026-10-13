@@ -87,6 +87,14 @@ Production is the same machine, later: set `PRODUCTION_SERVER_NAME` in
 certificate, and start a second stack from `production.env`. Until then the
 production name simply does not exist on the machine.
 
+Production is the bare domain, `vitalpair.app`, and `www.vitalpair.app` has to
+arrive there too, so it is listed in `PRODUCTION_SERVER_ALIASES`. An alias is a
+server of its own that answers on both ports and returns 301 to the canonical
+name, which means **the certificate has to cover it**: pass the alias to
+`certbot-init.sh` after the e-mail, and the canonical name first, because certbot
+names the `live/` directory after the first `-d` and that is the directory nginx
+reads. Changing the aliases later means issuing again with the full list.
+
 The first stack start needs images. Either build them on the machine
 (`docker compose -f deploy/compose.app.yaml --env-file deploy/env/staging.env build`)
 or point `BACKEND_IMAGE` and `FRONTEND_IMAGE` at a registry; the pipeline is what

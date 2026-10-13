@@ -21,6 +21,11 @@ services:
     environment:
       STAGING_SERVER_NAME: '${STAGING_SERVER_NAME:-}'
       PRODUCTION_SERVER_NAME: '${PRODUCTION_SERVER_NAME:-}'
+      # Other names that answer for a site and send the visitor to the canonical one, space
+      # separated. Production is the bare domain and somebody typing www. has to arrive.
+      # Empty is the normal case, and then no alias server is rendered at all.
+      STAGING_SERVER_ALIASES: '${STAGING_SERVER_ALIASES:-}'
+      PRODUCTION_SERVER_ALIASES: '${PRODUCTION_SERVER_ALIASES:-}'
       # The image renders every file in templates/ through envsubst at startup, replacing
       # only the names listed here. DOLLAR is how an nginx variable survives that pass.
       NGINX_ENVSUBST_TEMPLATE_SUFFIX: '.template'
