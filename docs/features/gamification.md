@@ -19,7 +19,7 @@ another's service.
 | ----------------- | ------------------------------------------------------------------ |
 | Frontend route    | `/gamification`, plus the scoreboard and the level on `/dashboard` |
 | Who can access it | authenticated user                                                 |
-| Backend package   | `com.aps.vitalpair.gamification` (46 classes, 1,380 lines)         |
+| Backend package   | `com.aps.vitalpair.gamification` (49 classes, 1,674 lines)         |
 | Feature flag      | none                                                               |
 
 ## Architecture
@@ -171,6 +171,56 @@ SELECT count(*) FROM user_streaks WHERE current_count > longest_count;
 -- read only: negative points would be G-2 becoming real
 SELECT count(*) FROM point_events WHERE points < 0;
 ```
+
+## Closed on 2026-10-14
+
+**The Weight badge family was empty for everybody.** The `WEIGHT` category existed in the
+enum and in V6's CHECK since the beginning and no badge used it, so the screen showed a
+family with nothing in it. V34 adds four, and `WeightMilestone` decides them **in the
+direction of each person's own goal**, not in kilos lost: this product is built for a pair
+with opposite goals, so a badge for losing weight would punish half its users every time
+they succeeded. Whoever chose to maintain is rewarded for the opposite, for not having
+moved; whoever has not said what they want earns nothing, because picking a side would be
+deciding somebody's body for them.
+
+Two things the implementation had to get right, both found by going to the code rather than
+assuming:
+
+- Saving the profile already records a weighing, so the start weight has to be read
+  **before** the upsert. Otherwise the very first weighing measures against the number just
+  typed: a change of zero, forever. Pinned by `ProgressServiceTest`, which verifies the
+  order with `InOrder`.
+- `findRecentByUser` was capped at 26 points, so somebody weighing weekly for two years has
+  their first record outside the window, and that record is exactly what the badge measures
+  against. `findStartWeight` reads the oldest row directly.
+
+**Only the top step was awarded**, which left a hole in the collection of anybody who moved
+in jumps. The API accepts one weighing a day: somebody who goes two weeks without weighing
+and comes back seven kilos along got the seven-kilo badge and never the one for the first
+kilo, which they also earned. Every step reached is awarded now; `awardByCode` was already
+idempotent.
+
+**A badge never said when it was earned.** `earned_at` has been in the table since V6 and
+travels through `EarnedBadge` and `EarnedBadgeResponse` to the API; the screen reduced the
+response to a set of codes and threw the date away. The tile shows it, and the flag for
+"unlocked" is gone as duplicate information: having the date **is** having the badge.
+
+**"Your streak breaks today" was never shown.** `lastActivityDate` was in the response and
+nothing rendered it. The warning is **not** computed in the browser: the rule that continues
+a streak lives in `StreakService` (`last.equals(date.minusDays(1))`) and "today" depends on
+the user's stored time zone, which the device can contradict. A phone left in another zone
+would warn on the wrong day, and an urgent warning on the wrong day is worse than none.
+`StreakState` decides it on the server and `/gamification/streaks` carries `recordedToday`
+and `breaksToday`.
+
+**Every closed week of the scoreboard was written and then ignored.** `competition_scores`
+accumulated a row per week and only the current one was ever read. Measured on the local
+database before the change: 30 rows across 5 distinct weeks, none of it visible. The history
+comes back from the caller's own side (`yours`, `theirs`, `WON`/`LOST`/`TIED`) rather than as
+the stored `user1Score`/`user2Score`, which are positions in the pair and not people: the
+dashboard used to work out which side was its own by comparing its user id with the first
+entry of the member list, and every screen reading the scoreboard carried a copy of that
+reasoning.
 
 ## Known debt
 

@@ -1,6 +1,12 @@
 import { queryOptions } from '@tanstack/react-query'
 
-import { getBadgeCatalog, getBadges, getLevel, getStreaks } from '@/api/gamification'
+import {
+  getBadgeCatalog,
+  getBadges,
+  getCompetition,
+  getLevel,
+  getStreaks,
+} from '@/api/gamification'
 
 /**
  * What the achievements screen reads.
@@ -22,6 +28,18 @@ export const gamificationQueries = {
     queryOptions({
       queryKey: ['gamification', 'level'],
       queryFn: getLevel,
+    }),
+
+  /**
+   * O placar da semana e as semanas já fechadas.
+   *
+   * A mesma chave que o painel usa, porque é a mesma resposta: duas telas lendo o mesmo
+   * endereço devem compartilhar uma resposta em cache, e não buscar cada uma a sua.
+   */
+  competition: () =>
+    queryOptions({
+      queryKey: ['gamification', 'competition'],
+      queryFn: getCompetition,
     }),
 
   earned: () =>
