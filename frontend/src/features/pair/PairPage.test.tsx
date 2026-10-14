@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { PairPage } from './PairPage'
 
 import { useAuthStore } from '@/store/authStore'
-import { pairActiveFixture, pairPendingFixture } from '@/test/fixtures'
-import { fail, ok, path } from '@/test/msw/api'
+import { pairActiveFixture, pairPendingFixture, seasonFixture } from '@/test/fixtures'
+import { fail, ok, path, recording } from '@/test/msw/api'
 import { server } from '@/test/msw/server'
 import { i18n, renderWithProviders } from '@/test/render'
 
@@ -174,5 +174,44 @@ describe('PairPage leaving', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Erro interno')
     expect(screen.getByText(i18n.t('pair.leaveConfirmText'))).toBeInTheDocument()
+  })
+})
+
+describe('PairPage: the stake lives here too', () => {
+  /**
+   * Você pediu a aposta editável nas duas telas, e o motivo é de produto: quem quer mudar o
+   * que está em jogo procura onde o acordo mora, que é tanto a temporada quanto os ajustes
+   * da dupla. O componente é o mesmo nos dois lugares, então o que este teste cobre é a
+   * ligação: a tela do par lê a temporada e entrega a aposta ao editor.
+   */
+  function mountFormed(stake = 'Jantar') {
+    server.use(
+      http.get(path('/pair'), () => ok(pairActiveFixture)),
+      http.get(path('/season'), () => ok({ ...seasonFixture, stake })),
+      http.post(path('/auth/refresh'), () => ok({ accessToken: 't', userId: 'u1' })),
+    )
+    return renderWithProviders(<PairPage />)
+  }
+
+  it('offers to change the stake from the pair screen', async () => {
+    const { handler, calls } = recording<{ stake: string }>('put', '/season/stake', () =>
+      ok({ ...seasonFixture, stake: 'Café da manhã na cama' }),
+    )
+    server.use(handler)
+    const { user } = mountFormed()
+
+    await user.click(await screen.findByRole('button', { name: i18n.t('season.stakeEdit') }))
+    const field = screen.getByLabelText(i18n.t('season.stakeLabel'))
+    await user.clear(field)
+    await user.type(field, 'Café da manhã na cama')
+    await user.click(screen.getByRole('button', { name: i18n.t('common.save') }))
+
+    await waitFor(() => expect(calls).toEqual([{ stake: 'Café da manhã na cama' }]))
+  })
+
+  it('shows the stake the pair agreed on, not the default', async () => {
+    mountFormed('Quem perder lava a louça')
+
+    expect(await screen.findByText(/Quem perder lava a louça/)).toBeInTheDocument()
   })
 })
