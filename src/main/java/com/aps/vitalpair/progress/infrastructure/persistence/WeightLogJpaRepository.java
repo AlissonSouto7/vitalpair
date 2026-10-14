@@ -17,4 +17,7 @@ public interface WeightLogJpaRepository extends JpaRepository<WeightLogJpaEntity
      * layer reverses it into chronological order.
      */
     List<WeightLogJpaEntity> findByUserIdOrderByRecordedOnDesc(UUID userId, Pageable pageable);
+
+    /** The oldest record, which is where this person started. */
+    Optional<WeightLogJpaEntity> findFirstByUserIdOrderByRecordedOnAsc(UUID userId);
 }
