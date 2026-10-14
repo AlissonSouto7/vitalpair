@@ -29,6 +29,8 @@ export const profile = {
     changeGoal: 'Trocar objetivo',
     close: 'Fechar',
     goalChangeError: 'Não consegui trocar o objetivo. Tenta de novo.',
+    goalNeedsProfile:
+      'Completa teu perfil primeiro: preciso da data de nascimento, sexo, altura, peso e rotina pra recalcular tuas metas.',
     todayMacros: 'Seus macros do dia',
     macroProtein: 'Proteína',
     macroCarb: 'Carbo',
@@ -120,6 +122,8 @@ export const profile = {
     changeGoal: 'Change goal',
     close: 'Close',
     goalChangeError: "Couldn't change the goal. Try again.",
+    goalNeedsProfile:
+      'Fill in your profile first: date of birth, sex, height, weight and routine are needed to work out your targets.',
     todayMacros: 'Your macros for today',
     macroProtein: 'Protein',
     macroCarb: 'Carbs',
@@ -211,6 +215,8 @@ export const profile = {
     changeGoal: 'Cambiar objetivo',
     close: 'Cerrar',
     goalChangeError: 'No pude cambiar el objetivo. Inténtalo de nuevo.',
+    goalNeedsProfile:
+      'Completa tu perfil primero: necesito fecha de nacimiento, sexo, altura, peso y rutina para calcular tus metas.',
     todayMacros: 'Tus macros del día',
     macroProtein: 'Proteína',
     macroCarb: 'Carbo',
@@ -302,6 +308,8 @@ export const profile = {
     changeGoal: "Changer d'objectif",
     close: 'Fermer',
     goalChangeError: "Impossible de changer l'objectif. Réessaie.",
+    goalNeedsProfile:
+      "Complète d'abord ton profil : date de naissance, sexe, taille, poids et routine sont nécessaires pour calculer tes objectifs.",
     todayMacros: 'Tes macros du jour',
     macroProtein: 'Protéines',
     macroCarb: 'Glucides',

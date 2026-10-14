@@ -133,3 +133,62 @@ describe('ProfilePage edit form', () => {
     )
   })
 })
+
+describe('ProfilePage changing the goal', () => {
+  /**
+   * The profile as it exists before onboarding is finished: the account is created with a
+   * name and an e-mail, and the four fields the PUT requires are still null.
+   */
+  const incompleteProfile = {
+    ...profileFixture,
+    birthDate: null,
+    sex: null,
+    heightCm: null,
+    weightKg: null,
+    activityLevel: null,
+  }
+
+  async function openGoals(user: ReturnType<typeof mount>['user']) {
+    await user.click(await screen.findByRole('button', { name: i18n.t('profile.changeGoal') }))
+  }
+
+  it('sends the whole profile back when every field is there', async () => {
+    const { handler, calls } = recording<UpdateProfilePayload>('put', '/users/me', () =>
+      ok({ ...profileFixture, goal: 'MAINTAIN' }),
+    )
+    server.use(handler)
+    const { user } = mount()
+    await openGoals(user)
+
+    await user.click(
+      screen.getByRole('button', { name: new RegExp(i18n.t('profile.goalLabel.MAINTAIN')) }),
+    )
+
+    await waitFor(() => expect(calls).toHaveLength(1))
+    expect(calls[0]).toMatchObject({ goal: 'MAINTAIN', sex: 'MALE', activityLevel: 'MODERATE' })
+  })
+
+  it('does not send a profile with holes in it, and says what is missing', async () => {
+    // The screen used to cast the nulls away with `as` and send them. Measured, the body
+    // it put on the wire was:
+    //   {"name":"Ana Souza","birthDate":"","sex":null,"heightCm":0,"weightKg":78,
+    //    "goal":"MAINTAIN","activityLevel":null}
+    // Four violations at once: birthDate fails @Past, sex and activityLevel fail @NotNull,
+    // and heightCm fails @DecimalMin("50.0") because Number(null) is 0, not NaN. The server
+    // answered 400 and the screen said only that it could not change the goal, naming
+    // nothing the person could act on.
+    const { handler, calls } = recording<UpdateProfilePayload>('put', '/users/me', () =>
+      ok(profileFixture),
+    )
+    server.use(handler)
+    const { user } = mount(incompleteProfile)
+    await openGoals(user)
+
+    await user.click(
+      screen.getByRole('button', { name: new RegExp(i18n.t('profile.goalLabel.MAINTAIN')) }),
+    )
+
+    await expectAlert(i18n.t('profile.goalNeedsProfile'))
+    expect(calls).toHaveLength(0)
+  })
+})
