@@ -14,12 +14,12 @@ It is deliberately small. The point of it is not the numbers: it is that the
 application has a second role and a real endpoint behind it, so authorisation is
 something the codebase actually does rather than something it claims it could.
 
-|                   |                                               |
-| ----------------- | --------------------------------------------- |
-| Frontend route    | none; it is an operational endpoint           |
-| Who can access it | `ADMIN` only                                  |
-| Backend package   | `com.aps.vitalpair.admin` (1 class, 58 lines) |
-| Feature flag      | none                                          |
+|                   |                                                  |
+| ----------------- | ------------------------------------------------ |
+| Frontend route    | none; it is an operational endpoint              |
+| Who can access it | `ADMIN` only                                     |
+| Backend package   | `com.aps.vitalpair.admin` (4 classes, 161 lines) |
+| Feature flag      | none                                             |
 
 ## Architecture
 

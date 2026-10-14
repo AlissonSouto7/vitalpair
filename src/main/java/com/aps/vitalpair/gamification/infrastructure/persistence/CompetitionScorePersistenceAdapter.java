@@ -1,9 +1,11 @@
 package com.aps.vitalpair.gamification.infrastructure.persistence;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
@@ -29,5 +31,14 @@ public class CompetitionScorePersistenceAdapter implements CompetitionScoreRepos
     @Override
     public Optional<CompetitionScore> findByTenantAndWeek(UUID tenantId, LocalDate weekStart) {
         return repository.findByTenantIdAndWeekStart(tenantId, weekStart).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<CompetitionScore> findHistory(UUID tenantId, LocalDate before, int limit) {
+        return repository
+                .findByTenantIdAndWeekStartLessThanOrderByWeekStartDesc(tenantId, before, PageRequest.of(0, limit))
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

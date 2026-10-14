@@ -13,12 +13,12 @@ total daily expenditure, a calorie target and a macro split come out.
 The arithmetic lives in its own package, `tdee`, which has no controller, no
 table and no port to the outside. It is a calculator that `user` calls.
 
-|                   |                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------- |
-| Frontend routes   | `/profile`, `/onboarding`, `/settings`                                                            |
-| Who can access it | authenticated user, their own profile only                                                        |
-| Backend packages  | `com.aps.vitalpair.user` (19 classes, 612 lines), `com.aps.vitalpair.tdee` (5 classes, 127 lines) |
-| Feature flag      | none                                                                                              |
+|                   |                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| Frontend routes   | `/profile`, `/onboarding`, `/settings`                                                              |
+| Who can access it | authenticated user, their own profile only                                                          |
+| Backend packages  | `com.aps.vitalpair.user` (41 classes, 1,991 lines), `com.aps.vitalpair.tdee` (5 classes, 134 lines) |
+| Feature flag      | none                                                                                                |
 
 ## Architecture
 
@@ -180,6 +180,39 @@ SELECT count(*) FROM users WHERE avatar_url IS NOT NULL AND avatar_url NOT LIKE 
 -- read only: nobody was granted admin unexpectedly
 SELECT email, role FROM users WHERE role <> 'USER';
 ```
+
+## Closed on 2026-10-14
+
+**A profile name made of whitespace was accepted.** `UpdateProfileRequest` validated the
+name with `@NotNull @Size(min = 1)`, and a single space has length 1. Measured against the
+record before the change: `" "`, `"   "` and `"\t"` all validated with zero violations,
+while registration, which uses `@NotBlank`, refuses them. `UserProfileService` writes the
+value through without trimming, so the blank reached the database and every screen showing
+an initial fell back to a placeholder letter for a name the person could neither see nor
+correct. Now `@NotBlank`, with ten tests where there had been none.
+
+**`ProfilePage.changeGoal` sent a profile with holes in it.** The endpoint is a PUT and the
+server recalculates every target, so changing the goal resends the whole profile; four of
+the required fields are nullable on a profile that has not finished onboarding, and the
+screen cast them away with `as`. Measured, the body it put on the wire was:
+
+```json
+{
+  "name": "Ana Souza",
+  "birthDate": "",
+  "sex": null,
+  "heightCm": 0,
+  "weightKg": 78,
+  "goal": "MAINTAIN",
+  "activityLevel": null
+}
+```
+
+Four violations at once: `birthDate` fails `@Past`, `sex` and `activityLevel` fail
+`@NotNull`, and `heightCm` fails `@DecimalMin("50.0")` because `Number(null)` is 0, not NaN.
+The server answered 400 and the screen said only that it could not change the goal, naming
+nothing the person could act on. It now refuses before sending and says which fields are
+missing.
 
 ## Known debt
 

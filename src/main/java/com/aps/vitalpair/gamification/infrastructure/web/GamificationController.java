@@ -1,5 +1,6 @@
 package com.aps.vitalpair.gamification.infrastructure.web;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import com.aps.vitalpair.gamification.domain.port.in.GetUserBadgesUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
 import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
+import com.aps.vitalpair.user.domain.port.in.UserDayUseCase;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,30 +32,36 @@ public class GamificationController {
     private final GetCompetitionUseCase getCompetitionUseCase;
     private final GetUserBadgesUseCase getUserBadgesUseCase;
     private final GetBadgeCatalogUseCase getBadgeCatalogUseCase;
+    private final UserDayUseCase userDayUseCase;
 
     public GamificationController(
             GetStreaksUseCase getStreaksUseCase,
             GetLevelUseCase getLevelUseCase,
             GetCompetitionUseCase getCompetitionUseCase,
             GetUserBadgesUseCase getUserBadgesUseCase,
-            GetBadgeCatalogUseCase getBadgeCatalogUseCase) {
+            GetBadgeCatalogUseCase getBadgeCatalogUseCase,
+            UserDayUseCase userDayUseCase) {
         this.getStreaksUseCase = getStreaksUseCase;
         this.getLevelUseCase = getLevelUseCase;
         this.getCompetitionUseCase = getCompetitionUseCase;
         this.getUserBadgesUseCase = getUserBadgesUseCase;
         this.getBadgeCatalogUseCase = getBadgeCatalogUseCase;
+        this.userDayUseCase = userDayUseCase;
     }
 
     @StandardApiResponses
     @Operation(
             summary = "The caller's streaks",
             description =
-                    "Current and record streak per type (meals, activities). Only the first record of a type per day advances a streak.")
+                    "Current and record streak per type (meals, activities). Only the first record of a type per day advances a streak. Each one also says whether it already counts today and whether today is the day it breaks, judged against the caller's own date rather than the device's.")
     @GetMapping("/streaks")
     public ResponseEntity<ApiResponse<List<StreakResponse>>> streaks(
             @AuthenticationPrincipal AuthenticatedUser principal) {
+        // O dia da própria pessoa, lido uma vez: todas as sequências têm de ser julgadas
+        // contra a mesma data, senão duas respostas da mesma chamada podem discordar.
+        LocalDate today = userDayUseCase.today(principal.userId());
         List<StreakResponse> streaks = getStreaksUseCase.getStreaks(principal.userId()).stream()
-                .map(StreakResponse::from)
+                .map(streak -> StreakResponse.from(streak, today))
                 .toList();
         return ResponseEntity.ok(ApiResponse.ok(streaks));
     }

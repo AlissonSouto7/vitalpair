@@ -21,11 +21,3 @@ export const RELATIONSHIP_VALUES: RelationshipType[] = [
   'BROTHERS',
   'OTHER',
 ]
-
-export function initial(name?: string | null): string {
-  return (name ?? '').trim().charAt(0).toUpperCase() || '?'
-}
-
-export function firstName(name?: string | null): string {
-  return (name ?? '').trim().split(/\s+/)[0] || '—'
-}

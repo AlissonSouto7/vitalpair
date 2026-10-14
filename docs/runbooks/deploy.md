@@ -68,10 +68,27 @@ user data, so it is the last resort, not the first.
 
 Production has never run. It needs, once:
 
-- `PRODUCTION_SERVER_NAME=app.vitalpair.app` in `deploy/env/edge.env`, then the
-  edge started again so it renders the second site.
-- A certificate for that name, and a placeholder before it: nginx will not start
-  without the file the site config names. `selfsigned.sh` then `certbot-init.sh`.
+- `PRODUCTION_SERVER_NAME=vitalpair.app` and `PRODUCTION_SERVER_ALIASES=www.vitalpair.app`
+  in `deploy/env/edge.env`, then the edge started again so it renders the second site. The
+  bare domain is the product's address; the alias answers and redirects to it, because a
+  name that resolves and then refuses is worse than one that does not resolve.
+- A certificate covering **both** names, and a placeholder before it: nginx will not
+  start without the file the site config names, and the alias server reads the canonical
+  name's certificate. The canonical name goes first, because certbot names the `live/`
+  directory after the first `-d` and that is the directory nginx reads:
+
+  ```bash
+  # On the machine, after DNS points both names here and the edge is up on port 80.
+  deploy/scripts/selfsigned.sh vitalpair.app
+
+  # Staging service first: five real failures an hour for a domain and you are locked out.
+  deploy/scripts/certbot-init.sh vitalpair.app contato@vitalpair.app www.vitalpair.app
+  STAGING=0 deploy/scripts/certbot-init.sh vitalpair.app contato@vitalpair.app www.vitalpair.app
+  ```
+
+  The script checks that every name answers before it asks, and prints the `curl` that
+  proves the alias returns 301 to the bare domain.
+
 - `deploy/env/production.env` with its own secrets, generated on the machine.
 - The two stacks then run side by side on the same host.
 

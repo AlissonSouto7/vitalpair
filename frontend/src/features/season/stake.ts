@@ -8,7 +8,7 @@ import type { TFunction } from 'i18next'
  * então toda temporada nasce com ele. Numa tela em inglês aparecia "Quem perder paga o
  * jantar" no meio dos cartões.
  */
-const SERVER_DEFAULT = 'Quem perder paga o jantar'
+export const SERVER_DEFAULT_STAKE = 'Quem perder paga o jantar'
 
 /**
  * A aposta como ela deve ser lida na tela.
@@ -18,5 +18,5 @@ const SERVER_DEFAULT = 'Quem perder paga o jantar'
  * "quem perder lava a louça a semana toda" tem que ler exatamente isso, em qualquer idioma.
  */
 export function stakeText(stake: string, t: TFunction): string {
-  return stake === SERVER_DEFAULT ? t('season.stakeDefault') : stake
+  return stake === SERVER_DEFAULT_STAKE ? t('season.stakeDefault') : stake
 }

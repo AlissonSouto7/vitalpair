@@ -39,6 +39,3 @@ export function progressLabelKey(current: number, target: number) {
 }
 
 /** Just the first name, so a mission card does not wrap on someone's full name. */
-export function firstName(name?: string | null): string {
-  return (name ?? '').trim().split(/\s+/)[0] || 'Par'
-}

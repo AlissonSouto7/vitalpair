@@ -1,8 +1,37 @@
 # One environment's site: the redirect on 80, the application on 443.
 #
 # Rendered by docker-entrypoint.d/15-render-sites.sh once per environment this machine
-# serves, with only ${SERVER_NAME} and ${ENVIRONMENT} substituted. Every other $ below is
-# nginx's own. What all sites share (the resolver, the rate-limit zone) is in templates/.
+# serves, with ${SERVER_NAME}, ${SERVER_ALIASES} and ${ENVIRONMENT} substituted. Every other
+# $ below is nginx's own. What all sites share (the resolver, the rate-limit zone) is in
+# templates/.
+#
+# SERVER_ALIASES is the other names that answer for this site and send the visitor to the
+# canonical one. Production is the bare domain, and somebody who types www. in front of it
+# has to arrive too: a name that resolves and then refuses is worse than one that does not
+# resolve at all. Empty for staging, which has no alias.
+
+# The aliases, over both protocols: one permanent redirect to the canonical name. Separate
+# servers rather than an `if` inside the canonical one, because nginx matches server_name
+# before anything else runs, and this way the canonical site never has to ask which name it
+# was reached by.
+server {
+    listen 80;
+    listen 443 ssl;
+    http2 on;
+    server_name ${SERVER_ALIASES};
+
+    ssl_certificate     /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+
+    # The challenge first, so a certificate covering the alias can be issued and renewed.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://${SERVER_NAME}$request_uri;
+    }
+}
 
 server {
     listen 80;

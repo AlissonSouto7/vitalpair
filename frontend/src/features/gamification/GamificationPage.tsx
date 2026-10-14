@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { Badge, BadgeCategory, EarnedBadge, Streak } from '../../types/gamification'
+import type { Badge, BadgeCategory, EarnedBadge, Streak, WeekRow } from '../../types/gamification'
 
 import { gamificationQueries } from './queries'
+
+import { fmtShortDate } from '@/shared/format/date'
 
 /**
  * Conquistas, medalhas e sequências (streaks), dados reais.
@@ -17,11 +19,18 @@ export function GamificationPage() {
   const { t } = useTranslation()
   const streaksQuery = useQuery(gamificationQueries.streaks())
   const earnedQuery = useQuery(gamificationQueries.earned())
+  const competitionQuery = useQuery(gamificationQueries.competition())
   const catalogQuery = useQuery(gamificationQueries.catalog())
 
   const streaks: Streak[] = streaksQuery.data ?? []
   const earned: EarnedBadge[] = earnedQuery.data ?? []
   const catalog: Badge[] = catalogQuery.data ?? []
+  /*
+    Fora do if de erro acima, de propósito: as semanas anteriores são um extra desta tela, e
+    se o placar não carregar as medalhas e as sequências continuam valendo. Uma tela inteira
+    em branco por causa da seção menos importante dela seria pior que a seção faltando.
+  */
+  const weeks: WeekRow[] = competitionQuery.data?.history ?? []
 
   if (streaksQuery.isPending || earnedQuery.isPending || catalogQuery.isPending)
     return <p className="text-muted">{t('common.loading')}</p>
@@ -34,7 +43,14 @@ export function GamificationPage() {
       </p>
     )
 
-  const earnedCodes = new Set(earned.map((e) => e.badge.code))
+  /*
+    Quando cada medalha foi conquistada, pelo código.
+
+    A tela reduzia isto a um conjunto de códigos e jogava o `earnedAt` fora, embora a API
+    sempre o tenha mandado. Uma medalha sem data é um fato sem história: "16 de set." é o que
+    a transforma em lembrança.
+  */
+  const earnedAtByCode = new Map(earned.map((e) => [e.badge.code, e.earnedAt]))
   /*
     Conquistadas primeiro, depois pela ordem das famílias.
 
@@ -43,7 +59,7 @@ export function GamificationPage() {
     parecem.
   */
   const ordered = [...catalog].sort((a, b) => {
-    const mine = Number(earnedCodes.has(b.code)) - Number(earnedCodes.has(a.code))
+    const mine = Number(earnedAtByCode.has(b.code)) - Number(earnedAtByCode.has(a.code))
     if (mine !== 0) return mine
     return CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category)
   })
@@ -80,7 +96,7 @@ export function GamificationPage() {
             {t('gamification.badges')}
           </h2>
           <span className="text-xs font-extrabold text-muted">
-            {t('gamification.badgeCount', { earned: earnedCodes.size, total: catalog.length })}
+            {t('gamification.badgeCount', { earned: earnedAtByCode.size, total: catalog.length })}
           </span>
         </div>
 
@@ -103,16 +119,77 @@ export function GamificationPage() {
           */
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {ordered.map((badge) => (
-              <BadgeTile key={badge.code} badge={badge} unlocked={earnedCodes.has(badge.code)} />
+              <BadgeTile key={badge.code} badge={badge} earnedAt={earnedAtByCode.get(badge.code)} />
             ))}
           </div>
         )}
       </section>
+
+      {weeks.length > 0 && <WeekHistory weeks={weeks} />}
     </div>
   )
 }
 
 /* ---------- subcomponentes ---------- */
+
+/**
+ * As semanas já encerradas do placar.
+ *
+ * A tabela acumulava uma linha por semana desde que a feature subiu, e só a semana corrente
+ * era lida: toda semana fechada era gravada e jogada fora. Medido antes da correção: 30
+ * linhas em 5 semanas distintas, nenhuma visível em tela.
+ *
+ * Azul para a tua vitória e bordô para a do par, como a tela de temporada já faz: perder
+ * para quem treina contigo não é um erro, e vermelho seria dizer que é.
+ */
+function WeekHistory({ weeks }: { weeks: WeekRow[] }) {
+  const { t, i18n } = useTranslation()
+  return (
+    <section className="card">
+      <h2 className="mb-3 font-display text-base font-semibold text-ink">
+        {t('gamification.weekHistory')}
+      </h2>
+      <ul className="space-y-2">
+        {weeks.map((w) => {
+          const label =
+            w.outcome === 'TIED'
+              ? t('gamification.weekTied')
+              : w.outcome === 'WON'
+                ? t('gamification.weekWon')
+                : t('gamification.weekLost')
+          const cls =
+            w.outcome === 'TIED'
+              ? 'bg-track text-muted'
+              : w.outcome === 'WON'
+                ? 'bg-you-soft text-you-ink'
+                : 'bg-pair-soft text-pair-ink'
+          return (
+            <li
+              key={w.weekStart}
+              className="flex items-center gap-3 rounded-2xl border border-hair bg-surface px-4 py-3"
+            >
+              <span className="min-w-0 flex-1 text-[13px] font-bold text-muted">
+                {t('gamification.weekOf', { date: fmtShortDate(w.weekStart, i18n.language) })}
+              </span>
+              <span className="flex items-baseline gap-1 font-display text-[15px] font-semibold">
+                {/* Teu número na tua cor, o dele na dele: os dois lados ficam legíveis sem
+                    depender de ordem nem de legenda. */}
+                <span className="text-you-ink">{w.yours}</span>
+                <span className="text-faint">·</span>
+                <span className="text-pair-ink">{w.theirs}</span>
+              </span>
+              <span
+                className={`shrink-0 rounded-lg px-2 py-1 text-[10.5px] font-extrabold uppercase tracking-[0.06em] ${cls}`}
+              >
+                {label}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
 
 function StreakCard({ streak }: { streak: Streak }) {
   const { t } = useTranslation()
@@ -142,6 +219,17 @@ function StreakCard({ streak }: { streak: Streak }) {
         <p className="text-[11px] font-bold text-faint">
           {t('gamification.record', { count: streak.longestCount })}
         </p>
+        {/*
+          O aviso de que hoje é o dia. Âmbar, e não vermelho: é pendência que ainda dá pra
+          resolver, não perda consumada. O servidor é quem decide, porque a conta depende do
+          fuso da pessoa; aqui só se mostra o que ele respondeu.
+        */}
+        {streak.breaksToday && (
+          <p className="mt-1.5 flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-extrabold text-warn">
+            <ClockIcon className="h-3.5 w-3.5 shrink-0 fill-current" />
+            {t('gamification.breaksToday')}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -159,8 +247,11 @@ function EmptyStreaks() {
   )
 }
 
-function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
-  const { t } = useTranslation()
+function BadgeTile({ badge, earnedAt }: { badge: Badge; earnedAt?: string }) {
+  const { t, i18n } = useTranslation()
+  // Ter a data É ter a medalha: a API só manda `earnedAt` para as conquistadas, então uma
+  // flag separada seria a mesma informação contada duas vezes, com chance de divergir.
+  const unlocked = earnedAt != null
   const Icon = CATEGORY_ICON[badge.category] ?? TrophyIcon
   /*
     O catálogo chega do servidor com nome e descrição gravados em pt-BR no banco, então numa
@@ -205,11 +296,29 @@ function BadgeTile({ badge, unlocked }: { badge: Badge; unlocked: boolean }) {
       >
         {description}
       </p>
+      {/*
+        A data só existe para as conquistadas. Num cartão bloqueado, um "ainda não" seria uma
+        linha de nada repetida em toda a grade.
+      */}
+      {earnedAt && (
+        <p className="mt-2 text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-success-ink/80">
+          {t('gamification.earnedOn', { date: fmtShortDate(earnedAt.slice(0, 10), i18n.language) })}
+        </p>
+      )}
     </div>
   )
 }
 
 /* ---------- ícones SVG preenchidos ---------- */
+
+/** Tempo correndo: o aviso de que a sequência quebra hoje. */
+function ClockIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5h-2v6l5 3 1-1.7-4-2.3z" />
+    </svg>
+  )
+}
 
 function FlameIcon({ className }: { className?: string }) {
   return (

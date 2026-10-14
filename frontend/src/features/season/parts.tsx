@@ -2,10 +2,10 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { StarIcon, TrophyIcon } from './icons'
-import { firstName } from './names'
 import { SOURCE_ICONS } from './sourceIcons'
 
 import { Points } from '@/components/ui/Badge'
+import { firstName } from '@/shared/format/name'
 import type { SeasonBreakdown, SeasonDay, SeasonHistoryItem } from '@/types/season'
 
 /**

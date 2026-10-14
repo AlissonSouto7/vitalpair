@@ -13,7 +13,7 @@ import { profileQueries } from './queries'
 
 import { updateProfile } from '@/api/profile'
 import { Broto } from '@/components/brand/Broto'
-import type { ActivityLevel, Goal, Sex, Tdee } from '@/types/profile'
+import type { Goal, Tdee } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
 
 // Curva de nível do Broto: pontos acumulados pra alcançar cada nível (1..8), depois +1500 por nível.
@@ -97,17 +97,40 @@ export function ProfilePage() {
     weights.length > 0 ? weights[weights.length - 1].weightKg : (profile.weightKg ?? null)
   const targetKcal = tdee?.dailyCalorieTarget ?? profile.dailyCalorieTarget ?? null
 
+  /**
+   * Changing the goal resends the whole profile, because the endpoint is a PUT and the
+   * server recalculates the targets from every field at once.
+   *
+   * Which is why the nulls have to be refused here rather than cast away. Four of the
+   * fields the PUT requires are nullable on a profile that has not finished onboarding,
+   * and the screen used to send them anyway: `birthDate: ''`, `sex: null`,
+   * `activityLevel: null` and `heightCm: 0`, since `Number(null)` is 0. The server
+   * answered 400 and the person was told only that the goal could not be changed.
+   */
   async function changeGoal(g: Goal) {
     if (!profile) return
+
+    const weight = currentWeight ?? profile.weightKg
+    if (
+      !profile.birthDate ||
+      !profile.sex ||
+      !profile.activityLevel ||
+      profile.heightCm == null ||
+      weight == null
+    ) {
+      setError(t('profile.goalNeedsProfile'))
+      return
+    }
+
     try {
       await updateProfile({
-        name: profile.name ?? '',
-        birthDate: profile.birthDate ?? '',
-        sex: profile.sex as Sex,
-        heightCm: Number(profile.heightCm),
-        weightKg: Number(currentWeight ?? profile.weightKg),
+        name: profile.name,
+        birthDate: profile.birthDate,
+        sex: profile.sex,
+        heightCm: profile.heightCm,
+        weightKg: weight,
         goal: g,
-        activityLevel: profile.activityLevel as ActivityLevel,
+        activityLevel: profile.activityLevel,
       })
       setChangingGoal(false)
       await reload()
@@ -167,6 +190,7 @@ export function ProfilePage() {
         goal={profile.goal}
         onLogged={reload}
         t={t}
+        locale={i18n.language}
       />
 
       {/* Objetivo */}

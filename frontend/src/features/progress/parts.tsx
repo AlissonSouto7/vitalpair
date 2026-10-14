@@ -7,12 +7,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { fmtDate, fmtKg } from './format'
 import { WeightForm } from './WeightForm'
 
 import { profileQueries } from '@/features/profile/queries'
 import { weightVerdict, weightVerdictClass } from '@/features/progress/weightVerdict'
-import type { CalorieDay, MacroAverage, WeightPoint } from '@/types/progress'
+import { fmtShortDate, fmtWeekdayInitial } from '@/shared/format/date'
+import { fmtKg } from '@/shared/format/weight'
+import {
+  PROGRESS_WINDOWS,
+  type CalorieDay,
+  type MacroAverage,
+  type ProgressDays,
+  type WeightPoint,
+} from '@/types/progress'
 
 /** Which panel the screen is showing. */
 export type Tab = 'peso' | 'calorias' | 'macros'
@@ -48,6 +55,50 @@ export function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }
   )
 }
 
+/**
+ * Quantos dias a tela olha para trás.
+ *
+ * Um grupo de rádio, e não três botões soltos: é uma escolha entre opções que se excluem, e
+ * é assim que um leitor de tela anuncia "7 dias, 1 de 3, selecionado". Os mesmos tokens das
+ * abas acima, porque faz o mesmo tipo de trabalho e a pessoa já aprendeu a forma.
+ */
+export function WindowPicker({
+  days,
+  onChange,
+}: {
+  days: ProgressDays
+  onChange: (d: ProgressDays) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <div
+      role="radiogroup"
+      aria-label={t('progress.windowLabel')}
+      className="flex max-w-[340px] gap-1.5 rounded-2xl bg-track p-1"
+    >
+      {PROGRESS_WINDOWS.map((d) => {
+        const active = days === d
+        return (
+          <button
+            key={d}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(d)}
+            className={`flex-1 rounded-xl px-3 py-2 text-sm transition ${
+              active
+                ? 'bg-surface font-extrabold text-ink shadow-[0_1px_4px_rgba(0,0,0,0.08)]'
+                : 'font-bold text-muted hover:text-ink'
+            }`}
+          >
+            {t(`progress.window.d${d}`)}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 /* ---------- Peso ---------- */
 
 export function PainelPeso({
@@ -57,7 +108,7 @@ export function PainelPeso({
   weights: WeightPoint[]
   onLogged: () => Promise<void>
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   return (
     <div className="space-y-4">
@@ -68,7 +119,7 @@ export function PainelPeso({
           {weights.length === 1 ? (
             <>
               <span className="font-display text-[32px] font-semibold leading-none text-ink">
-                {fmtKg(weights[0].weightKg)} {t('progress.weightUnit')}
+                {fmtKg(weights[0].weightKg, i18n.language)} {t('progress.weightUnit')}
               </span>
               <p className="text-sm font-semibold text-muted">{t('progress.firstWeightText')}</p>
             </>
@@ -95,7 +146,7 @@ export function PainelPeso({
 }
 
 export function WeightChart({ weights }: { weights: WeightPoint[] }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   /*
    * The goal, read from the same cached query the profile screen uses, so this costs no extra
    * request. It is what decides whether the change is good news: this product is built around
@@ -132,13 +183,13 @@ export function WeightChart({ weights }: { weights: WeightPoint[] }) {
     <section className="card !rounded-[18px] !p-6">
       <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-display text-[32px] font-semibold leading-none text-ink">
-          {fmtKg(atual)} {t('progress.weightUnit')}
+          {fmtKg(atual, i18n.language)} {t('progress.weightUnit')}
         </span>
         {Math.abs(delta) >= 0.05 && (
           <span className={`text-sm font-extrabold ${weightVerdictClass(verdict)}`}>
             {t('progress.deltaSince', {
-              delta: `${perdeu ? '−' : '+'}${fmtKg(Math.abs(delta))}`,
-              date: fmtDate(weights[0].date),
+              delta: `${perdeu ? '−' : '+'}${fmtKg(Math.abs(delta), i18n.language)}`,
+              date: fmtShortDate(weights[0].date, i18n.language),
             })}
           </span>
         )}
@@ -172,7 +223,7 @@ export function WeightChart({ weights }: { weights: WeightPoint[] }) {
       </svg>
 
       <div className="mt-2.5 flex justify-between text-[11px] font-bold text-muted">
-        <span>{fmtDate(weights[0].date)}</span>
+        <span>{fmtShortDate(weights[0].date, i18n.language)}</span>
         <span>{t('progress.today')}</span>
       </div>
     </section>
@@ -184,9 +235,12 @@ export function WeightChart({ weights }: { weights: WeightPoint[] }) {
 export function PainelCalorias({
   calories,
   targetKcal,
+  byWeek = false,
 }: {
   calories: CalorieDay[]
   targetKcal: number | null
+  /** Na janela de 90 dias cada barra é uma semana, e a inicial do dia não significa nada. */
+  byWeek?: boolean
 }) {
   const { t, i18n } = useTranslation()
   const maxKcal = Math.max(targetKcal ?? 0, ...calories.map((d) => d.kcal), 1)
@@ -236,9 +290,20 @@ export function PainelCalorias({
       </div>
 
       <div className="mt-2 flex gap-3.5">
-        {calories.map((d, i) => (
-          <span key={i} className="flex-1 text-center text-[11px] font-extrabold text-muted">
-            {d.label}
+        {calories.map((d) => (
+          <span
+            key={d.date}
+            className="flex-1 text-center text-[11px] font-extrabold text-muted"
+            /* A data inteira para quem navega com leitor de tela ou passa o dedo: uma
+               inicial sozinha não diz de que dia se trata, e numa semana agrupada o número
+               do dia é o começo do período. */
+            title={
+              byWeek
+                ? t('progress.weekOf', { date: fmtShortDate(d.date, i18n.language) })
+                : undefined
+            }
+          >
+            {byWeek ? d.date.slice(8, 10) : fmtWeekdayInitial(d.date, i18n.language)}
           </span>
         ))}
       </div>
@@ -292,7 +357,7 @@ export function PainelMacros({ macros }: { macros: MacroAverage[] }) {
         return (
           <div key={m.key}>
             <div className="mb-1.5 flex items-center justify-between text-[13px]">
-              <span className="font-extrabold text-ink">{m.label}</span>
+              <span className="font-extrabold text-ink">{t(`progress.macroLabel.${m.key}`)}</span>
               <span className="font-bold text-muted">
                 {m.targetG != null
                   ? t('progress.macrosAvgTarget', { avg: m.avgG, target: m.targetG })

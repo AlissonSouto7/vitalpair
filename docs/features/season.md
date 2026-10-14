@@ -16,12 +16,12 @@ re-summed from `point_events`, the ledger `gamification` writes at the same mome
 it updates the scoreboard. That is the design: one place records what happened, and
 the season derives everything from it.
 
-|                   |                                                    |
-| ----------------- | -------------------------------------------------- |
-| Frontend routes   | `/season`, `/season-end`                           |
-| Who can access it | authenticated user                                 |
-| Backend package   | `com.aps.vitalpair.season` (26 classes, 931 lines) |
-| Feature flag      | none                                               |
+|                   |                                                      |
+| ----------------- | ---------------------------------------------------- |
+| Frontend routes   | `/season`, `/season-end`                             |
+| Who can access it | authenticated user                                   |
+| Backend package   | `com.aps.vitalpair.season` (26 classes, 1,037 lines) |
+| Feature flag      | none                                                 |
 
 ## Architecture
 
@@ -163,6 +163,22 @@ SELECT source, count(*) FROM point_events GROUP BY source;
 | S-1, a GET that can 500 under concurrency       | A rare error on the main screen                        | With the tests above, so the fix can be proved                                                       |
 | S-2 and S-4, history recomputed instead of read | Unbounded N+1 on every page load                       | One change fixes both                                                                                |
 | S-6, timezone of the day bucket                 | Chart and total can disagree by a day                  | Solve with N-3, once, everywhere                                                                     |
+
+### Closed on 2026-10-14
+
+**The stake had no way of being changed.** `PUT /api/v1/season/stake` had existed since
+this feature shipped and no screen called it: the stake showed on two cards, always with
+`SeasonService.DEFAULT_STAKE`, the value the server writes when nobody has chosen. The last
+onboarding step even asks for a stake, does not store it (there is no season before there is
+a pair, which is correct) and its comment promised that "someone who pairs up sets the stake
+on the season screen" — the screen that had no way to set it.
+
+`StakeEditor` is now on the season screen and on the pair screen, deliberately both: the
+agreement belongs to the pair as much as to the season, and whoever wants to change it goes
+to one of the two. It opens **empty** when the stored stake is still the server default,
+because pre-filling it would have somebody save the default as though it were their choice,
+and in another language would save the translated default as free text. Six tests on the
+season screen, two on the pair screen, each proved by sabotage.
 
 ## History
 

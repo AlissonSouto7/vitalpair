@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { getFeed, reactToItem, removeReaction } from '../../api/feed'
 import { Avatar } from '../../components/ui/Avatar'
+import { initial } from '../../shared/format/name'
 import { useAuthStore } from '../../store/authStore'
 import type { FeedItem, ReactionType } from '../../types/feed'
 import { usePartnerName } from '../pair/usePartnerName'
@@ -296,10 +297,6 @@ function EmptyState({ t, partnerName }: { t: TFn; partnerName: string }) {
       </div>
     </div>
   )
-}
-
-function initial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || 'A'
 }
 
 /** Tempo relativo no tom de papo ("agora", "há 20 min", "há 2h", "ontem"). */

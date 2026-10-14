@@ -12,47 +12,47 @@
 
 One paragraph on what the feature does for the user.
 
-| | |
-|---|---|
-| Frontend route | `/example` |
+|                   |                                                   |
+| ----------------- | ------------------------------------------------- |
+| Frontend route    | `/example`                                        |
 | Who can access it | authenticated user, pair member, admin, anonymous |
-| Backend package | `com.aps.vitalpair.<feature>` |
-| Feature flag | none, or the flag that gates it |
+| Backend package   | `com.aps.vitalpair.<feature>`                     |
+| Feature flag      | none, or the flag that gates it                   |
 
 ## Architecture
 
-| Layer | Files |
-|---|---|
-| Route | |
-| Controller | |
-| Use case port | |
-| Service | |
-| Output ports | |
-| Persistence | |
-| Frontend page | |
-| i18n namespace | |
+| Layer          | Files |
+| -------------- | ----- |
+| Route          |       |
+| Controller     |       |
+| Use case port  |       |
+| Service        |       |
+| Output ports   |       |
+| Persistence    |       |
+| Frontend page  |       |
+| i18n namespace |       |
 
 ### Endpoints
 
-| Method | Path | Action | Who can call it |
-|---|---|---|---|
-| GET | `/api/v1/example` | | |
+| Method | Path              | Action | Who can call it |
+| ------ | ----------------- | ------ | --------------- |
+| GET    | `/api/v1/example` |        |                 |
 
 ### Data
 
 Tables and columns this feature owns, and the migrations that created them.
 
 | Table | Created in | Notes |
-|---|---|---|
+| ----- | ---------- | ----- |
 
 ## Business rules
 
 The invariants and the reason each one exists. A rule with no reason is a rule
 someone will delete.
 
-| # | Rule | Why |
-|---|---|---|
-| R-1 | | |
+| #   | Rule | Why |
+| --- | ---- | --- |
+| R-1 |      |     |
 
 ## Security findings
 
@@ -62,40 +62,41 @@ person from re-investigating something already checked.
 
 ### Fixed
 
-| ID | Severity | File | What happened | Measured impact | Fix |
-|---|---|---|---|---|---|
-| S-1 | | | | | |
+| ID  | Severity | File | What happened | Measured impact | Fix |
+| --- | -------- | ---- | ------------- | --------------- | --- |
+| S-1 |          |      |               |                 |     |
 
 ### Open
 
-| ID | Severity | File | What happens | Measured impact | Why it is still open |
-|---|---|---|---|---|---|
-| S-2 | | | | | |
+| ID  | Severity | File | What happens | Measured impact | Why it is still open |
+| --- | -------- | ---- | ------------ | --------------- | -------------------- |
+| S-2 |          |      |              |                 |                      |
 
 ### Verified and fine
 
 What was checked and found sound, so nobody re-checks it.
 
-| Check | How it was verified | Date |
-|---|---|---|
-| Object-level authorization on every endpoint | | |
-| Tenant scope on every query | | |
-| No secret or token in logs | | |
-| Server-side input validation | | |
-| Rate limiting on public endpoints | | |
+| Check                                        | How it was verified | Date |
+| -------------------------------------------- | ------------------- | ---- |
+| Object-level authorization on every endpoint |                     |      |
+| Tenant scope on every query                  |                     |      |
+| No secret or token in logs                   |                     |      |
+| Server-side input validation                 |                     |      |
+| Rate limiting on public endpoints            |                     |      |
 
 ## Tests
 
 Each test is tied to the risk it protects against. A test whose risk cannot be
 named is a test nobody will maintain.
 
-| Test | Type | Risk it covers |
-|---|---|---|
-| | unit / slice / integration / e2e | |
+| Test | Type                             | Risk it covers |
+| ---- | -------------------------------- | -------------- |
+|      | unit / slice / integration / e2e |                |
 
 How to run them:
 
 ```bash
+
 ```
 
 ### What is not covered
@@ -115,10 +116,10 @@ Read-only commands and queries to confirm the feature is behaving.
 ## Known debt
 
 | Item | Impact | When it is meant to be addressed |
-|---|---|---|
+| ---- | ------ | -------------------------------- |
 
 ## History
 
-| Date | Change | Pull request |
-|---|---|---|
-| YYYY-MM-DD | Created | #N |
+| Date       | Change  | Pull request |
+| ---------- | ------- | ------------ |
+| YYYY-MM-DD | Created | #N           |

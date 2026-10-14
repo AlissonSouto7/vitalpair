@@ -24,7 +24,7 @@ published ports and does arithmetic.
 | Frontend route    | `/dashboard`                                                                                                                     |
 | Frontend reads    | `dashboard`, `pair`, `gamification` (scoreboard, streaks, level), `activity`, `feed`, `mission`, `season`, `profile`, `progress` |
 | Who can access it | authenticated user                                                                                                               |
-| Backend package   | `com.aps.vitalpair.dashboard` (9 classes, 266 lines)                                                                             |
+| Backend package   | `com.aps.vitalpair.dashboard` (9 classes, 275 lines)                                                                             |
 | Feature flag      | none                                                                                                                             |
 
 ## Architecture

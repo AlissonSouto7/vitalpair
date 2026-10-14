@@ -1,14 +1,19 @@
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-import { firstName, initial, type TFn } from './pairText'
+import { type TFn } from './pairText'
 import { IconCheck, IconLink, RelationCard } from './shared'
 
 import { refreshSession } from '@/api/auth'
 import { leavePair } from '@/api/pair'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { Avatar } from '@/components/ui/Avatar'
+import { profileQueries } from '@/features/profile/queries'
+import { stakeText } from '@/features/season/stake'
+import { StakeEditor } from '@/features/season/StakeEditor'
 import { avatarUrl } from '@/shared/api/avatarUrl'
 import { getApiErrorMessage } from '@/shared/api/errors'
+import { firstName, initial } from '@/shared/format/name'
 import { FormError } from '@/shared/ui/form/FormError'
 import type { Pair, PairMember, RelationshipType } from '@/types/pair'
 
@@ -72,6 +77,9 @@ export function PairFormed({
 
       <RelationCard pair={pair} onChange={onChangeType} t={t} />
 
+      <StakeCard t={t} />
+
+      {/* Último, de propósito: é a única ação da tela que não se desfaz. */}
       <LeavePairCard partnerName={firstName(partner?.name)} onLeft={onLeft} t={t} />
     </>
   )
@@ -164,6 +172,33 @@ function LeavePairCard({
         </button>
       </div>
     </div>
+  )
+}
+
+/**
+ * A aposta, nos ajustes da dupla.
+ *
+ * O mesmo editor da tela de temporada, nos dois lugares de propósito: quem quer mudar o que
+ * está em jogo procura onde o acordo mora, e o acordo mora na dupla tanto quanto na
+ * temporada. A consulta é a mesma, sob a mesma chave, então as duas telas compartilham uma
+ * resposta em cache em vez de cada uma buscar a sua.
+ *
+ * Silencioso enquanto a temporada carrega, e silencioso se ela falhar: a aposta é um extra
+ * desta tela, e perdê-la não deve tirar do ar o convite nem a saída da dupla.
+ */
+function StakeCard({ t }: { t: TFn }) {
+  const seasonQuery = useQuery(profileQueries.season())
+  const season = seasonQuery.data
+  if (!season) return null
+
+  return (
+    <section className="card">
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted">
+        {t('season.statStakeTitle')}
+      </p>
+      <p className="mt-1 text-[15px] font-bold text-ink">{stakeText(season.stake, t)}</p>
+      <StakeEditor stake={season.stake} hasPartner={season.hasPartner} />
+    </section>
   )
 }
 

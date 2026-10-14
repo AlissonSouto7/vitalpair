@@ -13,6 +13,7 @@ import com.aps.vitalpair.gamification.application.service.BadgeService;
 import com.aps.vitalpair.gamification.application.service.CompetitionService;
 import com.aps.vitalpair.gamification.application.service.StreakService;
 import com.aps.vitalpair.gamification.domain.model.StreakType;
+import com.aps.vitalpair.gamification.domain.model.WeightMilestone;
 import com.aps.vitalpair.notification.domain.model.NotificationType;
 import com.aps.vitalpair.notification.domain.port.in.CreateNotificationUseCase;
 import com.aps.vitalpair.season.domain.model.PointSource;
@@ -20,6 +21,9 @@ import com.aps.vitalpair.season.domain.port.in.RecordPointUseCase;
 import com.aps.vitalpair.shared.event.ActivityLoggedEvent;
 import com.aps.vitalpair.shared.event.MealLoggedEvent;
 import com.aps.vitalpair.shared.event.PairFormedEvent;
+import com.aps.vitalpair.shared.event.WeightLoggedEvent;
+import com.aps.vitalpair.user.domain.model.Goal;
+import com.aps.vitalpair.user.domain.model.User;
 import com.aps.vitalpair.user.domain.port.out.UserRepositoryPort;
 
 /**
@@ -91,6 +95,26 @@ public class GamificationEventListener {
         badgeService.awardByCode(event.user1Id(), event.tenantId(), "PAIR_FORMED");
         if (event.user2Id() != null) {
             badgeService.awardByCode(event.user2Id(), event.tenantId(), "PAIR_FORMED");
+        }
+    }
+
+    /**
+     * Awards the weight badges, if the change just recorded earned one.
+     *
+     * <p>No points and no streak: a weighing is not an effort the way a meal or a workout is,
+     * and paying for it would reward standing on a scale. The badge is the whole reward.
+     *
+     * <p>Every step reached is offered, not only the highest: somebody who weighs in after a
+     * long stretch earned the smaller ones too. {@code awardByCode} is idempotent, so a step
+     * already held costs a lookup and nothing more.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void onWeightLogged(WeightLoggedEvent event) {
+        Goal goal = userRepository.findById(event.userId()).map(User::getGoal).orElse(null);
+
+        for (String code : WeightMilestone.badgesFor(event.startWeightKg(), event.weightKg(), goal)) {
+            badgeService.awardByCode(event.userId(), event.tenantId(), code);
         }
     }
 

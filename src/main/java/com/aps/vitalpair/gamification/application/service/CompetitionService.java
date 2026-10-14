@@ -3,11 +3,13 @@ package com.aps.vitalpair.gamification.application.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.aps.vitalpair.gamification.application.dto.WeekResult;
 import com.aps.vitalpair.gamification.domain.model.CompetitionScore;
 import com.aps.vitalpair.gamification.domain.port.in.AwardPointsUseCase;
 import com.aps.vitalpair.gamification.domain.port.in.GetCompetitionUseCase;
@@ -42,6 +44,22 @@ public class CompetitionService implements GetCompetitionUseCase, AwardPointsUse
         return competitionRepository
                 .findByTenantAndWeek(user.getTenantId(), week)
                 .orElseGet(() -> emptyScore(user.getTenantId(), week));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<WeekResult> getHistory(UUID userId, int limit) {
+        User user = userRepository.findById(userId).orElseThrow(() -> ResourceNotFoundException.of("Usuário", userId));
+        Pair pair = pairRepository.findById(user.getTenantId()).orElse(null);
+        if (pair == null) {
+            // Sem par não existe placar: quem está só não disputa com ninguém.
+            return List.of();
+        }
+
+        LocalDate thisWeek = weekStart(LocalDate.now(user.zone()));
+        return competitionRepository.findHistory(user.getTenantId(), thisWeek, limit).stream()
+                .map(score -> WeekResult.of(score, pair.getUser1Id(), userId))
+                .toList();
     }
 
     /**

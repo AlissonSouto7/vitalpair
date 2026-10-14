@@ -1,9 +1,10 @@
 import type { TFunction } from 'i18next'
 import type { ReactNode } from 'react'
 
-import { IconDown, IconEqual, IconMuscle, IconSpark } from './icons'
+import { IconDown, IconEqual, IconMuscle } from './icons'
 import type { GoalTone } from './StepParts'
 
+import { IconSpark } from '@/components/ui/icons'
 import type { ActivityLevel, Goal, Sex } from '@/types/profile'
 
 /**

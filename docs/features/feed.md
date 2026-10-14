@@ -18,7 +18,7 @@ writes the words, so the timeline reads in the language the person chose.
 | ----------------- | ------------------------------------------------ |
 | Frontend route    | `/feed`                                          |
 | Who can access it | authenticated user, their own pair's feed        |
-| Backend package   | `com.aps.vitalpair.feed` (23 classes, 760 lines) |
+| Backend package   | `com.aps.vitalpair.feed` (23 classes, 940 lines) |
 | Feature flag      | none                                             |
 
 ## Architecture

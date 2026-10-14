@@ -7,6 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { refreshSession } from '../../api/auth'
 import { joinPair } from '../../api/pair'
 import { BrandMark } from '../../components/brand/BrandMark'
+import { initial } from '../../shared/format/name'
 import { useAuthStore } from '../../store/authStore'
 
 import { pairQueries } from './queries'
@@ -159,10 +160,6 @@ export function InvitePage() {
 
 function Card({ children }: { children: ReactNode }) {
   return <div className="card text-center">{children}</div>
-}
-
-function initial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || '?'
 }
 
 function IconLink() {

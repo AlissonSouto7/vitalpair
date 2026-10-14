@@ -17,7 +17,7 @@ codebase with no `tenant_id`, and that is deliberate.
 | ----------------- | ---------------------------------------------------- |
 | Frontend route    | `/progress`                                          |
 | Who can access it | authenticated user, their own data only              |
-| Backend package   | `com.aps.vitalpair.progress` (19 classes, 591 lines) |
+| Backend package   | `com.aps.vitalpair.progress` (20 classes, 800 lines) |
 | Feature flag      | none                                                 |
 
 ## Architecture
@@ -123,6 +123,34 @@ SELECT count(*) FROM weight_logs WHERE weight_kg < 20 OR weight_kg > 500;
 -- read only: how many people actually have a history worth charting
 SELECT count(*) FROM (SELECT user_id FROM weight_logs GROUP BY 1 HAVING count(*) > 1) t;
 ```
+
+## Closed on 2026-10-14
+
+**The window was fixed at seven days**, which answers "how was my week" and nothing else:
+somebody six weeks into a change had no way of seeing the change. `GET /api/v1/progress`
+takes `days` (7, 30 or 90; 7 by default, so the screen opens on what it always showed), and
+an unknown value falls back to the default rather than returning 400, because this picks a
+chart and a blank screen over a query string is worse than the wrong chart.
+
+The ninety-day window **groups the calorie bars by week**, 13 instead of 90: ninety daily
+bars on a phone is a grey smear. Each bar is measured against the target multiplied by the
+days it covers, so "within goal" keeps meaning the same thing, and the last bar is measured
+against its own length when today is not a Sunday.
+
+**Three pieces of interface text were written on the server, in Portuguese.** All three had
+a stable key or a date beside them, so the screen can write the label in the reader's own
+language, exactly as it already does with a badge code:
+
+| Was                                                                          | Now                                          |
+| ---------------------------------------------------------------------------- | -------------------------------------------- |
+| `CalorieDay.label`, the weekday initial from `{"S","T","Q","Q","S","S","D"}` | the screen writes it from `date` with `Intl` |
+| `MacroAverage.label`, `"Proteína"` / `"Carboidrato"` / `"Gordura"`           | the screen translates `key`                  |
+| `fmtKg` and the date caption, hardcoded to `pt-BR`                           | both take the caller's locale                |
+
+The weekday initials were also ambiguous in Portuguese, where S and Q each appear twice; in
+English the seven are genuinely distinct (M T W T F S S). Measured, the same weight renders
+"78,5" in pt, es and fr and "78.5" in en, and the same date "13 de out." against "Oct 13".
+`ProgressPage.test.tsx` renders one fixture in two languages and asserts they differ.
 
 ## Known debt
 

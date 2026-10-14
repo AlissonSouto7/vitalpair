@@ -1,13 +1,11 @@
 /**
- * How names are written on the end-of-season screen.
+ * Wording particular to the end-of-season screen.
  *
- * The fallback initial is 'P' here where the season screen's is '?'. They look like
- * duplicates and are not, so they stay separate.
+ * `initial` used to live here too, with 'P' where the season screen used '?'. A note said
+ * they were not duplicates for that reason. The 'P' was the weaker half: it reads as the
+ * initial of a person named P, so the shared helper's '?' replaced it.
  */
 
-export function initial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || 'P'
-}
 export function lowerFirst(s: string): string {
   return s.charAt(0).toLowerCase() + s.slice(1)
 }

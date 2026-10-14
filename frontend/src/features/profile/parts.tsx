@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 
-import { fmtKg } from './format'
 import { type TFn } from './profileForm'
 
 import { MACRO_TONES, type MacroTone } from '@/components/ui/macroTone'
@@ -10,6 +9,7 @@ import {
   weightVerdictClass,
   type WeightVerdict,
 } from '@/features/progress/weightVerdict'
+import { fmtKg } from '@/shared/format/weight'
 import type { Goal } from '@/types/profile'
 import type { WeightPoint } from '@/types/progress'
 
@@ -30,6 +30,7 @@ export function WeightCard({
   goal,
   onLogged,
   t,
+  locale,
 }: {
   weights: WeightPoint[]
   currentWeight: number | null
@@ -37,6 +38,8 @@ export function WeightCard({
   goal: Goal | null
   onLogged: () => Promise<void>
   t: TFn
+  /** Decides the decimal separator: a weight reads "78,5" in pt and "78.5" in en. */
+  locale: string
 }) {
   const delta = weights.length >= 2 ? weights[weights.length - 1].weightKg - weights[0].weightKg : 0
   const perdeu = delta < 0
@@ -58,12 +61,12 @@ export function WeightCard({
             {t('profile.todayWeight')}
           </p>
           <p className="font-display text-[32px] font-semibold leading-none text-ink">
-            {currentWeight != null ? `${fmtKg(currentWeight)} kg` : '--'}
+            {currentWeight != null ? `${fmtKg(currentWeight, locale)} kg` : '--'}
           </p>
           {Math.abs(delta) >= 0.05 && (
             <p className={`mt-1 text-[13px] font-extrabold ${weightVerdictClass(verdict)}`}>
               {t(`profile.weight${perdeu ? 'Down' : 'Up'}${verdictSuffix(verdict)}`, {
-                kg: fmtKg(Math.abs(delta)),
+                kg: fmtKg(Math.abs(delta), locale),
               })}
             </p>
           )}

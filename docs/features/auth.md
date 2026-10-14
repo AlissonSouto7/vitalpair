@@ -20,7 +20,7 @@ exists without a tenant.
 | ----------------- | ----------------------------------------------------------------------------- |
 | Frontend routes   | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email` |
 | Who can access it | anonymous; every endpoint in this feature is public                           |
-| Backend package   | `com.aps.vitalpair.auth` (45 classes, 1,634 lines)                            |
+| Backend package   | `com.aps.vitalpair.auth` (45 classes, 1,705 lines)                            |
 | Feature flag      | none                                                                          |
 
 ## Architecture

@@ -235,23 +235,34 @@ grep -rl "<form" frontend/src --include="*.tsx" | grep -v test | xargs grep -l u
 
 ## Known debt
 
-Measured on 2026-09-12.
+Measured on 2026-10-13.
 
-- **Three files above 300 lines.** `max-lines` is an error at 325, counted
-  without blank lines or comments, so the next screen that grows breaks the
-  build. The translation bundles (`src/locales/`) are exempt, because their
-  length is their content: `legal.ts` is over a thousand lines of legal text in
-  four languages, and no decomposition shortens a privacy policy.
+- **Two screens above 300 lines.** `max-lines` is an error at 325, so the next
+  screen that grows breaks the build. The translation bundles (`src/locales/`)
+  are exempt, because their length is their content: `legal.ts` is over a
+  thousand lines of legal text in four languages, and no decomposition shortens
+  a privacy policy.
 
-  | File                 | Lines | Why                                                   |
-  | -------------------- | ----- | ----------------------------------------------------- |
-  | `NutritionPage.tsx`  | 368   | one flow: tabs, draft, save, the day's list           |
-  | `MealPlanPage.tsx`   | 343   | one flow: the plan, the chosen day, generate and swap |
-  | `progress/parts.tsx` | 304   | the panels, which are long SVG                        |
+  **Count them with the linter, not with `wc -l`.** The rule skips blank lines
+  and comments, and it understands a JSX comment, which a hand-rolled script
+  does not: `MealEditor.tsx` is 413 lines by `wc -l`, 340 by a script that
+  counts comments naively, and 308 by the only number that can break the build.
+  The gap is wide enough to invent a problem or hide one. To get the real
+  figure, lower `max` to 1 in a throwaway config and read what ESLint reports.
 
-  The first two are flow rather than presentation. Splitting further would mean
-  two files reading the same state, which makes the number look better and the
-  code worse. This is a deliberate stop.
+  | File                       | Lines | Why                                             |
+  | -------------------------- | ----- | ----------------------------------------------- |
+  | `landing/sections.tsx`     | 311   | the public page's sections, one after the other |
+  | `nutrition/MealEditor.tsx` | 308   | one flow: the cart, the quantities, the save    |
+
+  Both are a sequence rather than a structure. Splitting further would mean two
+  files reading the same state, which makes the number look better and the code
+  worse. This is a deliberate stop.
+
+  The three files this table used to name are all below the line now
+  (`NutritionPage.tsx` 298, `MealPlanPage.tsx` 280, `progress/parts.tsx` 272),
+  not because anybody shortened them but because the earlier figures were
+  `wc -l`.
 
 - **The fast-refresh rule shaped the split.**
   `react-refresh/only-export-components` is an error and only appears in the
@@ -270,14 +281,20 @@ Measured on 2026-09-12.
 - **`lucide-react` was removed.** It had been installed to replace the duplicated
   SVGs with ready-made icons and was never imported. The colour law asks for the
   product's own icons rather than a generic library, so the SVGs stay.
-- **Hand-written buttons remain** while `components/ui/Button.tsx` exists and
-  nothing imports it. The component is where the buttons' colour law is written,
-  so it was kept and listed in `knip.json`; standardising the screens is still to
-  do.
+- **Hand-written buttons remain** while `components/ui/Button.tsx` exists.
+  Measured on 2026-10-13: one file imports it (`ConfirmDialog.tsx`) and 46 write
+  their own `<button>`. The component is where the buttons' colour law is
+  written, so standardising the screens is still to do. It used to be listed in
+  `knip.json` as unused; that entry was stale once `ConfirmDialog` adopted it,
+  and knip itself was reporting the entry as unnecessary.
 - **`ProfilePage.changeGoal` resends the whole profile with `sex` and
   `activityLevel` cast**, without a null check. If the profile does not have
   those fields yet, the PUT fails with a 400 and the screen says it could not
-  change the goal.
+  change the goal. Still open, and confirmed on 2026-10-13: `types/profile.ts`
+  declares `sex: Sex | null` and `activityLevel: ActivityLevel | null`, and
+  `ProfilePage.tsx:106` and `:110` cast both with `as`. The `name: profile.name
+?? ''` on the line above is defensive for nothing, since the same file types
+  `name` as a plain `string`; an empty name is refused by the server anyway.
 
 ## History
 

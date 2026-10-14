@@ -19,7 +19,7 @@ the product that moves a person from one tenant to another.
 | ----------------- | -------------------------------------------------------- |
 | Frontend routes   | `/pair`, `/convite/:code`                                |
 | Who can access it | authenticated, except the invite preview which is public |
-| Backend package   | `com.aps.vitalpair.pair` (23 classes, 628 lines)         |
+| Backend package   | `com.aps.vitalpair.pair` (27 classes, 953 lines)         |
 | Feature flag      | none                                                     |
 
 ## Architecture

@@ -8,11 +8,12 @@ import { pairQueries } from '../pair/queries'
 import { profileQueries } from '../profile/queries'
 
 import { ClockIcon, DishIcon, MedalIcon, TrophyIcon } from './icons'
-import { firstName, initial } from './names'
 import { BreakdownRow, DayChart, HistoryRow, Legend, Stat } from './parts'
 import { stakeText } from './stake'
+import { StakeEditor } from './StakeEditor'
 
 import { avatarUrl } from '@/shared/api/avatarUrl'
+import { firstName, initial } from '@/shared/format/name'
 
 export function SeasonPage() {
   const { t } = useTranslation()
@@ -107,12 +108,17 @@ export function SeasonPage() {
 
       {/* Resumo: aposta + dias + quem lidera */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Stat
-          icon={<DishIcon />}
-          tone="carb"
-          title={t('season.statStakeTitle')}
-          value={stakeText(season.stake, t)}
-        />
+        <div>
+          <Stat
+            icon={<DishIcon />}
+            tone="carb"
+            title={t('season.statStakeTitle')}
+            value={stakeText(season.stake, t)}
+          />
+          {/* Onde a aposta é lida é onde ela se muda: o endpoint existia e nenhuma tela o
+              chamava, e o onboarding prometia justamente que se definia aqui. */}
+          <StakeEditor stake={season.stake} hasPartner={hasPartner} />
+        </div>
         <Stat
           icon={<ClockIcon />}
           tone="brand"

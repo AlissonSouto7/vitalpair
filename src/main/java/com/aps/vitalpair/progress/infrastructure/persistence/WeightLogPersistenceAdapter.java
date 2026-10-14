@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.PageRequest;
@@ -42,5 +43,10 @@ public class WeightLogPersistenceAdapter implements WeightLogRepositoryPort {
             chronological.add(new WeightPoint(e.getRecordedOn(), e.getWeightKg()));
         }
         return chronological;
+    }
+
+    @Override
+    public Optional<BigDecimal> findStartWeight(UUID userId) {
+        return repository.findFirstByUserIdOrderByRecordedOnAsc(userId).map(WeightLogJpaEntity::getWeightKg);
     }
 }

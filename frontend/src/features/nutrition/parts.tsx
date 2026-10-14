@@ -36,35 +36,6 @@ export function TabButton({
   )
 }
 
-export function Macro({
-  label,
-  value,
-  target,
-  tone,
-}: {
-  label: string
-  value: number
-  target: number | null
-  tone: MacroTone
-}) {
-  const pct = target ? Math.min(100, Math.round((value / target) * 100)) : 0
-  const bar = MACRO_TONES[tone].bg
-  return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between text-sm">
-        <span className="font-bold text-ink">{label}</span>
-        <span className="font-bold text-muted">
-          {Math.round(value)}
-          {target != null ? ` / ${target} g` : ' g'}
-        </span>
-      </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-track">
-        <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  )
-}
-
 export function Dot({ tone }: { tone: MacroTone }) {
   return <span className={`h-2 w-2 rounded-full ${MACRO_TONES[tone].bg}`} aria-hidden="true" />
 }
