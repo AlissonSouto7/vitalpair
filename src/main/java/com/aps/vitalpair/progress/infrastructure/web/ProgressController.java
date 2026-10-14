@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aps.vitalpair.progress.domain.model.ProgressWindow;
 import com.aps.vitalpair.progress.domain.port.in.GetProgressUseCase;
 import com.aps.vitalpair.progress.domain.port.in.RecordWeightUseCase;
 import com.aps.vitalpair.shared.security.AuthenticatedUser;
@@ -17,6 +19,7 @@ import com.aps.vitalpair.shared.web.ApiResponse;
 import com.aps.vitalpair.shared.web.StandardApiResponses;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Progress", description = "Weight, calories and macros over time.")
@@ -36,11 +39,14 @@ public class ProgressController {
     @Operation(
             summary = "Weight history, calorie chart, macro averages",
             description =
-                    "The last 26 recorded weights oldest first, seven days of calories against the target, and the week's average macros. Targets come back null when the profile is incomplete; the screen still renders.")
+                    "Weights oldest first, the calorie chart and the average macros, all over the window given in `days` (7, 30 or 90; 7 by default). The ninety-day chart groups its bars by week, because ninety daily bars do not fit a phone. Targets come back null when the profile is incomplete; the screen still renders.")
     @GetMapping
     public ResponseEntity<ApiResponse<ProgressResponse>> progress(
-            @AuthenticationPrincipal AuthenticatedUser principal) {
-        var view = getProgressUseCase.getProgress(principal.userId());
+            @AuthenticationPrincipal AuthenticatedUser principal,
+            @Parameter(description = "Window in days: 7, 30 or 90. Anything else falls back to 7.")
+                    @RequestParam(required = false)
+                    Integer days) {
+        var view = getProgressUseCase.getProgress(principal.userId(), ProgressWindow.fromDays(days));
         return ResponseEntity.ok(ApiResponse.ok(ProgressResponse.from(view)));
     }
 

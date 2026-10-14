@@ -8,6 +8,10 @@ export const progress = {
     tabMacros: 'Macros',
     // peso
     weightUnit: 'kg',
+    macroLabel: { PROTEIN: 'Proteína', CARB: 'Carboidrato', FAT: 'Gordura' },
+    window: { d7: '7 dias', d30: '30 dias', d90: '90 dias' },
+    windowLabel: 'Período',
+    weekOf: 'Semana de {{date}}',
     firstWeightText:
       'Esse é seu peso de agora. Registra de novo daqui uns dias que a linha começa a desenhar.',
     noWeightTitle: 'Sem peso registrado ainda',
@@ -40,6 +44,10 @@ export const progress = {
     tabCalories: 'Calories',
     tabMacros: 'Macros',
     weightUnit: 'kg',
+    macroLabel: { PROTEIN: 'Protein', CARB: 'Carbs', FAT: 'Fat' },
+    window: { d7: '7 days', d30: '30 days', d90: '90 days' },
+    windowLabel: 'Period',
+    weekOf: 'Week of {{date}}',
     firstWeightText:
       'That’s your weight right now. Log it again in a few days and the line starts to draw itself.',
     noWeightTitle: 'No weight logged yet',
@@ -70,6 +78,10 @@ export const progress = {
     tabCalories: 'Calorías',
     tabMacros: 'Macros',
     weightUnit: 'kg',
+    macroLabel: { PROTEIN: 'Proteína', CARB: 'Carbohidrato', FAT: 'Grasa' },
+    window: { d7: '7 días', d30: '30 días', d90: '90 días' },
+    windowLabel: 'Período',
+    weekOf: 'Semana del {{date}}',
     firstWeightText:
       'Ese es tu peso de ahora. Regístralo otra vez en unos días y la línea empieza a dibujarse.',
     noWeightTitle: 'Aún no hay peso registrado',
@@ -100,6 +112,10 @@ export const progress = {
     tabCalories: 'Calories',
     tabMacros: 'Macros',
     weightUnit: 'kg',
+    macroLabel: { PROTEIN: 'Protéines', CARB: 'Glucides', FAT: 'Lipides' },
+    window: { d7: '7 jours', d30: '30 jours', d90: '90 jours' },
+    windowLabel: 'Période',
+    weekOf: 'Semaine du {{date}}',
     firstWeightText:
       'C’est ton poids du moment. Réenregistre-le dans quelques jours et la courbe commence à se dessiner.',
     noWeightTitle: 'Aucun poids enregistré pour l’instant',

@@ -34,11 +34,16 @@ export const profileQueries = {
       retry: false,
     }),
 
-  /** Only the weight history is read here; the chart itself lives on the progress screen. */
+  /**
+   * Only the weight history is read here; the chart itself lives on the progress screen.
+   *
+   * The seven-day window on purpose, and the same key the progress screen uses for it, so
+   * the two screens share one cached response instead of each fetching its own.
+   */
   progress: () =>
     queryOptions({
-      queryKey: ['progress'],
-      queryFn: getProgress,
+      queryKey: ['progress', 7],
+      queryFn: () => getProgress(7),
     }),
 
   /** Read for the lifetime points behind the creature's level, not for the scoreboard. */

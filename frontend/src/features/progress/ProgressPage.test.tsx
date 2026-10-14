@@ -1,6 +1,6 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import { http } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import { ProgressPage } from './ProgressPage'
 
@@ -94,5 +94,57 @@ describe('ProgressPage weight form', () => {
     await user.click(submitButton())
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Erro interno')
+  })
+})
+
+describe('ProgressPage in another language', () => {
+  /**
+   * Both numbers on this screen were formatted with pt-BR hardcoded, so an English reader
+   * saw "78,5 kg" and "01 de set." while the dashboard beside it wrote "78.5". The point of
+   * these two tests is the comparison: the same fixture, rendered in two languages, has to
+   * come out differently.
+   *
+   * The language is switched after the render, not before, because renderWithProviders
+   * forces pt on purpose: jsdom reports en-US and every other test reads its expected text
+   * through i18n.t. Switching afterwards is also what actually happens in the product, when
+   * somebody changes the language in the settings.
+   */
+  const halfKilo = {
+    ...progressFixture,
+    weights: [
+      { date: '2026-09-01', weightKg: 79 },
+      { date: '2026-09-07', weightKg: 78.5 },
+    ],
+  }
+
+  async function mountIn(language: string) {
+    server.use(http.get(path('/progress'), () => ok(halfKilo)))
+    const r = renderWithProviders(<ProgressPage />)
+    await screen.findAllByText(/kg/)
+    await act(async () => {
+      await i18n.changeLanguage(language)
+    })
+    return r
+  }
+
+  afterEach(async () => {
+    await i18n.changeLanguage('pt')
+  })
+
+  it('writes the weight and the date the Brazilian way in Portuguese', async () => {
+    await mountIn('pt')
+
+    expect(screen.getByText(/78,5/)).toBeInTheDocument()
+    // The caption under the chart, which is the one that carries the first weighing's date.
+    expect(screen.getAllByText(/01 de set\./).length).toBeGreaterThan(0)
+  })
+
+  it('writes them the English way in English', async () => {
+    await mountIn('en')
+
+    // A full stop rather than a comma, and the month before the day.
+    expect(screen.getByText(/78\.5/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Sep 01/).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/01 de set\./)).not.toBeInTheDocument()
   })
 })
